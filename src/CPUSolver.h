@@ -33,7 +33,7 @@
 #define track_leakage(pe) (track_leakage[(pe)])
 
 
-/* Structure containing the info to send about a track */
+/* Structure containing the info to send about a track(Used in printCycle) */
 struct sendInfo {
   long track_id;
   int domain;
@@ -57,7 +57,7 @@ protected:
   omp_lock_t* _FSR_locks;
 
 #ifdef MPIx
-  /* Size of message when communicating track angular fluxes at interfaces */
+  /* Message size of a track when communicating angular fluxes at interfaces */
   int _track_message_size;
 
   /* Buffer to send track angular fluxes and associated information */
@@ -72,7 +72,7 @@ protected:
   /* Vector of vectors containing the connecting track id and direction */
   std::vector<std::vector<long> > _track_connections;
 
-  /* Domains neighboring local domain */
+  /* Rank of domains neighboring local domain */
   std::vector<int> _neighbor_domains;
 
   /* Array to check whether MPI communications are finished */

@@ -349,8 +349,8 @@ void TransportKernel::setDirection(bool direction) {
  * @param track_idx id of the track
  * @param cmfd_surface_fwd CMFD surface at the end of the segment in the forward 
  *        direction
- * @param cmfd_surface_bwd CMFD surface at the end of the segment in the backward
- *        direction
+ * @param cmfd_surface_bwd CMFD surface at the end of the segment in the 
+ *        backward direction
  * @param x_start x coordinate of the start of the segment
  * @param y_start y coordinate of the start of the segment
  * @param z_start z coordinate of the start of the sement

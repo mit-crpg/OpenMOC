@@ -397,7 +397,7 @@ void CPUSolver::copyBoundaryFluxes() {
 
 
 /**
- * @brief Computes the total current impingent on boundary CMFD cells from
+ * @brief Computes the total current impingment on boundary CMFD cells from
  *        starting angular fluxes
  */
 //FIXME: make suitable for 2D
@@ -2245,12 +2245,11 @@ void CPUSolver::printInputParamsSummary() {
 
 
 /**
- * @brief A function that prints fsr fluxes that lies within a rectangle around
- *        a point.
- * @param dim1 dimensions of the rectangle in the first direction
- * @param dim2 dimensions of the rectangle in the second direction
- * @param offset center of the rectangle
- * @param plane 'xy', 'xz' or 'yz' the plane in which the rectangle lies
+ * @brief A function that prints the source region(SR) fluxes of a mesh grid
+ * @param dim1 coordinates of the mesh grid in the first direction
+ * @param dim2 coordinates of the mesh grid in  in the second direction
+ * @param offset The location of the mesh grid on the perpendicular axis
+ * @param plane 'xy', 'xz' or 'yz' the plane in which the mesh grid lies
  */
 void CPUSolver::printFSRFluxes(std::vector<double> dim1,
                                std::vector<double> dim2,
@@ -2317,7 +2316,7 @@ void CPUSolver::printFSRFluxes(std::vector<double> dim1,
         for (int j=0; j<dim2.size(); j++) {
           int r = i + j*dim1.size();
           double flux = total_fluxes.at(r) / num_contains_coords.at(r);
-          log_printf(NORMAL, "(%d, %d) -> %f", dim1.at(i), dim2.at(j), flux);
+          log_printf(NORMAL, "(%d, %d) -> %f", i, j, flux);
         }
       }
     }
@@ -2359,7 +2358,7 @@ void CPUSolver::printFluxesTemp() {
 
 /**
  * @brief A function that prints the number of FSRs with negative sources in 
- *        the whole geometry, subdivided in a 3D lattice.
+ *        each grid mesh subdivided by a 3D lattice and in each energy group
  * @param iteration the current iteration
  * @param num_x number of divisions in X direction
  * @param num_y number of divisions in Y direction

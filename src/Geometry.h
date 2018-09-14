@@ -163,7 +163,7 @@ private:
   /* A boolean to know whether geometry is domain decomposed or not */
   bool _domain_decomposed;
   
-  /* A boolean to know whether FSRs where counted */
+  /* A boolean to know whether FSRs were counted */
   bool _domain_FSRs_counted;
   
   /* Number of domains in the X, Y and Z directions */
@@ -188,7 +188,8 @@ private:
   MPI_Comm _MPI_cart;
 #endif
 
-  /* Number of modular track laydowns within a domain, in the X, Y and Z directions */
+  /* Number of modular track laydowns within a domain, in the X, Y and 
+     Z directions */
   int _num_modules_x;
   int _num_modules_y;
   int _num_modules_z;

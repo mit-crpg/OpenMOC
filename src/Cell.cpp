@@ -299,7 +299,7 @@ double* Cell::getRotationMatrix() {
  * @param units the angular units in "radians" or "degrees" (default)
  */
 void Cell::retrieveRotation(double* rotations, int num_axes,
-			    std::string units) {
+          std::string units) {
   if (num_axes != 3)
     log_printf(ERROR, "Unable to get rotation with %d axes for Cell %d. "
                "The rotation array should be length 3.", num_axes, _id);
@@ -1500,7 +1500,7 @@ void Cell::buildNeighbors() {
   Surface* surface;
   int halfspace;
 
-  /* Add this Cell to all of this Cell's Surfaces's neighbor lists */
+  /* Add this Cell to the neighbor lists of all this cell's surfaces */
   std::map<int, surface_halfspace*>::iterator iter;
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
     surface = iter->second->_surface;

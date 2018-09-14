@@ -1490,7 +1490,7 @@ void Cmfd::allocateTallies() {
   int num_cells = _num_x * _num_y * _num_z;
   int local_num_cells = _local_num_x * _local_num_y * _local_num_z;
   int tally_size = local_num_cells * _num_cmfd_groups;
-  int _total_tally_size = 3 * tally_size;
+  _total_tally_size = 3 * tally_size;
   _tally_memory = new CMFD_PRECISION[_total_tally_size];
   CMFD_PRECISION** all_tallies[3];
   for (int t=0; t < 3; t++) {
@@ -2163,8 +2163,9 @@ int Cmfd::getBoundary(int side) {
  * @details Note that a CMFD cell is not an actual Cell object; rather, a CMFD
  *          cell is just a way of describing each of the rectangular regions
  *          that make up a CMFD lattice. CMFD cells are numbered with 0 in the
- *          lower left corner and monotonically increasing from left to right.
- *          from left to right. For example, he indices for a 4 x 4 lattice are:
+ *          lower left corner and monotonically increasing from left to right,
+ *          from bottom to top. For example, the indices for a 4 x 4 lattice 
+ *          are:
  *                  12  13  14  15
  *                  8    9  10  11
  *                  4    5   6   7
@@ -2215,7 +2216,7 @@ int Cmfd::convertGlobalFSRIdToCmfdCell(long global_fsr_id) {
     if (rank == domain)
       temp_cmfd_cell = convertFSRIdToCmfdCell(fsr_id);
 
-    /* Broadcast the centroid */
+    /* Broadcast the temp_cmfd_cell */
     MPI_Allreduce(&temp_cmfd_cell, &cmfd_cell, 1, MPI_INT, MPI_SUM, comm);
   }
 #endif
@@ -2273,7 +2274,7 @@ void Cmfd::setConvergenceData(ConvergenceData* convergence_data) {
 
 
 /**
- * @brief Set flag indicating whether to use axial interpolation for update
+ * @brief Set the flag indicating whether to use axial interpolation for update
  *        ratios
  * @param interpolate flag saying whether to use axial interpolation.
  */
@@ -3077,7 +3078,7 @@ void Cmfd::initialize() {
                           _local_num_x * _local_num_z,
                           _local_num_x * _local_num_y};
 
-      /* Count number of cells at each face of the domain */
+      /* Count total number of cells at all faces of the domain */
       int num_boundary_cells = 0;
       for (int s=0; s < NUM_FACES; s++)
         num_boundary_cells += num_per_side[s % 3];
@@ -4047,9 +4048,9 @@ void Cmfd::ghostCellExchange() {
   for (int coord=0; coord < 3; coord++) {
     for (int d=0; d<2; d++) {
 
-      int dir = 2*d-1;
+      int dir = 2*d - 1;
       int surf = coord + 3*d;
-            int op_surf = surf - 3*dir;
+      int op_surf = surf - 3*dir;
       int source, dest;
 
       // Figure out serialized buffer length for this face
@@ -4544,7 +4545,7 @@ void Cmfd::printProlongationFactors(int iteration) {
     }
 #endif
 
-    /* Print negative source distribution to file */
+    /* Print prolongation factors distribution to file */
     if (_geometry->isRootDomain()) {
       long long iter = iteration;
       long long group = e;
@@ -4657,7 +4658,7 @@ void Cmfd::tallyStartingCurrent(Point* point, double delta_x, double delta_y,
 
 
 /**
- * @param Records net currents (leakage) on every CMFD cell for every group
+ * @brief Records net currents (leakage) on every CMFD cell for every group
  */
 void Cmfd::recordNetCurrents() {
 
