@@ -422,8 +422,8 @@ std::map<int, Surface*> Geometry::getAllSurfaces() {
       surfs = cell->getSurfaces();
 
       for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
-    surf = (*s_iter).second->_surface;
-    all_surfs[surf->getId()] = surf;
+        surf = (*s_iter).second->_surface;
+        all_surfs[surf->getId()] = surf;
       }
     }
   }
@@ -1585,7 +1585,7 @@ void Geometry::getFSRKeyFast(LocalCoords* coords, std::string& key) {
 
 
 //FIXME Find a better way to do this, without a function call
-/**
+/**Using std::stringstream would be more clear.
  * @brief Get the number of digits in base 10 of a number
  * @param number the number of interest
  * @return the number of digits in base 10 of a number
@@ -1604,7 +1604,7 @@ int Geometry::getNumDigits(int number) {
 
 
 //FIXME Find a better way to do this, without a function call
-/**
+/**Using std::stringstream would be more clear.
  * @brief Print a number to a given String.
  * @param str the string to print to
  * @param index the last index in that string
@@ -1628,10 +1628,10 @@ void Geometry::printToString(std::string& str, int& index, int value) {
 }
 
 
-//FIXME OLD
 /**
- * @brief Generate a string FSR "key" that identifies an FSR by its
- *        unique hierarchical lattice/universe/cell structure.
+ * @brief Generate a string FSR "key" for the FSR where the point reside in. A 
+          string FSR "key" identifies an FSR by its unique hierarchical
+ *        lattice/universe/cell structure.
  * @details Since not all FSRs will reside on the absolute lowest universe
  *          level and Cells might overlap other cells, it is important to
  *          have a method for uniquely identifying FSRs. This method
@@ -2642,11 +2642,11 @@ void Geometry::computeFissionability(Universe* univ) {
 
   Material* material;
   std::map<int, Material*> materials;
-    std::map<int, Material*>::iterator mat_iter;
+  std::map<int, Material*>::iterator mat_iter;
 
   Universe* universe;
   std::map<int, Universe*> universes;
-    std::map<int, Universe*>::iterator univ_iter;
+  std::map<int, Universe*>::iterator univ_iter;
 
   /* If no Universe was passed in as an argument, then this is the first
    * recursive call from a user via Python, so get the base Universe */
@@ -3395,7 +3395,7 @@ std::vector<double> Geometry::getUniqueZHeights(bool include_overlaid_mesh) {
  *        in the Geometry
  * @details The Geometry is traversed to retrieve all Z-planes and implicit
  *          z-boundaries, such as lattice boundaries. The mid points of this
- *          mesh are then used to construcut a vector of all potential unique
+ *          mesh are then used to construct a vector of all potential unique
  *          radial planes and returned to the user.
  * @return a vector of z-coords
  */

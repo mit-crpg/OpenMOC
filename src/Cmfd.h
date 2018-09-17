@@ -290,7 +290,7 @@ private:
   /* Size of _tally_memory array */
   long _total_tally_size;
   
-  /* 1D array that contains all tallies */
+  /* 1D array that contains all tallies (diffusion, reaction and volume) */
   CMFD_PRECISION* _tally_memory;
   
   /* 2D array that contains reaction rates in each cell and group */

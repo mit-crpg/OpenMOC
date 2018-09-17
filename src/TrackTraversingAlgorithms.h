@@ -259,7 +259,7 @@ public:
  *        "src/TrackTraversingAlgorithms.h"
  * @brief A class used to ray trace and apply the MOC transport equations 
  *        simultaneously On-The-Fly.
- * @details TransportSweepOTF uses at track generator and a CPUSolver to solve
+ * @details TransportSweepOTF uses a track generator and a CPUSolver to solve
  *          the ray-trace and solve the MOC equations at the same time. 
  *          NOT FULLY IMPLEMENTED //TODO
  */
@@ -281,10 +281,11 @@ public:
 /**
  * @class RecenterSegments TrackTraversingAlgorithms.h
  *        "src/TrackTraversingAlgorithms.h"
- * @brief A class used to recenter Segments once their centroid is known.
- * @details PrintSegments imports Track data from the provided TrackGenerator
- *          and loops through segments to re-center them once their centroid has
- *          been computed. This is important to use the linear source with 
+ * @brief A class used to recenter Segments once their related FSR centroid is 
+ *        known.
+ * @details RecenterSegments imports Track data from the provided TrackGenerator
+ *          and loops through segments to re-center them once their FSR centroid
+ *          has been computed. This is important to use the linear source with 
  *          explicit ray tracing.
  */
 class RecenterSegments: public TraverseSegments {

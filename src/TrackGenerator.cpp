@@ -1311,7 +1311,8 @@ void TrackGenerator::dumpSegmentsToFile() {
 
 
 /**
- * @brief Write information about an Extruded FSR. //TODO Use implementation in 3D track generator
+ * @brief Write information of all Extruded FSRs to a file 
+ //TODO Use implementation in 3D track generator
  * @param out file to write to
  */
 void TrackGenerator::writeExtrudedFSRInfo(FILE* out) {}
@@ -1443,7 +1444,7 @@ bool TrackGenerator::readSegmentsFromFile() {
 
 
 /**
- * @brief Read information about an Extruded FSR.
+ * @brief Read information of all Extruded FSRs from a file.
  * @param in file to read from
  */
 void TrackGenerator::readExtrudedFSRInfo(FILE* in) {}

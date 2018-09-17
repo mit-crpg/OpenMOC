@@ -528,9 +528,9 @@ Cell* Universe::findCell(LocalCoords* coords) {
         /* Apply translation to position in the next coords */
         if (cell->isTranslated()){
           double* translation = cell->getTranslation();
-          double new_x = coords->getX() + translation[0];
-          double new_y = coords->getY() + translation[1];
-          double new_z = coords->getZ() + translation[2];
+          double new_x = coords->getX() - translation[0];
+          double new_y = coords->getY() - translation[1];
+          double new_z = coords->getZ() - translation[2];
           next_coords->setX(new_x);
           next_coords->setY(new_y);
           next_coords->setZ(new_z);

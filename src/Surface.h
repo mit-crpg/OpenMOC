@@ -106,7 +106,7 @@ public:
 
   /**
    * @brief Returns the minimum coordinate in the axis direction of the
-   *        surface
+   *        space defined by halfspace and this surface 
    * @param axis The axis of interest (0 = x, 1 = y, 2 = z)
    * @param halfspace the halfspace to consider
    * @return the minimum coordinate in the axis direction
@@ -116,7 +116,7 @@ public:
 
   /**
  * @brief Returns the maximum coordinate in the axis direction of the
-   *        surface
+   *      space defined by halfspace and this surface 
    * @param axis The axis of interest (0 = x, 1 = y, 2 = z)
    * @param halfspace the halfspace to consider
    * @return the maximum coordinate in the axis direction
