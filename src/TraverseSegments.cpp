@@ -930,7 +930,15 @@ int TraverseSegments::findMeshIndex(double* values, int size,
 }
 
 
-//FIXME
+/**
+ * @brief Loops over all 3D Tracks using axial on-the-fly ray tracking by
+ *        z-stack, going forward then backward on each 3D Track.
+ * @details The onTrack(...) function is applied to all 3D Tracks and the
+ *          specified kernel is applied to all segments. If NULL is provided
+ *          for the kernel, only the onTrack(...) functionality is applied.
+ * @param kernel The TransportKernel dictating the functionality to apply to
+ *        segments
+ */
 void TraverseSegments::loopOverTracksByStackTwoWay(TransportKernel* kernel) {
 
   if (_segment_formation != OTF_STACKS)
@@ -983,7 +991,7 @@ void TraverseSegments::loopOverTracksByStackTwoWay(TransportKernel* kernel) {
 /**
  * @brief Traces the 3D segments of 3D Tracks in a z-stack both forward and
  *        backward across the geometry, applying the kernel provided by the
- *        user when the segment information is calcuated.
+ *        user when the segment information is calculated.
  * @details This function copies information of the 3D z-stack, ray traces the
  *          z-stack forward using TrackGenerator::traceStackOTF, then reverses
  *          the tracks so that they point backwards, and ray traces in the
@@ -994,7 +1002,7 @@ void TraverseSegments::loopOverTracksByStackTwoWay(TransportKernel* kernel) {
  * @param polar_index the polar index of the 3D Track z-stack
  * @param kernel The TransportKernel applied to the calculated 3D segments
  */
-//FIXME
+//FIXME debug
 void TraverseSegments::traceStackTwoWay(Track* flattened_track, int polar_index,
                                         TransportKernel* kernel) {
 

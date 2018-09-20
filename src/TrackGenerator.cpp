@@ -1310,7 +1310,11 @@ void TrackGenerator::dumpSegmentsToFile() {
 }
 
 
-//FIXME
+/**
+ * @brief Write information of all Extruded FSRs to a file 
+ //TODO Use implementation in 3D track generator
+ * @param out file to write to
+ */
 void TrackGenerator::writeExtrudedFSRInfo(FILE* out) {}
 
 
@@ -1439,7 +1443,10 @@ bool TrackGenerator::readSegmentsFromFile() {
 }
 
 
-//FIXME
+/**
+ * @brief Read information of all Extruded FSRs from a file.
+ * @param in file to read from
+ */
 void TrackGenerator::readExtrudedFSRInfo(FILE* in) {}
 
 
@@ -1625,7 +1632,13 @@ void TrackGenerator::resetStatus() {
 void TrackGenerator::allocateTemporarySegments() {}
 
 
-//FIXME: description
+/**
+ * @brief Get the id of a 2D Track based on its azimuthal angle and index in the
+ *        azimuthal stack
+ * @param a azimuthal angle of the Track
+ * @param x index in azimuthal stack
+ * @return Track unique id
+ */
 int TrackGenerator::get2DTrackID(int a, int x) {
 
   int uid = 0;

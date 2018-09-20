@@ -77,7 +77,7 @@ protected:
   void loopOverTracks(MOCKernel* kernel);
   virtual void onTrack(Track* track, segment* segments) = 0;
 
-  //FIXME
+  //FIXME Rework function calls to make this private
   void loopOverTracksByStackTwoWay(TransportKernel* kernel);
 
   /* Returns a kernel of the requested type */

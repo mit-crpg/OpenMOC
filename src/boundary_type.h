@@ -22,7 +22,7 @@ enum boundaryType {
   /** A periodic boundary condition */
   PERIODIC,
 
-  // FIXME
+  /* Boundary between two domains (only in domain-decomposed geometry) */
   INTERFACE,
 
   /** No boundary type (typically an interface between flat source regions) */

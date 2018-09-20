@@ -908,7 +908,14 @@ void TrackGenerator3D::initialize2DTrackChains() {
 }
 
 
-//FIXME: description
+/**
+ * @brief Save or initialize 3D tracks by traversing all the 3D chain tracks,
+ *        and split each 3D chain track into 3D tracks belonging to 
+ *        the z-stacks.
+ * @param tcis array of Track chain indexes, sorted by chain
+ * @param num_chains number of 3D Track chains to examine
+ * @param save_tracks whether saving tracks or initializing them
+ */
 void TrackGenerator3D::getCycleTrackData(TrackChainIndexes* tcis,
                                          int num_chains, bool save_tracks) {
 
@@ -942,7 +949,14 @@ void TrackGenerator3D::getCycleTrackData(TrackChainIndexes* tcis,
 }
 
 
-//FIXME: description
+/**
+ * @brief Compute the starting coordinates of a 3D chain track, and the link 
+          number of the 2D track where its start point reside on
+ * @param tci the track chain index of a chain track
+ * @param track_3D the chain track
+ * @return the link number of the 2D track where the track_3D start point 
+ *         reside on
+ */
 int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
                                                Track3D* track_3D) {
 
@@ -1030,26 +1044,17 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
 
 
 /**
- * @brief A 3D Track is decomposed by intersections with x and y boundaries
+ * @brief A 3D Track is decomposed by intersections with x and y boundaries of 
+ *        z-stacks
  * @details A 3D Track which initially neglects intersections with x and y
  *          boundaries is split into multiple tracks by finding those
- *          x and y intersections. If create_tracks is set to true, the Tracks
- *          will be altered to represent the correct 3D Tracks. If not, the
- *          number of tracks in the train will simply be counted. Whenever this
- *          function is called, the number of tracks in the associated z-stacks
- *          are incremented.
+ *          x and y intersections. If create_arrays is True, the number of 
+ *          tracks in the associated z-stacks is incremented. 
+ * @param tci pointer to a track chain index representing a chain track
  * @param track The 3D track to be decomposed
- * @param l_start The distance accross the radial or "l" direction to where the
- *        track starts
- * @param l_end The distance accross the radial or "l" direction to where the
- *        track end
- * @param azim The azimuthal index of the track
- * @param chain The chain index of the track
- * @param polar The polar index of the track
- * @param lz_index The lz index into the Track3D cycles array
- * @param create_tracks Boolean value determining whether to create the
- *        associated decomposed tracks (true) or simply count them (false)
- //FIXME: description
+ * @param create_arrays whether creating the stack array of Tracks
+ * @param save_tracks whether to save the Track3D or just initialize it. It may
+ *        only be true for EXPLICIT_3D ray tracing.
  */
 void TrackGenerator3D::set3DTrackData(TrackChainIndexes* tci,
                                       Track3D* track,
@@ -1667,7 +1672,10 @@ void TrackGenerator3D::getTrackOTF(Track3D* track, TrackStackIndexes* tsi) {
 }
 
 
-//FIXME
+/**
+ * @brief Get the array of 3D Tracks, only used in EXPLICT-3D ray tracing.
+ * @return a pointer to the array of 3D Tracks
+ */
 Track3D**** TrackGenerator3D::get3DTracks() {
   return _tracks_3D;
 }
@@ -2333,7 +2341,10 @@ void TrackGenerator3D::getTSIByIndex(long id, TrackStackIndexes* tsi) {
 }
 
 
-//FIXME
+/**
+ * @brief Write information of all Extruded FSRs to a file.
+ * @param out file to write to
+ */
 void TrackGenerator3D::writeExtrudedFSRInfo(FILE* out) {
 
   /* Module to write track info */
@@ -2402,6 +2413,10 @@ void TrackGenerator3D::writeExtrudedFSRInfo(FILE* out) {
 }
 
 
+/**
+ * @brief Read information of all Extruded FSRs from a file.
+ * @param in file to read from
+ */
 void TrackGenerator3D::readExtrudedFSRInfo(FILE* in) {
   
   /* Module to read track info */

@@ -299,7 +299,7 @@ double* Cell::getRotationMatrix() {
  * @param units the angular units in "radians" or "degrees" (default)
  */
 void Cell::retrieveRotation(double* rotations, int num_axes,
-			    std::string units) {
+                            std::string units) {
   if (num_axes != 3)
     log_printf(ERROR, "Unable to get rotation with %d axes for Cell %d. "
                "The rotation array should be length 3.", num_axes, _id);
@@ -889,6 +889,7 @@ void Cell::incrementVolume(double volume) {
 void Cell::setNumInstances(int num_instances) {
   _num_instances = num_instances;
 }
+
 
 /**
  * @brief Set the Cell's rotation angles about the x, y and z axes.
@@ -1499,7 +1500,7 @@ void Cell::buildNeighbors() {
   Surface* surface;
   int halfspace;
 
-  /* Add this Cell to all of the Surfaces in this Cell */
+  /* Add this Cell to the neighbor lists of all this cell's surfaces */
   std::map<int, surface_halfspace*>::iterator iter;
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
     surface = iter->second->_surface;
@@ -1572,7 +1573,10 @@ void Cell::printString() {
 }
 
 
-//FIXME
+/**
+ * @brief Obtain and return the number of ZCylinders in the cell's surfaces
+ * @return the number of ZCylinders used to define this cell's region
+ */
 int Cell::getNumZCylinders() {
 
   std::map<int, surface_halfspace*>::iterator iter1;

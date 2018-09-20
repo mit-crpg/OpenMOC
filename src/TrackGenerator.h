@@ -57,7 +57,7 @@ protected:
    *  azimuthal angle */
   int* _num_y;
 
-  //FIXME: description
+  /** A long integer array of the number of Tracks for each azimuthal angle */ 
   long* _tracks_per_azim;
 
   /** A 2D ragged array of 2D tracks (azim, track index) */
