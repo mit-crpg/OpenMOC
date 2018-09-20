@@ -2316,7 +2316,8 @@ void CPUSolver::printFSRFluxes(std::vector<double> dim1,
         for (int j=0; j<dim2.size(); j++) {
           int r = i + j*dim1.size();
           double flux = total_fluxes.at(r) / num_contains_coords.at(r);
-          log_printf(NORMAL, "(%d, %d) -> %f", dim1.at(i), dim2.at(j), flux);
+          log_printf(NORMAL, "(%d: %f, %d: %f) -> %f", i, dim1.at(i), j, 
+                     dim2.at(j), flux);
         }
       }
     }
