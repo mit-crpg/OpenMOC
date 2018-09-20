@@ -606,8 +606,8 @@ std::string create_multiline_msg(std::string level, std::string message) {
 
 
 /**
- * @brief Set the rank of current domain in the communicator. Only rank 0 print 
- *        to stdout or a logfile.
+ * @brief Set the rank of current domain in the communicator. Only rank 0 print
+ *        to stdout or a logfile, except for prints with log_level NODAL.
  * @param comm a MPI communicator to transfer data with
  */
 #ifdef MPIx

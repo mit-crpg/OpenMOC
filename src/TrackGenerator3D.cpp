@@ -951,11 +951,11 @@ void TrackGenerator3D::getCycleTrackData(TrackChainIndexes* tcis,
 
 /**
  * @brief Compute the starting coordinates of a 3D chain track, and the link 
-          number of the 2D track where its start point reseide on
+          number of the 2D track where its start point reside on
  * @param tci the track chain index of a chain track
  * @param track_3D the chain track
  * @return the link number of the 2D track where the track_3D start point 
- * reseide on
+ *         reside on
  */
 int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
                                                Track3D* track_3D) {
@@ -1049,12 +1049,12 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
  * @details A 3D Track which initially neglects intersections with x and y
  *          boundaries is split into multiple tracks by finding those
  *          x and y intersections. If create_arrays is True, the number of 
- *          tracks in the associated z-stacks is incremented. Only for 
- *          EXPLICT_3D ray tracing, save_tracks might be true.
+ *          tracks in the associated z-stacks is incremented. 
  * @param tci pointer to a track chain index representing a chain track
  * @param track The 3D track to be decomposed
  * @param create_arrays whether creating the stack array of Tracks
- * @param save_tracks whether to save the Track3D or just initialize it
+ * @param save_tracks whether to save the Track3D or just initialize it. It may
+ *        only be true for EXPLICIT_3D ray tracing.
  */
 void TrackGenerator3D::set3DTrackData(TrackChainIndexes* tci,
                                       Track3D* track,
