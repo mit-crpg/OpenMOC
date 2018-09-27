@@ -676,6 +676,22 @@ void Geometry::setDomainDecomposition(int nx, int ny, int nz, MPI_Comm comm) {
     _num_domains_y = ny;
     _num_domains_z = nz;
 
+    /* Check that CMFD mesh is compatible with domain decomposition */
+    if (_cmfd != NULL) {
+      if (_cmfd->getNumX() % _num_domains_x != 0)
+        log_printf(ERROR, "CMFD mesh is incompatible with domain decomposition"
+                   " in the X direction, make sure the mesh aligns with domain"
+                   " boundaries");
+      if (_cmfd->getNumY() % _num_domains_z != 0)
+        log_printf(ERROR, "CMFD mesh is incompatible with domain decomposition"
+                   " in the Y direction, make sure the mesh aligns with domain"
+                   " boundaries");
+      if (_cmfd->getNumZ() % _num_domains_z != 0)
+        log_printf(ERROR, "CMFD mesh is incompatible with domain decomposition"
+                   " in the Z direction, make sure the mesh aligns with domain"
+                   " boundaries");
+    }
+
     /* Create the MPI Communicator */
     int dims[3] = {nx, ny, nz};
     int wrap[3] = {false, false, false};
