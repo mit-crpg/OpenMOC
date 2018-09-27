@@ -994,7 +994,7 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
   /* If the start point is on a double reflection, nudge it to avoid track
    * with the same start and end points */
   bool nudged = false;
-  if (l_start != 0.0) {
+  if (fabs(l_start) > FLT_EPSILON) {
     if (fabs(int(round(x_ext / width_x)) * width_x - x_ext) < TINY_MOVE ||
         fabs(int(round(y_ext / width_y)) * width_y - y_ext) < TINY_MOVE) {
       l_start += TINY_MOVE * 10;

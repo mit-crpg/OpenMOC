@@ -1335,13 +1335,13 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
     log_printf(NORMAL, "Unable to ringify Cell %d since it "
                "contains more than 2 ZCYLINDER Surfaces", _id);
 
-  if (x1 != x2 && num_zcylinders == 2)
+  if (fabs(x1 - x2) > FLT_EPSILON && num_zcylinders == 2)
     log_printf(ERROR, "Unable to ringify Cell %d since it contains "
                "ZCylinder %d centered at x=%f and ZCylinder %d at x=%f. "
                "Both ZCylinders must have the same center.",
                _id, zcylinder1->getId(), x1, zcylinder2->getId(), x2);
 
-  if (y1 != y2 && num_zcylinders == 2)
+  if (fabs(y1 - y2) > FLT_EPSILON && num_zcylinders == 2)
     log_printf(ERROR, "Unable to ringify Cell %d since it contains "
                "ZCylinder %d centered at y=%f and ZCylinder %d at y=%f. "
                "Both ZCylinders must have the same center.",
@@ -1368,7 +1368,8 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
     increment = fabs(radius1 - radius2) / _num_rings;
   
     /* Heuristic to improve area-balancing for low number of rings */
-    if (halfspace1 == 0 && radius1 == max_radius && _num_rings < 3)
+    if (halfspace1 == 0 && fabs(radius1 - max_radius) < FLT_EPSILON
+        && _num_rings < 3)
       increment = 1.5 * (radius1 - radius2) / _num_rings;
   }
 

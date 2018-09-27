@@ -518,7 +518,7 @@ void Cmfd::collapseXS() {
       }
 
       /* Set chi */
-      if (neutron_production_tally != 0.0) {
+      if (fabs(neutron_production_tally) > FLT_EPSILON) {
 
         /* Calculate group-wise fission contriubtions */
         for (int e=0; e < _num_cmfd_groups; e++)
@@ -582,7 +582,8 @@ void Cmfd::collapseXS() {
                   scat[g*_num_moc_groups+h] * flux * volume;
             }
           }
-          if (rxn_tally_group != 0 && trans_tally_group != 0) {
+          if (fabs(rxn_tally_group) > FLT_EPSILON && 
+              fabs(trans_tally_group) > FLT_EPSILON) {
             CMFD_PRECISION flux_avg_sigma_t = trans_tally_group /
                 rxn_tally_group;
             _diffusion_tally[i][e] += rxn_tally_group /
@@ -593,7 +594,7 @@ void Cmfd::collapseXS() {
         /* Save cross-sections to material */
         double rxn_tally = _reaction_tally[i][e];
 
-        if (rxn_tally == 0.0) {
+        if (fabs(rxn_tally) < FLT_EPSILON) {
           log_printf(WARNING, "Zero reaction tally calculated in CMFD cell %d "
                      "in CMFD group %d", i, e);
           rxn_tally = ZERO_SIGMA_T;
@@ -913,7 +914,7 @@ double Cmfd::computeKeff(int moc_iteration) {
 
   /* Try to use a few-group solver to remedy convergence issues */
   bool reduced_group_solution = false;
-  if (k_eff == -1 && _num_cmfd_groups > _num_backup_groups) {
+  if (fabs(k_eff + 1) < FLT_EPSILON && _num_cmfd_groups > _num_backup_groups) {
 
     log_printf(NORMAL, "Switching to a %d group CMFD solver on this iteration",
                _num_backup_groups);
@@ -931,7 +932,7 @@ double Cmfd::computeKeff(int moc_iteration) {
   _timer->recordSplit("Total solver time");
 
   /* Check for a legitimate solve */
-  if (k_eff != -1)
+  if (fabs(k_eff + 1) > FLT_EPSILON)
     _k_eff = k_eff;
   else
     return _k_eff;
@@ -1319,7 +1320,7 @@ void Cmfd::setCMFDRelaxationFactor(double relaxation_factor) {
                       "Input value: %i", relaxation_factor);
 
   _relaxation_factor = relaxation_factor;
-  if (relaxation_factor != 1.0)
+  if (fabs(relaxation_factor - 1.0) > FLT_EPSILON)
     log_printf(NORMAL, "CMFD relaxation factor: %6.4f", _relaxation_factor);
 }
 
@@ -2327,7 +2328,7 @@ void Cmfd::enforceBalanceOnDiagonal(int cmfd_cell, int group) {
         _FSR_sources[fsr_id * _num_moc_groups + h];
   }
 
-  if (moc_source == 0.0)
+  if (fabs(moc_source) < FLT_EPSILON)
     moc_source = 1e-20;
 
   /* Compute updated value */
@@ -2705,7 +2706,8 @@ CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
   if (_use_axial_interpolation)
     interpolants = _axial_interpolants.at(fsr);
   if (_use_axial_interpolation && _local_num_z >= 3 && 
-    (interpolants[0] != 0 || interpolants[2] != 0)) {
+      (fabs(interpolants[0]) > FLT_EPSILON || 
+       fabs(interpolants[2]) > FLT_EPSILON)) {
     int z_ind = cell_id / (_local_num_x * _local_num_y);
     int cell_mid = cell_id;
     if (z_ind == 0)
@@ -2732,7 +2734,7 @@ CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
            interpolants[1] * new_flux_mid +
            interpolants[2] * new_flux_next;
 
-    if (old_flux != 0)
+    if (fabs(old_flux) > FLT_EPSILON)
       ratio = new_flux / old_flux;
 
     if (ratio < 0) {
@@ -2745,7 +2747,7 @@ CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
       if (z_ind < _num_z / 2) {
         old_flux = zc * (old_flux_mid - old_flux_prev) + old_flux_mid;
         new_flux = zc * (new_flux_mid - new_flux_prev) + new_flux_mid;
-        if (old_flux != 0)
+        if (fabs(old_flux) > FLT_EPSILON)
           ratio = new_flux / old_flux;
         else
           ratio = 0;
@@ -2753,7 +2755,7 @@ CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
       else {
         old_flux = zc * (old_flux_next - old_flux_mid) + old_flux_mid;
         new_flux = zc * (new_flux_next - new_flux_mid) + new_flux_mid;
-        if (old_flux != 0)
+        if (fabs(old_flux) > FLT_EPSILON)
           ratio = new_flux / old_flux;
         else
           ratio = 0;
@@ -2761,7 +2763,7 @@ CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
 
       /* Fallback: using the cell average flux ratio */
       if (ratio < 0) {
-        if (_old_flux->getValue(cell_id, group) != 0.0)
+        if (fabs(_old_flux->getValue(cell_id, group)) > FLT_EPSILON)
           ratio = _new_flux->getValue(cell_id, group) /
                   _old_flux->getValue(cell_id, group);
         else
@@ -2772,7 +2774,7 @@ CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
     return ratio;
   }
   else {
-    if (_old_flux->getValue(cell_id, group) != 0.0)
+    if (fabs(_old_flux->getValue(cell_id, group)) > FLT_EPSILON)
       return _new_flux->getValue(cell_id, group) /
               _old_flux->getValue(cell_id, group);
     else
@@ -4262,7 +4264,7 @@ void Cmfd::unpackSplitCurrents(bool faces) {
                     _received_split_currents[s][idx][f * _num_cmfd_groups + g];
 
                   /* Treat nonzero values */
-                  if (value != 0.0)
+                  if (fabs(value) > FLT_EPSILON)
                     _surface_currents->incrementValue(cell_id,
                                                       f * _num_cmfd_groups + g,
                                                       value);
@@ -4284,7 +4286,7 @@ void Cmfd::unpackSplitCurrents(bool faces) {
                     _received_split_currents[s][idx][e * _num_cmfd_groups + g];
 
                   /* Treat nonzero values */
-                  if (value != 0.0) {
+                  if (fabs(value) > FLT_EPSILON) {
 
                     /* Check for new index in map */
                     int new_ind = surf_idx + g;
@@ -4595,7 +4597,7 @@ void Cmfd::tallyStartingCurrent(Point* point, double delta_x, double delta_y,
   /* Check for non-zero current */
   bool non_zero = false;
   for (int e=0; e < _num_moc_groups; e++) {
-    if (track_flux[e] != 0.0) {
+    if (fabs(track_flux[e]) > FLT_EPSILON) {
       non_zero = true;
       break;
     }

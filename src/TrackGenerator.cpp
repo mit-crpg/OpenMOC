@@ -326,7 +326,7 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
 
   /* Check to ensure all FSRs are crossed by at least one track */
   for (long i=0; i < num_FSRs; i++) {
-    if (_FSR_volumes[i] == 0.0) {
+    if (fabs(_FSR_volumes[i]) < FLT_EPSILON) {
       log_printf(ERROR, "Zero volume calculated for FSR %d, point (%f, %f, %f)",
                  i, _geometry->getFSRPoint(i)->getX(),
                  _geometry->getFSRPoint(i)->getY(),
