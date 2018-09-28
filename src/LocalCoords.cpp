@@ -210,7 +210,7 @@ void LocalCoords::detectLoop() {
         log_printf(ERROR, "Infinite loop of coords");
   }
   log_printf(DEBUG, "The LocalCoords is: %s\n", toString().c_str());
-  log_printf(NORMAL, "The depth of the chain is %d \n", n);
+  log_printf(DEBUG, "The depth of the chain is %d \n", n);
 }
 
 

@@ -42,6 +42,15 @@ Geometry::Geometry() {
  * @brief Destructor clears FSR to Cells and Materials maps.
  */
 Geometry::~Geometry() {
+  
+  /* Free all materials */
+  if (_loaded_from_file) {
+    std::map<int, Material*> materials = _root_universe->getAllMaterials();
+    std::map<int, Material*>::iterator iter;
+    for (iter = materials.begin(); iter != materials.end(); ++iter)
+      delete iter->second;
+  }
+  
   /* Free all surfaces */
   if (_loaded_from_file) {
     std::map<int, Surface*> surfaces = getAllSurfaces();
@@ -415,8 +424,8 @@ std::map<int, Surface*> Geometry::getAllSurfaces() {
       surfs = cell->getSurfaces();
 
       for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
-  surf = (*s_iter).second->_surface;
-  all_surfs[surf->getId()] = surf;
+    surf = (*s_iter).second->_surface;
+    all_surfs[surf->getId()] = surf;
       }
     }
   }

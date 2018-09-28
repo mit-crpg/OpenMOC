@@ -299,7 +299,7 @@ double* Cell::getRotationMatrix() {
  * @param units the angular units in "radians" or "degrees" (default)
  */
 void Cell::retrieveRotation(double* rotations, int num_axes,
-          std::string units) {
+                            std::string units) {
   if (num_axes != 3)
     log_printf(ERROR, "Unable to get rotation with %d axes for Cell %d. "
                "The rotation array should be length 3.", num_axes, _id);
@@ -1422,8 +1422,10 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
           rings.push_back(ring);
           continue;
         }
-        else
+        else {
           ring->addSurface(+1, *(iter2+1));
+          ring->removeSurface(zcylinder2);
+        }
 
         /* Store the clone in the parent Cell's container of ring Cells */
         rings.push_back(ring);
@@ -1450,8 +1452,10 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
         rings.push_back(ring);
         break;
       }
-      else
+      else {
         ring->addSurface(+1, *(iter2+1));
+        ring->removeSurface(zcylinder2);
+      }
 
       /* Store the clone in the parent Cell's container of ring Cells */
       rings.push_back(ring);

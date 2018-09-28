@@ -617,7 +617,8 @@ std::string YPlane::toString() {
          << ", name = " << _name
          << ", type = YPLANE "
          << ", A = " << _A << ", B = " << _B
-         << ", C = " << _C << ", y = " << _y;
+         << ", C = " << _C << ", D = " << _D
+         << ", y = " << _y;
 
   return string.str();
 }
@@ -698,7 +699,8 @@ std::string ZPlane::toString() {
          << ", name = " << _name
          << ", type = ZPLANE "
          << ", A = " << _A << ", B = " << _B
-         << ", C = " << _C << ", z = " << _z;
+         << ", C = " << _C << ", D = " << _D
+         << ", z = " << _z;
 
   return string.str();
 }
