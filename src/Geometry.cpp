@@ -2987,6 +2987,23 @@ void Geometry::initializeCmfd() {
 
 #ifdef MPIx
   if (_domain_decomposed) {
+
+    /* Check that CMFD mesh is compatible with domain decomposition */
+    if (_cmfd != NULL) {
+      if (_cmfd->getNumX() % _num_domains_x != 0)
+        log_printf(ERROR, "CMFD mesh is incompatible with domain decomposition"
+                   " in the X direction, make sure the mesh aligns with domain"
+                   " boundaries");
+      if (_cmfd->getNumY() % _num_domains_z != 0)
+        log_printf(ERROR, "CMFD mesh is incompatible with domain decomposition"
+                   " in the Y direction, make sure the mesh aligns with domain"
+                   " boundaries");
+      if (_cmfd->getNumZ() % _num_domains_z != 0)
+        log_printf(ERROR, "CMFD mesh is incompatible with domain decomposition"
+                   " in the Z direction, make sure the mesh aligns with domain"
+                   " boundaries");
+    }
+
     _cmfd->setNumDomains(_num_domains_x, _num_domains_y, _num_domains_z);
     _cmfd->setDomainIndexes(_domain_index_x, _domain_index_y, _domain_index_z);
   }
