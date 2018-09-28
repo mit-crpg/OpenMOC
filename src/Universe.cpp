@@ -1606,7 +1606,7 @@ double Lattice::minSurfaceDist(Point* point, double azim, double polar) {
 
   /* Get the min distance for X PLANE  */
   double dist_x;
-  if (u_x != 0.0) {
+  if (fabs(u_x) > FLT_EPSILON) {
     double plane_x = lat_x * _width_x - _width_x*_num_x/2 + _offset.getX();
     dist_x = (plane_x - point->getX()) / u_x;
   }
@@ -1616,7 +1616,7 @@ double Lattice::minSurfaceDist(Point* point, double azim, double polar) {
 
   /* Get the min distance for Y PLANE  */
   double dist_y;
-  if (u_y != 0.0) {
+  if (fabs(u_y) > FLT_EPSILON) {
     double plane_y = lat_y * _width_y - _width_y*_num_y/2 + _offset.getY();
     dist_y = (plane_y - point->getY()) / u_y;
   }
@@ -1626,7 +1626,8 @@ double Lattice::minSurfaceDist(Point* point, double azim, double polar) {
 
   /* Get the min distance for Z PLANE  */
   double dist_z;
-  if (u_z != 0 && _width_z != std::numeric_limits<double>::infinity()) {
+  if (fabs(u_z) > FLT_EPSILON && 
+      _width_z != std::numeric_limits<double>::infinity()) {
     double plane_z = lat_z * _width_z - _width_z*_num_z/2 + _offset.getZ();
     dist_z = (plane_z - point->getZ()) / u_z;
   }

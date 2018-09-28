@@ -262,7 +262,7 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
               int row = row_start + g;
               x[row] = (1.0 - SOR_factor) * x[row];
 
-              if (DIAG[row] == 0)
+              if (fabs(DIAG[row]) < FLT_EPSILON )
                   log_printf(ERROR, "A zero has been found on the diagonal of "
                              "the CMFD matrix");
 
@@ -583,7 +583,7 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated, int it,
         new_source += X->getValue(i, g);
         old_source += Y->getValue(i, g);
       }
-      if (old_source != 0.0)
+      if (fabs(old_source) > FLT_EPSILON)
         residual.setValue(i, 0, pow((new_source - old_source) / old_source, 2));
     }
     sum_residuals = residual.getSum();
@@ -597,7 +597,7 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated, int it,
 #pragma omp parallel for
     for (int i = 0; i < num_x*num_y*num_z; i++) {
       for (int g = 0; g < num_groups; g++) {
-        if (X->getValue(i, g) != 0.0)
+        if (fabs(X->getValue(i, g)) > FLT_EPSILON)
           residual.setValue(i, g, pow((X->getValue(i, g) - Y->getValue(i, g)) /
                                       X->getValue(i, g), 2));
       }
@@ -853,41 +853,41 @@ bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 
   /* Loop over cells */
   for (int color = 0; color < 2; color++) {
-		int offset = 0;
+    int offset = 0;
 #ifdef MPIx
-		getCouplingTerms(comm, color, coupling_sizes, coupling_indexes,
-										 coupling_coeffs, coupling_fluxes, x, offset);
+    getCouplingTerms(comm, color, coupling_sizes, coupling_indexes,
+                     coupling_coeffs, coupling_fluxes, x, offset);
 #endif
 #pragma omp parallel for collapse(2)
-		for (int iz=0; iz < num_z; iz++) {
-			for (int iy=0; iy < num_y; iy++) {
-				for (int ix=(iy+iz+color+offset)%2; ix < num_x; ix+=2) {
+    for (int iz=0; iz < num_z; iz++) {
+      for (int iy=0; iy < num_y; iy++) {
+        for (int ix=(iy+iz+color+offset)%2; ix < num_x; ix+=2) {
 
-					int cell = (iz*num_y + iy)*num_x + ix;
+          int cell = (iz*num_y + iy)*num_x + ix;
 
-					/* Determine whether each group's row is diagonally dominant */
-					for (int e = 0; e < num_groups; e++) {
+          /* Determine whether each group's row is diagonally dominant */
+          for (int e = 0; e < num_groups; e++) {
 
-						int row = cell * num_groups + e;
+            int row = cell * num_groups + e;
 
-						/* Add local off-diagonal elements */
-						double row_sum = 0.0;
-						int diag_ind = -1;
-						for (int idx = IA[row]; idx < IA[row+1]; idx++) {
-							if (JA[idx] != row)
-								row_sum += fabs(a[idx]);
-							else
-								diag_ind = idx;
-						}
+            /* Add local off-diagonal elements */
+            double row_sum = 0.0;
+            int diag_ind = -1;
+            for (int idx = IA[row]; idx < IA[row+1]; idx++) {
+              if (JA[idx] != row)
+                row_sum += fabs(a[idx]);
+              else
+                diag_ind = idx;
+            }
 
-						/* Add off-node off-diagonal elements */
+            /* Add off-node off-diagonal elements */
 #ifdef MPIx
-						if (comm != NULL) {
-							int* coupling_sizes = comm->num_connections[color];
-							CMFD_PRECISION** coupling_coeffs = comm->coupling_coeffs[color];
-							for (int idx = 0; idx < coupling_sizes[row]; idx++)
-								row_sum += fabs(coupling_coeffs[row][idx]);
-						}
+            if (comm != NULL) {
+              int* coupling_sizes = comm->num_connections[color];
+              CMFD_PRECISION** coupling_coeffs = comm->coupling_coeffs[color];
+              for (int idx = 0; idx < coupling_sizes[row]; idx++)
+                row_sum += fabs(coupling_coeffs[row][idx]);
+            }
 #endif
 
             /* Check for diagonal dominance */

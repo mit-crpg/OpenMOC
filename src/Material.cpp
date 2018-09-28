@@ -868,7 +868,7 @@ void Material::setChi(double* xs, int num_groups) {
     chi_sum += xs[i];
 
   for (int i=0; i < _num_groups; i++) {
-    if (chi_sum == 0)
+    if (fabs(chi_sum) < FLT_EPSILON)
       _chi[i] = xs[i];
     else
       _chi[i] = xs[i] / chi_sum;

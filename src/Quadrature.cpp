@@ -1297,7 +1297,7 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
         for (int j=0; j <= (n+1)/2; ++j) {
           if (j != i) {
             double diff = (roots[i] - roots[j]);
-            if (diff != 0.0) {
+            if (fabs(diff) > FLT_EPSILON) {
               sum1 += 1 / diff;
               sum2 += -1 / (diff*diff);
             }
@@ -1310,7 +1310,7 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
         /* householder method 2 Halley */
         double denom = (s1_tilde[i]*s1_tilde[i] - s2_tilde[i]);
         double u_new = 0.0;
-        if (denom != 0)
+        if (fabs(denom) > FLT_EPSILON)
           u_new = roots[i] - 2*s1_tilde[i] / denom;
 
         double u_old = roots[i];

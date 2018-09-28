@@ -355,7 +355,7 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
  */
 FP_PRECISION ExpEvaluator::computeExponentialG2(FP_PRECISION tau) {
 
-  if (tau == 0.0)
+  if (fabs(tau) < FLT_EPSILON)
     return 0.0;
 
   if (tau < 0.01)
