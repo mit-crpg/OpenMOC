@@ -156,7 +156,7 @@ class configuration:
   compiler_flags = dict()
 
   compiler_flags['gcc'] = ['-c', '-O3', '-ffast-math', '-fopenmp',
-                           '-std=c++11', '-fpic', '-Wfloat-equal']
+                           '-std=c++11', '-fpic']
   compiler_flags['mpicc'] = ['-c', '-O3', '-ffast-math', '-fopenmp',
                            '-std=c++11', '-fpic']
   compiler_flags['clang'] = ['-c', '-O3', '-ffast-math', '-std=c++11',
