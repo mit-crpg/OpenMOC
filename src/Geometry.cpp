@@ -2205,7 +2205,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
       curr = findNextCell(&end, phi);
 
       /* Checks that segment does not have the same start and end Points */
-      if (fabs(start.getX() - end.getX()) <FLT_EPSILON && 
+      if (fabs(start.getX() - end.getX()) < FLT_EPSILON && 
           fabs(start.getY() - end.getY()) < FLT_EPSILON)
         log_printf(ERROR, "Created segment with same start and end "
                    "point: x = %f, y = %f", start.getX(), start.getY());

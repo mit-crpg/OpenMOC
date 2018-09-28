@@ -583,7 +583,7 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated, int it,
         new_source += X->getValue(i, g);
         old_source += Y->getValue(i, g);
       }
-    if (fabs(old_source) > FLT_EPSILON)
+      if (fabs(old_source) > FLT_EPSILON)
         residual.setValue(i, 0, pow((new_source - old_source) / old_source, 2));
     }
     sum_residuals = residual.getSum();
