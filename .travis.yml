@@ -29,6 +29,7 @@ before_install:
   - source activate test-environment
   - pip install coverage
   - pip install cpp-coveralls
+  - pip install coveralls
 
 install:
   # ================= Get C++11-compatible compiler ==================
@@ -45,9 +46,8 @@ script:
 
 after_success:
   - cd ..
-  - coveralls -i src -i build/temp.linux*/src/ --exclude-pattern "/usr/*" --dump cpp_cov.json
+  - cpp-coveralls -i src -i build/temp.linux*/src/ --exclude-pattern "/usr/*" --dump cpp_cov.json
   - cd tests
-  # Switch to Python version, which can merge
-  - pip install coveralls
+  # Switch to Python version, which can merge reports
   - coveralls  --merge=../cpp_cov.json
   - cd ..
