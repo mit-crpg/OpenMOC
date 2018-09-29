@@ -410,6 +410,8 @@ class configuration:
       for k in self.compiler_flags:
         self.compiler_flags[k].append('-fprofile-arcs')
         self.compiler_flags[k].append('-ftest-coverage')
+        self.linker_flags[k].append('-fprofile-arcs')
+        self.linker_flags[k].append('-ftest-coverage')
 
     # Obtain the NumPy include directory
     try:
