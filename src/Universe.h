@@ -210,6 +210,13 @@ public:
   double getWidthX() const;
   double getWidthY() const;
   double getWidthZ() const;
+  bool getNonUniform() const;
+  const std::vector<double>& getWidthsX() const;
+  const std::vector<double>& getWidthsY() const;
+  const std::vector<double>& getWidthsZ() const;
+  const std::vector<double>& getAccumulateX() const;
+  const std::vector<double>& getAccumulateY() const;
+  const std::vector<double>& getAccumulateZ() const;
   double getMinX();
   double getMaxX();
   double getMinY();
@@ -229,6 +236,13 @@ public:
   void setNumZ(int num_z);
   void setWidth(double width_x, double width_y,
                 double width_z=std::numeric_limits<double>::infinity());
+  void setNonUniform(bool non_uniform);
+  void setWidthsX(std::vector<double> widthsx);
+  void setWidthsY(std::vector<double> widthsy);
+  void setWidthsZ(std::vector<double> widthsz);
+  void setAccumulateX(std::vector<double> accumulatex);
+  void setAccumulateY(std::vector<double> accumulatey);
+  void setAccumulateZ(std::vector<double> accumulatez);
   void setUniverses(int num_z, int num_y, int num_x, Universe** universes);
   void updateUniverse(int lat_x, int lat_y, int lat_z, Universe* universe);
   void removeUniverse(Universe* universe);

@@ -707,6 +707,7 @@ void Geometry::setDomainDecomposition(int nx, int ny, int nz, MPI_Comm comm) {
     double offset_y = width_y / 2.0 + getMinY();
     double offset_z = width_z / 2.0 + getMinZ();
     _domain_bounds->setOffset(offset_x, offset_y, offset_z);
+    _domain_bounds->computeSizes();
     log_printf(NORMAL, "Successfully set %d x %d x %d domain decomposition",
                         nx, ny, nz);
   }
@@ -818,6 +819,8 @@ void Geometry::setOverlaidMesh(double axial_mesh_height, int num_x, int num_y,
   offset.setY(min_y + (max_y - min_y)/2.0);
   offset.setZ(min_z + (max_z - min_z)/2.0);
   _overlaid_mesh->setOffset(offset.getX(), offset.getY(), offset.getZ());
+  
+  _overlaid_mesh->computeSizes();
 
   log_printf(NORMAL, "Set global axial mesh of width %6.4f cm",
              axial_mesh_height);
@@ -2994,35 +2997,19 @@ void Geometry::initializeCmfd() {
   offset.setZ(min_z + (max_z - min_z)/2.0);
 
   _cmfd->initializeLattice(&offset);
-  
-  /* Intialize CMFD Maps */
-  _cmfd->initializeCellMap();
-  
+
   _cmfd->setGeometry(this);
 
 #ifdef MPIx
   if (_domain_decomposed) {
 
     /* Check that CMFD mesh is compatible with domain decomposition */
-    if (_cmfd != NULL) {
-      if (_cmfd->getNumX() % _num_domains_x != 0)
-        log_printf(ERROR, "CMFD mesh is incompatible with domain decomposition"
-                   " in the X direction, make sure the mesh aligns with domain"
-                   " boundaries");
-      if (_cmfd->getNumY() % _num_domains_y != 0)
-        log_printf(ERROR, "CMFD mesh is incompatible with domain decomposition"
-                   " in the Y direction, make sure the mesh aligns with domain"
-                   " boundaries");
-      if (_cmfd->getNumZ() % _num_domains_z != 0)
-        log_printf(ERROR, "CMFD mesh is incompatible with domain decomposition"
-                   " in the Z direction, make sure the mesh aligns with domain"
-                   " boundaries");
-    }
-
     _cmfd->setNumDomains(_num_domains_x, _num_domains_y, _num_domains_z);
     _cmfd->setDomainIndexes(_domain_index_x, _domain_index_y, _domain_index_z);
   }
 #endif
+  /* Intialize CMFD Maps */
+  _cmfd->initializeCellMap();
 }
 
 
@@ -3291,14 +3278,12 @@ std::vector<double> Geometry::getUniqueZHeights(bool include_overlaid_mesh) {
       int ny = lattice->getNumY();
       int nz = lattice->getNumZ();
 
-      /* Get offset of the lattice */
-      z_offset += lattice->getOffset()->getZ();
-
       /* Calculate z-intersections */
-      double width = lattice->getWidthZ();
-      double offset = z_offset - nz * width / 2;
+      const std::vector<double>& accumulatez = lattice->getAccumulateZ();
+      /* Get offset of the lattice */
+      double offset = z_offset + lattice->getMinZ();
       for (int k=0; k<nz+1; k++) {
-        double z_height = k * width + offset;
+        double z_height = accumulatez[k]+ offset;
         z_heights.push_back(z_height);
       }
 
@@ -3754,6 +3739,10 @@ void Geometry::dumpToFile(std::string filename) {
       double width_y = lattice->getWidthY();
       double width_z = lattice->getWidthZ();
       double* offset = lattice->getOffset()->getXYZ();
+      bool non_uniform = lattice->getNonUniform();
+      const std::vector<double> widths_x = lattice->getWidthsX();
+      const std::vector<double> widths_y = lattice->getWidthsY();
+      const std::vector<double> widths_z = lattice->getWidthsZ();
       fwrite(&num_x, sizeof(int), 1, out);
       fwrite(&num_y, sizeof(int), 1, out);
       fwrite(&num_z, sizeof(int), 1, out);
@@ -3761,6 +3750,10 @@ void Geometry::dumpToFile(std::string filename) {
       fwrite(&width_y, sizeof(double), 1, out);
       fwrite(&width_z, sizeof(double), 1, out);
       fwrite(offset, sizeof(double), 3, out);
+      fwrite(&non_uniform, sizeof(bool), 1, out);
+      fwrite(&widths_x[0], sizeof(double), num_x, out);
+      fwrite(&widths_y[0], sizeof(double), num_y, out);
+      fwrite(&widths_z[0], sizeof(double), num_z, out);
 
       /* Get universes */
       Universe* universes[num_x * num_y * num_z];
@@ -4133,15 +4126,44 @@ void Geometry::loadFromFile(std::string filename, bool twiddle) {
       ret = twiddleRead(&width_y, sizeof(double), 1, in);
       ret = twiddleRead(&width_z, sizeof(double), 1, in);
       ret = twiddleRead(offset, sizeof(double), 3, in);
-
+      
+      bool non_uniform;
+      std::vector<double> widths_x(num_x), widths_y(num_y), widths_z(num_z);
+      ret = twiddleRead(&non_uniform, sizeof(bool), 1, in);
+      ret = twiddleRead(&widths_x[0], sizeof(double), num_x, in);
+      ret = twiddleRead(&widths_y[0], sizeof(double), num_y, in);
+      ret = twiddleRead(&widths_z[0], sizeof(double), num_z, in);
+      
+      std::vector<double> accum_x(num_x+1,0);
+      std::vector<double> accum_y(num_y+1,0);
+      std::vector<double> accum_z(num_z+1,0);
+      
+      for(int i=0; i<num_x; i++) 
+        accum_x[i+1] = accum_x[i] + widths_x[i];
+      for(int i=0; i<num_y; i++) 
+        accum_y[i+1] = accum_y[i] + widths_y[i];
+      for(int i=0; i<num_z; i++) 
+        accum_z[i+1] = accum_z[i] + widths_z[i];
+      
       /* Create lattice */
       Lattice* new_lattice = new Lattice(id, name);
       all_universes[key] = new_lattice;
       new_lattice->setNumX(num_x);
       new_lattice->setNumY(num_y);
       new_lattice->setNumZ(num_z);
-      new_lattice->setWidth(width_x, width_y, width_z);
+      if(non_uniform)
+        new_lattice->setWidth(1, 1, 1);
+      else
+        new_lattice->setWidth(width_x, width_y, width_z);
       new_lattice->setOffset(offset[0], offset[1], offset[2]);
+      
+      new_lattice->setNonUniform(non_uniform);
+      new_lattice->setWidthsX(widths_x);
+      new_lattice->setWidthsY(widths_y);
+      new_lattice->setWidthsZ(widths_z);
+      new_lattice->setAccumulateX(accum_x);
+      new_lattice->setAccumulateY(accum_y);
+      new_lattice->setAccumulateZ(accum_z);
 
       /* Get universes */
       lattice_universes[key] = new int[num_x*num_y*num_z];

@@ -65,6 +65,7 @@ void Mesh::createLattice(int num_x, int num_y, int num_z) {
   /* Create the Mesh lattice */
   _lattice->setWidth(width_x, width_y, width_z);
   _lattice->setOffset(offset_x, offset_y, offset_z);
+  _lattice->computeSizes();
 }
 
 

@@ -2,13 +2,13 @@
 # User Options
 #===============================================================================
 
-COMPILER    = gnu
+COMPILER    = mpi
 OPENMP      = yes
-OPTIMIZE    = yes
-DEBUG       = no
+OPTIMIZE    = no
+DEBUG       = yes
 PROFILE     = no
-PRECISION   = single
-CMFD_PRECISION = single
+PRECISION   = double
+CMFD_PRECISION = double
 
 #===============================================================================
 # Source Code List
@@ -24,8 +24,9 @@ CMFD_PRECISION = single
 #case = load-geometry/load-assembly-lattice.cpp
 
 #case = load-geometry/load-geometry.cpp
-case = simple-lattice/simple-lattice-3d.cpp
+#case = simple-lattice/simple-lattice-3d.cpp
 #case = homogeneous/homogeneous.cpp
+case = non-uniform-lattice/non-uniform-lattice.cpp
 
 source = \
 Cell.cpp \
@@ -80,7 +81,8 @@ load-geometry/trunc-core-2D.cpp \
 load-geometry/load-corner.cpp \
 load-geometry/load-assembly-lattice.cpp \
 load-geometry/load-tc-study.cpp \
-load-geometry/load-full-core.cpp
+load-geometry/load-full-core.cpp \
+non-uniform-lattice/non-uniform-lattice.cpp
 
 #===============================================================================
 # Sets Flags
@@ -236,7 +238,7 @@ program = $(case:.cpp=)
 
 default: folder $(addsuffix .o, $(program)) $(program)
 
-$(programs): $(obj)  $(headers)
+$(programs): $(obj)  $(headers) $(addsuffix .o, $(program))
 	$(CC) $(CFLAGS) $(obj) $(addsuffix .o, $@) -o $@ $(LDFLAGS)
 
 obj/%.o: ../src/%.cpp Makefile
