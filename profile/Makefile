@@ -26,7 +26,8 @@ CMFD_PRECISION = double
 #case = load-geometry/load-geometry.cpp
 #case = simple-lattice/simple-lattice-3d.cpp
 #case = homogeneous/homogeneous.cpp
-case = non-uniform-lattice/non-uniform-lattice.cpp
+#case = non-uniform-lattice/non-uniform-lattice.cpp
+case = run_time_standard/run_time_standard.cpp
 
 source = \
 Cell.cpp \
@@ -46,6 +47,7 @@ Point.cpp \
 Progress.cpp \
 Quadrature.cpp \
 Region.cpp \
+RunTime.cpp \
 Solver.cpp \
 Surface.cpp \
 Timer.cpp \
@@ -82,7 +84,8 @@ load-geometry/load-corner.cpp \
 load-geometry/load-assembly-lattice.cpp \
 load-geometry/load-tc-study.cpp \
 load-geometry/load-full-core.cpp \
-non-uniform-lattice/non-uniform-lattice.cpp
+non-uniform-lattice/non-uniform-lattice.cpp \
+run_time_standard/run_time_standard.cpp
 
 #===============================================================================
 # Sets Flags

@@ -121,6 +121,7 @@ class configuration:
                     'src/Progress.cpp',
                     'src/Quadrature.cpp',
                     'src/Region.cpp',
+                    'src/RunTime.cpp',
                     'src/Solver.cpp',
                     'src/Surface.cpp',
                     'src/Timer.cpp',
