@@ -90,7 +90,11 @@ class Test(object):
         # Run tests with coverage option or not
         if options.coverage:
             # Python API coverage testing
-            cmake_cmd += ['-DPYTHON_EXECUTABLE=' + find_executable('coverage')]
+            coverage_exe = find_executable('coverage')
+            if not coverage_exe:
+                raise RuntimeError('Coverage executable was not found.')
+
+            cmake_cmd += ['-DPYTHON_EXECUTABLE=' + coverage_exe]
             cmake_cmd += ['-DCOVERAGE=True']
             cmake_cmd += ['-DOMIT=test*']
         else:
