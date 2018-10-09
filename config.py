@@ -65,8 +65,11 @@ class configuration:
   # Compile code with debug symbols (ie, -g)
   debug_mode = False
 
-  # Compile code with debug symbols (ie, -g, -pg)
+  # Compile code with profile symbols (ie, -g, -pg)
   profile_mode = False
+
+  # Compile code with coverage symbols (ie, -fprofile-arcs -ftest-coverage)
+  coverage_mode = False
 
   # Build the openmoc.cuda module
   with_cuda = False
@@ -428,6 +431,15 @@ class configuration:
       for k in self.compiler_flags:
         self.compiler_flags[k].append('-pg')
         self.compiler_flags[k].append('-g')
+
+    # If the user wishes to compile using coverage mode, append the coverage
+    # flag to all lists of compiler flags for all distribution types
+    if self.coverage_mode:
+      for k in self.compiler_flags:
+        self.compiler_flags[k].append('-fprofile-arcs')
+        self.compiler_flags[k].append('-ftest-coverage')
+        self.linker_flags[k].append('-fprofile-arcs')
+        self.linker_flags[k].append('-ftest-coverage')
 
     # Obtain the NumPy include directory
     try:
