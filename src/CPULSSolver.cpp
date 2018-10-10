@@ -296,7 +296,7 @@ void CPULSSolver::computeFSRSources(int iteration) {
 
         /* Compute total (scatter+fission) reduced source moments */
         if (_solve_3D) {
-          if (_reduced_sources(r,g) > 1e-15 or iteration > 29) {
+          if (_reduced_sources(r,g) > 1e-15 || iteration > 29) {
             _reduced_sources_xyz(r,g,0) = ONE_OVER_FOUR_PI / 2 *
                  (_FSR_lin_exp_matrix[r*num_coeffs  ] * src_x +
                   _FSR_lin_exp_matrix[r*num_coeffs+2] * src_y +
@@ -317,7 +317,7 @@ void CPULSSolver::computeFSRSources(int iteration) {
           }
         }
         else {
-          if (_reduced_sources(r,g) > 1e-15 or iteration > 29) {
+          if (_reduced_sources(r,g) > 1e-15 || iteration > 29) {
             _reduced_sources_xyz(r,g,0) = ONE_OVER_FOUR_PI / 2 *
                  (_FSR_lin_exp_matrix[r*num_coeffs  ] * src_x +
                   _FSR_lin_exp_matrix[r*num_coeffs+2] * src_y);
@@ -326,7 +326,7 @@ void CPULSSolver::computeFSRSources(int iteration) {
                   _FSR_lin_exp_matrix[r*num_coeffs+1] * src_y);
           }
           else {
-            _reduced_sources_xyz(r,g,0) = 1e-20;     
+            _reduced_sources_xyz(r,g,0) = 1e-20;
             _reduced_sources_xyz(r,g,1) = 1e-20;
           }
         }

@@ -121,6 +121,9 @@ omp_lock_t* TrackGenerator::getFSRLocks() {
 }
 
 
+/**
+ * @brief Initialize an array to contain the FSR volumes.
+ */
 void TrackGenerator::initializeFSRVolumesBuffer() {
 
   if (_FSR_volumes != NULL)
@@ -1503,8 +1506,8 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
     _geometry->setFSRCentroid(r, centroids[r]);
 
   /* Recenter the segments around FSR centroid */
-  if ((_segment_formation == EXPLICIT_2D or _segment_formation == EXPLICIT_3D)
-      and _segments_centered == false) {
+  if ((_segment_formation == EXPLICIT_2D || _segment_formation == EXPLICIT_3D)
+      && _segments_centered == false) {
     log_printf(NORMAL, "Centering segments around FSR centroid...");
     RecenterSegments rs(this);
     rs.execute();

@@ -1928,7 +1928,7 @@ void Solver::loadFSRFluxes(std::string fname, bool assign_k_eff,
   if (!_geometry->containsFSRCentroids()) 
     _track_generator->generateFSRCentroids(_FSR_volumes);
 
-  /* Asign starting fluxes to the scalar fluxes array */
+  /* Assign starting fluxes to the scalar fluxes array */
 #pragma omp parallel for
   for (long r=0; r < _num_FSRs; r++) {
 
