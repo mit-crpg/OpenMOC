@@ -85,7 +85,7 @@ void CPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
 #ifdef MPIx
   if (_geometry->isDomainDecomposed()) {
 
-    /* Allocate buffer for communcation */
+    /* Allocate buffer for communication */
     long num_total_FSRs = _geometry->getNumTotalFSRs();
     FP_PRECISION* temp_fluxes = new FP_PRECISION[num_total_FSRs*_num_groups];
 

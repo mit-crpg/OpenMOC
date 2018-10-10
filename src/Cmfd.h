@@ -27,7 +27,7 @@
 /** Forward declaration of Geometry class */
 class Geometry;
 
-/** Comparitor for sorting k-nearest stencil std::pair objects */
+/** Comparator for sorting k-nearest stencil std::pair objects */
 inline bool stencilCompare(const std::pair<int, double>& firstElem,
                            const std::pair<int, double>& secondElem) {
   return firstElem.second < secondElem.second;
