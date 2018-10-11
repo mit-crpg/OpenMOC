@@ -85,7 +85,7 @@ void CPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
 #ifdef MPIx
   if (_geometry->isDomainDecomposed()) {
 
-    /* Allocate buffer for communcation */
+    /* Allocate buffer for communication */
     long num_total_FSRs = _geometry->getNumTotalFSRs();
     FP_PRECISION* temp_fluxes = new FP_PRECISION[num_total_FSRs*_num_groups];
 
@@ -1738,7 +1738,7 @@ void CPUSolver::computeKeff() {
 #endif
   if (!_keff_from_fission_rates)
     /* Compute k-eff from fission, absorption, and leakage rates */
-    _k_eff *= rates[0] / (rates[1] + rates[2]);
+    _k_eff = rates[0] / (rates[1] + rates[2]);
   else
     _k_eff *= rates[0] / _num_FSRs;
 }

@@ -10,12 +10,13 @@ import glob
 import subprocess
 from collections import OrderedDict
 from optparse import OptionParser
+from distutils.spawn import find_executable
 
 # Command line parsing
 parser = OptionParser()
 parser.add_option('-j', '--parallel', dest='n_procs', default='1',
                   help="Number of parallel jobs.")
-parser.add_option('-v', '--verbose', action="store_true", dest="verbose",
+parser.add_option('-v', '--verbose', action="store_true", dest='verbose',
                   default=False, help="Make CTest verbose.")
 parser.add_option('-R', '--tests-regex', dest='regex_tests',
                   help="Run tests matching regular expression. "
@@ -26,6 +27,9 @@ parser.add_option('-C', '--build-config', dest='build_config',
                         "Specific build configurations can be printed out with "
                         "optional argument -p, --print. This uses standard "
                         "regex syntax to select build configurations.")
+parser.add_option('-c', '--coverage', action="store_true", dest='coverage',
+                   default=False, help="Run tests with coverage.py to output "
+                  "Python code coverage.")
 parser.add_option('-l', '--list', action="store_true",
                   dest="list_build_configs", default=False,
                   help="List out build configurations.")
@@ -43,12 +47,14 @@ class Test(object):
     # previous Tests, if any (this helps eliminate redundant builds)
     _setup_cmd = []
 
-    def __init__(self, name, cc='gcc', num_threads=1, debug=True):
+    def __init__(self, name, cc='gcc', num_threads=1, debug=False, 
+                 coverage=False):
         self.name = name
         self.cc = cc
         self.fp = FP
         self.num_threads = num_threads
         self.debug = debug
+        self.coverage = coverage
         self.success = True
         self.msg = None
 
@@ -60,6 +66,8 @@ class Test(object):
         setup_cmd += ['--cc={0}'.format(self.cc), '--fp={0}'.format(self.fp)]
         if self.debug:
             setup_cmd += ['--debug-mode']
+        if self.coverage:
+            setup_cmd += ['--coverage-mode']
 
         # Run setup.py if it was not run for the previous Test
         if setup_cmd != Test._setup_cmd:
@@ -78,7 +86,19 @@ class Test(object):
         """Run CMake to create CTest script"""
 
         cmake_cmd = ['cmake', '-H..', '-Bbuild']
-        cmake_cmd += ['-DPYTHON_EXECUTABLE=' + sys.executable]
+
+        # Run tests with coverage option or not
+        if options.coverage:
+            # Python API coverage testing
+            coverage_exe = find_executable('coverage')
+            if not coverage_exe:
+                raise RuntimeError('Coverage executable was not found.')
+
+            cmake_cmd += ['-DPYTHON_EXECUTABLE=' + coverage_exe]
+            cmake_cmd += ['-DCOVERAGE=True']
+            cmake_cmd += ['-DOMIT=test*']
+        else:
+            cmake_cmd += ['-DPYTHON_EXECUTABLE=' + sys.executable]
 
         # Run CMake
         rc = subprocess.call(cmake_cmd)
@@ -120,8 +140,8 @@ class Test(object):
 
 
 # Simple function to add a test to the global tests dictionary
-def add_test(name, cc='gcc', num_threads=1, debug=True, ):
-    tests.update({name: Test(name, cc, num_threads, debug)})
+def add_test(name, cc='gcc', num_threads=1, debug=False, ):
+    tests.update({name: Test(name, cc, num_threads, debug, options.coverage)})
 
 # List of all tests that may be run. User can add -C to command line to specify
 # a subset of these configurations
@@ -189,9 +209,14 @@ for key in iter(tests):
         logfilename = logfilename + '_{0}.log'.format(test.name)
         shutil.copy(logfile[0], logfilename)
 
+# Combine all coverage files
+if options.coverage:
+    os.system('coverage combine test*/.coverage')
+
 # Clear build directory and remove binary and hdf5 files
 shutil.rmtree('build', ignore_errors=True)
-shutil.rmtree('openmoc', ignore_errors=True)
+if not options.coverage:
+    shutil.rmtree('openmoc', ignore_errors=True)
 subprocess.call(['./cleanup'])
 
 # Print out summary of results

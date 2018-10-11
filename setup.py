@@ -65,6 +65,7 @@ class custom_install(install):
     ('debug-mode', None, "Build with debugging symbols"),
     ('sanitizer-mode', None, "Build with address sanitizer"),
     ('profile-mode', None, "Build with profiling symbols"),
+    ('coverage-mode', None, "Build with coverage symbols"),
     ('with-ccache', None, "Build with ccache for rapid recompilation"),
   ]
 
@@ -76,6 +77,7 @@ class custom_install(install):
   boolean_options = ['debug-mode',
                      'sanitizer-mode',
                      'profile-mode',
+                     'coverage-mode',
                      'with-ccache']
 
   # Include all of the boolean options provided by distutils for the
@@ -107,6 +109,7 @@ class custom_install(install):
     self.debug_mode = False
     self.sanitizer_mode = False
     self.profile_mode = False
+    self.coverage_mode = False
     self.with_ccache = False
 
 
@@ -130,6 +133,7 @@ class custom_install(install):
     config.debug_mode = self.debug_mode
     config.sanitizer_mode = self.sanitizer_mode
     config.profile_mode = self.profile_mode
+    config.coverage_mode = self.coverage_mode
     config.with_ccache = self.with_ccache
 
     # Check that the user specified a supported C++ compiler
