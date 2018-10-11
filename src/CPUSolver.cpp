@@ -1738,7 +1738,7 @@ void CPUSolver::computeKeff() {
 #endif
   if (!_keff_from_fission_rates)
     /* Compute k-eff from fission, absorption, and leakage rates */
-    _k_eff *= rates[0] / (rates[1] + rates[2]);
+    _k_eff = rates[0] / (rates[1] + rates[2]);
   else
     _k_eff *= rates[0] / _num_FSRs;
 }
