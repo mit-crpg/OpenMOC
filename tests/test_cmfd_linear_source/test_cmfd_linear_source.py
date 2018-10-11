@@ -26,26 +26,17 @@ class CmfdPwrAssemblyTestHarness(TestHarness):
         cmfd = openmoc.Cmfd()
         cmfd.setCMFDRelaxationFactor(0.7)
         cmfd.setLatticeStructure(17,17)
-        cmfd.setGroupStructure([[1],[2],[3],[4],[5],[6],[7]])
-        cmfd.setKNearest(1)
+        cmfd.setGroupStructure([[1,2,3], [4,5,6,7]])
+        cmfd.setKNearest(3)
 
         # Add CMFD to the Geometry
         self.input_set.geometry.setCmfd(cmfd)
-
-    def _create_trackgenerator(self):
-        """Instantiate a TrackGenerator."""
-        geometry = self.input_set.geometry
-        geometry.initializeFlatSourceRegions()
-        self.track_generator = \
-            openmoc.TrackGenerator(geometry, 8, 0.02)
 
     def _create_solver(self):
         """Instantiate a CPULSSolver."""
         self.solver = openmoc.CPULSSolver(self.track_generator)
         self.solver.setNumThreads(self.num_threads)
-
-        # Limit the runtime of the test
-        self.solver.setConvergenceThreshold(5e-4)
+        self.solver.setConvergenceThreshold(self.tolerance)
 
     def _get_results(self, num_iters=True, keff=True, fluxes=True,
                      num_fsrs=False, num_tracks=False, num_segments=False,
