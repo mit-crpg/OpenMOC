@@ -1214,7 +1214,7 @@ void TrackGenerator3D::segmentizeExtruded() {
     _geometry->segmentizeExtruded(_tracks_2D_array[index], z_coords);
   }
 
-  /* Initialize 3D FSRs and their associated vectors*/
+  /* Initialize 3D FSRs and their associated vectors */
 #ifdef MPIx
   if (_geometry->isDomainDecomposed())
     MPI_Barrier(_geometry->getMPICart());

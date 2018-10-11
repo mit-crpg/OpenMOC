@@ -368,7 +368,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   if (_solve_3D) {
 
     /* Compute the segment midpoint */
-    double center_x2[3];
+    FP_PRECISION center_x2[3];
     for (int i=0; i<3; i++)
       center_x2[i] = 2 * (position[i] + 0.5 * length * direction[i]);
 
@@ -442,7 +442,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     int pe = 0;
 
     /* Compute the segment midpoint */
-    double center[2];
+    FP_PRECISION center[2];
     for (int i=0; i<2; i++)
       center[i] = position[i] + 0.5 * length * direction[i];
 
@@ -502,8 +502,8 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       // Increment the fsr scalar flux and scalar flux moments
       fsr_flux[e*4] += polar_wgt_d_psi;
       for (int i=0; i<2; i++)
-        fsr_flux[e*4 + i + 1] += polar_wgt_exp_h * direction[i] / sigma_t[e]
-              + polar_wgt_d_psi * position[i] / sigma_t[e];
+        fsr_flux[e*4 + i + 1] += polar_wgt_exp_h * direction[i]
+              + polar_wgt_d_psi * position[i];
     }
   }
 
@@ -556,7 +556,7 @@ void CPULSSolver::addSourceToScalarFlux() {
 
       for (int e=0; e < _num_groups; e++) {
 
-        flux_const = FOUR_PI * 2 / sigma_t[e];
+        flux_const = FOUR_PI * 2;
 
         _scalar_flux(r,e) /= volume;
         _scalar_flux(r,e) += (FOUR_PI * _reduced_sources(r,e));
@@ -588,6 +588,11 @@ void CPULSSolver::addSourceToScalarFlux() {
           _scalar_flux_xyz(r,e,2) += flux_const * _reduced_sources_xyz(r,e,2)
               * _FSR_source_constants[r*_num_groups*nc + nc*e + 5];
         }
+
+        _scalar_flux_xyz(r,e,0) /= sigma_t[e];
+        _scalar_flux_xyz(r,e,1) /= sigma_t[e];
+        if (_solve_3D)
+          _scalar_flux_xyz(r,e,2) /= sigma_t[e];
       }
     }
   }
@@ -791,7 +796,7 @@ void CPULSSolver::checkLimitXS(int iteration) {
  * @param coords The coords of the point to get the flux at
  * @param group the energy group
  */
-double CPULSSolver::getFluxByCoords(LocalCoords* coords, int group) {
+FP_PRECISION CPULSSolver::getFluxByCoords(LocalCoords* coords, int group) {
 
   double x, y, z, xc, yc, zc;
 
@@ -806,7 +811,7 @@ double CPULSSolver::getFluxByCoords(LocalCoords* coords, int group) {
   yc = centroid->getY();
   zc = centroid->getZ();
 
-  double flux = _scalar_flux(fsr, group);
+  FP_PRECISION flux = _scalar_flux(fsr, group);
   double flux_x = 0.0;
   double flux_y = 0.0;
   double flux_z = 0.0;

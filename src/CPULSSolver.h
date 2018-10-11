@@ -80,7 +80,7 @@ public:
                          float* track_flux, FP_PRECISION* fsr_flux,
                          FP_PRECISION* scratch_pad, FP_PRECISION direction[3]);
 
-  double getFluxByCoords(LocalCoords* coords, int group);
+  FP_PRECISION getFluxByCoords(LocalCoords* coords, int group);
   double* getLinearExpansionCoeffsBuffer();
   FP_PRECISION* getSourceConstantsBuffer();
 };

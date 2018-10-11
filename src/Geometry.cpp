@@ -2219,11 +2219,11 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
       std::string fsr_key = getFSRKey(&start);
 
       /* Get the coordinate of the extruded FSR */
-      LocalCoords* volatile retreived_coords = NULL;
+      LocalCoords* volatile retrieved_coords = NULL;
       do {
-        retreived_coords = _extruded_FSR_keys_map.at(fsr_key)->_coords;
-      } while (retreived_coords == NULL);
-      LocalCoords* ext_coords = retreived_coords;
+        retrieved_coords = _extruded_FSR_keys_map.at(fsr_key)->_coords;
+      } while (retrieved_coords == NULL);
+      LocalCoords* ext_coords = retrieved_coords;
 
       /* Create coordinate copies */
       ext_coords->copyCoords(&test_ext_coords);
