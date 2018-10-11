@@ -114,25 +114,37 @@ void Track::setBCBwd(const boundaryType bc_bwd) {
 }
 
 
-//FIXME
+/**
+ * @brief Set the surface at which the Track starts.
+ * @param surface_in surface from which the Track originates in the domain.
+ */
 void Track::setSurfaceIn(int surface_in) {
   _surface_in = surface_in;
 }
 
 
-//FIXME
+/**
+ * @brief Set the surface at which the Track ends.
+ * @param surface_in surface at which the Track ends in the domain.
+ */
 void Track::setSurfaceOut(int surface_out) {
   _surface_out = surface_out;
 }
 
 
-//FIXME
+/**
+ * @brief Set the domain at the end of the Track in the forward direction.
+ * @param neighbor Neighbor domain at the end of the Track
+ */
 void Track::setDomainFwd(int neighbor) {
   _domain_fwd = neighbor;
 }
 
 
-//FIXME
+/**
+ * @brief Set the domain at the end of the Track in the backward direction.
+ * @param neighbor Neighbor domain at the beginning of the Track
+ */
 void Track::setDomainBwd(int neighbor) {
   _domain_bwd = neighbor;
 }
@@ -147,25 +159,37 @@ double Track::getLength() {
 }
 
 
-//FIXME
+/**
+ * @brief Get the surface from which the track originates in the domain.
+ * @return The id of the Surface at the beginning of the Track
+ */
 int Track::getSurfaceIn() {
     return _surface_in;
 }
 
 
-//FIXME
+/**
+ * @brief Get the surface at which the Track ends in the domain.
+ * @return The id of the Surface at the end of the Track
+ */
 int Track::getSurfaceOut() {
     return _surface_out;
 }
 
 
-//FIXME
+/**
+ * @brief Get the domain connected at the front end of the Track.
+ * @return The id of the domain in front of the Track
+ */
 int Track::getDomainFwd() {
   return _domain_fwd;
 }
 
 
-//FIXME
+/**
+ * @brief Get the domain connected at the back end of the Track.
+ * @return The id of the domain behind the Track
+ */
 int Track::getDomainBwd() {
   return _domain_bwd;
 }

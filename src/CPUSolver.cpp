@@ -85,7 +85,7 @@ void CPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
 #ifdef MPIx
   if (_geometry->isDomainDecomposed()) {
 
-    /* Allocate buffer for communcation */
+    /* Allocate buffer for communication */
     long num_total_FSRs = _geometry->getNumTotalFSRs();
     FP_PRECISION* temp_fluxes = new FP_PRECISION[num_total_FSRs*_num_groups];
 
@@ -161,7 +161,7 @@ void CPUSolver::setFixedSourceByFSR(long fsr_id, int group,
   }
 
   /* Warn the user if a fixed source has already been assigned to this FSR */
-  if (_fixed_sources(fsr_id,group-1) != 0.)
+  if (fabs(_fixed_sources(fsr_id,group-1)) > FLT_EPSILON)
     log_printf(WARNING, "Overriding fixed source %f in FSR ID=%d with %f",
                _fixed_sources(fsr_id,group-1), fsr_id, source);
 
@@ -2244,7 +2244,13 @@ void CPUSolver::printInputParamsSummary() {
 }
 
 
-//FIXME
+/**
+ * @brief A function that prints the source region fluxes on a 2D mesh grid
+ * @param dim1 coordinates of the mesh grid in the first direction
+ * @param dim2 coordinates of the mesh grid in the second direction
+ * @param offset The location of the mesh grid center on the perpendicular axis
+ * @param plane 'xy', 'xz' or 'yz' the plane in which the mesh grid lies
+ */
 void CPUSolver::printFSRFluxes(std::vector<double> dim1,
                                std::vector<double> dim2,
                                double offset, const char* plane) {
@@ -2310,7 +2316,8 @@ void CPUSolver::printFSRFluxes(std::vector<double> dim1,
         for (int j=0; j<dim2.size(); j++) {
           int r = i + j*dim1.size();
           double flux = total_fluxes.at(r) / num_contains_coords.at(r);
-          log_printf(NORMAL, "(%d, %d) -> %f", dim1.at(i), dim2.at(j), flux);
+          log_printf(NORMAL, "(%d: %f, %d: %f) -> %f", i, dim1.at(i), j, 
+                     dim2.at(j), flux);
         }
       }
     }
@@ -2318,7 +2325,10 @@ void CPUSolver::printFSRFluxes(std::vector<double> dim1,
 }
 
 
-//FIXME
+/**
+ * @brief A function that prints fsr fluxes in xy plane at z=middle
+ * @details Recommend deletion, since redundant printFluxes
+ */
 void CPUSolver::printFluxesTemp() {
 
   Universe* root = _geometry->getRootUniverse();
@@ -2347,7 +2357,15 @@ void CPUSolver::printFluxesTemp() {
 }
 
 
-//FIXME DISC
+/**
+ * @brief A function that prints the number of FSRs with negative sources in 
+ *        the whole geometry subdivided by a 3D lattice. The number of negative
+ *        sources per energy group is also printed out.
+ * @param iteration the current iteration
+ * @param num_x number of divisions in X direction
+ * @param num_y number of divisions in Y direction
+ * @param num_z number of divisions in Z direction 
+ */
 void CPUSolver::printNegativeSources(int iteration, int num_x, int num_y,
                                      int num_z) {
 

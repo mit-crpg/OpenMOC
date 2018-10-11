@@ -107,13 +107,13 @@ void VolumeKernel::newTrack(Track* track) {
 
 
 /**
- * @brief Destructor for MOCKernel
+ * @brief Destructor for MOCKernel.
  */
 MOCKernel::~MOCKernel() {};
 
 
-/*
- * @brief Reads and returns the current count
+/**
+ * @brief Reads and returns the current count.
  * @details MOC kernels count how many times they are accessed. This value
  *          returns the value of the counter (number of execute accesses)
  *          since kernel creation or last call to newTrack.
@@ -124,7 +124,8 @@ int MOCKernel::getCount() {
 }
 
 
-/* @brief Resets the maximum optcal path length for a segment
+/**
+ * @brief Resets the maximum optcal path length for a segment.
  * @details MOC kernels ensure that there are no segments with an optical path
  *          length greater than the maximum optical path length by splitting
  *          then when they get too large.
@@ -135,8 +136,8 @@ void MOCKernel::setMaxOpticalLength(FP_PRECISION max_tau) {
 }
 
 
-/*
- * @brief Adds segment contribution to the FSR volume
+/**
+ * @brief Adds segment contribution to the FSR volume.
  * @details The VolumeKernel execute function adds the product of the
  *          track length and track weight to the buffer array at index
  *          id, referring to the array of FSR volumes.
@@ -176,7 +177,7 @@ void VolumeKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
 }
 
 
-/*
+/**
  * @brief Increments the counter for the number of segments on the track
  * @details The CounterKernel execute function counts the number of segments
  *          in a track by incrementing the counter variable upon execution. Due
@@ -210,7 +211,7 @@ void CounterKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
 }
 
 
-/*
+/**
  * @brief Writes segment information to the segmentation data array
  * @details The SegmentationKernel execute function writes segment information
  *          to the segmentation data referenced by _segments. Due to
@@ -280,7 +281,12 @@ void SegmentationKernel::execute(FP_PRECISION length, Material* mat, long fsr_id
 }
 
 
-//FIXME
+/**
+ * @brief Constructor for the TransportKernel.
+ * @param track_generator the TrackGenerator used to pull relevant tracking
+ *        data from
+ * @param row_num the row index into the temporary segments matrix
+ */
 TransportKernel::TransportKernel(TrackGenerator* track_generator, int row_num)
                                  : MOCKernel(track_generator, row_num) {
   _direction = true;
@@ -292,6 +298,10 @@ TransportKernel::TransportKernel(TrackGenerator* track_generator, int row_num)
   _thread_fsr_flux = new FP_PRECISION[_num_groups];
 }
 
+
+/**
+ * @brief Destructor for the TransportKernel.
+ */
 TransportKernel::~TransportKernel() {
   delete [] _thread_fsr_flux;
 }
@@ -301,14 +311,13 @@ TransportKernel::~TransportKernel() {
  * @brief Sets a pointer to the CPUSolver to enable use of transport functions
  * @param cpu_solver pointer to the CPUSolver
  */
-//FIXME
 void TransportKernel::setCPUSolver(CPUSolver* cpu_solver) {
   _cpu_solver = cpu_solver;
 }
 
 
 /**
- * @brief Sets the indexes of the current Track
+ * @brief Sets the indexes of the current Track.
  * @param axim_index the Track's azimuthal index
  * @param polar_index the Track's polar index
  */
@@ -323,7 +332,7 @@ void TransportKernel::newTrack(Track* track) {
 
 
 /**
- * @brief Sets the direction of the current track
+ * @brief Sets the direction of the current track.
  * @param direction the direction of the track: true = Forward, false = Backward
  */
 //FIXME: delete?
@@ -332,7 +341,22 @@ void TransportKernel::setDirection(bool direction) {
 }
 
 
-//FIXME document
+/**
+ * @brief Apply MOC equations, tally fluxes and tally CMFD currents.
+ * @param length length of the segment
+ * @param mat pointer to the Material around the segment
+ * @param fsr_id id of the FSR the segment lies in
+ * @param track_idx id of the track
+ * @param cmfd_surface_fwd CMFD surface at the end of the segment in the forward 
+ *        direction
+ * @param cmfd_surface_bwd CMFD surface at the end of the segment in the 
+ *        backward direction
+ * @param x_start x coordinate of the start of the segment
+ * @param y_start y coordinate of the start of the segment
+ * @param z_start z coordinate of the start of the sement
+ * @param phi azimuthal angle of this segment
+ * @param theta polar angle of this segment
+ */
 void TransportKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
                               int track_idx, int cmfd_surface_fwd,
                               int cmfd_surface_bwd, FP_PRECISION x_start,
@@ -369,17 +393,17 @@ void TransportKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
     curr_segment._length = temp_length;
     curr_segment._material = mat;
     curr_segment._region_id = fsr_id;
-    curr_segment._track_idx = track_idx; //FIXME
+    curr_segment._track_idx = track_idx;
 
-        
-        if (i == 0)
-          curr_segment._cmfd_surface_bwd = cmfd_surface_bwd;
-        else
-          curr_segment._cmfd_surface_bwd = -1;
-        if (i == num_cuts - 1)
-          curr_segment._cmfd_surface_fwd = cmfd_surface_fwd;
-        else
-          curr_segment._cmfd_surface_fwd = -1;
+    /* Set CMFD surface if segment is at the edge of the Track */
+    if (i == 0)
+      curr_segment._cmfd_surface_bwd = cmfd_surface_bwd;
+    else
+      curr_segment._cmfd_surface_bwd = -1;
+    if (i == num_cuts - 1)
+      curr_segment._cmfd_surface_fwd = cmfd_surface_fwd;
+    else
+      curr_segment._cmfd_surface_fwd = -1;
 
     /* Get the backward track flux */
     long curr_track_id = _track_id + track_idx;
@@ -398,7 +422,9 @@ void TransportKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
 }
 
 
-//FIXME
+/**
+ * @brief Obtain and transfer the boundary track angular fluxes.
+ */
 void TransportKernel::post() {
   for (int i=_min_track_idx; i <= _max_track_idx; i++) {
     float* track_flux = _cpu_solver->getBoundaryFlux(_track_id+i,

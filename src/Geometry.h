@@ -160,30 +160,52 @@ private:
   /* A vector containing allocated strings for key generation */
   std::vector<std::string> _fsr_keys;
 
-  //FIXME
+  /* A boolean to know whether geometry is domain decomposed or not */
   bool _domain_decomposed;
+  
+  /* A boolean to know whether FSRs were counted */
   bool _domain_FSRs_counted;
+  
+  /* Number of domains in the X, Y and Z directions */
   int _num_domains_x;
   int _num_domains_y;
   int _num_domains_z;
+  
+  /* Index of the domain in the whole geometry in the X, Y and Z directions */
   int _domain_index_x;
   int _domain_index_y;
   int _domain_index_z;
+  
+  /* Lattice object of size 1 that contains the local domain */
   Lattice* _domain_bounds;
+  
+  /* Number of FSRs in each domain */
   std::vector<long> _num_domain_FSRs;
+  
 #ifdef MPIx
+  /* MPI communicator, used to transfer information across domain for both 
+   * ray-tracing and solving the MOC equations */
   MPI_Comm _MPI_cart;
 #endif
 
-  //FIXME
+  /* Number of modular track laydowns within a domain, in the X, Y and 
+     Z directions */
   int _num_modules_x;
   int _num_modules_y;
   int _num_modules_z;
 
+  /* Wether to read bites backwards or forward (for BGQ) */
   bool _twiddle;
+  
+  /* Whether the geometry was loaded from a .geo file or created in the input 
+   * file. This matters for memory de-allocation purposes. */
   bool _loaded_from_file;
 
+  /* Function to find the cell containing the coordinates */
   Cell* findFirstCell(LocalCoords* coords, double azim, double polar=M_PI_2);
+  
+  /* Function to find the next cell, starting at some coordinate with a given
+   * angle */
   Cell* findNextCell(LocalCoords* coords, double azim, double polar=M_PI_2);
 
 public:
@@ -191,7 +213,7 @@ public:
   Geometry();
   virtual ~Geometry();
 
-  //FIXME
+  /* Handle number of ray-tracing modules in a domain */
   void setNumDomainModules(int num_x, int num_y, int num_z);
   int getNumXModules();
   int getNumYModules();
@@ -221,7 +243,6 @@ public:
   int getNumCells();
   std::map<int, Surface*> getAllSurfaces();
   std::map<int, Material*> getAllMaterials();
-  void manipulateXS(); //FIXME
   std::map<int, Cell*> getAllCells();
   std::map<int, Cell*> getAllMaterialCells();
   std::map<int, Universe*> getAllUniverses();
@@ -230,12 +251,17 @@ public:
   bool isDomainDecomposed();
   bool isRootDomain();
   void getDomainIndexes(int* indexes);
+
+  /* Assign root universe to geometry */
   void setRootUniverse(Universe* root_universe);
+  
+  /* Set up domain decomposition */
 #ifdef MPIx
   void setDomainDecomposition(int nx, int ny, int nz, MPI_Comm comm);
   MPI_Comm getMPICart();
 #endif
 
+  /* Get CMFD parameters */
   Cmfd* getCmfd();
   std::vector<std::string>& getFSRsToKeys();
   std::vector<int>& getFSRsToMaterialIDs();
@@ -259,7 +285,7 @@ public:
   int getNeighborDomain(int offset_x, int offset_y, int offset_z);
 #endif
 
-  /* Set parameters */
+  /* Set CMFD parameters */
   void setCmfd(Cmfd* cmfd);
   void setFSRCentroid(long fsr, Point* centroid);
   void setOverlaidMesh(double axial_mesh_height, int num_x=0,
@@ -287,6 +313,9 @@ public:
   void fixFSRMaps();
   void initializeFSRVectors();
   void computeFissionability(Universe* univ=NULL);
+  void manipulateXS();
+
+  /* Obtain or print information about the geometry */
   std::vector<long> getSpatialDataOnGrid(std::vector<double> dim1,
                                          std::vector<double> dim2,
                                          double offset,
@@ -297,6 +326,7 @@ public:
   void printFSRsToFile(const char* plane="xy", int gridsize=1000, 
                        double offset=0.0, double* bounds_x = NULL, 
                        double* bounds_y = NULL, double* bounds_z = NULL);
+
   void initializeCmfd();
   void initializeSpectrumCalculator(Cmfd* spectrum_calculator);
   bool withinBounds(LocalCoords* coords);
@@ -307,6 +337,8 @@ public:
 #endif
   std::vector<double> getGlobalFSRCentroidData(long global_fsr_id);
   int getDomainByCoords(LocalCoords* coords);
+
+  /* Input/output of geometries from/to .geo files */
   void dumpToFile(std::string filename);
   void loadFromFile(std::string filename, bool twiddle=false);
   size_t twiddleRead(int* ptr, size_t size, size_t nmemb, FILE* stream);

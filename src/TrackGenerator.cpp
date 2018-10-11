@@ -24,6 +24,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
   _max_num_segments = 0;
   _FSR_volumes = NULL;
   _dump_segments = true;
+  _segments_centered = false;
   _FSR_locks = NULL;
   _tracks_2D_array = NULL;
   _tracks_per_azim = NULL;
@@ -121,18 +122,26 @@ omp_lock_t* TrackGenerator::getFSRLocks() {
 
 
 /**
+ * @brief Initialize an array to contain the FSR volumes.
+ */
+void TrackGenerator::initializeFSRVolumesBuffer() {
+
+  if (_FSR_volumes != NULL)
+    delete[] _FSR_volumes;
+
+#pragma omp critical
+  {
+    long num_FSRs = _geometry->getNumFSRs();
+    _FSR_volumes = new FP_PRECISION[num_FSRs]();
+  }
+}
+
+
+/**
  * @brief Return the array used to store the FSR volumes
  * @return _FSR_volumes the FSR volumes array indexed by FSR ID
  */
 FP_PRECISION* TrackGenerator::getFSRVolumesBuffer() {
-#pragma omp critical
-  {
-    if (_FSR_volumes == NULL) {
-      long num_FSRs = _geometry->getNumFSRs();
-      _FSR_volumes = new FP_PRECISION[num_FSRs];
-      memset(_FSR_volumes, 0., num_FSRs*sizeof(FP_PRECISION));
-    }
-  }
 
   return _FSR_volumes;
 }
@@ -326,7 +335,7 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
 
   /* Check to ensure all FSRs are crossed by at least one track */
   for (long i=0; i < num_FSRs; i++) {
-    if (_FSR_volumes[i] == 0.0) {
+    if (fabs(_FSR_volumes[i]) < FLT_EPSILON) {
       log_printf(ERROR, "Zero volume calculated for FSR %d, point (%f, %f, %f)",
                  i, _geometry->getFSRPoint(i)->getX(),
                  _geometry->getFSRPoint(i)->getY(),
@@ -1310,7 +1319,11 @@ void TrackGenerator::dumpSegmentsToFile() {
 }
 
 
-//FIXME
+/**
+ * @brief Write information of all Extruded FSRs to a file 
+ //TODO Use implementation in 3D track generator
+ * @param out file to write to
+ */
 void TrackGenerator::writeExtrudedFSRInfo(FILE* out) {}
 
 
@@ -1439,7 +1452,10 @@ bool TrackGenerator::readSegmentsFromFile() {
 }
 
 
-//FIXME
+/**
+ * @brief Read information of all Extruded FSRs from a file.
+ * @param in file to read from
+ */
 void TrackGenerator::readExtrudedFSRInfo(FILE* in) {}
 
 
@@ -1496,8 +1512,14 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
   for (long r=0; r < num_FSRs; r++)
     _geometry->setFSRCentroid(r, centroids[r]);
 
-  RecenterSegments rs(this);
-  rs.execute();
+  /* Recenter the segments around FSR centroid */
+  if ((_segment_formation == EXPLICIT_2D || _segment_formation == EXPLICIT_3D)
+      && _segments_centered == false) {
+    log_printf(NORMAL, "Centering segments around FSR centroid...");
+    RecenterSegments rs(this);
+    rs.execute();
+    _segments_centered = true;
+  }
 
   delete [] centroids;
 }
@@ -1625,7 +1647,13 @@ void TrackGenerator::resetStatus() {
 void TrackGenerator::allocateTemporarySegments() {}
 
 
-//FIXME: description
+/**
+ * @brief Get the id of a 2D Track based on its azimuthal angle and index in the
+ *        azimuthal stack
+ * @param a azimuthal angle of the Track
+ * @param x index in azimuthal stack
+ * @return Track unique id
+ */
 int TrackGenerator::get2DTrackID(int a, int x) {
 
   int uid = 0;

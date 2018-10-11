@@ -114,25 +114,45 @@ public:
 };
 
 
-//FIXME
+/**
+ * @brief Get the index on the exponential interpolation grid of the value right
+ *        beneath tau.
+ * @param tau optical distance
+ * @return the index on the exponential interpolation grid
+ */
 inline int ExpEvaluator::getExponentialIndex(FP_PRECISION tau) {
   return floor(tau * _inverse_exp_table_spacing);
 }
 
 
-//FIXME
+/**
+ * @brief Compute the difference between an optical path and an indexed value in
+ *        the exponential interpolation grid.
+ * @param index index on the exponential interpolation grid
+ * @param tau optical distance
+ * @return the difference between tau and the value on the grid
+ */
 inline FP_PRECISION ExpEvaluator::getDifference(int index, FP_PRECISION tau) {
   return tau - index * _exp_table_spacing;
 }
 
 
-//FIXME
+/**
+ * @brief Convert a 3D distance to a 2D based on the evaluator's polar angle.
+ * @param length the 3D distance
+ * @return the 2D distance
+ */
 inline FP_PRECISION ExpEvaluator::convertDistance3Dto2D(FP_PRECISION length) {
   return length * _sin_theta_no_offset;
 }
 
 
-//FIXME
+/**
+ * @brief Computes the F1 exponential term.
+ * @param tau the optical distance
+ * @param polar_offset an offset to the index in the look-up table
+ * @return the F1 exponential term
+ */
 inline FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau,
                                                      int polar_offset) {
 
@@ -146,7 +166,6 @@ inline FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau,
 }
 
 
-//FIXME
 /**
  * @brief Computes the F1 exponential term.
  * @details This method computes F1 exponential from Ferrer [1] given
@@ -161,8 +180,10 @@ inline FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau,
  *                Engineering, Volume 182, February 2016.
  *
  * @param index the index into the exponential look-up table
+ * @param polar_offset an offset to the index in the look-up table
  * @param dt the distance to the corresponding look-up table bin
- * @return dt2 the distance to the corresponding look-up table bin squared
+ * @param dt2 the distance to the corresponding look-up table bin squared
+ * @return the evaluated F1 exponential term
  */
 inline FP_PRECISION ExpEvaluator::computeExponentialF1(int index,
                                                        int polar_offset,
@@ -200,8 +221,10 @@ inline FP_PRECISION ExpEvaluator::computeExponentialF1(int index,
  *                Engineering, Volume 182, February 2016.
  *
  * @param index the index into the exponential look-up table
+ * @param polar_offset an offset to the index in the look-up table
  * @param dt the distance to the corresponding look-up table bin
- * @return dt2 the distance to the corresponding look-up table bin squared
+ * @param dt2 the distance to the corresponding look-up table bin squared
+ * @return the evaluated F2 exponential term
  */
 inline FP_PRECISION ExpEvaluator::computeExponentialF2(int index,
                                                        int polar_offset,
@@ -240,8 +263,10 @@ inline FP_PRECISION ExpEvaluator::computeExponentialF2(int index,
  *                Engineering, Volume 182, February 2016.
  *
  * @param index the index into the exponential look-up table
+ * @param polar_offset an offset to the index in the look-up table
  * @param dt the distance to the corresponding look-up table bin
- * @return dt2 the distance to the corresponding look-up table bin squared
+ * @param dt2 the distance to the corresponding look-up table bin squared
+ * @return the evaluated H exponential term
  */
 inline FP_PRECISION ExpEvaluator::computeExponentialH(int index,
                                                       int polar_offset,
@@ -266,7 +291,22 @@ inline FP_PRECISION ExpEvaluator::computeExponentialH(int index,
 }
 
 
-//FIXME: description
+/**
+ * @brief Computes the F1, F2, H exponential term.
+ * @details This method computes F1, F2, H exponential from Ferrer [1] given the
+ *          requested tau. This method uses either a linear interpolation table
+ *          (default) or the exponential intrinsicexp(...) function.
+ *
+ *            [1] R. Ferrer and J. Rhodes III, "A Linear Source Approximation
+ *                Scheme for the Method of Characteristics", Nuclear Science and
+ *                Engineering, Volume 182, February 2016.
+ *
+ * @param tau the requested tau
+ * @param polar_offset an offset to the index in the look-up table
+ * @param exp_F1 pointer to the F1 exponential term to be computed
+ * @param exp_F2 pointer to the F2 exponential term to be computed
+ * @param exp_H  pointer to the H exponential term to be computed
+ */
 inline void ExpEvaluator::retrieveExponentialComponents(FP_PRECISION tau,
                                                         int polar_offset,
                                                         FP_PRECISION* exp_F1,

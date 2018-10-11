@@ -57,7 +57,7 @@ protected:
    *  azimuthal angle */
   int* _num_y;
 
-  //FIXME: description
+  /** A long integer array of the number of Tracks for each azimuthal angle */ 
   long* _tracks_per_azim;
 
   /** A 2D ragged array of 2D tracks (azim, track index) */
@@ -79,7 +79,7 @@ protected:
   omp_lock_t* _FSR_locks;
 
   /** Boolean indicating whether the Tracks have been generated (true) or not
-    * (false) */
+   * (false) */
   bool _contains_2D_tracks;
 
   /** Boolean indicating whether 2D segments have been generated (true) or not
@@ -106,6 +106,10 @@ protected:
 
   /** Boolean to indicate whether the segments should be dumped to file */
   bool _dump_segments;
+
+  /** Boolean to indicate whether the segments have been centered around their
+   * centroid or not */
+  bool _segments_centered;
 
   /** A buffer holding the computed FSR volumes */
   FP_PRECISION* _FSR_volumes;
@@ -157,6 +161,7 @@ public:
   int getNumX(int azim);
   int getNumY(int azim);
   void exportFSRVolumes(double* out_volumes, int num_fsrs);
+  void initializeFSRVolumesBuffer();
   FP_PRECISION* getFSRVolumesBuffer();
   FP_PRECISION* getFSRVolumes();
   FP_PRECISION getFSRVolume(long fsr_id);

@@ -42,7 +42,7 @@ void Progress::incrementCounter() {
     while (_curr_interval < _intervals.size()) {
       if (curr_count != _intervals.at(_curr_interval))
         break;
-      double count = curr_count;
+      int count = curr_count;
       if (count != 0)
         count += 1;
       double num_iters = _num_iterations;

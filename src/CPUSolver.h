@@ -33,7 +33,7 @@
 #define track_leakage(pe) (track_leakage[(pe)])
 
 
-//FIXME
+/* Structure containing the info to send about a track (used in printCycle) */
 struct sendInfo {
   long track_id;
   int domain;
@@ -56,15 +56,29 @@ protected:
   /** OpenMP mutual exclusion locks for atomic FSR scalar flux updates */
   omp_lock_t* _FSR_locks;
 
-  //FIXME
 #ifdef MPIx
+  /* Message size when communicating track angular fluxes at interfaces */
   int _track_message_size;
+
+  /* Buffer to send track angular fluxes and associated information */
   std::vector<float*> _send_buffers;
+
+  /* Buffer to receive track angular fluxes and associated information */
   std::vector<float*> _receive_buffers;
+
+  /* Vector of vectors containing boundary track ids and direction */
   std::vector<std::vector<long> > _boundary_tracks;
+
+  /* Vector of vectors containing the connecting track id and direction */
   std::vector<std::vector<long> > _track_connections;
+
+  /* Rank of domains neighboring local domain */
   std::vector<int> _neighbor_domains;
+
+  /* Array to check whether MPI communications are finished */
   MPI_Request* _MPI_requests;
+
+  /* Arrays of booleans to know whether a send/receive call was made */
   bool* _MPI_sends;
   bool* _MPI_receives;
 #endif
