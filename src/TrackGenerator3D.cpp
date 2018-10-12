@@ -1550,7 +1550,7 @@ void TrackGenerator3D::allocateTemporarySegments() {
  */
 void TrackGenerator3D::allocateTemporaryTracks() {
 
-  /* Delete temporary segments if already allocated */
+  /* Delete temporary tracks if already allocated */
   if (_contains_temporary_tracks) {
     for (int t = 0; t < _num_threads; t++) {
       delete [] _temporary_3D_tracks.at(t);
@@ -1569,7 +1569,7 @@ void TrackGenerator3D::allocateTemporaryTracks() {
   log_printf(NORMAL, "Temporary Track storage per domain = %6.2f MB",
              size_mb);
 
-  /* Allocate new temporary segments */
+  /* Allocate new temporary tracks arrays */
   for (int t = 0; t < _num_threads; t++) {
     _temporary_3D_tracks.at(t) = new Track3D[_max_num_tracks_per_stack];
     _temporary_tracks_array.at(t) = new Track*[_max_num_tracks_per_stack];

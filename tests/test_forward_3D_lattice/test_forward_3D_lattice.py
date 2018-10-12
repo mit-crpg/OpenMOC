@@ -27,13 +27,22 @@ class SimpleLatticeTestHarness(TestHarness):
         self.track_generator = \
             openmoc.TrackGenerator3D(geometry, self.num_azim, self.num_polar,
                                      self.azim_spacing, self.z_spacing)
-        self.track_generator.setSegmentFormation(openmoc.OTF_STACKS)
+        self.track_generator.setSegmentFormation(openmoc.OTF_TRACKS)
 
 
-    def _get_results(self, num_iters=True, keff=True, fluxes=True,
+    def _generate_tracks(self):
+        """Generate Tracks and segments."""
+        # Need to use more than 1 thread, and lose reproducibility of FSR
+        # numbering, in order to have temporary tracks and segments array of
+        # the correct size for the multi-threaded solver.
+        self.track_generator.setNumThreads(self.num_threads)
+        self.track_generator.generateTracks()
+
+
+    def _get_results(self, num_iters=True, keff=True, fluxes=False,
                      num_fsrs=False, num_tracks=False, num_segments=False,
-                     hash_output=True):
-        """Digest info in the solver and return hash as a string."""
+                     hash_output=False):
+        """Digest info in the solver"""
         return super(SimpleLatticeTestHarness, self)._get_results(
                 num_iters=num_iters, keff=keff, fluxes=fluxes,
                 num_fsrs=num_fsrs, num_tracks=num_tracks,
