@@ -12,9 +12,10 @@ class InputSet(object):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self):
+    def __init__(self, num_dimensions=2):
         self.materials = {}
         self.geometry = None
+        self.dimensions = num_dimensions
 
     @abstractmethod
     def create_materials(self):
@@ -259,9 +260,13 @@ class SimpleLatticeInput(InputSet):
 
         xmin = openmoc.XPlane(x=-2.0, name='xmin')
         xmax = openmoc.XPlane(x=+2.0, name='xmax')
-        ymax = openmoc.YPlane(y=+2.0, name='ymin')
-        ymin = openmoc.YPlane(y=-2.0, name='ymax')
+        ymin = openmoc.YPlane(y=-2.0, name='ymin')
+        ymax = openmoc.YPlane(y=+2.0, name='ymax')
         boundaries = [xmin, xmax, ymin, ymax]
+        if (self.dimensions == 3):
+            zmin = openmoc.ZPlane(z=-5.0, name='zmin')
+            zmax = openmoc.ZPlane(z=+5.0, name='zmax')
+            boundaries = [xmin, xmax, ymin, ymax, zmin, zmax]
 
         large_zcylinder = openmoc.ZCylinder(x=0.0, y=0.0,
                                             radius=0.4, name='large pin')
@@ -271,6 +276,8 @@ class SimpleLatticeInput(InputSet):
                                             radius=0.2, name='small pin')
 
         for boundary in boundaries: boundary.setBoundaryType(openmoc.REFLECTIVE)
+        if (self.dimensions == 3):
+            boundaries[-1].setBoundaryType(openmoc.VACUUM)
 
         large_fuel = openmoc.Cell(name='large pin fuel')
         large_fuel.setNumRings(3)
@@ -312,6 +319,9 @@ class SimpleLatticeInput(InputSet):
         root_cell.addSurface(halfspace=-1, surface=boundaries[1])
         root_cell.addSurface(halfspace=+1, surface=boundaries[2])
         root_cell.addSurface(halfspace=-1, surface=boundaries[3])
+        if (self.dimensions == 3):
+            root_cell.addSurface(halfspace=+1, surface=boundaries[4])
+            root_cell.addSurface(halfspace=-1, surface=boundaries[5])
 
         pin1 = openmoc.Universe(name='large pin cell')
         pin2 = openmoc.Universe(name='medium pin cell')
@@ -344,6 +354,7 @@ class SimpleLatticeInput(InputSet):
         self.geometry.setRootUniverse(root_universe)
 
         super(SimpleLatticeInput, self).create_geometry()
+
 
 
 class PwrAssemblyInput(InputSet):

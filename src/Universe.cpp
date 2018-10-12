@@ -693,7 +693,7 @@ Universe* Universe::clone() {
 void Universe::calculateBoundaries() {
 
   /* Calculate the minimum reachable x-coordinate in the geometry and store it
-   * in _x_min */
+   * in _min_x */
   double min_x = -std::numeric_limits<double>::infinity();
   std::map<int, Cell*>::iterator c_iter;
   std::map<int, surface_halfspace*>::iterator s_iter;
@@ -723,7 +723,7 @@ void Universe::calculateBoundaries() {
   _min_x = min_x;
 
   /* Calculate the maximum reachable x-coordinate in the geometry and store it
-   * in _x_max */
+   * in _max_x */
   double max_x = std::numeric_limits<double>::infinity();
 
   /* Check if the universe contains a cell with an x-max boundary */
@@ -749,7 +749,7 @@ void Universe::calculateBoundaries() {
 
 
   /* Calculate the minimum reachable y-coordinate in the geometry and store it
-   * in _y_min */
+   * in _min_y */
   double min_y = -std::numeric_limits<double>::infinity();
 
   /* Check if the universe contains a cell with an y-min boundary */
@@ -775,7 +775,7 @@ void Universe::calculateBoundaries() {
   _min_y = min_y;
 
   /* Calculate the maximum reachable y-coordinate in the geometry and store it
-   * in _y_max */
+   * in _max_y */
   double max_y = std::numeric_limits<double>::infinity();
 
   /* Check if the universe contains a cell with an y-max boundary */
@@ -799,8 +799,8 @@ void Universe::calculateBoundaries() {
 
   _max_y = max_y;
 
-  /* Calculate the minimum reachable y-coordinate in the geometry and store it
-   * in _y_min */
+  /* Calculate the minimum reachable z-coordinate in the geometry and store it
+   * in _min_z */
   double min_z = -std::numeric_limits<double>::infinity();
 
   /* Check if the universe contains a cell with an z-min boundary */
@@ -821,12 +821,12 @@ void Universe::calculateBoundaries() {
    * of the cells */
   if (min_z == -std::numeric_limits<double>::infinity())
     for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
-      min_z = std::min(min_z, c_iter->second->getMinY());
+      min_z = std::min(min_z, c_iter->second->getMinZ());
 
   _min_z = min_z;
 
-  /* Calculate the maximum reachable y-coordinate in the geometry and store it
-   * in _y_max */
+  /* Calculate the maximum reachable z-coordinate in the geometry and store it
+   * in _max_z */
   double max_z = std::numeric_limits<double>::infinity();
 
   /* Check if the universe contains a cell with an y-max boundary */
@@ -836,17 +836,18 @@ void Universe::calculateBoundaries() {
     for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
       surf = s_iter->second->_surface;
       halfspace = s_iter->second->_halfspace;
+
       if (surf->getSurfaceType() == ZPLANE && halfspace == -1 &&
           surf->getBoundaryType() != BOUNDARY_NONE)
         max_z = surf->getMaxZ(halfspace);
     }
   }
 
-  /* If a y-max boundary was not found, get the y-max from the bounding boxes
+  /* If a y-max boundary was not found, get the z-max from the bounding boxes
    * of the cells */
   if (max_z == std::numeric_limits<double>::infinity())
     for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
-      max_z = std::max(max_z, c_iter->second->getMaxY());
+      max_z = std::max(max_z, c_iter->second->getMaxZ());
 
   _max_z = max_z;
 
@@ -864,7 +865,8 @@ void Universe::calculateBoundaries() {
       halfspace = s_iter->second->_halfspace;
 
       if (surf->getSurfaceType() == XPLANE && halfspace == +1 &&
-          surf->getBoundaryType() != BOUNDARY_NONE)
+          surf->getBoundaryType() != BOUNDARY_NONE &&
+          surf->getMinX(halfspace) == _min_x)
         bc_x_min = surf->getBoundaryType();
     }
   }
@@ -876,7 +878,7 @@ void Universe::calculateBoundaries() {
    */
   boundaryType bc_x_max = BOUNDARY_NONE;
 
-  /* Check if the universe contains a cell with an x-min boundary */
+  /* Check if the universe contains a cell with an x-max boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
     std::map<int, surface_halfspace*>surfs = c_iter->second->getSurfaces();
 
@@ -885,7 +887,8 @@ void Universe::calculateBoundaries() {
       halfspace = s_iter->second->_halfspace;
 
       if (surf->getSurfaceType() == XPLANE && halfspace == -1 &&
-          surf->getBoundaryType() != BOUNDARY_NONE)
+          surf->getBoundaryType() != BOUNDARY_NONE &&
+          surf->getMaxX(halfspace) == _max_x)
         bc_x_max = surf->getBoundaryType();
     }
   }
@@ -897,7 +900,7 @@ void Universe::calculateBoundaries() {
    */
   boundaryType bc_y_min = BOUNDARY_NONE;
 
-  /* Check if the universe contains a cell with an x-min boundary */
+  /* Check if the universe contains a cell with an y-min boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
     std::map<int, surface_halfspace*>surfs = c_iter->second->getSurfaces();
 
@@ -906,7 +909,8 @@ void Universe::calculateBoundaries() {
       halfspace = s_iter->second->_halfspace;
 
       if (surf->getSurfaceType() == YPLANE && halfspace == +1 &&
-          surf->getBoundaryType() != BOUNDARY_NONE)
+          surf->getBoundaryType() != BOUNDARY_NONE &&
+          surf->getMinY(halfspace) == _min_y)
         bc_y_min = surf->getBoundaryType();
     }
   }
@@ -918,7 +922,7 @@ void Universe::calculateBoundaries() {
    */
   boundaryType bc_y_max = BOUNDARY_NONE;
 
-  /* Check if the universe contains a cell with an x-min boundary */
+  /* Check if the universe contains a cell with an y-max boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
     std::map<int, surface_halfspace*>surfs = c_iter->second->getSurfaces();
 
@@ -927,7 +931,8 @@ void Universe::calculateBoundaries() {
       halfspace = s_iter->second->_halfspace;
 
       if (surf->getSurfaceType() == YPLANE && halfspace == -1 &&
-          surf->getBoundaryType() != BOUNDARY_NONE)
+          surf->getBoundaryType() != BOUNDARY_NONE &&
+          surf->getMaxY(halfspace) == _max_y)
         bc_y_max = surf->getBoundaryType();
     }
   }
@@ -935,11 +940,11 @@ void Universe::calculateBoundaries() {
   _max_y_bound = bc_y_max;
 
   /* Calculate the boundary condition at the minimum
-   * reachable y-coordinate in the Universe and store it in _min_y_bound
+   * reachable z-coordinate in the Universe and store it in _min_z_bound
    */
   boundaryType bc_z_min = BOUNDARY_NONE;
 
-  /* Check if the universe contains a cell with an x-min boundary */
+  /* Check if the universe contains a cell with an z-min boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
     std::map<int, surface_halfspace*>surfs = c_iter->second->getSurfaces();
 
@@ -948,7 +953,8 @@ void Universe::calculateBoundaries() {
       halfspace = s_iter->second->_halfspace;
 
       if (surf->getSurfaceType() == ZPLANE && halfspace == +1 &&
-          surf->getBoundaryType() != BOUNDARY_NONE)
+          surf->getBoundaryType() != BOUNDARY_NONE &&
+          surf->getMinZ(halfspace) == _min_z)
         bc_z_min = surf->getBoundaryType();
     }
   }
@@ -956,11 +962,11 @@ void Universe::calculateBoundaries() {
   _min_z_bound = bc_z_min;
 
   /* Calculate the boundary condition at the maximum
-   * reachable y-coordinate in the Universe and store it in _max_y_bound
+   * reachable z-coordinate in the Universe and store it in _max_z_bound
    */
   boundaryType bc_z_max = BOUNDARY_NONE;
 
-  /* Check if the universe contains a cell with an x-min boundary */
+  /* Check if the universe contains a cell with an z-max boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
     std::map<int, surface_halfspace*>surfs = c_iter->second->getSurfaces();
 
@@ -969,7 +975,8 @@ void Universe::calculateBoundaries() {
       halfspace = s_iter->second->_halfspace;
 
       if (surf->getSurfaceType() == ZPLANE && halfspace == -1 &&
-          surf->getBoundaryType() != BOUNDARY_NONE)
+          surf->getBoundaryType() != BOUNDARY_NONE &&
+          surf->getMaxZ(halfspace) == _max_z)
         bc_z_max = surf->getBoundaryType();
     }
   }
