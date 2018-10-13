@@ -756,6 +756,7 @@ void Universe::calculateBoundaries() {
     for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
       surf = s_iter->second->_surface;
       halfspace = s_iter->second->_halfspace;
+      
       if (surf->getSurfaceType() == XPLANE && halfspace == -1 &&
           surf->getBoundaryType() != BOUNDARY_NONE) {
         if(surf->getMaxX(halfspace) < cell_max_x) {
@@ -840,6 +841,7 @@ void Universe::calculateBoundaries() {
     for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
       surf = s_iter->second->_surface;
       halfspace = s_iter->second->_halfspace;
+      
       if (surf->getSurfaceType() == YPLANE && halfspace == -1 &&
         surf->getBoundaryType() != BOUNDARY_NONE) {
         if(surf->getMaxY(halfspace) < cell_max_y) {
@@ -863,12 +865,12 @@ void Universe::calculateBoundaries() {
 
   _max_y = max_y;
 
-  /* Calculate the minimum reachable y-coordinate in the geometry and store it
+  /* Calculate the minimum reachable z-coordinate in the geometry and store it
    * in _min_z */
   double min_z = std::numeric_limits<double>::infinity();
   
   /* Calculate the boundary condition at the minimum
-  * reachable y-coordinate in the Universe and store it in _min_y_bound
+  * reachable z-coordinate in the Universe and store it in _min_z_bound
   */
   _min_z_bound = BOUNDARY_NONE;
 
@@ -910,7 +912,7 @@ void Universe::calculateBoundaries() {
   double max_z = -std::numeric_limits<double>::infinity();
 
   /* Calculate the boundary condition at the maximum
-  * reachable y-coordinate in the Universe and store it in _max_y_bound
+  * reachable z-coordinate in the Universe and store it in _max_z_bound
   */
   _max_z_bound = BOUNDARY_NONE;
   
@@ -923,6 +925,7 @@ void Universe::calculateBoundaries() {
     for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
       surf = s_iter->second->_surface;
       halfspace = s_iter->second->_halfspace;
+      
       if (surf->getSurfaceType() == ZPLANE && halfspace == -1 &&
           surf->getBoundaryType() != BOUNDARY_NONE) {
         if(surf->getMaxZ(halfspace) < cell_max_z) {
