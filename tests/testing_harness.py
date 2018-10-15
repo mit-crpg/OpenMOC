@@ -49,6 +49,8 @@ class TestHarness(object):
         self.parser = OptionParser()
         self.parser.add_option('--update', dest='update',
                                action='store_true', default=False)
+        # Add -f option to parser, as Jupyter forcedly provide this option
+        self.parser.add_option('-f', dest='jupyter', action='store',default=None)
 
         self._opts = None
         self._args = None
@@ -191,7 +193,10 @@ class TestHarness(object):
 
     def _compare_results(self):
         """Make sure the current results agree with the _true standard."""
-        compare = filecmp.cmp('results_test.dat', 'results_true.dat')
+        
+        # For comparison of files with different line endings
+        compare = (open('results_test.dat', 'r').read() == 
+                   open('results_true.dat', 'r').read())
         if not compare:
             os.rename('results_test.dat', 'results_error.dat')
         assert compare, 'Results do not agree.'
