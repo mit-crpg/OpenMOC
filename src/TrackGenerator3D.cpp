@@ -909,11 +909,12 @@ void TrackGenerator3D::initialize2DTrackChains() {
 
 
 /**
- * @brief Traverses all the 3D chain tracks, and split each 3D chain track into 
-          3D tracks belonging to the z-stacks
- * @param tcis The array of track chain indices
- * @param num_chains The size of the array of track chain indices
- * @param save_tracks Whether or not to save the 3D tracks
+ * @brief Save or initialize 3D tracks by traversing all the 3D chain tracks,
+ *        and split each 3D chain track into 3D tracks belonging to 
+ *        the z-stacks.
+ * @param tcis array of Track chain indexes, sorted by chain
+ * @param num_chains number of 3D Track chains to examine
+ * @param save_tracks whether saving tracks or initializing them
  */
 void TrackGenerator3D::getCycleTrackData(TrackChainIndexes* tcis,
                                          int num_chains, bool save_tracks) {
@@ -949,11 +950,12 @@ void TrackGenerator3D::getCycleTrackData(TrackChainIndexes* tcis,
 
 
 /**
- * @brief Compute the coordinates of a 3D chain track, and the link number of 
-          the 2D track where its start point reseide on
+ * @brief Compute the starting coordinates of a 3D chain track, and the link 
+          number of the 2D track where its start point reside on
  * @param tci the track chain index of a chain track
  * @param track_3D the chain track
- * @return the link number of the 2D track where its start point reseide on
+ * @return the link number of the 2D track where the track_3D start point 
+ *         reside on
  */
 int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
                                                Track3D* track_3D) {
@@ -992,7 +994,7 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
   /* If the start point is on a double reflection, nudge it to avoid track
    * with the same start and end points */
   bool nudged = false;
-  if (l_start != 0.0) {
+  if (fabs(l_start) > FLT_EPSILON) {
     if (fabs(int(round(x_ext / width_x)) * width_x - x_ext) < TINY_MOVE ||
         fabs(int(round(y_ext / width_y)) * width_y - y_ext) < TINY_MOVE) {
       l_start += TINY_MOVE * 10;
@@ -1042,26 +1044,17 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
 
 
 /**
- * @brief A 3D Track is decomposed by intersections with x and y boundaries
+ * @brief A 3D Track is decomposed by intersections with x and y boundaries of 
+ *        z-stacks
  * @details A 3D Track which initially neglects intersections with x and y
  *          boundaries is split into multiple tracks by finding those
- *          x and y intersections. If create_tracks is set to true, the Tracks
- *          will be altered to represent the correct 3D Tracks. If not, the
- *          number of tracks in the chain will simply be counted. Whenever this
- *          function is called, the number of tracks in the associated z-stacks
- *          are incremented.
+ *          x and y intersections. If create_arrays is True, the number of 
+ *          tracks in the associated z-stacks is incremented. 
+ * @param tci pointer to a track chain index representing a chain track
  * @param track The 3D track to be decomposed
- * @param l_start The distance accross the radial or "l" direction to where the
- *        track starts
- * @param l_end The distance accross the radial or "l" direction to where the
- *        track end
- * @param azim The azimuthal index of the track
- * @param chain The chain index of the track
- * @param polar The polar index of the track
- * @param lz_index The lz index into the Track3D cycles array
- * @param create_tracks Boolean value determining whether to create the
- *        associated decomposed tracks (true) or simply count them (false)
- //FIXME: description
+ * @param create_arrays whether creating the stack array of Tracks
+ * @param save_tracks whether to save the Track3D or just initialize it. It may
+ *        only be true for EXPLICIT_3D ray tracing.
  */
 void TrackGenerator3D::set3DTrackData(TrackChainIndexes* tci,
                                       Track3D* track,
@@ -1226,7 +1219,7 @@ void TrackGenerator3D::segmentizeExtruded() {
     _geometry->segmentizeExtruded(_tracks_2D_array[index], z_coords);
   }
 
-  /* Initialize 3D FSRs and their associated vectors*/
+  /* Initialize 3D FSRs and their associated vectors */
 #ifdef MPIx
   if (_geometry->isDomainDecomposed())
     MPI_Barrier(_geometry->getMPICart());
@@ -1564,7 +1557,7 @@ void TrackGenerator3D::allocateTemporarySegments() {
  */
 void TrackGenerator3D::allocateTemporaryTracks() {
 
-  /* Delete temporary segments if already allocated */
+  /* Delete temporary tracks if already allocated */
   if (_contains_temporary_tracks) {
     for (int t = 0; t < _num_threads; t++) {
       delete [] _temporary_3D_tracks.at(t);
@@ -1583,7 +1576,7 @@ void TrackGenerator3D::allocateTemporaryTracks() {
   log_printf(NORMAL, "Temporary Track storage per domain = %6.2f MB",
              size_mb);
 
-  /* Allocate new temporary segments */
+  /* Allocate new temporary tracks arrays */
   for (int t = 0; t < _num_threads; t++) {
     _temporary_3D_tracks.at(t) = new Track3D[_max_num_tracks_per_stack];
     _temporary_tracks_array.at(t) = new Track*[_max_num_tracks_per_stack];
@@ -1686,7 +1679,10 @@ void TrackGenerator3D::getTrackOTF(Track3D* track, TrackStackIndexes* tsi) {
 }
 
 
-//FIXME
+/**
+ * @brief Get the array of 3D Tracks, only used in EXPLICT-3D ray tracing.
+ * @return a pointer to the array of 3D Tracks
+ */
 Track3D**** TrackGenerator3D::get3DTracks() {
   return _tracks_3D;
 }
@@ -2352,7 +2348,10 @@ void TrackGenerator3D::getTSIByIndex(long id, TrackStackIndexes* tsi) {
 }
 
 
-//FIXME
+/**
+ * @brief Write information of all Extruded FSRs to a file.
+ * @param out file to write to
+ */
 void TrackGenerator3D::writeExtrudedFSRInfo(FILE* out) {
 
   /* Module to write track info */
@@ -2421,6 +2420,10 @@ void TrackGenerator3D::writeExtrudedFSRInfo(FILE* out) {
 }
 
 
+/**
+ * @brief Read information of all Extruded FSRs from a file.
+ * @param in file to read from
+ */
 void TrackGenerator3D::readExtrudedFSRInfo(FILE* in) {
   
   /* Module to read track info */

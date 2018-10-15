@@ -137,6 +137,9 @@ void CPULSSolver::initializeFSRs() {
 
   CPUSolver::initializeFSRs();
 
+  /* Initialize constant source components and source expansion matrices */
+  initializeLinearSourceConstants();
+
   /* Generate linear source coefficients */
   log_printf(NORMAL, "Generating linear expansion coefficients");
   LinearExpansionGenerator lin_src_coeffs(this);
@@ -293,7 +296,7 @@ void CPULSSolver::computeFSRSources(int iteration) {
 
         /* Compute total (scatter+fission) reduced source moments */
         if (_solve_3D) {
-          if (_reduced_sources(r,g) > 1e-15 or iteration > 29) {
+          if (_reduced_sources(r,g) > 1e-15 || iteration > 29) {
             _reduced_sources_xyz(r,g,0) = ONE_OVER_FOUR_PI / 2 *
                  (_FSR_lin_exp_matrix[r*num_coeffs  ] * src_x +
                   _FSR_lin_exp_matrix[r*num_coeffs+2] * src_y +
@@ -308,13 +311,13 @@ void CPULSSolver::computeFSRSources(int iteration) {
                   _FSR_lin_exp_matrix[r*num_coeffs+5] * src_z);
           }
           else {
-            _reduced_sources_xyz(r,g,0) = 1e-20;     
+            _reduced_sources_xyz(r,g,0) = 1e-20;
             _reduced_sources_xyz(r,g,1) = 1e-20;
             _reduced_sources_xyz(r,g,2) = 1e-20;
           }
         }
         else {
-          if (_reduced_sources(r,g) > 1e-15 or iteration > 29) {
+          if (_reduced_sources(r,g) > 1e-15 || iteration > 29) {
             _reduced_sources_xyz(r,g,0) = ONE_OVER_FOUR_PI / 2 *
                  (_FSR_lin_exp_matrix[r*num_coeffs  ] * src_x +
                   _FSR_lin_exp_matrix[r*num_coeffs+2] * src_y);
@@ -323,7 +326,7 @@ void CPULSSolver::computeFSRSources(int iteration) {
                   _FSR_lin_exp_matrix[r*num_coeffs+1] * src_y);
           }
           else {
-            _reduced_sources_xyz(r,g,0) = 1e-20;     
+            _reduced_sources_xyz(r,g,0) = 1e-20;
             _reduced_sources_xyz(r,g,1) = 1e-20;
           }
         }
@@ -368,7 +371,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   if (_solve_3D) {
 
     /* Compute the segment midpoint */
-    double center_x2[3];
+    FP_PRECISION center_x2[3];
     for (int i=0; i<3; i++)
       center_x2[i] = 2 * (position[i] + 0.5 * length * direction[i]);
 
@@ -420,7 +423,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       FP_PRECISION tau = sigma_t[e] * length_2D;
 
       // Compute the change in flux across the segment
-      exp_H *= length * track_flux[e] * length_2D * wgt;
+      exp_H *= length * track_flux[e] * tau * wgt;
       FP_PRECISION delta_psi = (tau * track_flux[e] - length_2D * src_flat) *
           exp_F1 - src_linear * length_2D * length_2D * exp_F2;
 
@@ -428,9 +431,8 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       first_idx += e; // equivalent to 4*e
       fsr_flux[first_idx] += wgt * delta_psi;
       first_idx++;
-      FP_PRECISION reduced_delta = wgt * delta_psi / sigma_t[e];
       for (int i=0; i<3; i++)
-        fsr_flux[first_idx + i] += exp_H * direction[i] + reduced_delta * 
+        fsr_flux[first_idx + i] += exp_H * direction[i] + wgt * delta_psi *
                                     position[i];
 
       // Decrement the track flux
@@ -442,7 +444,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     int pe = 0;
 
     /* Compute the segment midpoint */
-    double center[2];
+    FP_PRECISION center[2];
     for (int i=0; i<2; i++)
       center[i] = position[i] + 0.5 * length * direction[i];
 
@@ -556,7 +558,7 @@ void CPULSSolver::addSourceToScalarFlux() {
 
       for (int e=0; e < _num_groups; e++) {
 
-        flux_const = FOUR_PI * 2 / sigma_t[e];
+        flux_const = FOUR_PI * 2;
 
         _scalar_flux(r,e) /= volume;
         _scalar_flux(r,e) += (FOUR_PI * _reduced_sources(r,e));
@@ -588,6 +590,11 @@ void CPULSSolver::addSourceToScalarFlux() {
           _scalar_flux_xyz(r,e,2) += flux_const * _reduced_sources_xyz(r,e,2)
               * _FSR_source_constants[r*_num_groups*nc + nc*e + 5];
         }
+
+        _scalar_flux_xyz(r,e,0) /= sigma_t[e];
+        _scalar_flux_xyz(r,e,1) /= sigma_t[e];
+        if (_solve_3D)
+          _scalar_flux_xyz(r,e,2) /= sigma_t[e];
       }
     }
   }
@@ -791,7 +798,7 @@ void CPULSSolver::checkLimitXS(int iteration) {
  * @param coords The coords of the point to get the flux at
  * @param group the energy group
  */
-double CPULSSolver::getFluxByCoords(LocalCoords* coords, int group) {
+FP_PRECISION CPULSSolver::getFluxByCoords(LocalCoords* coords, int group) {
 
   double x, y, z, xc, yc, zc;
 
@@ -806,7 +813,7 @@ double CPULSSolver::getFluxByCoords(LocalCoords* coords, int group) {
   yc = centroid->getY();
   zc = centroid->getZ();
 
-  double flux = _scalar_flux(fsr, group);
+  FP_PRECISION flux = _scalar_flux(fsr, group);
   double flux_x = 0.0;
   double flux_y = 0.0;
   double flux_z = 0.0;
@@ -866,55 +873,61 @@ void CPULSSolver::initializeExpEvaluators() {
 
 
 /**
- * @brief Initializes (if not initialized) and returns a memory buffer to the 
- *        linear source expansion matrix coefficients.
- * @return _FSR_lin_exp_matrix a pointer to the linear source expansion 
- *         coefficients
+ * @brief Initialize linear source constant component and matrix coefficients.
  */
-double* CPULSSolver::getLinearExpansionCoeffsBuffer() {
+void CPULSSolver::initializeLinearSourceConstants() {
+
+  if (_FSR_source_constants != NULL)
+    delete[] _FSR_source_constants;
+  if (_FSR_lin_exp_matrix != NULL)
+    delete[] _FSR_lin_exp_matrix;
+
 #pragma omp critical
   {
-    if (_FSR_lin_exp_matrix == NULL) {
-      long size = _geometry->getNumFSRs() * 3;
-      if (_solve_3D)
-        size *= 2;
-      _FSR_lin_exp_matrix = new double[size];
-      memset(_FSR_lin_exp_matrix, 0., size * sizeof(double));
-    }
+    /* Initialize linear source constant component */
+    long size = 3 * _geometry->getNumEnergyGroups() * _geometry->getNumFSRs();
+    if (_solve_3D)
+      size *= 2;
+
+    long max_size = size;
+#ifdef MPIX
+    if (_geometry->isDomainDecomposed())
+    MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
+                  _geometry->getMPICart());
+#endif
+    double max_size_mb = (double) (max_size * sizeof(FP_PRECISION))
+         / (double) (1e6);
+    log_printf(NORMAL, "Max linear constant storage per domain = %6.2f MB",
+               max_size_mb);
+
+    _FSR_source_constants = new FP_PRECISION[size]();
+
+    /* Initialize linear source matrix coefficients */
+    size = _geometry->getNumFSRs() * 3;
+    if (_solve_3D)
+      size *= 2;
+    _FSR_lin_exp_matrix = new double[size]();
   }
+}
+
+
+/**
+ * @brief Returns a memory buffer to the linear source expansion coefficent 
+ *        matrix.
+ * @return _FSR_lin_exp_matrix a pointer to the linear source coefficient matrix
+ */
+double* CPULSSolver::getLinearExpansionCoeffsBuffer() {
 
   return _FSR_lin_exp_matrix;
 }
 
 
 /**
- * @brief Initializes (if not initialized) and returns a memory buffer to the 
- *        constant part (constant between MOC iterations) of the linear source.
+ * @brief Returns a memory buffer to the constant part (constant between MOC 
+ *        iterations) of the linear source.
  * @return _FSR_source_constants a pointer to the linear source constant part
  */
 FP_PRECISION* CPULSSolver::getSourceConstantsBuffer() {
-#pragma omp critical
-  {
-    if (_FSR_source_constants == NULL) {
-      long size = 3 * _geometry->getNumEnergyGroups() * _geometry->getNumFSRs();
-      if (_solve_3D)
-        size *= 2;
-
-      long max_size = size;
-#ifdef MPIX
-      if (_geometry->isDomainDecomposed())
-        MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
-                      _geometry->getMPICart());
-#endif
-      double max_size_mb = (double) (max_size * sizeof(FP_PRECISION))
-          / (double) (1e6);
-      log_printf(NORMAL, "Max linear constant storage per domain = %6.2f MB",
-                 max_size_mb);
-
-      _FSR_source_constants = new FP_PRECISION[size];
-      memset(_FSR_source_constants, 0., size * sizeof(FP_PRECISION));
-    }
-  }
 
   return _FSR_source_constants;
 }

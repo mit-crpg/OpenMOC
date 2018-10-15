@@ -104,8 +104,23 @@ public:
   boundaryType getBoundaryType();
 
 
-  //FIXME
+  /**
+   * @brief Returns the minimum coordinate in the axis direction of the
+   *        space defined by halfspace and this surface 
+   * @param axis The axis of interest (0 = x, 1 = y, 2 = z)
+   * @param halfspace the halfspace to consider
+   * @return the minimum coordinate in the axis direction
+   */
   double getMin(int axis, int halfspace);
+
+
+  /**
+ * @brief Returns the maximum coordinate in the axis direction of the
+   *      space defined by halfspace and this surface 
+   * @param axis The axis of interest (0 = x, 1 = y, 2 = z)
+   * @param halfspace the halfspace to consider
+   * @return the maximum coordinate in the axis direction
+   */
   double getMax(int axis, int halfspace);
 
   /**

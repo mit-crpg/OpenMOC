@@ -20,7 +20,7 @@
 /* Forward declaration of TrackGenerator */
 class TrackGenerator;
 
-//FIXME
+/* Forward declaration of CPUSolver */
 class CPUSolver;
 
 /**

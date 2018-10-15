@@ -868,7 +868,7 @@ void Material::setChi(double* xs, int num_groups) {
     chi_sum += xs[i];
 
   for (int i=0; i < _num_groups; i++) {
-    if (chi_sum == 0)
+    if (fabs(chi_sum) < FLT_EPSILON)
       _chi[i] = xs[i];
     else
       _chi[i] = xs[i] / chi_sum;
@@ -901,7 +901,7 @@ void Material::buildFissionMatrix() {
 
   if (_num_groups == 0)
     log_printf(ERROR, "Unable to build Material %d's fission matrix "
-	       "since the number of energy groups has not been set", _id);
+           "since the number of energy groups has not been set", _id);
   else if (_nu_sigma_f == NULL)
     log_printf(ERROR, "Unable to build Material %d's fission matrix "
               "since its nu-fission cross-section has not been set", _id);

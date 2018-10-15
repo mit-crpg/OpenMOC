@@ -857,7 +857,7 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
       return 0;
 
     /* There is one intersection (ie on the Surface) */
-    else if (discr == 0) {
+    else if (fabs(discr) < FLT_EPSILON) {
       double xcurr = x0;
       double ycurr = -b / 2;
       double interior = pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0);
@@ -960,7 +960,7 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
       return 0;
 
     /* There is one intersection (ie on the Surface) */
-    else if (discr == 0) {
+    else if (fabs(discr) < FLT_EPSILON) {
       double interior = pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0);
       if (interior < 0.0)
         interior = 0.0;

@@ -890,6 +890,7 @@ void Cell::setNumInstances(int num_instances) {
   _num_instances = num_instances;
 }
 
+
 /**
  * @brief Set the Cell's rotation angles about the x, y and z axes.
  * @details This method is a helper function to allow OpenMOC users to assign
@@ -1337,13 +1338,13 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
     log_printf(ERROR, "Unable to ringify Cell %d since it "
                "contains more than 2 ZCYLINDER Surfaces", _id);
 
-  if (x1 != x2 && num_zcylinders == 2)
+  if (fabs(x1 - x2) > FLT_EPSILON && num_zcylinders == 2)
     log_printf(ERROR, "Unable to ringify Cell %d since it contains "
                "ZCylinder %d centered at x=%f and ZCylinder %d at x=%f. "
                "Both ZCylinders must have the same center.",
                _id, zcylinder1->getId(), x1, zcylinder2->getId(), x2);
 
-  if (y1 != y2 && num_zcylinders == 2)
+  if (fabs(y1 - y2) > FLT_EPSILON && num_zcylinders == 2)
     log_printf(ERROR, "Unable to ringify Cell %d since it contains "
                "ZCylinder %d centered at y=%f and ZCylinder %d at y=%f. "
                "Both ZCylinders must have the same center.",
@@ -1370,7 +1371,7 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
     increment = fabs(radius1 - radius2) / _num_rings;
   
     /* Heuristic to improve area-balancing for low number of rings */
-    if (radius1 == max_radius && _num_rings < 3)
+    if (fabs(radius1 - max_radius) < FLT_EPSILON && _num_rings < 3)
       increment = 1.5 * (radius1 - radius2) / _num_rings;
   }
 
@@ -1508,7 +1509,7 @@ void Cell::buildNeighbors() {
   Surface* surface;
   int halfspace;
 
-  /* Add this Cell to all of the Surfaces in this Cell */
+  /* Add this Cell to the neighbor lists of all this cell's surfaces */
   std::map<int, surface_halfspace*>::iterator iter;
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
     surface = iter->second->_surface;
@@ -1582,7 +1583,10 @@ void Cell::printString() {
 }
 
 
-//FIXME
+/**
+ * @brief Obtain and return the number of ZCylinders in the cell's surfaces
+ * @return the number of ZCylinders used to define this cell's region
+ */
 int Cell::getNumZCylinders() {
 
   std::map<int, surface_halfspace*>::iterator iter1;

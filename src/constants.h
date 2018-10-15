@@ -8,6 +8,8 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
+/** Threshold to determine if a float equals to 0.0 */
+#define FLT_EPSILON 1.0E-50
 
 /* The single line width permissible for timer / memory logger reports */
 #define REPORT_WIDTH 53
@@ -71,16 +73,6 @@
 /** The maximum number of iterations allowed for a linear solve in linalg.cpp */
 #define MIN_LINEAR_SOLVE_ITERATIONS 25
 #define MAX_LINEAR_SOLVE_ITERATIONS 10000
-
-#ifdef NVCC
-
-/** The maximum number of polar angles to reserve constant memory on GPU */
-#define MAX_POLAR_ANGLES_GPU 10
-
-/** The maximum number of azimuthal angles to reserve constant memory on GPU */
-#define MAX_AZIM_ANGLES_GPU 256
-
-#endif
 
 #ifdef MPIx
 #define TRACKS_PER_BUFFER 1000
