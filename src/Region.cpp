@@ -1,11 +1,14 @@
 #include "Region.h"
- /**
+
+/**
  * @brief Destructor clears vector of the nodes within the Region.
  */
 Region::~Region() {
-  //  _nodes.clear();
+  _nodes.clear();
 }
- /**
+
+
+/**
  * @brief Add a node to the Region.
  * @details NOTE: This method deep copies the Region and stores
  *          the copy. Any changes made to the Region will not be
@@ -15,7 +18,9 @@ Region::~Region() {
 void Region::addNode(Region* node) {
   _nodes.push_back(node->clone());
 }
- /**
+
+
+/**
  * @brief Return a vector of all of the Region's nodes.
  * @details This method will return a list of the Region's nodes
  *          when called from Python.
@@ -24,7 +29,9 @@ void Region::addNode(Region* node) {
 std::vector<Region*> Region::getNodes() {
   return _nodes;
 }
- /**
+
+
+/**
  * @brief Extracts a map of all Halfspaces contained in the Region.
  * @details This method recurses through all of the Region's nodes
  *          and collects the Halfspaces into a map indexed by 
@@ -33,6 +40,7 @@ std::vector<Region*> Region::getNodes() {
  * @returns a map of all Halfspaces in the Region
  */
 std::map<int, Halfspace*> Region::getAllSurfaces() {
+
   std::map<int, Halfspace*> all_surfaces;
   std::map<int, Halfspace*> node_surfaces;
   std::vector<Region*>::iterator iter;
@@ -43,18 +51,23 @@ std::map<int, Halfspace*> Region::getAllSurfaces() {
   }
    return all_surfaces;
 }
- /**
+
+
+/**
  * @brief Return the type of Region (ie, UNION, INTERSECTION, etc).
  * @return the Region type
  */
 regionType Region::getRegionType() {
   return _region_type;
 }
- /**
+
+
+/**
  * @brief Return the minimum reachable x-coordinate in the Region.
  * @return the minimum x-coordinate
  */
 double Region::getMinX() {
+
    /* Set a default min-x */
   double min_x = -std::numeric_limits<double>::infinity();
    /* Loop over all nodes in the Region */
@@ -63,11 +76,14 @@ double Region::getMinX() {
     min_x = std::max(min_x, (*iter)->getMinX());
    return min_x;
 }
- /**
+
+
+/**
  * @brief Return the maximum reachable x-coordinate in the Region.
  * @return the maximum x-coordinate
  */
 double Region::getMaxX() {
+
    /* Set a default max-x */
   double max_x = std::numeric_limits<double>::infinity();
    /* Loop over all nodes in the Region */
@@ -81,6 +97,7 @@ double Region::getMaxX() {
  * @return the minimum y-coordinate
  */
 double Region::getMinY() {
+
    /* Set a default min-y */
   double min_y = -std::numeric_limits<double>::infinity();
    /* Loop over all nodes in the Region */
@@ -94,6 +111,7 @@ double Region::getMinY() {
  * @return the maximum y-coordinate
  */
 double Region::getMaxY() {
+
    /* Set a default max-y */
   double max_y = std::numeric_limits<double>::infinity();
    /* Loop over all nodes in the Region */
@@ -107,6 +125,7 @@ double Region::getMaxY() {
  * @return the minimum z-coordinate
  */
 double Region::getMinZ() {
+
    /* Set a default min-z */
   double min_z = -std::numeric_limits<double>::infinity();
    /* Loop over all nodes in the Region */
@@ -115,11 +134,14 @@ double Region::getMinZ() {
     min_z = std::max(min_z, (*iter)->getMinZ());
    return min_z;
 }
- /**
+
+
+/**
  * @brief Return the maximum reachable z-coordinate in the Region.
  * @return the maximum z-coordinate
  */
 double Region::getMaxZ() {
+
    /* Set a default max-z */
   double max_z = std::numeric_limits<double>::infinity();
    /* Loop over all nodes in the Region */
@@ -128,12 +150,15 @@ double Region::getMaxZ() {
     max_z = std::min(max_z, (*iter)->getMaxZ());
    return max_z;
 }
- /**
+
+
+/**
  * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE)
  *        at the minimum reachable x-coordinate in the Region.
  * @return the boundary condition at the minimum x-coordinate
  */
 boundaryType Region::getMinXBoundaryType() {
+
    /* Set a default min-x and boundary type*/
   double min_x = -std::numeric_limits<double>::infinity();
   boundaryType bc = BOUNDARY_NONE;
@@ -147,12 +172,15 @@ boundaryType Region::getMinXBoundaryType() {
   }
    return bc;
 }
- /**
+
+
+/**
  * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE)
  *        at the maximum reachable x-coordinate in the Region.
  * @return the boundary condition at the maximum x-coordinate
  */
 boundaryType Region::getMaxXBoundaryType() {
+
    /* Set a default max-x and boundary type*/
   double max_x = std::numeric_limits<double>::infinity();
   boundaryType bc = BOUNDARY_NONE;
@@ -166,12 +194,15 @@ boundaryType Region::getMaxXBoundaryType() {
   }
    return bc;
 }
- /**
+
+
+/**
  * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE)
  *        at the minimum reachable y-coordinate in the Region.
  * @return the boundary condition at the minimum y-coordinate
  */
 boundaryType Region::getMinYBoundaryType() {
+
    /* Set a default min-y and boundary type*/
   double min_y = -std::numeric_limits<double>::infinity();
   boundaryType bc = BOUNDARY_NONE;
@@ -185,12 +216,15 @@ boundaryType Region::getMinYBoundaryType() {
   }
    return bc;
 }
- /**
+
+
+/**
  * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE)
  *        at the maximum reachable y-coordinate in the Region.
  * @return the boundary condition at the maximum y-coordinate
  */
 boundaryType Region::getMaxYBoundaryType() {
+
    /* Set a default max-y and boundary type*/
   double max_y = std::numeric_limits<double>::infinity();
   boundaryType bc = BOUNDARY_NONE;
@@ -204,7 +238,9 @@ boundaryType Region::getMaxYBoundaryType() {
   }
    return bc;
 }
- /**
+
+
+/**
  * @brief Computes the minimum distance to a Surface in the Region from
  *        a point with a given trajectory at a certain angle stored in a
  *        LocalCoords object.
@@ -213,7 +249,8 @@ boundaryType Region::getMaxYBoundaryType() {
  * @param coords a pointer to a localcoords
  */
 double Region::minSurfaceDist(LocalCoords* coords) {
-   double curr_dist;
+
+  double curr_dist;
   double min_dist = INFINITY;
    /* Find the minimum distance to one of the Region's nodes */
   std::vector<Region*>::iterator iter;
@@ -225,11 +262,14 @@ double Region::minSurfaceDist(LocalCoords* coords) {
   }
    return min_dist;
 }
- /**
+
+
+/**
  * @brief Create a duplicate of the Region.
  * @return a pointer to the clone
  */
 Region* Region::clone() {
+
    /* Instantiate appropriate class type for the clone */
   Region* clone;
   if (dynamic_cast<Intersection*>(this))
@@ -244,13 +284,17 @@ Region* Region::clone() {
     clone->addNode((*iter));
    return clone;
 }
- /**
+
+
+/**
  * @brief Constructor sets the type of Region (INTERSECTION).
  */
 Intersection::Intersection() {
   _region_type = INTERSECTION;
 }
- /**
+
+
+/**
  * @brief Determines whether a Point is contained inside the Intersection.
  * @details Queries each of the Intersection's nodes to determine if the
  *          Point is within the Intersection. This point is only inside the
@@ -259,6 +303,7 @@ Intersection::Intersection() {
  * @returns true if the Point is inside the Intersection; otherwise false
  */
 bool Intersection::containsPoint(Point* point) {
+
    /* Query each of the Intersection's nodes */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); iter++) {
@@ -267,13 +312,17 @@ bool Intersection::containsPoint(Point* point) {
   }
    return true;
 }
- /**
+
+
+/**
  * @brief Constructor sets the type of Region (UNION).
  */
 Union::Union() {
   _region_type = UNION;
 }
- /**
+
+
+/**
  * @brief Determines whether a Point is contained inside the Union.
  * @details Queries each of the Union's nodes to determine if the Point
  *          is within the Union. This point is only inside the
@@ -281,6 +330,7 @@ Union::Union() {
  * @returns true if the Point is inside the Union; otherwise false
  */
 bool Union::containsPoint(Point* point) {
+
    /* Query each of the Intersection's nodes */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); iter++) {
@@ -289,13 +339,17 @@ bool Union::containsPoint(Point* point) {
   }
    return false;
 }
- /**
+
+
+/**
  * @brief Constructor sets the type of Region (COMPLEMENT).
  */
 Complement::Complement() {
   _region_type = COMPLEMENT;
 }
- /**
+
+
+/**
  * @brief Determines whether a Point is contained inside the Union.
  * @details Queries each of the Complement's nodes to determine if the Point
  *          is within the Complement. This point is only inside the
@@ -309,7 +363,9 @@ bool Complement::containsPoint(Point* point) {
   else
     return !_nodes[0]->containsPoint(point);
 }
- /**
+
+
+/**
  * @brief Constructor sets the type of Region (HALFSPACE).
  * @param halfspace the side of the Surface (+1 or -1)
  * @param surface a pointer to the Surface of interest
@@ -322,7 +378,9 @@ Halfspace::Halfspace(int halfspace, Surface* surface) {
   _surface = surface;
   _halfspace = halfspace;
 }
- /**
+
+
+/**
  * @brief Create a duplicate of the Halfspace.
  * @return a pointer to the clone
  */
@@ -330,21 +388,27 @@ Halfspace* Halfspace::clone() {
   Halfspace* clone = new Halfspace(_halfspace, _surface);
   return clone;
 }
- /**
+
+
+/**
  * @brief Return a pointer to the Halfspace's Surface.
  * @return a pointer to the Halfspace's Surface
  */
 Surface* Halfspace::getSurface() {
   return _surface;
 }
- /**
+
+
+/**
  * @brief Return the side of the Surface for this Halfspace.
  * @param the side of the surface for this Halfspace (+1 or -1)
  */
 int Halfspace::getHalfspace() {
   return _halfspace;
 }
- /**
+
+
+/**
  * @brief Extracts a map of this Halfspace indexed by its Surface ID.
  * @details This is a base case and a helper method for the parent class'
  *          Region::getAllSurfaces() method. This method will return a
@@ -357,49 +421,63 @@ std::map<int, Halfspace*> Halfspace::getAllSurfaces() {
   all_surfaces[_surface->getId()] = this;
   return all_surfaces;
 }
- /**
+
+
+/**
  * @brief Return the minimum reachable x-coordinate in the Halfspace.
  * @return the minimum x-coordinate
  */
 double Halfspace::getMinX() {
   return _surface->getMinX(_halfspace);
 }
- /**
+
+
+/**
  * @brief Return the maximum reachable x-coordinate in the Halfspace.
  * @return the maximum x-coordinate
  */
 double Halfspace::getMaxX() {
   return _surface->getMaxX(_halfspace);
 }
- /**
+
+
+/**
  * @brief Return the minimum reachable y-coordinate in the Halfspace.
  * @return the minimum y-coordinate
  */
 double Halfspace::getMinY() {
   return _surface->getMinY(_halfspace);
 }
- /**
+
+
+/**
  * @brief Return the maximum reachable y-coordinate in the Halfspace.
  * @return the maximum y-coordinate
  */
 double Halfspace::getMaxY() {
   return _surface->getMaxY(_halfspace);
 }
- /**
+
+
+/**
  * @brief Return the minimum reachable z-coordinate in the Halfspace.
  * @return the minimum z-coordinate
  */
 double Halfspace::getMinZ() {
   return _surface->getMinZ(_halfspace);
 }
- /**
+
+
+/**
  * @brief Return the maximum reachable z-coordinate in the Halfspace.
  * @return the maximum z-coordinate
  */
 double Halfspace::getMaxZ() {
   return _surface->getMaxZ(_halfspace);
 }
- /**
+
+
+/**
  * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE)
  *        of the Halfspace's Surface.
  * @return the boundary condition
@@ -407,7 +485,9 @@ double Halfspace::getMaxZ() {
 boundaryType Halfspace::getMinXBoundaryType() {
   return _surface->getBoundaryType();
 }
- /**
+
+
+/**
  * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE)
  *        of the Halfspace's Surface.
  * @return the boundary condition
@@ -415,7 +495,9 @@ boundaryType Halfspace::getMinXBoundaryType() {
 boundaryType Halfspace::getMaxXBoundaryType() {
   return _surface->getBoundaryType();
 }
- /**
+
+
+/**
  * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE)
  *        of the Halfspace's Surface.
  * @return the boundary condition
@@ -423,7 +505,9 @@ boundaryType Halfspace::getMaxXBoundaryType() {
 boundaryType Halfspace::getMinYBoundaryType() {
   return _surface->getBoundaryType();
 }
- /**
+
+
+/**
  * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE)
  *        of the Halfspace's Surface.
  * @return the boundary condition
@@ -431,13 +515,16 @@ boundaryType Halfspace::getMinYBoundaryType() {
 boundaryType Halfspace::getMaxYBoundaryType() {
   return _surface->getBoundaryType();
 }
- /**
+
+
+/**
  * @brief Determines whether a Point is contained inside the Halfspace.
  * @details Queries whether the Point is on the same side of the
  *          Surface as the Halfspace.
  * @returns true if the Point is inside the Halfspace; otherwise false
  */
 bool Halfspace::containsPoint(Point* point) {
+
   double evaluation = _surface->evaluate(point);
   if (fabs(evaluation) <= ON_SURFACE_THRESH)
     return true;
@@ -446,7 +533,9 @@ bool Halfspace::containsPoint(Point* point) {
   else
    return (evaluation < 0);
 }
- /**
+
+
+/**
  * @brief Computes the minimum distance to the Surface in the Halfspace from
  *        a point with a given trajectory at a certain angle stored in a
  *        LocalCoords object.
@@ -457,7 +546,9 @@ bool Halfspace::containsPoint(Point* point) {
 double Halfspace::minSurfaceDist(LocalCoords* coords) {
   return _surface->getMinDistance(coords);
 }
- /**
+
+
+/**
  * @brief Constructor creates an Intersection of the Intersection of
  *        two XPlane and two YPlane objects.
  * @details This is a special subclass of the Intersection which
@@ -472,6 +563,7 @@ double Halfspace::minSurfaceDist(LocalCoords* coords) {
 RectangularPrism::RectangularPrism(double width_x, double width_y,
 				   double origin_x, double origin_y):
   Intersection() {
+
    /* Instantiate the XPlane and YPlane objects bounding the prism */
   XPlane* min_x = new XPlane(origin_x-width_x/2.);
   XPlane* max_x = new XPlane(origin_x+width_x/2.);
@@ -494,12 +586,15 @@ RectangularPrism::RectangularPrism(double width_x, double width_y,
   delete half_min_y;
   delete half_max_y;
 }
- /**
+
+
+/**
  * @brief Sets the boundary condition type (ie., VACUUM, REFLECTIVE, etc)
  *        to assign to each of the XPlanes and YPlanes bounding the prism.
  * @param boundary_type the boundary condition type for this Prism
  */
 void RectangularPrism::setBoundaryType(boundaryType boundary_type) {
+
   std::map<int, Halfspace*> all_surfaces = getAllSurfaces();
   std::map<int, Halfspace*>::iterator iter;
    /* Assign the boundary to each of the bounding XPlanes and YPlanes */

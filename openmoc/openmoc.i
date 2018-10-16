@@ -27,6 +27,7 @@
   #include "../src/Point.h"
   #include "../src/Progress.h"
   #include "../src/Quadrature.h"
+  #include "../src/Region.h"
   #include "../src/segmentation_type.h"
   #include "../src/Solver.h"
   #include "../src/CPUSolver.h"
@@ -156,6 +157,7 @@ namespace std {
 %include ../src/Point.h
 %include ../src/Progress.h
 %include ../src/Quadrature.h
+%include ../src/Region.h
 %include ../src/segmentation_type.h
 %include ../src/Solver.h
 %include ../src/CPUSolver.h

@@ -75,6 +75,7 @@ Cell::Cell(int id, const char* name) {
   setName(name);
 
   _cell_type = UNFILLED;
+  _region = NULL;
   _fill = NULL;
   _volume = 0.;
   _num_instances = 0;
@@ -105,8 +106,8 @@ Cell::~Cell() {
 
   if (_name != NULL)
     delete [] _name;
-  //if (_region != NULL)  //FIXME will be used with MGXS
-  //  delete _region;
+  if (_region != NULL)  //FIXME will be used with MGXS
+    delete _region;
   /* Materials are deleted separately from cells, since multiple cells
       can share a same material */
   /* Universes are also deleted separately, since Universes can have been
@@ -171,6 +172,15 @@ Universe* Cell::getFillUniverse() {
     log_printf(ERROR, "Unable to get Universe fill from Cell ID=%d", _id);
 
   return (Universe*)_fill;
+}
+
+
+/**
+ * @brief Return the Cell's Region, its spatial domain.
+ * @return the Cell's Region
+ */
+Region* Cell::getRegion() {
+  return _region;
 }
 
 
@@ -863,6 +873,18 @@ void Cell::setFill(Universe* fill) {
 
 
 /**
+ * @brief Sets the Region this Cell lives in.
+ * @details NOTE: This method deep copies the Region and stores
+ *          the copy. Any changes made to the Region will not be
+ *          reflected in the Region copy stored by the Cell.
+ * @param region the Region bounding the Cell
+ */
+void Cell::setRegion(Region* region) {
+  _region = region->clone();
+}
+
+
+/**
  * @brief Set the volume/area of the Cell.
  * @param volume the volume/area of the Cell
  */
@@ -1189,6 +1211,10 @@ Cell* Cell::clone() {
     new_cell->setFill((Material*)_fill);
   else
     new_cell->setFill((Universe*)_fill);
+
+  /* Clone the Cell's Region */
+  if (_region != NULL)
+    new_cell->setRegion(_region->clone());
 
   if (_rotated)
     new_cell->setRotation(_rotation, 3, "radians");

@@ -14,6 +14,7 @@
 #include "Python.h"
 #endif
 #include "Material.h"
+#include "Region.h"
 #include "Surface.h"
 #include "Point.h"
 #include <limits>
@@ -23,6 +24,7 @@
 /* Forward declarations to resolve circular dependencies */
 class Universe;
 class Surface;
+class Region;
 
 int cell_id();
 void reset_cell_id();
@@ -89,6 +91,9 @@ private:
   /** A pointer to the Material or Universe filling this Cell */
   void* _fill;
 
+  /** A pointer to the Region bounding the Cell */
+  Region* _region;
+
   /** The volume / area of the Cell computed from overlapping segments */
   double _volume;
 
@@ -137,6 +142,7 @@ public:
   cellType getType() const;
   Material* getFillMaterial();
   Universe* getFillUniverse();
+  Region* getRegion();
   double getVolume();
   int getNumInstances();
   bool isRotated();
@@ -178,6 +184,7 @@ public:
   void setName(const char* name);
   void setFill(Material* fill);
   void setFill(Universe* fill);
+  void setRegion(Region* region);
   void setVolume(double volume);
   void incrementVolume(double volume);
   void setNumInstances(int num_instances);

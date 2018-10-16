@@ -584,6 +584,7 @@ bool Geometry::isDomainDecomposed() {
  * @return If this domain is the root domain (true) or not (false)
  */
 bool Geometry::isRootDomain() {
+
   bool first_domain = true;
   if (_domain_decomposed)
     if (_domain_index_x != 0 || _domain_index_y != 0 || _domain_index_z != 0)
@@ -730,6 +731,7 @@ MPI_Comm Geometry::getMPICart() {
  * @return The rank of the neighboring domain
  */
 int Geometry::getNeighborDomain(int offset_x, int offset_y, int offset_z) {
+
   int neighbor_rank = -1;
   int neighbor_coords[3];
   neighbor_coords[0] = offset_x + _domain_index_x;
@@ -896,6 +898,7 @@ Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
  * @return returns a pointer to a cell if found, NULL if no cell found
 */
 Cell* Geometry::findFirstCell(LocalCoords* coords, double azim, double polar) {
+
   double delta_x = cos(azim) * sin(polar) * TINY_MOVE;
   double delta_y = sin(azim) * sin(polar) * TINY_MOVE;
   double delta_z = cos(polar) * TINY_MOVE;
@@ -1206,6 +1209,7 @@ long Geometry::getFSRId(LocalCoords* coords, bool err_check) {
  * @return The rank of the domain containing the coordinates
  */
 int Geometry::getDomainByCoords(LocalCoords* coords) {
+
   int domain = 0;
 #ifdef MPIx
   if (_domain_decomposed) {
