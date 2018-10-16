@@ -214,8 +214,8 @@ FP_PRECISION* Material::getSigmaS() {
 
 
 /**
- * @brief Return the array of the Material's scattering cross-section matrix.
- * @return the pointer to the Material's array of scattering cross-sections
+ * @brief Return the array of the Material's absorption cross-section matrix.
+ * @return the pointer to the Material's array of absorption cross-sections
  */
 FP_PRECISION* Material::getSigmaA() {
 
@@ -758,15 +758,9 @@ void Material::setSigmaFByGroup(double xs, int group) {
 
   _sigma_f[group-1] = xs;
 
-  /* Determine whether or not this Material is fissionable */
-  _fissionable = false;
-
-  for (int i=0; i < _num_groups; i++) {
-    if (_sigma_f[i] > 0.0 || _nu_sigma_f[i] > 0.0) {
-      _fissionable = true;
-      return;
-    }
-  }
+  /* If the SigmaF input is positive, this material is fissionable */
+  if (xs > 0)
+    _fissionable = true;
 }
 
 
@@ -826,15 +820,9 @@ void Material::setNuSigmaFByGroup(double xs, int group) {
 
   _nu_sigma_f[group-1] = xs;
 
-  /* Determine whether or not this Material is fissionable */
-  _fissionable = false;
-
-  for (int i=0; i < _num_groups; i++) {
-    if (_sigma_f[i] > 0.0 || _nu_sigma_f[i] > 0.0) {
-      _fissionable = true;
-      return;
-    }
-  }
+  /* If the SigmaF input is positive, this material is fissionable */
+  if (xs > 0)
+    _fissionable = true;
 }
 
 

@@ -1458,7 +1458,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
 
-    /* Comptue the stabilizing flux if necessary */
+    /* Compute the stabilizing flux if necessary */
     if (i > 0 && _stabilize_transport) {
       computeStabilizingFlux();
     }

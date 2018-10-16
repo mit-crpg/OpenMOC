@@ -304,7 +304,7 @@ protected:
   /** A pointer to a Coarse Mesh Finite Difference (CMFD) acceleration object */
   Cmfd* _cmfd;
 
-  /** A string indicating the type of source apporximation */
+  /** A string indicating the type of source approximation */
   std::string _source_type;
 
   /**

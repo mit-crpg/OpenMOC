@@ -2128,7 +2128,7 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
  *          to implicitly capturing all geometric radial detail at the defined
  *          z-heights, saving the lengths and region IDs to the extruded track
  *          and initializing ExtrudedFSR structs in the traversed FSRs.
- * @param flattend_track a pointer to a 2D track to segmentize into regions of
+ * @param flattened_track a pointer to a 2D track to segmentize into regions of
  *        extruded FSRs
  * @param z_coords a vector of axial heights in the root geometry at which
  *        the Geometry is segmentized radially

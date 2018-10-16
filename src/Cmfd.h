@@ -220,7 +220,7 @@ private:
   /** Flag indicating whether to update the MOC flux */
   bool _flux_update_on;
 
-  /** Flag indicating whether to us centroid updating */
+  /** Flag indicating whether to use centroid updating */
   bool _centroid_update_on;
 
   /** Flag indicating whether to check neutron balance on every CMFD solve */

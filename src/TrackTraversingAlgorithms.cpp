@@ -981,7 +981,7 @@ DumpSegments::DumpSegments(TrackGenerator* track_generator)
 
 
 /**
- * @brief Wrties all tracking information to file
+ * @brief Writes all tracking information to file
  * @details SegmentationKernels are created to temporarily store segments for
  *          on-the-fly method. For each Track, onTrack(...) writes the tracking
  *          information to file.

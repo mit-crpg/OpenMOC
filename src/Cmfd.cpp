@@ -736,7 +736,7 @@ CMFD_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     dif_coef *= computeLarsensEDCFactor(dif_coef, delta);
 
   /* If surface is on a boundary with REFLECTIVE or VACUUM BCs, choose
-   * approipriate BC */
+   * appropriate BC */
   if (global_cmfd_cell_next == -1) {
 
     /* REFLECTIVE BC */

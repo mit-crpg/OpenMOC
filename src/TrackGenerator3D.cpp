@@ -378,7 +378,7 @@ void TrackGenerator3D::setDesiredZSpacing(double spacing) {
  * @param segmentation_type a segmentationType defining the type of
  *        segmentation to be used in segment formation. Options are:
  *          - EXPLICIT_3D: explicit 2D/3D segment formation
- *          - OTF_TRACKS: axial on-the-fly ray tracing by individaul tracks
+ *          - OTF_TRACKS: axial on-the-fly ray tracing by individual tracks
  *          - OTF_STACKS: axial on-the-fly ray tracing by entire z-stacks
  */
 void TrackGenerator3D::setSegmentFormation(segmentationType segmentation_type) {
@@ -981,7 +981,7 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
   double width_x = _x_max - _x_min;
   double width_y = _y_max - _y_min;
 
-  /* Get the length from the begnning of the chain to the Track start point */
+  /* Get the length from the beginning of the chain to the Track start point */
   double l_start  = 0.0;
   if (tci->_polar < _num_polar / 2 && lz < nl)
     l_start = width_y / sin_phi - (lz + 0.5) * dl;
@@ -1389,11 +1389,14 @@ long TrackGenerator3D::get3DTrackID(TrackStackIndexes* tsi) {
 
 /**
  * @brief Allocates a new Quadrature with the default Quadrature
- * @details The defualt quadrature for 3D calculations is equal weight
+ * @details The default quadrature for 3D calculations is equal weight
  */
 void TrackGenerator3D::initializeDefaultQuadrature() {
+
   if (_quadrature != NULL)
     delete _quadrature;
+
+  log_printf(NORMAL, "Initializing a default angular quadrature...");
   _quadrature = new GLPolarQuad();
   _quadrature->setNumAzimAngles(_num_azim);
   _quadrature->setNumPolarAngles(_num_polar);

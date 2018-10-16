@@ -1798,13 +1798,13 @@ def _get_pixel_coords(plot_params):
                    root.getMaxZ() - TINY_MOVE]
 
     if not plot_params.xlim is None:
-        bounds['x'] = plot_params.xlim
+        bounds['x'] = list(plot_params.xlim)
 
     if not plot_params.ylim is None:
-        bounds['y'] = plot_params.ylim
+        bounds['y'] = list(plot_params.ylim)
 
     if not plot_params.zlim is None:
-        bounds['z'] = plot_params.zlim
+        bounds['z'] = list(plot_params.zlim)
 
 
     # add attributes to coords dictionary
