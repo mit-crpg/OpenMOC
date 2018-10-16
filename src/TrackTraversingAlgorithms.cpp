@@ -388,7 +388,7 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
   double sin_phi = sin(phi);
   double cos_phi = cos(phi);
 
-  /* Loop over segments to accumlate contribution to centroids */
+  /* Loop over segments to accumulate contribution to centroids */
   for (int s=0; s < track->getNumSegments(); s++) {
 
     segment* curr_segment = &segments[s];
@@ -659,7 +659,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
         *_quadrature->getPolarWeight(azim_index, polar_index);
   }
 
-  /* Loop over segments to accumlate contribution to centroids */
+  /* Loop over segments to accumulate contribution to centroids */
   Geometry* geometry = _track_generator->getGeometry();
   for (int s=0; s < track->getNumSegments(); s++) {
 

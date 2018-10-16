@@ -527,7 +527,7 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
         /* Get the CMFD group */
         cmfd_group = getCmfdGroup(e);
 
-        /* Increment the surface group */
+        /* Increment the surface group current */
         currents[cmfd_group] += track_flux[e] * wgt;
       }
 
@@ -566,7 +566,7 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
         }
       }
 
-      /* Increment currents */
+      /* Increment currents on face */
       if (surf_id < NUM_FACES) {
         _surface_currents->incrementValues
             (local_cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
@@ -576,10 +576,14 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
 
         int first_ind = (local_cell_id * NUM_SURFACES + surf_id) * ncg;
         it = _edge_corner_currents.find(first_ind);
+
+        //TODO Optimize, it has already been set to 0 elesewhere, no need to do that OTF
+        /* Reset corner current if it has never been incremented */
         if (it == _edge_corner_currents.end())
           for (int g=0; g < ncg; g++)
             _edge_corner_currents[first_ind+g] = 0.0;
 
+        /* Add contribution to corner current */
         for (int g=0; g < ncg; g++)
           _edge_corner_currents[first_ind+g] += currents[g];
 

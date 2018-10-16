@@ -561,7 +561,8 @@ Cell* Universe::findCell(LocalCoords* coords) {
       }
     }
   }
-
+  log_printf(DEBUG, "Did not find cell at coords %f, %f, %f", coords->getX(),
+                    coords->getY(), coords->getZ());
   return NULL;
 }
 

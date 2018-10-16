@@ -1261,7 +1261,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
             surface = domains_to_data.take(domains.flatten())
         # If domains-to-data was input as a Python dictionary
         else:
-            surface = np.zeros(domains.shape, dtype=np.int)
+            surface = np.zeros(domains.shape, dtype=np.float)
             for domain_id in domains_to_data:
                 indices = np.where(domains == domain_id)
                 surface[indices] = domains_to_data[domain_id]

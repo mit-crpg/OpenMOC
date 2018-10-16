@@ -2752,7 +2752,7 @@ std::vector<long> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
       domains[i+j*dim1.size()] = -1;
 
       /* Extract the ID of the domain of interest */
-      if (withinGlobalBounds(point)) {
+      if (withinGlobalBounds(point) and cell != NULL) {
         if (strcmp(domain_type, "fsr") == 0)
           domains[i+j*dim1.size()] = getGlobalFSRId(point, false);
         else if (strcmp(domain_type, "material") == 0)
@@ -2902,7 +2902,7 @@ void Geometry::printFSRsToFile(const char* plane, int gridsize, double offset,
     dim2.at(i) = dim2_min + (i+1) * width2;
   }
 
-  /* Retrive data */
+  /* Retrieve data */
   log_printf(NORMAL, "Getting FSR layout on domains");
   std::vector<long> domain_data = getSpatialDataOnGrid(dim1, dim2, offset,
                                                        plane, "fsr");
@@ -3759,7 +3759,8 @@ void Geometry::dumpToFile(std::string filename) {
 
 /**
  * @brief Loads all Geoemetry and Material details from a Geometry restart file
- * @param filename The name of the file where the data is loaded
+ * @param filename The name of the file from which the data is loaded
+ * @param twiddle Whether the bytes are inverted (BGQ) or not
  */
 void Geometry::loadFromFile(std::string filename, bool twiddle) {
 
