@@ -1742,6 +1742,14 @@ FP_PRECISION* Solver::getFluxesArray() {
   return _scalar_flux;
 }
 
+/**
+ * @brief Sets computation method of k-eff from fission, absorption, and leakage
+ *        rates rather than from fission rates.
+ *        keff = fission/(absorption + leakage)
+ */
+void Solver::setKeffFromNeutronBalance() {
+  _keff_from_fission_rates = false;
+}
 
 /**
  * @brief Sets residuals to be computed a error relative to a reference
