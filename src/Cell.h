@@ -25,27 +25,11 @@
 class Universe;
 class Surface;
 class Region;
+class Halfspace;
 
 int cell_id();
 void reset_cell_id();
 void maximize_cell_id(int cell_id);
-
-
-/**
- * @struct surface_halfspace
- * @brief A surface_halfspace represents a surface pointer with associated
- *        halfspace.
- */
-struct surface_halfspace {
-
-  /** A pointer to the Surface object */
-  Surface* _surface;
-
-  /** The halfspace associated with this surface */
-  int _halfspace;
-
-};
-
 
 
 /**
@@ -125,7 +109,7 @@ private:
   Cell* _parent;
 
   /** Map of bounding Surface IDs with pointers and halfspaces (+/-1) */
-  std::map<int, surface_halfspace*> _surfaces;
+  std::map<int, Halfspace*> _surfaces;
 
   /* Vector of neighboring Cells */
   std::vector<Cell*> _neighbors;
@@ -170,7 +154,7 @@ public:
   boundaryType getMinZBoundaryType();
   boundaryType getMaxZBoundaryType();
   int getNumSurfaces() const;
-  std::map<int, surface_halfspace*> getSurfaces() const;
+  std::map<int, Halfspace*> getSurfaces() const;
   std::vector<Cell*> getNeighbors() const;
   bool hasParent();
   Cell* getParent();
@@ -202,6 +186,7 @@ public:
   bool containsPoint(Point* point);
   bool containsCoords(LocalCoords* coords);
   double minSurfaceDist(Point* point, double azim, double polar);
+  double minSurfaceDist(LocalCoords* coords);
 
   Cell* clone();
   void subdivideCell(double max_radius);

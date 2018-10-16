@@ -73,6 +73,12 @@ private:
   /** A Point representing the 3D coordinates of this LocalCoords */
   Point _coords;
 
+  /** The direction angle in radians with respect to the x-axis */
+  double _phi;
+
+  /** The direction angle in radians with respect to the z-axis */
+  double _polar;
+
   /** A pointer to the LocalCoords at the next lower nested Universe level */
   LocalCoords* _next;
 
@@ -106,6 +112,8 @@ public:
   double getX() const;
   double getY() const;
   double getZ() const;
+  double getPhi() const;
+  double getPolar() const;
   Point* getPoint();
   LocalCoords* getNext() const;
   LocalCoords* getNextCreate(double x, double y, double z);

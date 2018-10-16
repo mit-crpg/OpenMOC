@@ -26,7 +26,6 @@ class LocalCoords;
 class Cell;
 class Surface;
 class Material;
-struct surface_halfspace;
 
 
 int universe_id();
@@ -137,6 +136,7 @@ public:
   void addCell(Cell* cell);
   void removeCell(Cell* cell);
 
+  bool containsPoint(Point* point);
   Cell* findCell(LocalCoords* coords);
   void setFissionability(bool fissionable);
   void subdivideCells(double max_radius=INFINITY);
@@ -220,7 +220,7 @@ public:
   void subdivideCells(double max_radius=INFINITY);
   void buildNeighbors();
 
-  bool withinBounds(Point* point);
+  bool containsPoint(Point* point);
   Cell* findCell(LocalCoords* coords);
   double minSurfaceDist(Point* point, double azim, double polar=M_PI/2.0);
 

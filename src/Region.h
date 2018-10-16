@@ -14,12 +14,14 @@
 #include "boundary_type.h"
 #include <limits>
 #endif
+
  /* Forward declarations to resolve circular dependencies */
 class Intersection;
 class Union;
 class Complement;
 class Halfspace;
- /**
+
+/**
  * @enum regionType
  * @brief The types of regions supported by OpenMOC.
  */
@@ -33,23 +35,28 @@ enum regionType {
    /** The side of a surface */
   HALFSPACE
  };
- /**
+
+/**
  * @class Region Region.h "src/Region.h"
  * @brief A region of space that can be assigned to a Cell.
  */
 class Region {
+
  protected:
+
    /** The type of Region (ie, UNION, INTERSECTION, etc) */
   regionType _region_type;
+
    /** A collection of the nodes within the Region */
   std::vector<Region*> _nodes;
+
  public:
   virtual ~Region();
   virtual void addNode(Region* node);
   virtual std::vector<Region*> getNodes();
   virtual std::map<int, Halfspace*> getAllSurfaces();
   regionType getRegionType();
-   virtual double getMinX();
+  virtual double getMinX();
   virtual double getMaxX();
   virtual double getMinY();
   virtual double getMaxY();
@@ -59,11 +66,15 @@ class Region {
   virtual boundaryType getMaxXBoundaryType();
   virtual boundaryType getMinYBoundaryType();
   virtual boundaryType getMaxYBoundaryType();
-   virtual bool containsPoint(Point* point) =0;
+  virtual boundaryType getMinZBoundaryType();
+  virtual boundaryType getMaxZBoundaryType();
+  virtual bool containsPoint(Point* point) =0;
+  virtual double minSurfaceDist(Point* point, double azim, double polar=M_PI_2);
   virtual double minSurfaceDist(LocalCoords* coords);
   virtual Region* clone();
 };
- /**
+
+/**
  * @class Intersection Region.h "src/Region.h"
  * @brief An intersection of two or more Regions.
  */
@@ -72,7 +83,8 @@ class Intersection : public Region {
   Intersection();
   bool containsPoint(Point* point);
 };
- /**
+
+/**
  * @class Union Region.h "src/Region.h"
  * @brief A union of two or more Regions.
  */
@@ -81,7 +93,8 @@ class Union : public Region {
   Union();
   bool containsPoint(Point* point);
 };
- /**
+
+/**
  * @class Complement Region.h "src/Region.h"
  * @brief A complement of a Region.
  */
@@ -90,24 +103,27 @@ class Complement : public Region {
   Complement();
   bool containsPoint(Point* point);  
 };
- /**
+
+/**
  * @class Halfspace Region.h "src/Region.h"
  * @brief A positive or negative halfspace Region.
  */
 class Halfspace : public Region {
- private:
-   /** A pointer to the Surface object */
-  Surface* _surface;
-   /** The halfspace associated with this surface */
-  int _halfspace;
   
 public:
+
+  /** A pointer to the Surface object */
+  Surface* _surface;
+
+  /** The halfspace associated with this surface */
+  int _halfspace;
+
   Halfspace(int halfspace, Surface* surface);
   Halfspace* clone();
-   Surface* getSurface();
+  Surface* getSurface();
   int getHalfspace();
   std::map<int, Halfspace*> getAllSurfaces();
-   double getMinX();
+  double getMinX();
   double getMaxX();
   double getMinY();
   double getMaxY();
@@ -117,17 +133,23 @@ public:
   boundaryType getMaxXBoundaryType();
   boundaryType getMinYBoundaryType();
   boundaryType getMaxYBoundaryType();
-   bool containsPoint(Point* point);  
+  boundaryType getMinZBoundaryType();
+  boundaryType getMaxZBoundaryType();
+  bool containsPoint(Point* point);
+  double minSurfaceDist(Point* point, double azim, double polar=M_PI_2);
   double minSurfaceDist(LocalCoords* coords);
 };
- /**
+
+/**
  * @class RectangularPrism Region.h "src/Region.h"
  * @brief An infinite rectangular prism aligned with the z-axis.
  */
 class RectangularPrism : public Intersection {
- public:
+
+public:
   RectangularPrism(double width_x, double width_y,
 		   double origin_x=0., double origin_y=0.);
   void setBoundaryType(boundaryType boundary_type);
 };
- #endif /* REGION_H_ */
+
+#endif /* REGION_H_ */

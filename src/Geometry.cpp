@@ -410,9 +410,9 @@ std::map<int, Surface*> Geometry::getAllSurfaces() {
   Cell* cell;
   Surface* surf;
   std::map<int, Surface*> all_surfs;
-  std::map<int, surface_halfspace*> surfs;
+  std::map<int, Halfspace*> surfs;
   std::map<int, Cell*>::iterator c_iter;
-  std::map<int, surface_halfspace*>::iterator s_iter;
+  std::map<int, Halfspace*>::iterator s_iter;
 
   if (_root_universe != NULL) {
     std::map<int, Cell*> all_cells = getAllCells();
@@ -864,6 +864,7 @@ Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
   Universe* univ = coords->getUniverse();
   Cell* cell;
 
+  /* Check if the coords are inside the geometry bounds */
   if (univ->getId() == _root_universe->getId()) {
     if (!withinBounds(coords))
       return NULL;
@@ -963,7 +964,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
   /* If the current coords is outside the domain, return NULL */
   if (_domain_decomposed) {
     Point* point = coords->getHighestLevel()->getPoint();
-    if (!_domain_bounds->withinBounds(point))
+    if (!_domain_bounds->containsPoint(point))
       return NULL;
   }
 
@@ -1363,7 +1364,7 @@ void Geometry::getLocalFSRId(long global_fsr_id, long &local_fsr_id,
   /* Ensure a domain was found with the FSR ID */
   if (domain == -1)
     log_printf(ERROR, "No domain was found with the global FSR ID %d. The "
-               "total number of FSRs in the Geometry is %d.", global_fsr_id,
+               "total number of FSRs in the Geometry is %ld.", global_fsr_id,
                getNumTotalFSRs());
 
   local_fsr_id = global_fsr_id - cum_fsrs;
@@ -3316,11 +3317,11 @@ std::vector<double> Geometry::getUniqueZHeights(bool include_overlaid_mesh) {
       for (cell_iter = cells.begin(); cell_iter != cells.end(); ++cell_iter) {
 
         /* Get surfaces bounding the cell */
-        std::map<int, surface_halfspace*> surfaces =
+        std::map<int, Halfspace*> surfaces =
           cell_iter->second->getSurfaces();
 
         /* Cycle through all surfaces and add them to the set */
-        std::map<int, surface_halfspace*>::iterator surf_iter;
+        std::map<int, Halfspace*>::iterator surf_iter;
         for (surf_iter = surfaces.begin(); surf_iter != surfaces.end();
             ++surf_iter) {
 
@@ -3665,8 +3666,8 @@ void Geometry::dumpToFile(std::string filename) {
     }
 
     /* Print bounding surfaces */
-    std::map<int, surface_halfspace*> surfaces = cell->getSurfaces();
-    std::map<int, surface_halfspace*>::iterator surface_h_iter;
+    std::map<int, Halfspace*> surfaces = cell->getSurfaces();
+    std::map<int, Halfspace*>::iterator surface_h_iter;
     int num_cell_surfaces = surfaces.size();
     fwrite(&num_cell_surfaces, sizeof(int), 1, out);
     for (surface_h_iter = surfaces.begin(); surface_h_iter != surfaces.end();

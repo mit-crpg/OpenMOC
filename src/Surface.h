@@ -193,6 +193,7 @@ public:
   bool isPointOnSurface(Point* point);
   bool isCoordOnSurface(LocalCoords* coord);
   double getMinDistance(Point* point, double azim, double polar=M_PI_2);
+  double getMinDistance(LocalCoords* coord);
 
   /**
    * @brief Converts this Surface's attributes to a character array.

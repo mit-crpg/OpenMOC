@@ -264,7 +264,8 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 
               if (fabs(DIAG[row]) < FLT_EPSILON )
                   log_printf(ERROR, "A zero has been found on the diagonal of "
-                             "the CMFD matrix");
+                             "the CMFD matrix cell [%d,%d,%d]=%d, group %d",
+                             ix, iy, iz, cell, g);
 
               for (int i = IA[row]; i < IA[row+1]; i++) {
 

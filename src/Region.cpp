@@ -44,12 +44,12 @@ std::map<int, Halfspace*> Region::getAllSurfaces() {
   std::map<int, Halfspace*> all_surfaces;
   std::map<int, Halfspace*> node_surfaces;
   std::vector<Region*>::iterator iter;
-   /* Recursively collect all Halfspace's from this Regions nodes */
+  /* Recursively collect all Halfspace's from this Regions nodes */
   for (iter = _nodes.begin(); iter != _nodes.end(); iter++) {
     node_surfaces = (*iter)->getAllSurfaces();
     all_surfaces.insert(node_surfaces.begin(), node_surfaces.end());
   }
-   return all_surfaces;
+  return all_surfaces;
 }
 
 
@@ -68,13 +68,14 @@ regionType Region::getRegionType() {
  */
 double Region::getMinX() {
 
-   /* Set a default min-x */
+  /* Set a default min-x */
   double min_x = -std::numeric_limits<double>::infinity();
-   /* Loop over all nodes in the Region */
+
+  /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
     min_x = std::max(min_x, (*iter)->getMinX());
-   return min_x;
+  return min_x;
 }
 
 
@@ -84,13 +85,14 @@ double Region::getMinX() {
  */
 double Region::getMaxX() {
 
-   /* Set a default max-x */
+  /* Set a default max-x */
   double max_x = std::numeric_limits<double>::infinity();
-   /* Loop over all nodes in the Region */
+
+  /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
     max_x = std::min(max_x, (*iter)->getMaxX());
-   return max_x;
+  return max_x;
 }
  /**
  * @brief Return the minimum reachable y-coordinate in the Region.
@@ -98,13 +100,14 @@ double Region::getMaxX() {
  */
 double Region::getMinY() {
 
-   /* Set a default min-y */
+  /* Set a default min-y */
   double min_y = -std::numeric_limits<double>::infinity();
-   /* Loop over all nodes in the Region */
+
+  /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
     min_y = std::max(min_y, (*iter)->getMinY());
-   return min_y;
+  return min_y;
 }
  /**
  * @brief Return the maximum reachable y-coordinate in the Region.
@@ -112,13 +115,14 @@ double Region::getMinY() {
  */
 double Region::getMaxY() {
 
-   /* Set a default max-y */
+  /* Set a default max-y */
   double max_y = std::numeric_limits<double>::infinity();
-   /* Loop over all nodes in the Region */
+
+  /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
     max_y = std::min(max_y, (*iter)->getMaxY());
-   return max_y;
+  return max_y;
 }
  /**
  * @brief Return the minimum reachable z-coordinate in the Region.
@@ -126,13 +130,14 @@ double Region::getMaxY() {
  */
 double Region::getMinZ() {
 
-   /* Set a default min-z */
+  /* Set a default min-z */
   double min_z = -std::numeric_limits<double>::infinity();
-   /* Loop over all nodes in the Region */
+
+  /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
     min_z = std::max(min_z, (*iter)->getMinZ());
-   return min_z;
+  return min_z;
 }
 
 
@@ -142,13 +147,14 @@ double Region::getMinZ() {
  */
 double Region::getMaxZ() {
 
-   /* Set a default max-z */
+  /* Set a default max-z */
   double max_z = std::numeric_limits<double>::infinity();
-   /* Loop over all nodes in the Region */
+
+  /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
     max_z = std::min(max_z, (*iter)->getMaxZ());
-   return max_z;
+  return max_z;
 }
 
 
@@ -159,10 +165,11 @@ double Region::getMaxZ() {
  */
 boundaryType Region::getMinXBoundaryType() {
 
-   /* Set a default min-x and boundary type*/
+  /* Set a default min-x and boundary type*/
   double min_x = -std::numeric_limits<double>::infinity();
   boundaryType bc = BOUNDARY_NONE;
-   /* Loop over all nodes inside the Region */
+
+  /* Loop over all nodes inside the Region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
     if (min_x < (*iter)->getMinX()) {
@@ -170,7 +177,7 @@ boundaryType Region::getMinXBoundaryType() {
       bc = (*iter)->getMinXBoundaryType();
     }
   }
-   return bc;
+  return bc;
 }
 
 
@@ -181,10 +188,11 @@ boundaryType Region::getMinXBoundaryType() {
  */
 boundaryType Region::getMaxXBoundaryType() {
 
-   /* Set a default max-x and boundary type*/
+  /* Set a default max-x and boundary type*/
   double max_x = std::numeric_limits<double>::infinity();
+
   boundaryType bc = BOUNDARY_NONE;
-   /* Loop over all nodes inside the Region */
+  /* Loop over all nodes inside the Region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
     if (max_x > (*iter)->getMaxX()) {
@@ -192,7 +200,7 @@ boundaryType Region::getMaxXBoundaryType() {
       bc = (*iter)->getMaxXBoundaryType();
     }
   }
-   return bc;
+  return bc;
 }
 
 
@@ -203,10 +211,11 @@ boundaryType Region::getMaxXBoundaryType() {
  */
 boundaryType Region::getMinYBoundaryType() {
 
-   /* Set a default min-y and boundary type*/
+  /* Set a default min-y and boundary type*/
   double min_y = -std::numeric_limits<double>::infinity();
+
   boundaryType bc = BOUNDARY_NONE;
-   /* Loop over all nodes inside the Region */
+  /* Loop over all nodes inside the Region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
     if (min_y < (*iter)->getMinY()) {
@@ -214,7 +223,7 @@ boundaryType Region::getMinYBoundaryType() {
       bc = (*iter)->getMinYBoundaryType();
     }
   }
-   return bc;
+  return bc;
 }
 
 
@@ -225,10 +234,11 @@ boundaryType Region::getMinYBoundaryType() {
  */
 boundaryType Region::getMaxYBoundaryType() {
 
-   /* Set a default max-y and boundary type*/
+  /* Set a default max-y and boundary type*/
   double max_y = std::numeric_limits<double>::infinity();
   boundaryType bc = BOUNDARY_NONE;
-   /* Loop over all nodes inside the Region */
+
+  /* Loop over all nodes inside the Region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
     if (max_y > (*iter)->getMaxY()) {
@@ -236,7 +246,53 @@ boundaryType Region::getMaxYBoundaryType() {
       bc = (*iter)->getMaxYBoundaryType();
     }
   }
-   return bc;
+  return bc;
+}
+
+
+/**
+ * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE)
+ *        at the minimum reachable z-coordinate in the Region.
+ * @return the boundary condition at the minimum z-coordinate
+ */
+boundaryType Region::getMinZBoundaryType() {
+
+  /* Set a default min-z and boundary type*/
+  double min_z = -std::numeric_limits<double>::infinity();
+  boundaryType bc = BOUNDARY_NONE;
+
+  /* Loop over all nodes inside the Region */
+  std::vector<Region*>::iterator iter;
+  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
+    if (min_z < (*iter)->getMinZ()) {
+      min_z = (*iter)->getMinZ();
+      bc = (*iter)->getMinZBoundaryType();
+    }
+  }
+  return bc;
+}
+
+
+ /**
+ * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE)
+ *        at the maximum reachable z-coordinate in the Region.
+ * @return the boundary condition at the maximum z-coordinate
+ */
+boundaryType Region::getMaxZBoundaryType() {
+
+  /* Set a default max-z and boundary type*/
+  double max_z = std::numeric_limits<double>::infinity();
+  boundaryType bc = BOUNDARY_NONE;
+
+  /* Loop over all nodes inside the Region */
+  std::vector<Region*>::iterator iter;
+  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
+    if (max_z > (*iter)->getMaxZ()) {
+      max_z = (*iter)->getMaxZ();
+      bc = (*iter)->getMaxZBoundaryType();
+    }
+  }
+  return bc;
 }
 
 
@@ -252,15 +308,44 @@ double Region::minSurfaceDist(LocalCoords* coords) {
 
   double curr_dist;
   double min_dist = INFINITY;
-   /* Find the minimum distance to one of the Region's nodes */
+
+  /* Find the minimum distance to one of the Region's nodes */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
     curr_dist = (*iter)->minSurfaceDist(coords);
-     /* If the distance to Cell is less than current min distance, update */
+
+    /* If the distance to Cell is less than current min distance, update */
     if (curr_dist < min_dist)
       min_dist = curr_dist;
   }
-   return min_dist;
+
+  return min_dist;
+}
+
+
+/**
+ * @brief Computes the minimum distance to a Surface in the Region from
+ *        a point with a given trajectory at a certain angle stored in a
+ *        LocalCoords object.
+ * @details If the trajectory will not intersect any of the Surfaces in the
+ *          Region returns INFINITY.
+ * @param coords a pointer to a localcoords
+ */
+double Region::minSurfaceDist(Point* point, double azim, double polar) {
+
+  double curr_dist;
+  double min_dist = INFINITY;
+
+  /* Find the minimum distance to one of the Region's nodes */
+  std::vector<Region*>::iterator iter;
+  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
+    curr_dist = (*iter)->minSurfaceDist(point, azim, polar);
+
+    /* If the distance to Cell is less than current min distance, update */
+    if (curr_dist < min_dist)
+      min_dist = curr_dist;
+  }
+  return min_dist;
 }
 
 
@@ -270,7 +355,7 @@ double Region::minSurfaceDist(LocalCoords* coords) {
  */
 Region* Region::clone() {
 
-   /* Instantiate appropriate class type for the clone */
+  /* Instantiate appropriate class type for the clone */
   Region* clone;
   if (dynamic_cast<Intersection*>(this))
     clone = new Intersection();
@@ -278,11 +363,12 @@ Region* Region::clone() {
     clone = new Union();
   else if (dynamic_cast<Complement*>(this))
     clone = new Complement();
-   /* Add this region's nodes to the cloned region */
+
+  /* Add this region's nodes to the cloned region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); iter++)
     clone->addNode((*iter));
-   return clone;
+  return clone;
 }
 
 
@@ -304,13 +390,13 @@ Intersection::Intersection() {
  */
 bool Intersection::containsPoint(Point* point) {
 
-   /* Query each of the Intersection's nodes */
+  /* Query each of the Intersection's nodes */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); iter++) {
     if (!(*iter)->containsPoint(point))
       return false;
   }
-   return true;
+  return true;
 }
 
 
@@ -331,13 +417,13 @@ Union::Union() {
  */
 bool Union::containsPoint(Point* point) {
 
-   /* Query each of the Intersection's nodes */
+  /* Query each of the Intersection's nodes */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); iter++) {
     if ((*iter)->containsPoint(point))
       return true;
   }
-   return false;
+  return false;
 }
 
 
@@ -371,7 +457,7 @@ bool Complement::containsPoint(Point* point) {
  * @param surface a pointer to the Surface of interest
  */
 Halfspace::Halfspace(int halfspace, Surface* surface) {
-   if (halfspace != -1 && halfspace != +1)
+  if (halfspace != -1 && halfspace != +1)
     log_printf(ERROR, "Unable to create Halfspace from Surface %d since the "
 	       "halfspace %d is not -1 or 1", surface->getId(), halfspace);
    _region_type = HALFSPACE;
@@ -518,6 +604,26 @@ boundaryType Halfspace::getMaxYBoundaryType() {
 
 
 /**
+ * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE)
+ *        of the Halfspace's Surface.
+ * @return the boundary condition
+ */
+boundaryType Halfspace::getMinZBoundaryType() {
+  return _surface->getBoundaryType();
+}
+
+
+ /**
+ * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE)
+ *        of the Halfspace's Surface.
+ * @return the boundary condition
+ */
+boundaryType Halfspace::getMaxZBoundaryType() {
+  return _surface->getBoundaryType();
+}
+
+
+/**
  * @brief Determines whether a Point is contained inside the Halfspace.
  * @details Queries whether the Point is on the same side of the
  *          Surface as the Halfspace.
@@ -531,7 +637,20 @@ bool Halfspace::containsPoint(Point* point) {
   else if (_halfspace == 1)
     return (evaluation >= 0);
   else
-   return (evaluation < 0);
+    return (evaluation < 0);
+}
+
+
+/**
+ * @brief Computes the minimum distance to the Surface in the Halfspace from
+ *        a point with a given trajectory at a certain angle stored in a
+ *        LocalCoords object.
+ * @details If the trajectory will not intersect the Surface in the
+ *          Halfspace returns INFINITY.
+ * @param coords a pointer to a localcoords
+ */
+double Halfspace::minSurfaceDist(Point* point, double azim, double polar) {
+  return _surface->getMinDistance(point, azim, polar);
 }
 
 
@@ -564,22 +683,25 @@ RectangularPrism::RectangularPrism(double width_x, double width_y,
 				   double origin_x, double origin_y):
   Intersection() {
 
-   /* Instantiate the XPlane and YPlane objects bounding the prism */
+  /* Instantiate the XPlane and YPlane objects bounding the prism */
   XPlane* min_x = new XPlane(origin_x-width_x/2.);
   XPlane* max_x = new XPlane(origin_x+width_x/2.);
   YPlane* min_y = new YPlane(origin_y-width_y/2.);
   YPlane* max_y = new YPlane(origin_y+width_y/2.);
-   /* Instantiate Haflspace objects for each XPlane and YPlane */
+
+  /* Instantiate Haflspace objects for each XPlane and YPlane */
   Halfspace* half_min_x = new Halfspace(+1, min_x);
   Halfspace* half_max_x = new Halfspace(-1, max_x);
   Halfspace* half_min_y = new Halfspace(+1, min_y);
   Halfspace* half_max_y = new Halfspace(-1, max_y);
-   /* Add the Halfspace node to the Intersection */
+
+  /* Add the Halfspace node to the Intersection */
   addNode(half_min_x);
   addNode(half_max_x);
   addNode(half_min_y);
   addNode(half_max_y);
-   /* Deallocate memory for the Halfspace's since the Intersection
+
+  /* Deallocate memory for the Halfspace's since the Intersection
    * stores copies of each one */
   delete half_min_x;
   delete half_max_x;
@@ -597,7 +719,8 @@ void RectangularPrism::setBoundaryType(boundaryType boundary_type) {
 
   std::map<int, Halfspace*> all_surfaces = getAllSurfaces();
   std::map<int, Halfspace*>::iterator iter;
-   /* Assign the boundary to each of the bounding XPlanes and YPlanes */
+
+  /* Assign the boundary to each of the bounding XPlanes and YPlanes */
   for (iter = all_surfaces.begin(); iter != all_surfaces.end(); iter++)
     iter->second->getSurface()->setBoundaryType(boundary_type);
 }

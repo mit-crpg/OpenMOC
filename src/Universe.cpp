@@ -561,8 +561,7 @@ Cell* Universe::findCell(LocalCoords* coords) {
       }
     }
   }
-  log_printf(DEBUG, "Did not find cell at coords %f, %f, %f", coords->getX(),
-                    coords->getY(), coords->getZ());
+
   return NULL;
 }
 
@@ -697,7 +696,7 @@ void Universe::calculateBoundaries() {
    * in _min_x */
   double min_x = std::numeric_limits<double>::infinity();
   std::map<int, Cell*>::iterator c_iter;
-  std::map<int, surface_halfspace*>::iterator s_iter;
+  std::map<int, Halfspace*>::iterator s_iter;
   Surface* surf;
   int halfspace;
 
@@ -708,7 +707,7 @@ void Universe::calculateBoundaries() {
   
   /* Check if the universe contains a cell with an x-min boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
-    std::map<int, surface_halfspace*> surfs = c_iter->second->getSurfaces();
+    std::map<int, Halfspace*> surfs = c_iter->second->getSurfaces();
 
     double cell_min_x = -std::numeric_limits<double>::infinity();
     boundaryType cell_min_x_bound = BOUNDARY_NONE;
@@ -750,7 +749,7 @@ void Universe::calculateBoundaries() {
 
   /* Check if the universe contains a cell with an x-max boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
-    std::map<int, surface_halfspace*> surfs = c_iter->second->getSurfaces();
+    std::map<int, Halfspace*> surfs = c_iter->second->getSurfaces();
     
     double cell_max_x = std::numeric_limits<double>::infinity();
     boundaryType cell_max_x_bound = BOUNDARY_NONE;
@@ -793,7 +792,7 @@ void Universe::calculateBoundaries() {
 
   /* Check if the universe contains a cell with an y-min boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
-    std::map<int, surface_halfspace*> surfs = c_iter->second->getSurfaces();
+    std::map<int, Halfspace*> surfs = c_iter->second->getSurfaces();
 
     double cell_min_y = -std::numeric_limits<double>::infinity();
     boundaryType cell_min_y_bound = BOUNDARY_NONE;
@@ -835,7 +834,7 @@ void Universe::calculateBoundaries() {
 
   /* Check if the universe contains a cell with an y-max boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
-    std::map<int, surface_halfspace*>surfs = c_iter->second->getSurfaces();
+    std::map<int, Halfspace*>surfs = c_iter->second->getSurfaces();
 
     double cell_max_y = std::numeric_limits<double>::infinity();
     boundaryType cell_max_y_bound = BOUNDARY_NONE;
@@ -877,7 +876,7 @@ void Universe::calculateBoundaries() {
 
   /* Check if the universe contains a cell with an z-min boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
-    std::map<int, surface_halfspace*> surfs = c_iter->second->getSurfaces();
+    std::map<int, Halfspace*> surfs = c_iter->second->getSurfaces();
 
     double cell_min_z = -std::numeric_limits<double>::infinity();
     boundaryType cell_min_z_bound = BOUNDARY_NONE;
@@ -919,7 +918,7 @@ void Universe::calculateBoundaries() {
   
   /* Check if the universe contains a cell with an y-max boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
-    std::map<int, surface_halfspace*>surfs = c_iter->second->getSurfaces();
+    std::map<int, Halfspace*>surfs = c_iter->second->getSurfaces();
 
     double cell_max_z = std::numeric_limits<double>::infinity();
     boundaryType cell_max_z_bound = BOUNDARY_NONE;
@@ -1454,11 +1453,32 @@ void Lattice::buildNeighbors() {
 
 
 /**
+ * @brief Determines whether a Point is contained inside a Universe.
+ * @details Queries each Cell in the Universe to determine if the Point
+ *          is within the Universe. This point is only inside the Universe
+ *          if it is inside one of the Cells.
+ * @param point a pointer to a Point
+ * @returns true if the Point is inside the Universe; otherwise false
+ */
+bool Universe::containsPoint(Point* point) {
+
+  /* Loop over all Cells */
+  std::map<int, Cell*>::iterator iter;
+  for (iter = _cells.begin(); iter != _cells.end(); ++iter) {
+    if (iter->second->containsPoint(point))
+      return true;
+  }
+
+  return false;
+}
+
+
+/**
  * @brief Checks if a Point is within the bounds of a Lattice.
  * @param point a pointer to the Point of interest
  * @return true if the Point is in the bounds, false if not
  */
-bool Lattice::withinBounds(Point* point) {
+bool Lattice::containsPoint(Point* point) {
 
   /* Computes the Lattice bounds */
   double bound_x_max = _offset.getX() + _num_x/2.0 * _width_x;
