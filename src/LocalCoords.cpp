@@ -203,12 +203,14 @@ void LocalCoords::detectLoop() {
   int n = 0;
 
   LocalCoords* iter = _next;
-  while (_next != NULL) {
+  while (iter != NULL) {
       iter = iter->getNext();
       n++;
       if (n > 1000)
         log_printf(ERROR, "Infinite loop of coords");
   }
+  log_printf(DEBUG, "The LocalCoords is: %s\n", toString().c_str());
+  log_printf(DEBUG, "The depth of the chain is %d \n", n);
 }
 
 
@@ -413,7 +415,7 @@ LocalCoords* LocalCoords::getHighestLevel() {
 
 
 /**
- * @brief Translate all of the x,y coordinates for each LocalCoords object in
+ * @brief Translate all of the x,y,z coordinates for each LocalCoords object in
  *        the linked list.
  * @details This method will traverse the entire linked list and apply the
  *          translation to each element.
@@ -475,7 +477,7 @@ void LocalCoords::prune() {
   LocalCoords* next = curr->getPrev();
 
   /* Iterate over LocalCoords beneath this one in the linked list */
-  while (curr != this) {
+  while (curr != this) {// it seems nothing has been down in this while loop
     next = curr->getPrev();
     if (curr->getPosition() == -1)
       curr->deleteArray();

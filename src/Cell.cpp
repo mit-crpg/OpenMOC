@@ -1003,8 +1003,11 @@ void Cell::setNumRings(int num_rings) {
   if (num_rings < 0)
     log_printf(ERROR, "Unable to give %d rings to Cell %d since this is "
                "a negative number", num_rings, _id);
-
-  _num_rings = num_rings;
+  
+  if (num_rings == 1)
+    _num_rings = 0;
+  else
+    _num_rings = num_rings;
 }
 
 
@@ -1062,7 +1065,7 @@ void Cell::addSurface(int halfspace, Surface* surface) {
  */
 void Cell::removeSurface(Surface* surface) {
 
-  if (_surfaces.find(surface->getId()) != _surfaces.end()) {
+  if (surface != NULL && _surfaces.find(surface->getId()) != _surfaces.end()) {
     delete _surfaces[surface->getId()];
     _surfaces.erase(surface->getId());
   }
@@ -1332,7 +1335,7 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
   }
 
   if (num_zcylinders > 2)
-    log_printf(NORMAL, "Unable to ringify Cell %d since it "
+    log_printf(ERROR, "Unable to ringify Cell %d since it "
                "contains more than 2 ZCYLINDER Surfaces", _id);
 
   if (fabs(x1 - x2) > FLT_EPSILON && num_zcylinders == 2)
@@ -1368,8 +1371,7 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
     increment = fabs(radius1 - radius2) / _num_rings;
   
     /* Heuristic to improve area-balancing for low number of rings */
-    if (halfspace1 == 0 && fabs(radius1 - max_radius) < FLT_EPSILON
-        && _num_rings < 3)
+    if (fabs(radius1 - max_radius) < FLT_EPSILON && _num_rings < 3)
       increment = 1.5 * (radius1 - radius2) / _num_rings;
   }
 
@@ -1409,6 +1411,7 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
         Cell* ring = (*iter3)->clone();
         ring->setNumSectors(0);
         ring->setNumRings(0);
+        ring->removeSurface(zcylinder1);
 
         /* Add ZCylinder only if this is not the outermost ring in an
          * unbounded Cell (i.e. the moderator in a fuel pin cell) */
@@ -1420,8 +1423,10 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
           rings.push_back(ring);
           continue;
         }
-        else
+        else {
           ring->addSurface(+1, *(iter2+1));
+          ring->removeSurface(zcylinder2);
+        }
 
         /* Store the clone in the parent Cell's container of ring Cells */
         rings.push_back(ring);
@@ -1436,6 +1441,7 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
       Cell* ring = clone();
       ring->setNumSectors(0);
       ring->setNumRings(0);
+      ring->removeSurface(zcylinder1);
 
       /* Add ZCylinder only if this is not the outermost ring in an
        * unbounded Cell (i.e. the moderator in a fuel pin cell) */
@@ -1447,8 +1453,10 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
         rings.push_back(ring);
         break;
       }
-      else
+      else {
         ring->addSurface(+1, *(iter2+1));
+        ring->removeSurface(zcylinder2);
+      }
 
       /* Store the clone in the parent Cell's container of ring Cells */
       rings.push_back(ring);
@@ -1559,7 +1567,8 @@ std::string Cell::toString() {
   std::map<int, surface_halfspace*>::iterator iter;
   string << ", Surfaces: ";
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    string <<  iter->second->_surface->toString() << ", ";
+    string << "\nhalfspace = " << iter->second->_halfspace << ", " <<
+           iter->second->_surface->toString();
 
   return string.str();
 }
