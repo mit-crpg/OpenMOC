@@ -1019,13 +1019,6 @@ void Solver::initializeCmfd() {
   else if (!_cmfd->isFluxUpdateOn())
     return;
 
-  /* If 2D Solve, set CMFD z-direction mesh size to 1 and depth to 1.0 */
-  if (!_solve_3D) {
-    _cmfd->setNumZ(1);
-    _cmfd->setBoundary(SURFACE_Z_MIN, REFLECTIVE);
-    _cmfd->setBoundary(SURFACE_Z_MAX, REFLECTIVE);
-  }
-
   /* Intialize the CMFD energy group structure */
   _cmfd->setSourceConvergenceThreshold(_converge_thresh*1.e-1); //FIXME
   _cmfd->setNumMOCGroups(_num_groups);
