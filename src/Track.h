@@ -53,6 +53,7 @@ struct segment {
     _material = NULL;
     _cmfd_surface_fwd = -1;
     _cmfd_surface_bwd = -1;
+    _starting_position[2] = 0.;
   }
 };
 
