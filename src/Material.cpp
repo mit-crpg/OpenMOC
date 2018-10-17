@@ -580,9 +580,9 @@ void Material::setNumEnergyGroups(const int num_groups) {
  *          material.setSigmaT(sigma_t)
  * @endcode
  *
- *          NOTE: This routine will override an zero-valued cross-sections
+ *          NOTE: This routine will override any zero-valued cross-sections
  *          (e.g., in void or gap regions) with a minimum value of 1E-10 to
- *          void numerical issues in the MOC solver.
+ *          avoid numerical issues in the MOC solver.
  *
  * @param xs the array of total cross-sections
  * @param num_groups the number of energy groups

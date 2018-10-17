@@ -938,17 +938,17 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
       zcurr = z0 + sqrt(interior) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
       if (azim < M_PI && ycurr > y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
+        if (zcurr > z0 && polar < M_PI_2)
           num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
+        else if (zcurr < z0 && polar > M_PI_2)
           num++;
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
       else if (azim > M_PI && ycurr < y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
+        if (zcurr > z0 && polar < M_PI_2)
           num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
+        else if (zcurr < z0 && polar > M_PI_2)
           num++;
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
@@ -959,17 +959,17 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
       zcurr = z0 + sqrt(interior) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
       if (azim < M_PI && ycurr > y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
+        if (zcurr > z0 && polar < M_PI_2)
           num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
+        else if (zcurr < z0 && polar > M_PI_2)
           num++;
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
       else if (azim > M_PI && ycurr < y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
+        if (zcurr > z0 && polar < M_PI_2)
           num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
+        else if (zcurr < z0 && polar > M_PI_2)
           num++;
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;

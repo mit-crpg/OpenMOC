@@ -631,13 +631,8 @@ boundaryType Halfspace::getMaxZBoundaryType() {
  */
 bool Halfspace::containsPoint(Point* point) {
 
-  double evaluation = _surface->evaluate(point);
-  if (fabs(evaluation) <= ON_SURFACE_THRESH)
-    return true;
-  else if (_halfspace == 1)
-    return (evaluation >= 0);
-  else
-    return (evaluation < 0);
+  double evaluation = _surface->evaluate(point) * _halfspace;
+  return (evaluation >= 0);
 }
 
 
