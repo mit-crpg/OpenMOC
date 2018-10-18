@@ -108,9 +108,6 @@ private:
   /** A parent Cell if cloned by another Cell */
   Cell* _parent;
 
-  /** Map of bounding Surface IDs with pointers and halfspaces (+/-1) */
-  std::map<int, Halfspace*> _surfaces;
-
   /* Vector of neighboring Cells */
   std::vector<Cell*> _neighbors;
 

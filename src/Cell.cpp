@@ -98,13 +98,6 @@ Cell::Cell(int id, const char* name) {
  */
 Cell::~Cell() {
 
-  // DUPLICATE of region deletion
-  std::map<int, Halfspace*>::iterator iter;
-  std::map<int, Halfspace*> _surfaces = getSurfaces();
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    delete iter->second;
-  _surfaces.clear();
-
   if (_name != NULL)
     delete [] _name;
   if (_region != NULL)  //FIXME will be used with MGXS
@@ -922,11 +915,11 @@ void Cell::addSurface(int halfspace, Surface* surface) {
     _region = new_halfspace;
   else{
     if (dynamic_cast<Intersection*>(_region))
-      _region->addNode(new_halfspace);
+      _region->addNode(new_halfspace, false);
     else {
       Intersection* intersection = new Intersection();
-      intersection->addNode(_region);
-      intersection->addNode(new_halfspace);
+      intersection->addNode(_region, false);
+      intersection->addNode(new_halfspace, false);
       _region = intersection;
     }
   }
@@ -939,6 +932,7 @@ void Cell::addSurface(int halfspace, Surface* surface) {
  */
 void Cell::removeSurface(Surface* surface) {
 
+  //FIXME This map cannot be modified, it's a const
   std::map<int, Halfspace*> surfaces = getSurfaces();
   if (surfaces.find(surface->getId()) != surfaces.end()) {
     delete surfaces[surface->getId()];
@@ -1099,14 +1093,6 @@ Cell* Cell::clone() {
     new_cell->setRotation(_rotation, 3, "radians");
   if (_translated)
     new_cell->setTranslation(_translation, 3);
-
-  /* Loop over all of this Cell's Surfaces and add them to the clone */
-  std::map<int, Halfspace*>::iterator iter;
-  std::map<int, Halfspace*> _surfaces = getSurfaces();
-
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    new_cell->addSurface(iter->second->getHalfspace(),
-                         iter->second->getSurface());
 
   return new_cell;
 }
@@ -1274,7 +1260,7 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
    * radius increment (e.g. moderator in a pin cell universe). */
   if (halfspace1 == 0){
     increment = fabs(radius1 - radius2) / _num_rings;
-  
+
     /* Heuristic to improve area-balancing for low number of rings */
     if (halfspace1 == 0 && fabs(radius1 - max_radius) < FLT_EPSILON
         && _num_rings < 3)
@@ -1318,10 +1304,16 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
         ring->setNumSectors(0);
         ring->setNumRings(0);
 
+        /* Delete bounding cylinders, these are bounding the cell containing
+         * the universe that contains the rings */
+        ring->getRegion()->removeHalfspace(zcylinder1, -1);
+        ring->getRegion()->removeHalfspace(zcylinder2, +1);
+
         /* Add ZCylinder only if this is not the outermost ring in an
          * unbounded Cell (i.e. the moderator in a fuel pin cell) */
         if ((*iter2)->getRadius() < max_radius)
           ring->addSurface(-1, (*iter2));
+
 
         /* Look ahead and check if we have an inner ZCylinder to add */
         if (iter2+1 == zcylinders.end()) {
@@ -1330,6 +1322,7 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
         }
         else
           ring->addSurface(+1, *(iter2+1));
+
 
         /* Store the clone in the parent Cell's container of ring Cells */
         rings.push_back(ring);
@@ -1344,6 +1337,11 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
       Cell* ring = clone();
       ring->setNumSectors(0);
       ring->setNumRings(0);
+
+      /* Delete bounding cylinders, these are bounding the cell containing
+       * the universe that contains the rings */
+      ring->getRegion()->removeHalfspace(zcylinder1, -1);
+      ring->getRegion()->removeHalfspace(zcylinder2, +1);
 
       /* Add ZCylinder only if this is not the outermost ring in an
        * unbounded Cell (i.e. the moderator in a fuel pin cell) */

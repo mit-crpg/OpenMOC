@@ -42,7 +42,7 @@ enum regionType {
  */
 class Region {
 
- protected:
+protected:
 
    /** The type of Region (ie, UNION, INTERSECTION, etc) */
   regionType _region_type;
@@ -50,9 +50,10 @@ class Region {
    /** A collection of the nodes within the Region */
   std::vector<Region*> _nodes;
 
- public:
+public:
   virtual ~Region();
-  virtual void addNode(Region* node);
+  virtual void addNode(Region* node, bool clone=true);
+  void removeHalfspace(Surface* surface, int halfspace);
   virtual std::vector<Region*> getNodes();
   virtual std::map<int, Halfspace*> getAllSurfaces();
   regionType getRegionType();
@@ -79,7 +80,8 @@ class Region {
  * @brief An intersection of two or more Regions.
  */
 class Intersection : public Region {
- public:
+
+public:
   Intersection();
   bool containsPoint(Point* point);
 };
@@ -89,7 +91,8 @@ class Intersection : public Region {
  * @brief A union of two or more Regions.
  */
 class Union : public Region {
-  public:
+
+public:
   Union();
   bool containsPoint(Point* point);
 };
@@ -99,7 +102,8 @@ class Union : public Region {
  * @brief A complement of a Region.
  */
 class Complement : public Region {
- public:
+
+public:
   Complement();
   bool containsPoint(Point* point);  
 };

@@ -912,8 +912,7 @@ void Universe::calculateBoundaries() {
   double max_z = -std::numeric_limits<double>::infinity();
 
   /* Calculate the boundary condition at the maximum
-  * reachable z-coordinate in the Universe and store it in _max_z_bound
-  */
+  * reachable z-coordinate in the Universe and store it in _max_z_bound */
   _max_z_bound = BOUNDARY_NONE;
   
   /* Check if the universe contains a cell with an y-max boundary */

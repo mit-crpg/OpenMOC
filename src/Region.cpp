@@ -13,10 +13,45 @@ Region::~Region() {
  * @details NOTE: This method deep copies the Region and stores
  *          the copy. Any changes made to the Region will not be
  *          reflected in the Region copy stored by the Region.
+ *          The clone boolean can be used to avoid this behavior.
  * @param node a Region node to add to this Region
+ * @param clone whether to clone or not the node when adding it
  */
-void Region::addNode(Region* node) {
-  _nodes.push_back(node->clone());
+void Region::addNode(Region* node, bool clone) {
+  if (clone)
+    _nodes.push_back(node->clone());
+  else
+    _nodes.push_back(node);
+}
+
+
+/**
+ * @brief Removes a Node from this Region.
+ * @details //FIXME Does not handle complex CSG cells, only intersections
+ * @param surface the surface of Halfspace to remove
+ * @param halfspace the side of that surface
+ */
+void Region::removeHalfspace(Surface* surface, int halfspace) {
+
+  if (surface != NULL) {
+
+    std::vector<Region*> nodes = getNodes();
+    std::vector<Region*>::iterator iter1;
+
+    /* Loop through nodes in region to check for the same Halfspace */
+    for (iter1 = _nodes.begin(); iter1 != _nodes.end(); iter1++) {
+
+        if (dynamic_cast<Halfspace*>(*iter1)) {
+          Halfspace* iter2 = dynamic_cast<Halfspace*>(*iter1);
+          if (iter2->getSurface()->getId() == surface->getId() && 
+              iter2->getHalfspace() == halfspace) {
+
+            delete iter2;
+            _nodes.erase(iter1);
+        }
+      }
+    }
+  }
 }
 
 
@@ -363,6 +398,9 @@ Region* Region::clone() {
     clone = new Union();
   else if (dynamic_cast<Complement*>(this))
     clone = new Complement();
+  //else if (dynamic_cast<Halfspace*>(this))
+  //  clone = new Halfspace(dynamic_cast<Halfspace*>(this)->getHalfspace(), 
+  //                        dynamic_cast<Halfspace*>(this)->getSurface());
 
   /* Add this region's nodes to the cloned region */
   std::vector<Region*>::iterator iter;
@@ -460,7 +498,7 @@ Halfspace::Halfspace(int halfspace, Surface* surface) {
   if (halfspace != -1 && halfspace != +1)
     log_printf(ERROR, "Unable to create Halfspace from Surface %d since the "
 	       "halfspace %d is not -1 or 1", surface->getId(), halfspace);
-   _region_type = HALFSPACE;
+  _region_type = HALFSPACE;
   _surface = surface;
   _halfspace = halfspace;
 }
