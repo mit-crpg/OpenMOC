@@ -45,7 +45,7 @@ struct RuntimeParametres {
     _use_axial_interpolation(false), _log_filename(NULL), _linear_solver(true),
     _MOC_src_residual_type(1), _SOR_factor(1.0), _CMFD_relaxation_factor(1.0),
     _segmentation_type(3), _verbose_report(true), _time_report(true),
-    _log_level((char*)"NORMAL"),_quadraturetype(2) {}
+    _log_level((char*)"NORMAL"),_quadraturetype(2), _test_run(false) {}
   
   /* To debug or not when running, dead while loop */
   bool _debug_flag;
@@ -114,6 +114,8 @@ struct RuntimeParametres {
   std::vector<int> _output_types; 
   bool _verbose_report;
   bool _time_report;
+  /* Run the code for test */
+  bool _test_run;
 };
 
 /**

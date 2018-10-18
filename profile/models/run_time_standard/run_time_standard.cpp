@@ -1,8 +1,8 @@
-#include "../../../src/CPUSolver.h"
-#include "../../../src/CPULSSolver.h"
-#include "../../../src/log.h"
-#include "../../../src/Mesh.h"
-#include "../../../src/RunTime.h"
+#include "CPUSolver.h"
+#include "CPULSSolver.h"
+#include "log.h"
+#include "Mesh.h"
+#include "RunTime.h"
 #include <array>
 #include <iostream>
 

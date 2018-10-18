@@ -260,6 +260,10 @@ int setRuntimeParametres(RuntimeParametres &RP, int argc, char *argv[]) {
       arg_index++;
       RP._time_report = atoi(argv[arg_index++]);
     }
+    else if(strcmp(argv[arg_index], "-test_run") == 0) {
+      arg_index++;
+      RP._test_run = atoi(argv[arg_index++]);
+    }
     else if(strcmp(argv[arg_index], "-quadraturetype") == 0) {
       arg_index++;
       RP._quadraturetype = atoi(argv[arg_index++]);
@@ -376,6 +380,7 @@ int setRuntimeParametres(RuntimeParametres &RP, int argc, char *argv[]) {
     printf("-verbose_report         : (1)switch of the verbose iteration "
            "report\n");
     printf("-time_report            : (1)switch of the time report\n");
+    printf("-test_run               : (0)switch of the test running mode\n");
 
     printf("\n");
   }
