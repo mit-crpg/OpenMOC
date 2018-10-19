@@ -35,7 +35,6 @@ void Region::removeHalfspace(Surface* surface, int halfspace) {
 
   if (surface != NULL) {
 
-    std::vector<Region*> nodes = getNodes();
     std::vector<Region*>::iterator iter1;
 
     /* Loop through nodes in region to check for the same Halfspace */

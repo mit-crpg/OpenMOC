@@ -42,13 +42,15 @@ Geometry::Geometry() {
  * @brief Destructor clears FSR to Cells and Materials maps.
  */
 Geometry::~Geometry() {
-
+  
   /* Free all materials */
-  std::map<int, Material*> materials = _root_universe->getAllMaterials();
-  std::map<int, Material*>::iterator iter;
-  for (iter = materials.begin(); iter != materials.end(); ++iter)
-    delete iter->second;
-
+  if (_loaded_from_file) {
+    std::map<int, Material*> materials = _root_universe->getAllMaterials();
+    std::map<int, Material*>::iterator iter;
+    for (iter = materials.begin(); iter != materials.end(); ++iter)
+      delete iter->second;
+  }
+  
   /* Free all surfaces */
   if (_loaded_from_file) {
     std::map<int, Surface*> surfaces = getAllSurfaces();
@@ -2076,12 +2078,12 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
     }
 
     /* Calculate the local centroid of the segment if available */
-    if (_contains_FSR_centroids && !setup) {
-      Point* centroid = getFSRCentroid(fsr_id);
+    if (!setup) {
+      //Point* centroid = getFSRCentroid(fsr_id);
       Point* starting_point = start.getHighestLevel()->getPoint();
-      double x_start = starting_point->getX() - centroid->getX();
-      double y_start = starting_point->getY() - centroid->getY();
-      double z_start = starting_point->getZ() - centroid->getZ();
+      double x_start = starting_point->getX();
+      double y_start = starting_point->getY();
+      double z_start = starting_point->getZ();
       new_segment->_starting_position[0] = x_start;
       new_segment->_starting_position[1] = y_start;
       new_segment->_starting_position[2] = z_start;

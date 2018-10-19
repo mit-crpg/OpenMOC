@@ -572,7 +572,7 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
 
   /* Set the current x and y coordinates */
   double x_curr = x_start_2D;
-  double y_curr = flattened_track->getStart()->getY();
+  double y_curr = y_start_2D;
 
   /* Loop over 2D segments */
   double first_start_z = start_z;

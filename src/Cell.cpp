@@ -863,8 +863,11 @@ void Cell::setNumRings(int num_rings) {
   if (num_rings < 0)
     log_printf(ERROR, "Unable to give %d rings to Cell %d since this is "
                "a negative number", num_rings, _id);
-
-  _num_rings = num_rings;
+  
+  if (num_rings == 1)
+    _num_rings = 0;
+  else
+    _num_rings = num_rings;
 }
 
 
@@ -985,8 +988,8 @@ void Cell::removeSurface(Surface* surface) {
        _region = complement;
      }
      _current_region = _region;
-   }
-   /* Add node under current region, and move current region to said node */
+  }
+  /* Add node under current region, and move current region to said node */
   else {
     if (region_type == INTERSECTION) {
       Intersection* intersection = new Intersection();
@@ -1007,7 +1010,7 @@ void Cell::removeSurface(Surface* surface) {
       _current_region = complement;
     }
   }
- }
+}
 
 
 /**
@@ -1303,7 +1306,7 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
   }
 
   if (num_zcylinders > 2)
-    log_printf(NORMAL, "Unable to ringify Cell %d since it "
+    log_printf(ERROR, "Unable to ringify Cell %d since it "
                "contains more than 2 ZCYLINDER Surfaces", _id);
 
   if (fabs(x1 - x2) > FLT_EPSILON && num_zcylinders == 2)
@@ -1339,8 +1342,7 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
     increment = fabs(radius1 - radius2) / _num_rings;
 
     /* Heuristic to improve area-balancing for low number of rings */
-    if (halfspace1 == 0 && fabs(radius1 - max_radius) < FLT_EPSILON
-        && _num_rings < 3)
+    if (fabs(radius1 - max_radius) < FLT_EPSILON && _num_rings < 3)
       increment = 1.5 * (radius1 - radius2) / _num_rings;
   }
 
@@ -1391,14 +1393,14 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
         if ((*iter2)->getRadius() < max_radius)
           ring->addSurface(-1, (*iter2));
 
-
         /* Look ahead and check if we have an inner ZCylinder to add */
         if (iter2+1 == zcylinders.end()) {
           rings.push_back(ring);
           continue;
         }
-        else
+        else {
           ring->addSurface(+1, *(iter2+1));
+        }
 
 
         /* Store the clone in the parent Cell's container of ring Cells */
@@ -1430,8 +1432,9 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
         rings.push_back(ring);
         break;
       }
-      else
+      else {
         ring->addSurface(+1, *(iter2+1));
+      }
 
       /* Store the clone in the parent Cell's container of ring Cells */
       rings.push_back(ring);
@@ -1544,7 +1547,8 @@ std::string Cell::toString() {
   std::map<int, Halfspace*> _surfaces = getSurfaces();
   string << ", Surfaces: ";
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    string <<  iter->second->getSurface()->toString() << ", ";
+    string << "\nhalfspace = " << iter->second->_halfspace << ", " <<
+           iter->second->_surface->toString();
 
   return string.str();
 }

@@ -1146,7 +1146,7 @@ void TrackGenerator3D::set3DTrackData(TrackChainIndexes* tci,
       break;
 
     /* If the Z boundary or last link or the desired link has been reached,
-     * exit */
+     * exit. tci->_link appoints the desired track*/
     if (dl_z < dl_xy || track_2D->getXYIndex() >= _num_y[tci->_azim] ||
         tci->_link == link - first_link)
       end_of_chain = true;
@@ -1276,8 +1276,15 @@ void TrackGenerator3D::segmentize() {
 #pragma omp parallel for
     for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
       for (int p=0; p < _num_polar; p++) {
-        for (int z=0; z < _tracks_per_stack[a][i][p]; z++)
+        for (int z=0; z < _tracks_per_stack[a][i][p]; z++){
           _geometry->segmentize3D(&_tracks_3D[a][i][p][z]);
+          TrackStackIndexes tsi;
+          tsi._azim = a;
+          tsi._xy = i;
+          tsi._polar = p;
+          tsi._z = z;
+          _tracks_3D[a][i][p][z].setUid(get3DTrackID(&tsi));    
+        }
       }
     }
 
