@@ -397,6 +397,16 @@ void TrackGenerator::setNumThreads(int num_threads) {
                "TrackGenerator to %d since it is less than or equal to 0"
                , num_threads);
 
+#ifdef MPIx
+  /* Check the MPI library has enough thread support */
+  int provided;
+  MPI_Query_thread(&provided);
+  if (num_threads > 1 and provided < MPI_THREAD_SERIALIZED)
+    log_printf(WARNING, "Not enough thread support in the MPI library, "
+               "re-compile with another library. Thread support level should"
+               "be at least MPI_THREAD_SERIALIZED");
+#endif
+
   _num_threads = num_threads;
 
   /* Set the number of threads for OpenMP */

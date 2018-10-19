@@ -133,6 +133,16 @@ void CPUSolver::setNumThreads(int num_threads) {
     log_printf(ERROR, "Unable to set the number of threads to %d "
                "since it is less than or equal to 0", num_threads);
 
+#ifdef MPIx
+  /* Check the MPI library has enough thread support */
+  int provided;
+  MPI_Query_thread(&provided);
+  if (num_threads > 1 and provided < MPI_THREAD_SERIALIZED)
+    log_printf(WARNING, "Not enough thread support in the MPI library, "
+               "re-compile with another library. Thread support level should"
+               "be at least MPI_THREAD_SERIALIZED");
+#endif
+
   /* Set the number of threads for OpenMP */
   _num_threads = num_threads;
   omp_set_num_threads(_num_threads);
