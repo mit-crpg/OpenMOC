@@ -56,13 +56,35 @@ void Region::removeHalfspace(Surface* surface, int halfspace) {
 
 
 /**
- * @brief Return a vector of all of the Region's nodes.
+ * @brief Return a vector of all of the Region's immediate nodes.
  * @details This method will return a list of the Region's nodes
  *          when called from Python.
- * @returns a vector of the Region's nodes
+ * @returns a vector of the Region's immediate nodes
  */
 std::vector<Region*> Region::getNodes() {
   return _nodes;
+}
+
+
+/**
+ * @brief Return a vector of all of the Region's nodes.
+ * @details This method will return a list of the Region's nodes,
+ *          including nodes at lower levels.
+ * @returns a vector of the Region's nodes
+ */
+std::vector<Region*> Region::getAllNodes() {
+  std::vector<Region*> all_nodes;
+  std::vector<Region*> nodes;
+  std::vector<Region*>::iterator iter;
+  std::vector<Region*>::iterator sub_iter;
+   /* Recursively collect all nodes from this Regions nodes */
+  for (iter = _nodes.begin(); iter != _nodes.end(); iter++) {
+    all_nodes.push_back(*iter);
+    nodes = (*iter)->getAllNodes();
+    for (sub_iter = nodes.begin(); sub_iter != nodes.end(); sub_iter++)
+      all_nodes.push_back(*sub_iter);
+  }
+   return all_nodes;
 }
 
 
@@ -94,6 +116,25 @@ std::map<int, Halfspace*> Region::getAllSurfaces() {
  */
 regionType Region::getRegionType() {
   return _region_type;
+}
+
+
+
+/**
+ * @brief Save the parent of the current node/Region.
+ * @param parent the node/Region that contains the current node/Region
+ */
+void Region::setParentRegion(Region* parent) {
+  _parent_region = parent;
+ }
+
+
+/**
+ * @brief Get the parent of the current node/Region.
+ * @return _parent_region the node/Region that contains the current node/Region
+ */
+Region* Region::getParentRegion() {
+   return _parent_region;
 }
 
 
@@ -529,6 +570,15 @@ Surface* Halfspace::getSurface() {
  */
 int Halfspace::getHalfspace() {
   return _halfspace;
+}
+
+
+/**
+ * @brief Changes the side of the surface for this Halfspace.
+ * @param the side of the surface for this Halfspace (+1 or -1)
+ */
+void Halfspace::reverseHalfspace() {
+  _halfspace *= -1;
 }
 
 

@@ -1852,8 +1852,9 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
     /* Checks that segment does not have the same start and end Points */
     if (fabs(start.getX() - end.getX()) < FLT_EPSILON
         && fabs(start.getY() - end.getY()) < FLT_EPSILON)
-      log_printf(ERROR, "Created segment with same start and end "
-                 "point: x = %f, y = %f", start.getX(), start.getY());
+      log_printf(ERROR, "Created 2D segment with same start and end "
+                 "point: x = %f, y = %f, z=%f", start.getX(), start.getY(),
+                 start.getZ());
 
     /* Find the segment length, Material and FSR ID */
     length = double(end.getPoint()->distanceToPoint(start.getPoint()));
@@ -3665,17 +3666,34 @@ void Geometry::dumpToFile(std::string filename) {
       fwrite(&parent_id, sizeof(int), 1, out);
     }
 
-    /* Print bounding surfaces */
-    std::map<int, Halfspace*> surfaces = cell->getSurfaces();
-    std::map<int, Halfspace*>::iterator surface_h_iter;
-    int num_cell_surfaces = surfaces.size();
-    fwrite(&num_cell_surfaces, sizeof(int), 1, out);
-    for (surface_h_iter = surfaces.begin(); surface_h_iter != surfaces.end();
-        ++surface_h_iter) {
-      int surface_id = surface_h_iter->first;
-      int halfspace = surface_h_iter->second->_halfspace;
-      fwrite(&surface_id, sizeof(int), 1, out);
-      fwrite(&halfspace, sizeof(int), 1, out);
+    /* Print region and halfspaces */
+    Region* region = cell->getRegion();
+    std::vector<Region*> all_nodes;
+    std::vector<Region*>::iterator node_iter;
+
+    if (region != NULL) {
+      /* Add local Region, head of the CSG Region tree, to the printed nodes */
+      all_nodes = region->getAllNodes();
+      all_nodes.insert(all_nodes.begin(), region);
+    }
+
+    int num_nodes = all_nodes.size();
+    fwrite(&num_nodes, sizeof(int), 1, out);
+    for (node_iter = all_nodes.begin(); node_iter != all_nodes.end();
+         ++node_iter) {
+
+      int region_type = (*node_iter)->getRegionType();
+      int num_subnodes = (*node_iter)->getAllNodes().size();
+      fwrite(&region_type, sizeof(int), 1, out);
+      fwrite(&num_subnodes, sizeof(int), 1, out);
+
+      if (region_type == HALFSPACE) {
+        int surface_id = 
+             static_cast<Halfspace*>(*node_iter)->getSurface()->getId();
+        int halfspace = static_cast<Halfspace*>(*node_iter)->getHalfspace();
+        fwrite(&surface_id, sizeof(int), 1, out);
+        fwrite(&halfspace, sizeof(int), 1, out);
+      }
     }
 
     //FIXME Print neighbors or decide to re-compute them
@@ -4003,15 +4021,50 @@ void Geometry::loadFromFile(std::string filename, bool twiddle) {
       cell_parent[key] = parent_id;
     }
 
-    /* Read bounding surfaces */
-    int num_cell_surfaces;
-    ret = twiddleRead(&num_cell_surfaces, sizeof(int), 1, in);
-    for (int s=0; s < num_cell_surfaces; s++) {
-      int surface_id;
-      int halfspace;
-      ret = twiddleRead(&surface_id, sizeof(int), 1, in);
-      ret = twiddleRead(&halfspace, sizeof(int), 1, in);
-      all_cells[key]->addSurface(halfspace, all_surfaces[surface_id]);
+    /* Read region */
+    int num_nodes;
+    ret = twiddleRead(&num_nodes, sizeof(int), 1, in);
+
+    /* Vector to store the number of subnodes for each node */
+    std::vector<int> i_subnodes;
+    std::vector<int>::iterator iter;
+
+    /* This loop on the number of nodes reproduces the CSG tree of the region
+       , going down to the leaves to add Halfspaces, and adding logical nodes
+       (Intersection, Union, Complement) at the other levels */
+    for (int n=0; n < num_nodes; n++) {
+      int region_type, last_region_type;
+      int num_subnodes;
+      twiddleRead(&region_type, sizeof(int), 1, in);
+      twiddleRead(&num_subnodes, sizeof(int), 1, in);
+
+      /* Keep number of subnodes at all levels */
+      if (num_subnodes > 0)
+        i_subnodes.push_back(num_subnodes);
+
+      /* Remove one from all subnode levels */
+      std::for_each(i_subnodes.begin(), i_subnodes.end(), [](int& d) {d-=1;});
+
+      /* Remove zero values from subnode vector, and go up in region tree */
+      for (iter=i_subnodes.begin(); iter<i_subnodes.end(); iter++) {
+        if ((*iter) == 0) {
+          i_subnodes.erase(iter);
+          all_cells[key]->goUpOneRegionLogical();
+        }
+      }
+
+      /* Add surface */
+      if (region_type == HALFSPACE) {
+        int surface_id;
+        int halfspace;
+        ret = twiddleRead(&surface_id, sizeof(int), 1, in);
+        ret = twiddleRead(&halfspace, sizeof(int), 1, in);
+        all_cells[key]->addSurfaceInRegion(halfspace, all_surfaces[surface_id]);
+      }
+
+      /* Add Region logical node which will contain surfaces */
+      else
+        all_cells[key]->addLogicalNode(region_type);
     }
 
     /* Check that the key and ID match */

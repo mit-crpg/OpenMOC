@@ -34,7 +34,7 @@ enum regionType {
   COMPLEMENT,
    /** The side of a surface */
   HALFSPACE
- };
+};
 
 /**
  * @class Region Region.h "src/Region.h"
@@ -50,13 +50,25 @@ protected:
    /** A collection of the nodes within the Region */
   std::vector<Region*> _nodes;
 
+  /** The parent region, a region which has this region among its nodes */
+  Region* _parent_region;
+
 public:
   virtual ~Region();
+
+  /* Functions for constructing the Region / other Regions */
   virtual void addNode(Region* node, bool clone=true);
   void removeHalfspace(Surface* surface, int halfspace);
-  virtual std::vector<Region*> getNodes();
-  virtual std::map<int, Halfspace*> getAllSurfaces();
   regionType getRegionType();
+  void setParentRegion(Region* node);
+  Region* getParentRegion();
+
+  /* Getter functions */
+  virtual std::vector<Region*> getNodes();
+  virtual std::vector<Region*> getAllNodes();
+  virtual std::map<int, Halfspace*> getAllSurfaces();
+
+  /* Worker functions */
   virtual double getMinX();
   virtual double getMaxX();
   virtual double getMinY();
@@ -126,6 +138,7 @@ public:
   Halfspace* clone();
   Surface* getSurface();
   int getHalfspace();
+  void reverseHalfspace();
   std::map<int, Halfspace*> getAllSurfaces();
   double getMinX();
   double getMaxX();

@@ -78,6 +78,9 @@ private:
   /** A pointer to the Region bounding the Cell */
   Region* _region;
 
+  /** A pointer to the Region currently examined while transfering geometry */
+  Region* _current_region;
+
   /** The volume / area of the Cell computed from overlapping segments */
   double _volume;
 
@@ -176,6 +179,9 @@ public:
   void setNumSectors(int num_sectors);
   void setParent(Cell* parent);
   void addSurface(int halfspace, Surface* surface);
+  void addSurfaceInRegion(int halfspace, Surface* surface);
+  void addLogicalNode(int region_type);
+  void goUpOneRegionLogical();
   void removeSurface(Surface* surface);
   void addNeighborCell(Cell* cell);
 

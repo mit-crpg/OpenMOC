@@ -898,7 +898,8 @@ void Cell::setParent(Cell* parent) {
 
 
 /**
- * @brief Insert a Surface into this Cell's bounding Region.
+ * @brief Insert a Surface into this Cell's bounding Region, assuming that an
+ *        intersection between the region and the halfspace is desired.
  * @param halfspace the Surface halfspace (+/-1)
  * @param surface a pointer to the Surface
  */
@@ -926,6 +927,25 @@ void Cell::addSurface(int halfspace, Surface* surface) {
 }
 
 
+ /**
+  * @brief Insert a Surface into this Cell's bounding Region.
+  * @param halfspace the Surface halfspace (+/-1)
+  * @param surface a pointer to the Surface
+  */
+ void Cell::addSurfaceInRegion(int halfspace, Surface* surface) {
+ 
+   /* Create a new halfspace */
+   Halfspace* new_halfspace = new Halfspace(halfspace, surface);
+ 
+  /* Assign the Halfspace as the Cell's Region if it has none */
+  if (_region == NULL)
+    _region = new_halfspace;
+  /* Else add Halfspace to region */
+  else
+    _current_region->addNode(new_halfspace, false);
+}
+
+
 /**
  * @brief Removes a Surface from this Cell's container of bounding Surfaces.
  * @param surface a pointer to the Surface to remove
@@ -934,10 +954,67 @@ void Cell::removeSurface(Surface* surface) {
 
   //FIXME This map cannot be modified, it's a const
   std::map<int, Halfspace*> surfaces = getSurfaces();
-  if (surfaces.find(surface->getId()) != surfaces.end()) {
+  if (surface != NULL && surfaces.find(surface->getId()) != surfaces.end()) {
     delete surfaces[surface->getId()];
     surfaces.erase(surface->getId());
   }
+}
+
+
+ /**
+  * @brief Insert a logical node (intersection or union) in the cell region
+  * @details This method creates a node in a tree of regions. The leaves, or the
+  *          nodes at the very bottom of the tree, are haflspaces. The region
+             is defined by that tree.
+  * @param region_type the logical operation
+  */
+ void Cell::addLogicalNode(int region_type) {
+ 
+   /* Create new region if void */
+   if (_region == NULL) {
+     if (region_type == INTERSECTION) {
+       Intersection* intersection = new Intersection();
+       _region = intersection;
+     }
+     else if (region_type == UNION) {
+       Union* _union = new Union();
+       _region = _union;
+     }
+     else if (region_type == COMPLEMENT) {
+       Complement* complement = new Complement();
+       _region = complement;
+     }
+     _current_region = _region;
+   }
+   /* Add node under current region, and move current region to said node */
+  else {
+    if (region_type == INTERSECTION) {
+      Intersection* intersection = new Intersection();
+      intersection->setParentRegion(_current_region);
+      _current_region->addNode(intersection, false);
+      _current_region = intersection;
+    }
+    else if (region_type == UNION) {
+      Union* _union = new Union();
+      _union->setParentRegion(_current_region);
+      _current_region->addNode(_union, false);
+      _current_region = _union;
+    }
+    else if (region_type == COMPLEMENT) {
+      Complement* complement = new Complement();
+      complement->setParentRegion(_current_region);
+      _current_region->addNode(complement, false);
+      _current_region = complement;
+    }
+  }
+ }
+
+
+/**
+ * @brief Climb up the logical tree of regions.
+ */
+void Cell::goUpOneRegionLogical() {
+  _current_region = _current_region->getParentRegion();
 }
 
 
