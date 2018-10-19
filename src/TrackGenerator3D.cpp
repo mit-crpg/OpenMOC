@@ -378,7 +378,7 @@ void TrackGenerator3D::setDesiredZSpacing(double spacing) {
  * @param segmentation_type a segmentationType defining the type of
  *        segmentation to be used in segment formation. Options are:
  *          - EXPLICIT_3D: explicit 2D/3D segment formation
- *          - OTF_TRACKS: axial on-the-fly ray tracing by individaul tracks
+ *          - OTF_TRACKS: axial on-the-fly ray tracing by individual tracks
  *          - OTF_STACKS: axial on-the-fly ray tracing by entire z-stacks
  */
 void TrackGenerator3D::setSegmentFormation(segmentationType segmentation_type) {
