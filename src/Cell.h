@@ -191,7 +191,7 @@ public:
   double minSurfaceDist(Point* point, double azim, double polar);
   double minSurfaceDist(LocalCoords* coords);
 
-  Cell* clone();
+  Cell* clone(bool clone_region=true);
   void subdivideCell(double max_radius);
   void buildNeighbors();
 

@@ -1151,7 +1151,7 @@ bool Cell::isFissionable() {
  * @brief Create a duplicate of the Cell.
  * @return a pointer to the clone
  */
-Cell* Cell::clone() {
+Cell* Cell::clone(bool clone_region) {
 
   /* Construct new Cell */
   Cell* new_cell = new Cell();
@@ -1166,7 +1166,7 @@ Cell* Cell::clone() {
     new_cell->setFill((Universe*)_fill);
 
   /* Clone the Cell's Region */
-  if (_region != NULL)
+  if (_region != NULL and clone_region)
     new_cell->setRegion(_region->clone());
 
   if (_rotated)
@@ -1217,7 +1217,7 @@ void Cell::sectorize(std::vector<Cell*>& subcells) {
   for (int i=0; i < _num_sectors; i++) {
 
     /* Create new Cell clone for this sector Cell */
-    Cell* sector = clone();
+    Cell* sector = clone(false);
 
     sector->setNumSectors(0);
     sector->setNumRings(0);
@@ -1383,11 +1383,6 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
         ring->setNumSectors(0);
         ring->setNumRings(0);
 
-        /* Delete bounding cylinders, these are bounding the cell containing
-         * the universe that contains the rings */
-        ring->getRegion()->removeHalfspace(zcylinder1, -1);
-        ring->getRegion()->removeHalfspace(zcylinder2, +1);
-
         /* Add ZCylinder only if this is not the outermost ring in an
          * unbounded Cell (i.e. the moderator in a fuel pin cell) */
         if ((*iter2)->getRadius() < max_radius)
@@ -1398,9 +1393,8 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
           rings.push_back(ring);
           continue;
         }
-        else {
+        else
           ring->addSurface(+1, *(iter2+1));
-        }
 
 
         /* Store the clone in the parent Cell's container of ring Cells */
@@ -1413,14 +1407,9 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
       log_printf(DEBUG, "Creating new ring in un-sectorized Cell %d",_id);
 
       /* Create a new Cell clone */
-      Cell* ring = clone();
+      Cell* ring = clone(false);
       ring->setNumSectors(0);
       ring->setNumRings(0);
-
-      /* Delete bounding cylinders, these are bounding the cell containing
-       * the universe that contains the rings */
-      ring->getRegion()->removeHalfspace(zcylinder1, -1);
-      ring->getRegion()->removeHalfspace(zcylinder2, +1);
 
       /* Add ZCylinder only if this is not the outermost ring in an
        * unbounded Cell (i.e. the moderator in a fuel pin cell) */
@@ -1432,9 +1421,8 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
         rings.push_back(ring);
         break;
       }
-      else {
+      else
         ring->addSurface(+1, *(iter2+1));
-      }
 
       /* Store the clone in the parent Cell's container of ring Cells */
       rings.push_back(ring);
