@@ -1105,25 +1105,10 @@ double Cell::minSurfaceDist(LocalCoords* coords) {
  * @param min_intersection a pointer to the intersection Point that is found
  */
 double Cell::minSurfaceDist(Point* point, double azim, double polar) {
-
-  double min_dist = INFINITY;
-  double curr_dist;
-
-  std::map<int, Halfspace*>::iterator iter;
-  std::map<int, Halfspace*> _surfaces = getSurfaces();
-
-  /* Loop over all of the Cell's Surfaces */
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-
-    /* Find the minimum distance from this surface to this Point */
-    curr_dist = iter->second->getSurface()->getMinDistance(point, azim, polar);
-
-    /* If the distance to Cell is less than current min distance, update */
-    if (curr_dist < min_dist)
-      min_dist = curr_dist;
-  }
-
-  return min_dist;
+  if (_region == NULL)
+    return INFINITY;
+  else
+    return _region->minSurfaceDist(point, azim, polar);
 }
 
 
