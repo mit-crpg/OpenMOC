@@ -52,7 +52,7 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
     """This routine loads an HDF5 file of multi-group cross section data.
 
     The routine instantiates material with multi-group cross section data and
-    returns a dictionary of each Material object keyed by its ID. An OpenMOC
+    returns a dictionary of each Material object keyed by its name or ID. An OpenMOC
     geometry may optionally be given and the routine will directly insert the
     multi-group cross sections into each material in the geometry. If a geometry
     is passed in, materials from the geometry will be used in place of those
@@ -137,7 +137,7 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
                 material = _get_domain(domains, domain_spec)
 
             elif domain_type == 'cell':
-                cell = _get_domain(domains, domain_spec)
+                cell = _get_domain(domains, domain_spec) #if cell is None??
                 material = cell.getFillMaterial()
 
                 # If the user filled multiple Cells with the same Material,
@@ -159,7 +159,7 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
                             openmoc.Material(id=domain_id, name=domain_spec)
 
                 # Fill the Cell with the new Material
-                cell.setFill(material)
+                cell.setFill(material) #only when cell is not None
 
         # If not Geometry, instantiate a new Material with the ID/name
         else:
@@ -472,7 +472,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     sph_tol : Real
         The tolerance on the SPH factor convergence (default is 1E-5)
     fix_src_tol : Real
-        The tolerance on the MOC fixed source calculations (default is 1E-5_
+        The tolerance on the MOC fixed source calculations (default is 1E-5)
     num_azim : Integral
         The number of azimuthal angles (default is 4)
     azim_spacing : Real
@@ -489,7 +489,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     fsrs_to_sph : numpy.ndarray of Real
         A NumPy array of SPH factors indexed by FSR and energy group
     sph_mgxs_lib : openmc.mgxs.Library
-        A OpenMC MGXS library with the SPH factors applied to each MGXS
+        An OpenMC MGXS library with the SPH factors applied to each MGXS
     sph_to_fsrs_indices : numpy.ndarray of Integral
         A NumPy array of all fissionable FSRs to which SPH factors were applied
 
@@ -654,7 +654,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
 def _load_openmc_src(mgxs_lib, solver):
     """Assign fixed sources to an OpenMOC model from an OpenMC MGXS library.
 
-    This routine computes the fission production and scattering source in
+    This routine computes the fission source and scattering source in
     each domain in an OpenMC MGXS library and assigns it as a fixed source
     for an OpenMOC calculation. This is a helper routine for the
     compute_sph_factors(...) routine.

@@ -531,7 +531,7 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
         currents[cmfd_group] += track_flux[e] * wgt;
       }
 
-      /* Increment currents */
+      /* Increment currents on face */
       if (surf_id < NUM_FACES) {
         _surface_currents->incrementValues
             (local_cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);

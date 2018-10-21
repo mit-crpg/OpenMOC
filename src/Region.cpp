@@ -93,7 +93,7 @@ std::vector<Region*> Region::getAllNodes() {
     for (sub_iter = nodes.begin(); sub_iter != nodes.end(); sub_iter++)
       all_nodes.push_back(*sub_iter);
   }
-   return all_nodes;
+  return all_nodes;
 }
 
 
@@ -110,7 +110,7 @@ std::map<int, Halfspace*> Region::getAllSurfaces() {
   std::map<int, Halfspace*> all_surfaces;
   std::map<int, Halfspace*> node_surfaces;
   std::vector<Region*>::iterator iter;
-  /* Recursively collect all Halfspace's from this Regions nodes */
+  /* Recursively collect all Halfspaces from this Region's nodes */
   for (iter = _nodes.begin(); iter != _nodes.end(); iter++) {
     node_surfaces = (*iter)->getAllSurfaces();
     all_surfaces.insert(node_surfaces.begin(), node_surfaces.end());
@@ -410,8 +410,7 @@ double Region::minSurfaceDist(LocalCoords* coords) {
 
 /**
  * @brief Computes the minimum distance to a Surface in the Region from
- *        a point with a given trajectory at a certain angle stored in a
- *        LocalCoords object.
+ *        a point with a given trajectory at a certain angle.
  * @details If the trajectory will not intersect any of the Surfaces in the
  *          Region returns INFINITY.
  * @param coords a pointer to a localcoords
@@ -547,7 +546,7 @@ bool Complement::containsPoint(Point* point) {
 Halfspace::Halfspace(int halfspace, Surface* surface) {
   if (halfspace != -1 && halfspace != +1)
     log_printf(ERROR, "Unable to create Halfspace from Surface %d since the "
-	       "halfspace %d is not -1 or 1", surface->getId(), halfspace);
+         "halfspace %d is not -1 or 1", surface->getId(), halfspace);
   _region_type = HALFSPACE;
   _surface = surface;
   _halfspace = halfspace;
@@ -729,14 +728,13 @@ boundaryType Halfspace::getMaxZBoundaryType() {
 bool Halfspace::containsPoint(Point* point) {
 
   double evaluation = _surface->evaluate(point) * _halfspace;
-  return (evaluation >= 0);
+  return (evaluation > FLT_EPSILON);
 }
 
 
 /**
  * @brief Computes the minimum distance to the Surface in the Halfspace from
- *        a point with a given trajectory at a certain angle stored in a
- *        LocalCoords object.
+ *        a point with a given trajectory at a certain angle.
  * @details If the trajectory will not intersect the Surface in the
  *          Halfspace returns INFINITY.
  * @param coords a pointer to a localcoords

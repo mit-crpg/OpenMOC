@@ -101,7 +101,7 @@ Cell::~Cell() {
 
   if (_name != NULL)
     delete [] _name;
-  if (_region != NULL)  //FIXME will be used with MGXS
+  if (_region != NULL)
     delete _region;
   /* Materials are deleted separately from cells, since multiple cells
       can share a same material */
@@ -553,7 +553,7 @@ int Cell::getNumSurfaces() const {
 /**
  * @brief Return the std::map of Halfspace object pointers for all
  *        surfaces within the Region bounding the Cell.
- * @return std::map of Halfspace object pointers
+ * @return std::map of Halfspace object pointers with key as surface ID.
  */
 std::map<int, Halfspace*> Cell::getSurfaces() const {
   std::map<int, Halfspace*> all_surfaces;
@@ -966,7 +966,7 @@ void Cell::removeSurface(Surface* surface) {
 
 
  /**
-  * @brief Insert a logical node (intersection or union) in the cell region
+  * @brief Insert a logical node (intersection or union) into the cell region
   * @details This method creates a node in a tree of regions. The leaves, or the
   *          nodes at the very bottom of the tree, are haflspaces. The region
              is defined by that tree.
@@ -1049,10 +1049,10 @@ bool Cell::containsPoint(Point* point) {
     if (_cell_type == FILL) {
       Universe* univ = static_cast<Universe*>(_fill);
       if (univ->getType() == SIMPLE)
-	    return univ->containsPoint(point);
+        return univ->containsPoint(point);
       else {
-	    Lattice* latt = static_cast<Lattice*>(_fill);
-	    return latt->containsPoint(point);
+        Lattice* latt = static_cast<Lattice*>(_fill);
+        return latt->containsPoint(point);
       }
     }
     else
@@ -1086,7 +1086,7 @@ bool Cell::containsCoords(LocalCoords* coords) {
  * @param coords a pointer to a localcoords
  */
 double Cell::minSurfaceDist(LocalCoords* coords) {
-  if (_region == NULL)
+  if (_region == NULL) //even if region is NULL, the cell could contain univ of lattice??
     return INFINITY;
   else
     return _region->minSurfaceDist(coords);
@@ -1152,7 +1152,7 @@ Cell* Cell::clone(bool clone_region) {
     new_cell->setFill((Universe*)_fill);
 
   /* Clone the Cell's Region (cloning is done in setRegion) */
-  if (_region != NULL and clone_region)
+  if (_region != NULL && clone_region)
     new_cell->setRegion(_region);
 
   if (_rotated)
@@ -1365,7 +1365,7 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
                    (*iter3)->getId());
 
         /* Create a new Cell clone */
-        Cell* ring = (*iter3)->clone();
+        Cell* ring = (*iter3)->clone();//need false option?
         ring->setNumSectors(0);
         ring->setNumRings(0);
 

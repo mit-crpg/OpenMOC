@@ -1182,7 +1182,7 @@ void CPUSolver::boundaryFluxChecker() {
                   dir_string = "FWD";
                 else
                   dir_string = "BWD";
-                if (!connect_fwd)
+                if (connect_fwd)
                   dir_conn_string = "FWD";
                 else
                   dir_conn_string = "BWD";
@@ -1201,8 +1201,8 @@ void CPUSolver::boundaryFluxChecker() {
             if (bc == REFLECTIVE) {
 
               /* Check that the reflecting Track has a different direction */
-              if (fabs(phi - track.getPhi()) < 1e-5 &&
-                  fabs(theta - track.getTheta()) < 1e-5)
+              // In no case should the reflective Track keep the same azimuthal angle
+              if (fabs(phi - track.getPhi()) < 1e-5)
                 log_printf(ERROR, "Reflective boundary found on Track %d "
                            "with azimuthal angle %f and polar angle %f but "
                            "the reflective Track at index %d has the same "

@@ -1365,7 +1365,7 @@ void Geometry::getLocalFSRId(long global_fsr_id, long &local_fsr_id,
 
   /* Ensure a domain was found with the FSR ID */
   if (domain == -1)
-    log_printf(ERROR, "No domain was found with the global FSR ID %d. The "
+    log_printf(ERROR, "No domain was found with the global FSR ID %ld. The "
                "total number of FSRs in the Geometry is %ld.", global_fsr_id,
                getNumTotalFSRs());
 
@@ -2756,7 +2756,7 @@ std::vector<long> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
       domains[i+j*dim1.size()] = -1;
 
       /* Extract the ID of the domain of interest */
-      if (withinGlobalBounds(point) and cell != NULL) {
+      if (withinGlobalBounds(point) && cell != NULL) {
         if (strcmp(domain_type, "fsr") == 0)
           domains[i+j*dim1.size()] = getGlobalFSRId(point, false);
         else if (strcmp(domain_type, "material") == 0)
@@ -4072,8 +4072,8 @@ void Geometry::loadFromFile(std::string filename, bool twiddle) {
     /* Check that the key and ID match */
     if (key != id) {
       std::string str = all_cells[key]->toString();
-      log_printf(ERROR, "Cell key %d does not match it's corresponding ID "
-                        "%d for surface:\n%s", key, id, str.c_str());
+      log_printf(ERROR, "Cell key %d does not match its corresponding ID "
+                        "%d for cell:\n%s", key, id, str.c_str());
     }
   }
 
