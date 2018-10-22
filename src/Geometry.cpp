@@ -4042,10 +4042,7 @@ void Geometry::loadFromFile(std::string filename, bool twiddle) {
 
       /* Keep number of subnodes at all levels */
       if (num_subnodes > 0)
-        i_subnodes.push_back(num_subnodes);
-
-      /* Remove one from all subnode levels */
-      std::for_each(i_subnodes.begin(), i_subnodes.end(), [](int& d) {d-=1;});
+        i_subnodes.push_back(num_subnodes+1);
 
       /* Remove zero values from subnode vector, and go up in region tree */
       for (iter=i_subnodes.begin(); iter<i_subnodes.end(); iter++) {
@@ -4067,6 +4064,9 @@ void Geometry::loadFromFile(std::string filename, bool twiddle) {
       /* Add Region logical node which will contain surfaces */
       else
         all_cells[key]->addLogicalNode(region_type);
+
+      /* Remove one from all subnode levels */
+      std::for_each(i_subnodes.begin(), i_subnodes.end(), [](int& d) {d-=1;});
     }
 
     /* Check that the key and ID match */

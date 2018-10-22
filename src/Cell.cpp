@@ -939,7 +939,7 @@ void Cell::addSurface(int halfspace, Surface* surface) {
  
    /* Create a new halfspace */
    Halfspace* new_halfspace = new Halfspace(halfspace, surface);
- 
+
   /* Assign the Halfspace as the Cell's Region if it has none */
   if (_region == NULL)
     _region = new_halfspace;
@@ -1150,9 +1150,9 @@ Cell* Cell::clone(bool clone_region) {
   else
     new_cell->setFill((Universe*)_fill);
 
-  /* Clone the Cell's Region */
+  /* Clone the Cell's Region (cloning is done in setRegion) */
   if (_region != NULL and clone_region)
-    new_cell->setRegion(_region->clone());
+    new_cell->setRegion(_region);
 
   if (_rotated)
     new_cell->setRotation(_rotation, 3, "radians");
