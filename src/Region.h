@@ -118,7 +118,8 @@ class Complement : public Region {
 
 public:
   Complement();
-  bool containsPoint(Point* point);  
+  void addNode(Region* node, bool clone=true);
+  bool containsPoint(Point* point);
 };
 
 /**
@@ -165,8 +166,9 @@ public:
 class RectangularPrism : public Intersection {
 
 public:
-  RectangularPrism(double width_x, double width_y, double width_z=1.,
-                   double origin_x=0., double origin_y=0., double origin_z=0.);
+  RectangularPrism(double width_x, double width_y, double origin_x=0.,
+                   double origin_y=0., double width_z=1E100,
+                   double origin_z=0.);
   void setBoundaryType(boundaryType boundary_type);
 };
 

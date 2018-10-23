@@ -215,7 +215,7 @@ double Region::getMinY() {
   if(_region_type == INTERSECTION)
     min_y = -std::numeric_limits<double>::infinity();
   else if(_region_type == UNION)
-    min_y = std::numeric_limits<double>::infinity();
+    min_y = +std::numeric_limits<double>::infinity();
   else if(_region_type == COMPLEMENT)
     log_printf(ERROR, "getMinY() is not implemented for complement regions");
 
@@ -271,7 +271,7 @@ double Region::getMinZ() {
   if(_region_type == INTERSECTION)
     min_z = -std::numeric_limits<double>::infinity();
   else if(_region_type == UNION)
-    min_z = std::numeric_limits<double>::infinity();
+    min_z = +std::numeric_limits<double>::infinity();
   else if(_region_type == COMPLEMENT)
     log_printf(ERROR, "getMinZ() is not implemented for complement regions");
 
@@ -595,6 +595,29 @@ Complement::Complement() {
 
 
 /**
+ * @brief Add a node to the complement Region.
+ * @details NOTE: This method deep copies the Region and stores
+ *          the copy. Any changes made to the Region will not be
+ *          reflected in the Region copy stored by the Region.
+ *          The clone boolean can be used to avoid this behavior.
+ *          A complement may only have one node.
+ * @param node a Region node to add to this Region
+ * @param clone whether to clone or not the node when adding it
+ */
+void Complement::addNode(Region* node, bool clone) {
+
+  if (_nodes.size() > 0)
+    log_printf(ERROR, "Trying to add another node to Complement Region,"
+               " which can only have one node.");
+
+  if (clone)
+    _nodes.push_back(node->clone());
+  else
+    _nodes.push_back(node);
+}
+
+
+/**
  * @brief Determines whether a Point is contained inside the Union.
  * @details Queries each of the Complement's nodes to determine if the Point
  *          is within the Complement. This point is only inside the
@@ -841,9 +864,9 @@ double Halfspace::minSurfaceDist(LocalCoords* coords) {
  * @param origin_y the center of the prism along the y-axis (in cm)
  * @returns a pointer to an Intersection object
  */
-RectangularPrism::RectangularPrism(double width_x, double width_y, 
-                                   double width_z, double origin_x,
-                                   double origin_y, double origin_z):
+RectangularPrism::RectangularPrism(double width_x, double width_y,
+                                   double origin_x, double origin_y,
+                                   double width_z, double origin_z):
   Intersection() {
 
   /* Instantiate the XPlane and YPlane objects bounding the prism */

@@ -500,7 +500,7 @@ double Cell::getMaxZ() {
   /* If region has an infinite max_z, it could be that some Halfspaces are only
      kept in the Parent's region */
   if (getParent() != NULL &&
-      std::abs(max_z) == std::numeric_limits<double>::infinity() )
+      std::abs(max_z) == std::numeric_limits<double>::infinity())
     max_z = getParent()->getMaxZ();
 
   return max_z;
@@ -1140,7 +1140,7 @@ bool Cell::containsCoords(LocalCoords* coords) {
  * @param coords a pointer to a localcoords
  */
 double Cell::minSurfaceDist(LocalCoords* coords) {
-  if (_region == NULL) //even if region is NULL, the cell could contain univ of lattice??
+  if (_region == NULL)
     return INFINITY;
   else
     return _region->minSurfaceDist(coords);
