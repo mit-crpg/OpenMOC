@@ -13,7 +13,7 @@
 #include <limits> 
 
 /** Threshold to determine if a float equals to 0.0 */
-#define FLT_EPSILON  1.0E-15
+#define FLT_EPSILON  1.0E-12
 
 /* The single line width permissible for timer / memory logger reports */
 #define REPORT_WIDTH 53

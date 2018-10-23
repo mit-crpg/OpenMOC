@@ -476,8 +476,8 @@ void Cmfd::setDomainIndexes(int idx_x, int idx_y, int idx_z) {
   _local_num_xn = _accumulate_lmx[idx_x + 1] - _accumulate_lmx[idx_x];
   _local_num_yn = _accumulate_lmy[idx_y + 1] - _accumulate_lmy[idx_y];
   _local_num_zn = _accumulate_lmz[idx_z + 1] - _accumulate_lmz[idx_z];
-  log_printf(NODAL, "_local_num_xn=%d, _local_num_yn=%d, _local_num_zn=%d,%d, %d, %d",
-             _local_num_xn, _local_num_yn, _local_num_zn, idx_x, idx_y, idx_z);
+  //log_printf(NODAL, "_local_num_xn=%d, _local_num_yn=%d, _local_num_zn=%d,%d, %d, %d",
+   //          _local_num_xn, _local_num_yn, _local_num_zn, idx_x, idx_y, idx_z);
 }
 #endif
 

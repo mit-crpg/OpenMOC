@@ -56,8 +56,13 @@ public:
   virtual ~Mesh();
 
   void createLattice(int num_x, int num_y, int num_z);
+  void setLattice(Lattice* lattice);
   std::vector<double> getReactionRates(RxType rx);
   Vector3D getFormattedReactionRates(RxType rx);
+  Vector3D getFormattedReactionRates(std::vector<std::vector<double>> 
+                                     widths_offsets, RxType rx);
+  
+
 
 };
 

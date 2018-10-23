@@ -188,7 +188,7 @@ void Timer::reduceTimer(MPI_Comm comm) {
     MPI_Reduce(&curr_split, &total_split, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
 
     /* On the main node, average over the number of ranks, update result */
-    if (total_split != 0) {
+    if (fabs(total_split) > FLT_EPSILON) {
       int num_ranks;
       MPI_Comm_size(comm, &num_ranks);
       total_split /= num_ranks;

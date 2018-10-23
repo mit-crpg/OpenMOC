@@ -357,7 +357,10 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 
 
 
-//FIXME
+/**
+ * @brief Get coupling fluxes and other information from neighbors. 
+ * The information are transfered by reference.
+ */
 #ifdef MPIx
 void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
                       int**& coupling_indexes, CMFD_PRECISION**& coupling_coeffs,
