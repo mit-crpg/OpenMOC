@@ -47,7 +47,7 @@ struct segment {
   /** The starting point of the segment relative to the FSR centroid */
   FP_PRECISION _starting_position[3];
 
-  /** Constructor initializes CMFD surfaces */
+  /** Constructor initializes CMFD surfaces and segment Z-coordinate */
   segment() {
     _track_idx = 0;
     _material = NULL;

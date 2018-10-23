@@ -381,10 +381,19 @@ int Cell::getNumSectors() {
  */
 double Cell::getMinX() {
 
-  if (_region == NULL)
-    return -std::numeric_limits<double>::infinity();
-  else
-    return _region->getMinX();
+  double min_x = -std::numeric_limits<double>::infinity();
+
+  /* Look in region for minimum */
+  if (_region != NULL)
+    min_x = _region->getMinX();
+
+  /* If region has an infinite min_x, it could be that some Halfspaces are only
+     kept in the Parent's region */
+  if (getParent() != NULL &&
+      std::abs(min_x) == std::numeric_limits<double>::infinity())
+    min_x = getParent()->getMinX();
+
+  return min_x;
 }
 
 
@@ -394,10 +403,19 @@ double Cell::getMinX() {
  */
 double Cell::getMaxX() {
 
-  if (_region == NULL)
-    return std::numeric_limits<double>::infinity();
-  else
-    return _region->getMaxX();
+  double max_x = +std::numeric_limits<double>::infinity();
+
+  /* Look in region for maximum */
+  if (_region != NULL)
+    max_x = _region->getMaxX();
+
+  /* If region has an infinite max_x, it could be that some Halfspaces are only
+     kept in the Parent's region */
+  if (getParent() != NULL &&
+      std::abs(max_x) == std::numeric_limits<double>::infinity())
+    max_x = getParent()->getMaxX();
+
+  return max_x;
 }
 
 
@@ -407,10 +425,19 @@ double Cell::getMaxX() {
  */
 double Cell::getMinY() {
 
-  if (_region == NULL)
-    return -std::numeric_limits<double>::infinity();
-  else
-    return _region->getMinY();
+  double min_y = -std::numeric_limits<double>::infinity();
+
+  /* Look in region for minimum */
+  if (_region != NULL)
+    min_y = _region->getMinY();
+
+  /* If region has an infinite min_y, it could be that some Halfspaces are only
+     kept in the Parent's region */
+  if (getParent() != NULL &&
+      std::abs(min_y) == std::numeric_limits<double>::infinity())
+    min_y = getParent()->getMinY();
+
+  return min_y;
 }
 
 
@@ -420,10 +447,19 @@ double Cell::getMinY() {
  */
 double Cell::getMaxY() {
 
-  if (_region == NULL)
-    return std::numeric_limits<double>::infinity();
-  else
-    return _region->getMaxY();
+  double max_y = +std::numeric_limits<double>::infinity();
+
+  /* Look in region for maximum */
+  if (_region != NULL)
+    max_y = _region->getMaxY();
+
+  /* If region has an infinite max_y, it could be that some Halfspaces are only
+     kept in the Parent's region */
+  if (getParent() != NULL &&
+      std::abs(max_y) == std::numeric_limits<double>::infinity())
+    max_y = getParent()->getMaxY();
+
+  return max_y;
 }
 
 
@@ -433,10 +469,19 @@ double Cell::getMaxY() {
  */
 double Cell::getMinZ() {
 
-  if (_region == NULL)
-    return -std::numeric_limits<double>::infinity();
-  else
-    return _region->getMinZ();
+  double min_z = -std::numeric_limits<double>::infinity();
+
+  /* Look in region for minimum */
+  if (_region != NULL)
+    min_z = _region->getMinZ();
+
+  /* If region has an infinite min_z, it could be that some Halfspaces are only
+     kept in the Parent's region */
+  if (getParent() != NULL &&
+      std::abs(min_z) == std::numeric_limits<double>::infinity())
+    min_z = getParent()->getMinZ();
+
+  return min_z;
 }
 
 
@@ -446,10 +491,19 @@ double Cell::getMinZ() {
  */
 double Cell::getMaxZ() {
 
-  if (_region == NULL)
-    return std::numeric_limits<double>::infinity();
-  else
-    return _region->getMaxZ();
+  double max_z = +std::numeric_limits<double>::infinity();
+
+  /* Look in region for maximum */
+  if (_region != NULL)
+    max_z = _region->getMaxZ();
+
+  /* If region has an infinite max_z, it could be that some Halfspaces are only
+     kept in the Parent's region */
+  if (getParent() != NULL &&
+      std::abs(max_z) == std::numeric_limits<double>::infinity() )
+    max_z = getParent()->getMaxZ();
+
+  return max_z;
 }
 
 

@@ -149,96 +149,168 @@ Region* Region::getParentRegion() {
 
 /**
  * @brief Return the minimum reachable x-coordinate in the Region.
+ * @details This routine is overloaded for a Halfspace
  * @return the minimum x-coordinate
  */
 double Region::getMinX() {
 
   /* Set a default min-x */
-  double min_x = -std::numeric_limits<double>::infinity();
+  double min_x;
+  if(_region_type == INTERSECTION)
+    min_x = -std::numeric_limits<double>::infinity();
+  else if(_region_type == UNION)
+    min_x = std::numeric_limits<double>::infinity();
+  else if(_region_type == COMPLEMENT)
+    log_printf(ERROR, "getMinX() is not implemented for complement regions");
 
   /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
-    min_x = std::max(min_x, (*iter)->getMinX());
+  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
+    if(_region_type == INTERSECTION)
+      min_x = std::max(min_x, (*iter)->getMinX());
+    else if(_region_type == UNION)
+      min_x = std::min(min_x, (*iter)->getMinX());
+  }
   return min_x;
 }
 
 
 /**
  * @brief Return the maximum reachable x-coordinate in the Region.
+ * @details This routine is overloaded for a Halfspace
  * @return the maximum x-coordinate
  */
 double Region::getMaxX() {
 
   /* Set a default max-x */
-  double max_x = std::numeric_limits<double>::infinity();
+  double max_x;
+  if(_region_type == INTERSECTION)
+    max_x = +std::numeric_limits<double>::infinity();
+  else if(_region_type == UNION)
+    max_x = -std::numeric_limits<double>::infinity();
+  else if(_region_type == COMPLEMENT)
+    log_printf(ERROR, "getMaxX() is not implemented for complement regions");
 
   /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
-    max_x = std::min(max_x, (*iter)->getMaxX());
+  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
+    if(_region_type == INTERSECTION)
+      max_x = std::min(max_x, (*iter)->getMaxX());
+    else if(_region_type == UNION)
+      max_x = std::max(max_x, (*iter)->getMaxX());
+  }
   return max_x;
 }
- /**
+
+
+/**
  * @brief Return the minimum reachable y-coordinate in the Region.
+ * @details This routine is overloaded for a Halfspace
  * @return the minimum y-coordinate
  */
 double Region::getMinY() {
 
   /* Set a default min-y */
-  double min_y = -std::numeric_limits<double>::infinity();
+  double min_y;
+  if(_region_type == INTERSECTION)
+    min_y = -std::numeric_limits<double>::infinity();
+  else if(_region_type == UNION)
+    min_y = std::numeric_limits<double>::infinity();
+  else if(_region_type == COMPLEMENT)
+    log_printf(ERROR, "getMinY() is not implemented for complement regions");
 
   /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
-    min_y = std::max(min_y, (*iter)->getMinY());
+  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
+    if(_region_type == INTERSECTION)
+      min_y = std::max(min_y, (*iter)->getMinY());
+    else if(_region_type == UNION)
+      min_y = std::min(min_y, (*iter)->getMinY());
+  }
   return min_y;
 }
- /**
+
+
+/**
  * @brief Return the maximum reachable y-coordinate in the Region.
+ * @details This routine is overloaded for a Halfspace
  * @return the maximum y-coordinate
  */
 double Region::getMaxY() {
 
   /* Set a default max-y */
-  double max_y = std::numeric_limits<double>::infinity();
+  double max_y;
+  if(_region_type == INTERSECTION)
+    max_y = +std::numeric_limits<double>::infinity();
+  else if(_region_type == UNION)
+    max_y = -std::numeric_limits<double>::infinity();
+  else if(_region_type == COMPLEMENT)
+    log_printf(ERROR, "getMaxY() is not implemented for complement regions");
 
   /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
-    max_y = std::min(max_y, (*iter)->getMaxY());
+  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
+    if(_region_type == INTERSECTION)
+      max_y = std::min(max_y, (*iter)->getMaxY());
+    else if(_region_type == UNION)
+      max_y = std::max(max_y, (*iter)->getMaxY());
+  }
   return max_y;
 }
- /**
+
+
+/**
  * @brief Return the minimum reachable z-coordinate in the Region.
+ * @details This routine is overloaded for a Halfspace
  * @return the minimum z-coordinate
  */
 double Region::getMinZ() {
 
   /* Set a default min-z */
-  double min_z = -std::numeric_limits<double>::infinity();
+  double min_z;
+  if(_region_type == INTERSECTION)
+    min_z = -std::numeric_limits<double>::infinity();
+  else if(_region_type == UNION)
+    min_z = std::numeric_limits<double>::infinity();
+  else if(_region_type == COMPLEMENT)
+    log_printf(ERROR, "getMinZ() is not implemented for complement regions");
 
   /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
-    min_z = std::max(min_z, (*iter)->getMinZ());
+  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
+    if(_region_type == INTERSECTION)
+      min_z = std::max(min_z, (*iter)->getMinZ());
+    else if(_region_type == UNION)
+      min_z = std::min(min_z, (*iter)->getMinZ());
+  }
   return min_z;
 }
 
 
 /**
  * @brief Return the maximum reachable z-coordinate in the Region.
+ * @details This routine is overloaded for a Halfspace
  * @return the maximum z-coordinate
  */
 double Region::getMaxZ() {
 
   /* Set a default max-z */
-  double max_z = std::numeric_limits<double>::infinity();
+  double max_z;
+  if(_region_type == INTERSECTION)
+    max_z = +std::numeric_limits<double>::infinity();
+  else if(_region_type == UNION)
+    max_z = -std::numeric_limits<double>::infinity();
+  else if(_region_type == COMPLEMENT)
+    log_printf(ERROR, "getMaxZ() is not implemented for complement regions");
 
   /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
-  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter)
-    max_z = std::min(max_z, (*iter)->getMaxZ());
+  for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
+    if(_region_type == INTERSECTION)
+      max_z = std::min(max_z, (*iter)->getMaxZ());
+    else if(_region_type == UNION)
+      max_z = std::max(max_z, (*iter)->getMaxZ());
+  }
   return max_z;
 }
 
