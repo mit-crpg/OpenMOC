@@ -76,6 +76,7 @@ Cell::Cell(int id, const char* name) {
 
   _cell_type = UNFILLED;
   _region = NULL;
+  _current_region = NULL;
   _fill = NULL;
   _volume = 0.;
   _num_instances = 0;

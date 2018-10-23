@@ -1,6 +1,16 @@
 #include "Region.h"
 
 /**
+ * @brief Constructor sets a few pointers to NULL
+ */
+Region::Region() {
+
+  _region_type = INTERSECTION;
+  _parent_region = NULL;
+}
+
+
+/**
  * @brief Destructor clears vector of the nodes within the Region.
  */
 Region::~Region() {
@@ -761,8 +771,9 @@ double Halfspace::minSurfaceDist(LocalCoords* coords) {
  * @param origin_y the center of the prism along the y-axis (in cm)
  * @returns a pointer to an Intersection object
  */
-RectangularPrism::RectangularPrism(double width_x, double width_y,
-				   double origin_x, double origin_y):
+RectangularPrism::RectangularPrism(double width_x, double width_y, 
+                                   double width_z, double origin_x,
+                                   double origin_y, double origin_z):
   Intersection() {
 
   /* Instantiate the XPlane and YPlane objects bounding the prism */
@@ -770,25 +781,25 @@ RectangularPrism::RectangularPrism(double width_x, double width_y,
   XPlane* max_x = new XPlane(origin_x+width_x/2.);
   YPlane* min_y = new YPlane(origin_y-width_y/2.);
   YPlane* max_y = new YPlane(origin_y+width_y/2.);
+  ZPlane* min_z = new ZPlane(origin_z-width_z/2.);
+  ZPlane* max_z = new ZPlane(origin_z+width_z/2.);
 
-  /* Instantiate Haflspace objects for each XPlane and YPlane */
+  /* Instantiate Haflspace objects for each XPlane, YPlane and ZPlane. Deletion
+     is handled by Region deletion. */
   Halfspace* half_min_x = new Halfspace(+1, min_x);
   Halfspace* half_max_x = new Halfspace(-1, max_x);
   Halfspace* half_min_y = new Halfspace(+1, min_y);
   Halfspace* half_max_y = new Halfspace(-1, max_y);
+  Halfspace* half_min_z = new Halfspace(+1, min_z);
+  Halfspace* half_max_z = new Halfspace(-1, max_z);
 
   /* Add the Halfspace node to the Intersection */
-  addNode(half_min_x);
-  addNode(half_max_x);
-  addNode(half_min_y);
-  addNode(half_max_y);
-
-  /* Deallocate memory for the Halfspace's since the Intersection
-   * stores copies of each one */
-  delete half_min_x;
-  delete half_max_x;
-  delete half_min_y;
-  delete half_max_y;
+  addNode(half_min_x, false);
+  addNode(half_max_x, false);
+  addNode(half_min_y, false);
+  addNode(half_max_y, false);
+  addNode(half_min_z, false);
+  addNode(half_max_z, false);
 }
 
 

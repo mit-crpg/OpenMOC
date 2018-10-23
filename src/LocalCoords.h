@@ -131,6 +131,8 @@ public:
   void setX(double x);
   void setY(double y);
   void setZ(double z);
+  void setPhi(double phi);
+  void setPolar(double polar);
   void setNext(LocalCoords *next);
   void setPrev(LocalCoords* coords);
   void setVersionNum(int version_num);

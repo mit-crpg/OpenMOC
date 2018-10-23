@@ -54,6 +54,7 @@ protected:
   Region* _parent_region;
 
 public:
+  Region();
   virtual ~Region();
 
   /* Functions for constructing the Region / other Regions */
@@ -125,7 +126,7 @@ public:
  * @brief A positive or negative halfspace Region.
  */
 class Halfspace : public Region {
-  
+
 public:
 
   /** A pointer to the Surface object */
@@ -164,8 +165,8 @@ public:
 class RectangularPrism : public Intersection {
 
 public:
-  RectangularPrism(double width_x, double width_y,
-		   double origin_x=0., double origin_y=0.);
+  RectangularPrism(double width_x, double width_y, double width_z=1.,
+                   double origin_x=0., double origin_y=0., double origin_z=0.);
   void setBoundaryType(boundaryType boundary_type);
 };
 
