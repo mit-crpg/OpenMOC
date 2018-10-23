@@ -1182,7 +1182,7 @@ void CPUSolver::boundaryFluxChecker() {
                   dir_string = "FWD";
                 else
                   dir_string = "BWD";
-                if (!connect_fwd)
+                if (connect_fwd)
                   dir_conn_string = "FWD";
                 else
                   dir_conn_string = "BWD";

@@ -39,20 +39,12 @@
 #define printf PySys_WriteStdout
 #endif
 
-
-/**
- * @enum logLevels
- * @brief Logging levels characterize an ordered set of message types
- *        which may be printed to the screen.
- */
-
-
 /**
  * @var logLevel
  * @brief Logging levels characterize an ordered set of message types
  *        which may be printed to the screen.
  */
-typedef enum logLevels {
+typedef enum {
   /** A debugging message */
   DEBUG,
 
@@ -114,6 +106,7 @@ void set_title_character(char c);
 char get_title_character();
 void set_line_length(int length);
 void set_log_level(const char* new_level);
+void set_log_level(int new_level);
 int get_log_level();
 
 void log_printf(logLevel level, const char *format, ...);
