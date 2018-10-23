@@ -553,7 +553,7 @@ int Cell::getNumSurfaces() const {
 /**
  * @brief Return the std::map of Halfspace object pointers for all
  *        surfaces within the Region bounding the Cell.
- * @return std::map of Halfspace object pointers with key as surface ID.
+ * @return std::map of Halfspace object pointers with surface ID as a key.
  */
 std::map<int, Halfspace*> Cell::getSurfaces() const {
   std::map<int, Halfspace*> all_surfaces;
@@ -1365,7 +1365,7 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
                    (*iter3)->getId());
 
         /* Create a new Cell clone */
-        Cell* ring = (*iter3)->clone();//need false option?
+        Cell* ring = (*iter3)->clone();
         ring->setNumSectors(0);
         ring->setNumRings(0);
 

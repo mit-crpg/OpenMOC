@@ -546,7 +546,7 @@ bool Complement::containsPoint(Point* point) {
 Halfspace::Halfspace(int halfspace, Surface* surface) {
   if (halfspace != -1 && halfspace != +1)
     log_printf(ERROR, "Unable to create Halfspace from Surface %d since the "
-         "halfspace %d is not -1 or 1", surface->getId(), halfspace);
+              "halfspace %d is not -1 or 1", surface->getId(), halfspace);
   _region_type = HALFSPACE;
   _surface = surface;
   _halfspace = halfspace;
@@ -728,7 +728,7 @@ boundaryType Halfspace::getMaxZBoundaryType() {
 bool Halfspace::containsPoint(Point* point) {
 
   double evaluation = _surface->evaluate(point) * _halfspace;
-  return (evaluation > FLT_EPSILON);
+  return (evaluation >= 0);
 }
 
 

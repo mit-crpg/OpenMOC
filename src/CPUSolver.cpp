@@ -1201,8 +1201,8 @@ void CPUSolver::boundaryFluxChecker() {
             if (bc == REFLECTIVE) {
 
               /* Check that the reflecting Track has a different direction */
-              // In no case should the reflective Track keep the same azimuthal angle
-              if (fabs(phi - track.getPhi()) < 1e-5)
+              if (fabs(phi - track.getPhi()) < 1e-5 &&
+                  fabs(theta - track.getTheta()) < 1e-5)
                 log_printf(ERROR, "Reflective boundary found on Track %d "
                            "with azimuthal angle %f and polar angle %f but "
                            "the reflective Track at index %d has the same "

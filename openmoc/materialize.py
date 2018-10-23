@@ -137,7 +137,7 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
                 material = _get_domain(domains, domain_spec)
 
             elif domain_type == 'cell':
-                cell = _get_domain(domains, domain_spec) #if cell is None??
+                cell = _get_domain(domains, domain_spec)
                 material = cell.getFillMaterial()
 
                 # If the user filled multiple Cells with the same Material,
@@ -159,7 +159,7 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
                             openmoc.Material(id=domain_id, name=domain_spec)
 
                 # Fill the Cell with the new Material
-                cell.setFill(material) #only when cell is not None
+                cell.setFill(material)
 
         # If not Geometry, instantiate a new Material with the ID/name
         else:

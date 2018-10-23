@@ -268,6 +268,13 @@ void set_log_level(const char* new_level) {
   }
 }
 
+
+/**
+ * @brief Sets the minimum log message level which will be printed to the
+ *        console and to the log file. This is an overloaded version to handle 
+ *        a logLevel type input.
+ * @param new_level the minimum logging level as an int(or enum type logLevel)
+ */
 void set_log_level(int new_level) {
   log_level = (logLevel)new_level;
 }
