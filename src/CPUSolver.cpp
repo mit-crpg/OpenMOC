@@ -143,12 +143,13 @@ void CPUSolver::setNumThreads(int num_threads) {
                "be at least MPI_THREAD_SERIALIZED");
 #endif
 
-  if ((_track_generator->getSegmentFormation() == OTF_STACKS ||
+  if (_track_generator != NULL)
+    if ((_track_generator->getSegmentFormation() == OTF_STACKS ||
        _track_generator->getSegmentFormation() == OTF_TRACKS) &&
        _track_generator->getNumThreads() != num_threads)
-    log_printf(WARNING, "The number of threads used in track generation should"
-               " match the number of threads used in the solver for OTF ray-"
-               "tracing methods, as threaded buffers are shared.");
+      log_printf(WARNING, "The number of threads used in track generation "
+               "should match the number of threads used in the solver for OTF "
+               "ray-tracing methods, as threaded buffers are shared.");
 
   /* Set the number of threads for OpenMP */
   _num_threads = num_threads;
