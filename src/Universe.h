@@ -228,6 +228,7 @@ public:
   std::vector< std::vector< std::vector< std::pair<int, Universe*> > > >*
       getUniverses();
   std::map<int, Universe*> getUniqueUniverses();
+  std::map<int, double> getUniqueRadius(std::map<int, Universe*> unique_universes);
   std::map<int, Cell*> getAllCells();
   std::map<int, Universe*> getAllUniverses();
 

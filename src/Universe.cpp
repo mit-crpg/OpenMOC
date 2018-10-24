@@ -1196,7 +1196,7 @@ std::vector< std::vector< std::vector< std::pair<int, Universe*> > > >*
  *        the FILL type Cells filling this Universe.
  * @details Note that this method only searches the first level of Cells
  *          below this Universe within the nested Universe coordinate system.
- * @return a vector of Universe IDs
+ * @return a map of Universe keyed by the universe ID.
  */
 std::map<int, Universe*> Lattice::getUniqueUniverses() {
 
@@ -1213,6 +1213,36 @@ std::map<int, Universe*> Lattice::getUniqueUniverses() {
   }
 
   return unique_universes;
+}
+
+
+/**
+ * @brief Get the maximum equivalent radius of each unique universes. Equivalent
+ *         radius are computed as the diagonal length to the cell boundary.
+ * @param unique_universes The unique universes of this Lattice
+ * @return a map of unique radius keyed by the universe ID.
+ */
+std::map<int, double> Lattice::getUniqueRadius
+                    (std::map<int, Universe*>  unique_universes) {
+
+  std::map<int, double> unique_radius;
+  std::map<int, Universe*>::iterator iter;
+  Universe* universe;
+  
+  for (iter = unique_universes.begin(); iter != unique_universes.end(); ++iter)
+    unique_radius[iter->first] = 0.;
+  
+  for (int k = _universes.size()-1; k > -1; k--) {
+    for (int j = _universes.at(k).size()-1; j > -1;  j--) {
+      for (int i = 0; i < _universes.at(k).at(j).size(); i++) {
+        universe = _universes.at(k).at(j).at(i).second;
+        unique_radius[universe->getId()] = 
+          std::max(unique_radius[universe->getId()],
+          sqrt(_widths_x[i]*_widths_x[i]/4.0 + _widths_y[j]*_widths_y[j]/4.0));
+      }
+    }
+  }
+  return unique_radius;
 }
 
 
@@ -1465,10 +1495,6 @@ void Lattice::removeUniverse(Universe* universe) {
 
 
 /**
- * FIXEDME when non-uniform lattice is implenmented, a unique universe would 
- have different widths, then the max_radius would not be the same. Then the 
- ringify style would be different, thus universes with the same box-size are of 
- a kind. Actually only the outer most cell of a universe should be cloned.
  * @brief Subdivides all of the Material-filled Cells within this Lattice
  *        into rings and angular sectors aligned with the z-axis.
  * @param max_radius the maximum allowable radius used in the subdivisions
@@ -1480,14 +1506,10 @@ void Lattice::subdivideCells(double max_radius) {
 
   std::map<int, Universe*>::iterator iter;
   std::map<int, Universe*> universes = getUniqueUniverses();
+  
+  /* unique_radius is used as the maximum radius for the ringified Cells */
+  std::map<int, double> unique_radius = getUniqueRadius(universes);
 
-  /* Compute equivalent radius as the diagonal length to the cell boundary */
-  /* This is used as the maximum radius for all ringified Cells */
-  double radius = sqrt(_width_x*_width_x/4.0 + _width_y*_width_y/4.0);
-
-  /* If the lattice pitch is smaller than max_radius parameter, over-ride it */
-  if (radius < max_radius)
-    max_radius = radius;
   /* Subdivide all Cells */
   for (iter = universes.begin(); iter != universes.end(); ++iter) {
     log_printf(DEBUG, "univ_ID: %d, radias: %f, max_radius: %f", 
@@ -1725,8 +1747,8 @@ int Lattice::getLatX(Point* point) {
     lat_x = _num_x - 1;
   else if (lat_x < 0 || lat_x > _num_x-1)
     log_printf(ERROR, "Trying to get lattice x index for point that is "
-               "outside lattice bounds: %i, %i, %f, %f, %f", lat_x, _num_x,
-               dist_to_left, _width_x, point->getX());
+               "outside lattice bounds: %i, %i, %f, %f", lat_x, _num_x,
+               dist_to_left, point->getX());
 
   return lat_x;
 }
@@ -1761,8 +1783,8 @@ int Lattice::getLatY(Point* point) {
     lat_y = _num_y - 1;
   else if (lat_y < 0 || lat_y > _num_y-1)
     log_printf(ERROR, "Trying to get lattice y index for point that is "
-               "outside lattice bounds: %i, %i, %f, %f, %f, %f", lat_y, _num_y,
-               dist_to_bottom, _width_y, point->getY(), _offset.getY());
+               "outside lattice bounds: %i, %i, %f, %f, %f", lat_y, _num_y,
+               dist_to_bottom, point->getY(), _offset.getY());
 
   return lat_y;
 }
@@ -1801,8 +1823,8 @@ int Lattice::getLatZ(Point* point) {
     lat_z = _num_z - 1;
   else if (lat_z < 0 || lat_z > _num_z-1)
     log_printf(ERROR, "Trying to get lattice z index for point that is "
-               "outside lattice bounds: %i, %i, %f, %f, %f, %f", lat_z, _num_z,
-               dist_to_bottom, _width_z, point->getZ(), _offset.getZ());
+               "outside lattice bounds: %i, %i, %f, %f, %f", lat_z, _num_z,
+               dist_to_bottom, point->getZ(), _offset.getZ());
 
   return lat_z;
 }
