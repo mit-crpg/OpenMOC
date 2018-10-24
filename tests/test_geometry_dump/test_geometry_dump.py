@@ -31,11 +31,11 @@ class GeometryDumpTestHarness(TestHarness):
 
     def _run_openmoc(self):
 
-       # Dump geometry
-       self.input_set.geometry.dumpToFile("geometry_file.geo")
+        # Dump geometry
+        self.input_set.geometry.dumpToFile("geometry_file.geo")
 
-       # NOTE : dumping the geometry before and after FSRs are initialized
-       # leads to different results, as the rings and sectors create new cells.
+        # NOTE : dumping the geometry before and after FSRs are initialized
+        # leads to different results, as the rings and sectors create new cells.
 
 
     def _get_results(self, num_iters=False, keff=False, fluxes=False,
