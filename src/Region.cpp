@@ -128,7 +128,6 @@ regionType Region::getRegionType() {
 }
 
 
-
 /**
  * @brief Save the parent of the current node/Region.
  * @param parent the node/Region that contains the current node/Region
@@ -159,7 +158,7 @@ double Region::getMinX() {
   if(_region_type == INTERSECTION)
     min_x = -std::numeric_limits<double>::infinity();
   else if(_region_type == UNION)
-    min_x = std::numeric_limits<double>::infinity();
+    min_x = +std::numeric_limits<double>::infinity();
   else if(_region_type == COMPLEMENT)
     log_printf(ERROR, "getMinX() is not implemented for complement regions");
 
@@ -176,7 +175,7 @@ double Region::getMinX() {
 
 
 /**
- * @brief Return the maximum reachable x-coordinate in the Region.
+ * @brief Return the maximum reachable X-coordinate in the Region.
  * @details This routine is overloaded for a Halfspace
  * @return the maximum x-coordinate
  */
@@ -322,19 +321,35 @@ double Region::getMaxZ() {
  */
 boundaryType Region::getMinXBoundaryType() {
 
-  /* Set a default min-x and boundary type*/
-  double min_x = -std::numeric_limits<double>::infinity();
   boundaryType bc = BOUNDARY_NONE;
+  /* Set a default min-x */
+  double min_x;
+  if(_region_type == INTERSECTION)
+    min_x = -std::numeric_limits<double>::infinity();
+  else if(_region_type == UNION)
+    min_x = +std::numeric_limits<double>::infinity();
+  else if(_region_type == COMPLEMENT)
+    log_printf(ERROR, "getMinXBoundaryType() is not implemented for complement "
+               "regions");
 
-  /* Loop over all nodes inside the Region */
+  /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
-    if (min_x < (*iter)->getMinX()) {
-      min_x = (*iter)->getMinX();
+    if(_region_type == INTERSECTION && (*iter)->getMinX() > min_x) {
+      min_x = std::max(min_x, (*iter)->getMinX());
+      bc = (*iter)->getMinXBoundaryType();
+    }
+    else if(_region_type == UNION && (*iter)->getMinX() < min_x) {
+      min_x = std::min(min_x, (*iter)->getMinX());
       bc = (*iter)->getMinXBoundaryType();
     }
   }
-  return bc;
+
+  /* If the min coordinate is infinite, it's not really a boundary */
+  if (std::abs(min_x) != std::numeric_limits<double>::infinity())
+    return bc;
+  else
+    return BOUNDARY_NONE;
 }
 
 
@@ -345,19 +360,35 @@ boundaryType Region::getMinXBoundaryType() {
  */
 boundaryType Region::getMaxXBoundaryType() {
 
-  /* Set a default max-x and boundary type*/
-  double max_x = std::numeric_limits<double>::infinity();
-
   boundaryType bc = BOUNDARY_NONE;
-  /* Loop over all nodes inside the Region */
+  /* Set a default max-x */
+  double max_x;
+  if(_region_type == INTERSECTION)
+    max_x = +std::numeric_limits<double>::infinity();
+  else if(_region_type == UNION)
+    max_x = -std::numeric_limits<double>::infinity();
+  else if(_region_type == COMPLEMENT)
+    log_printf(ERROR, "getMaxXBoundaryType() is not implemented for complement "
+               "regions");
+
+  /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
-    if (max_x > (*iter)->getMaxX()) {
-      max_x = (*iter)->getMaxX();
+    if(_region_type == INTERSECTION && (*iter)->getMaxX() < max_x) {
+      max_x = std::min(max_x, (*iter)->getMaxX());
+      bc = (*iter)->getMaxXBoundaryType();
+    }
+    else if(_region_type == UNION && (*iter)->getMaxX() > max_x) {
+      max_x = std::max(max_x, (*iter)->getMaxX());
       bc = (*iter)->getMaxXBoundaryType();
     }
   }
-  return bc;
+
+  /* If the max coordinate is infinite, it's not really a boundary */
+  if (std::abs(max_x) != std::numeric_limits<double>::infinity())
+    return bc;
+  else
+    return BOUNDARY_NONE;
 }
 
 
@@ -368,19 +399,35 @@ boundaryType Region::getMaxXBoundaryType() {
  */
 boundaryType Region::getMinYBoundaryType() {
 
-  /* Set a default min-y and boundary type*/
-  double min_y = -std::numeric_limits<double>::infinity();
-
   boundaryType bc = BOUNDARY_NONE;
-  /* Loop over all nodes inside the Region */
+  /* Set a default min-y */
+  double min_y;
+  if(_region_type == INTERSECTION)
+    min_y = -std::numeric_limits<double>::infinity();
+  else if(_region_type == UNION)
+    min_y = +std::numeric_limits<double>::infinity();
+  else if(_region_type == COMPLEMENT)
+    log_printf(ERROR, "getMinYBoundaryType() is not implemented for complement "
+               "regions");
+
+  /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
-    if (min_y < (*iter)->getMinY()) {
-      min_y = (*iter)->getMinY();
+    if(_region_type == INTERSECTION && (*iter)->getMinY() > min_y) {
+      min_y = std::max(min_y, (*iter)->getMinY());
+      bc = (*iter)->getMinYBoundaryType();
+    }
+    else if(_region_type == UNION && (*iter)->getMinY() < min_y) {
+      min_y = std::min(min_y, (*iter)->getMinY());
       bc = (*iter)->getMinYBoundaryType();
     }
   }
-  return bc;
+
+  /* If the min coordinate is infinite, it's not really a boundary */
+  if (std::abs(min_y) != std::numeric_limits<double>::infinity())
+    return bc;
+  else
+    return BOUNDARY_NONE;
 }
 
 
@@ -391,19 +438,35 @@ boundaryType Region::getMinYBoundaryType() {
  */
 boundaryType Region::getMaxYBoundaryType() {
 
-  /* Set a default max-y and boundary type*/
-  double max_y = std::numeric_limits<double>::infinity();
   boundaryType bc = BOUNDARY_NONE;
+  /* Set a default max-y */
+  double max_y;
+  if(_region_type == INTERSECTION)
+    max_y = +std::numeric_limits<double>::infinity();
+  else if(_region_type == UNION)
+    max_y = -std::numeric_limits<double>::infinity();
+  else if(_region_type == COMPLEMENT)
+    log_printf(ERROR, "getMaxYBoundaryType() is not implemented for complement "
+               "regions");
 
-  /* Loop over all nodes inside the Region */
+  /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
-    if (max_y > (*iter)->getMaxY()) {
-      max_y = (*iter)->getMaxY();
+    if(_region_type == INTERSECTION && (*iter)->getMaxY() < max_y) {
+      max_y = std::min(max_y, (*iter)->getMaxY());
+      bc = (*iter)->getMaxYBoundaryType();
+    }
+    else if(_region_type == UNION && (*iter)->getMaxY() > max_y) {
+      max_y = std::max(max_y, (*iter)->getMaxY());
       bc = (*iter)->getMaxYBoundaryType();
     }
   }
-  return bc;
+
+  /* If the max coordinate is infinite, it's not really a boundary */
+  if (std::abs(max_y) != std::numeric_limits<double>::infinity())
+    return bc;
+  else
+    return BOUNDARY_NONE;
 }
 
 
@@ -414,19 +477,35 @@ boundaryType Region::getMaxYBoundaryType() {
  */
 boundaryType Region::getMinZBoundaryType() {
 
-  /* Set a default min-z and boundary type*/
-  double min_z = -std::numeric_limits<double>::infinity();
   boundaryType bc = BOUNDARY_NONE;
+  /* Set a default min-z */
+  double min_z;
+  if(_region_type == INTERSECTION)
+    min_z = -std::numeric_limits<double>::infinity();
+  else if(_region_type == UNION)
+    min_z = +std::numeric_limits<double>::infinity();
+  else if(_region_type == COMPLEMENT)
+    log_printf(ERROR, "getMinZBoundaryType() is not implemented for complement "
+               "regions");
 
-  /* Loop over all nodes inside the Region */
+  /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
-    if (min_z < (*iter)->getMinZ()) {
-      min_z = (*iter)->getMinZ();
+    if(_region_type == INTERSECTION && (*iter)->getMinZ() > min_z) {
+      min_z = std::max(min_z, (*iter)->getMinZ());
+      bc = (*iter)->getMinZBoundaryType();
+    }
+    else if(_region_type == UNION && (*iter)->getMinZ() < min_z) {
+      min_z = std::min(min_z, (*iter)->getMinZ());
       bc = (*iter)->getMinZBoundaryType();
     }
   }
-  return bc;
+
+  /* If the min coordinate is infinite, it's not really a boundary */
+  if (std::abs(min_z) != std::numeric_limits<double>::infinity())
+    return bc;
+  else
+    return BOUNDARY_NONE;
 }
 
 
@@ -437,19 +516,34 @@ boundaryType Region::getMinZBoundaryType() {
  */
 boundaryType Region::getMaxZBoundaryType() {
 
-  /* Set a default max-z and boundary type*/
-  double max_z = std::numeric_limits<double>::infinity();
   boundaryType bc = BOUNDARY_NONE;
+  /* Set a default max-z */
+  double max_z;
+  if(_region_type == INTERSECTION)
+    max_z = +std::numeric_limits<double>::infinity();
+  else if(_region_type == UNION)
+    max_z = -std::numeric_limits<double>::infinity();
+  else if(_region_type == COMPLEMENT)
+    log_printf(ERROR, "getMaxZBoundaryType() is not implemented for complement "
+               "regions");
 
-  /* Loop over all nodes inside the Region */
+  /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
-    if (max_z > (*iter)->getMaxZ()) {
-      max_z = (*iter)->getMaxZ();
+    if(_region_type == INTERSECTION && (*iter)->getMaxZ() < max_z) {
+      max_z = std::min(max_z, (*iter)->getMaxZ());
+      bc = (*iter)->getMaxZBoundaryType();
+    }
+    else if(_region_type == UNION && (*iter)->getMaxZ() > max_z) {
+      max_z = std::max(max_z, (*iter)->getMaxZ());
       bc = (*iter)->getMaxZBoundaryType();
     }
   }
-  return bc;
+  /* If the max coordinate is infinite, it's not really a boundary */
+  if (std::abs(max_z) != std::numeric_limits<double>::infinity())
+    return bc;
+  else
+    return BOUNDARY_NONE;
 }
 
 
@@ -482,7 +576,8 @@ double Region::minSurfaceDist(LocalCoords* coords) {
 
 /**
  * @brief Computes the minimum distance to a Surface in the Region from
- *        a point with a given trajectory at a certain angle.
+ *        a point with a given trajectory at a certain angle stored in a
+ *        LocalCoords object.
  * @details If the trajectory will not intersect any of the Surfaces in the
  *          Region returns INFINITY.
  * @param coords a pointer to a localcoords
@@ -641,7 +736,7 @@ bool Complement::containsPoint(Point* point) {
 Halfspace::Halfspace(int halfspace, Surface* surface) {
   if (halfspace != -1 && halfspace != +1)
     log_printf(ERROR, "Unable to create Halfspace from Surface %d since the "
-              "halfspace %d is not -1 or 1", surface->getId(), halfspace);
+	       "halfspace %d is not -1 or 1", surface->getId(), halfspace);
   _region_type = HALFSPACE;
   _surface = surface;
   _halfspace = halfspace;

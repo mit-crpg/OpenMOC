@@ -21,17 +21,21 @@ class ComplexRegionBoundsTestHarness(TestHarness):
         root_universe = openmoc.Universe(name='root universe')
         root_cell = openmoc.Cell(name='root cell')
         u1 = openmoc.Universe(name='universe 1')
+        u2 = openmoc.Universe(name='universe 2 in c2')
         root_cell.setFill(u1)
 
         # Z-bounds at root level
         p1 = openmoc.ZPlane(z=-2.0, name='zmin')
+        p1.setBoundaryType(openmoc.REFLECTIVE)
         p2 = openmoc.ZPlane(z=+2.0, name='zmax')
+        p2.setBoundaryType(openmoc.INTERFACE)
         root_cell.addSurface(halfspace=+1, surface=p1)
         root_cell.addSurface(halfspace=-1, surface=p2)
 
         # Cells in the root cell
         c1 = openmoc.Cell(name='intersection cell')
         c2 = openmoc.Cell(name='union cell')
+        c2a = openmoc.Cell(name='union cell 2')
         c3 = openmoc.Cell(name='unbound cell')
         u1.addCell(c1)
         u1.addCell(c2)
@@ -39,7 +43,13 @@ class ComplexRegionBoundsTestHarness(TestHarness):
         # Setting the parent cell helps to find boundaries (in Z here)
         c3.setParent(root_cell)
 
-        # Bounds for cell 1
+        # Cell c2a in c2, to further test arborescence
+        c2.setFill(u2)
+        u2.addCell(c2a)
+        c2.setParent(root_cell)
+        c2a.setParent(c2)  # to test transitivity
+
+        # Bounds for cell 1 : intersection region cell
         p11 = openmoc.XPlane(x=-2.0, name='xmin')
         p11.setBoundaryType(openmoc.REFLECTIVE)
         p12 = openmoc.YPlane(y=-2.0, name='ymin')
@@ -50,11 +60,9 @@ class ComplexRegionBoundsTestHarness(TestHarness):
         # addSurface assumes an intersection, which is what we want here
         c1.addSurface(halfspace=+1, surface=p11)
         c1.addSurface(halfspace=+1, surface=p12)
-        c1.addSurface(halfspace=-1, surface=p11)
+        c1.addSurface(halfspace=-1, surface=p13)
 
-        # Bounds for cell 2
-        p21 = openmoc.XPlane(x=-10.0, name='xmin')
-        p21.setBoundaryType(openmoc.REFLECTIVE)
+        # Bounds for cell 2 : union region cell
         p22 = openmoc.ZCylinder(x=4,y=4,radius=2.5, name='cylinder')
         p22.setBoundaryType(openmoc.INTERFACE)
         p23 = openmoc.ZCylinder(x=-2,y=-8,radius=3, name='cylinder')
@@ -62,12 +70,15 @@ class ComplexRegionBoundsTestHarness(TestHarness):
 
         # To have a union, we need to use addLogicalNode and addSurfaceInRegion
         c2.addLogicalNode(1)
-        c2.addSurfaceInRegion(halfspace=+1, surface=p21)
         c2.addSurfaceInRegion(halfspace=-1, surface=p22)
         c2.addSurfaceInRegion(halfspace=-1, surface=p23)
 
+        # Plane limits area more
+        c2a.addLogicalNode(1)
+        c2a.addSurfaceInRegion(halfspace=+1, surface=p11)
+
         openmoc.set_log_level('NORMAL')
-        for cell in [root_cell, c1, c2, c3]:
+        for cell in [root_cell, c1, c2, c2a, c3]:
             py_printf('NORMAL', 'Cell: %s', cell.getName())
             py_printf('NORMAL', 'MinX: %f', cell.getMinX())
             py_printf('NORMAL', 'MinXBoundaryType: %s', cell.getMinXBoundaryType())

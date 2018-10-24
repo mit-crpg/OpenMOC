@@ -514,10 +514,18 @@ double Cell::getMaxZ() {
  */
 boundaryType Cell::getMinXBoundaryType() {
 
-  if (_region == NULL)
-    return BOUNDARY_NONE;
-  else
-    return _region->getMinXBoundaryType();
+  boundaryType boundary = BOUNDARY_NONE;
+
+  /* Look in region for min x boundary */
+  if (_region != NULL)
+    boundary = _region->getMinXBoundaryType();
+
+  /* If no boundary was found in the region, it may be that the boundary
+     is in the Parent cell's region */
+  if (getParent() != NULL && boundary == BOUNDARY_NONE)
+    boundary = getParent()->getMinXBoundaryType();
+
+  return boundary;
 }
 
 
@@ -528,10 +536,18 @@ boundaryType Cell::getMinXBoundaryType() {
  */
 boundaryType Cell::getMaxXBoundaryType() {
 
-  if (_region == NULL)
-    return BOUNDARY_NONE;
-  else
-    return _region->getMaxXBoundaryType();
+  boundaryType boundary = BOUNDARY_NONE;
+
+  /* Look in region for max x boundary */
+  if (_region != NULL)
+    boundary = _region->getMaxXBoundaryType();
+
+  /* If no boundary was found in the region, it may be that the boundary
+     is in the Parent cell's region */
+  if (getParent() != NULL && boundary == BOUNDARY_NONE)
+    boundary = getParent()->getMaxXBoundaryType();
+
+  return boundary;
 }
 
 
@@ -542,10 +558,18 @@ boundaryType Cell::getMaxXBoundaryType() {
  */
 boundaryType Cell::getMinYBoundaryType() {
 
-  if (_region == NULL)
-    return BOUNDARY_NONE;
-  else
-    return _region->getMinYBoundaryType();
+  boundaryType boundary = BOUNDARY_NONE;
+
+  /* Look in region for min y boundary */
+  if (_region != NULL)
+    boundary = _region->getMinYBoundaryType();
+
+  /* If no boundary was found in the region, it may be that the boundary
+     is in the Parent cell's region */
+  if (getParent() != NULL && boundary == BOUNDARY_NONE)
+    boundary = getParent()->getMinYBoundaryType();
+
+  return boundary;
 }
 
 
@@ -556,10 +580,18 @@ boundaryType Cell::getMinYBoundaryType() {
  */
 boundaryType Cell::getMaxYBoundaryType() {
 
-  if (_region == NULL)
-    return BOUNDARY_NONE;
-  else
-    return _region->getMaxYBoundaryType();
+  boundaryType boundary = BOUNDARY_NONE;
+
+  /* Look in region for max y boundary */
+  if (_region != NULL)
+    boundary = _region->getMaxYBoundaryType();
+
+  /* If no boundary was found in the region, it may be that the boundary
+     is in the Parent cell's region */
+  if (getParent() != NULL && boundary == BOUNDARY_NONE)
+    boundary = getParent()->getMaxYBoundaryType();
+
+  return boundary;
 }
 
 
@@ -570,10 +602,18 @@ boundaryType Cell::getMaxYBoundaryType() {
  */
 boundaryType Cell::getMinZBoundaryType() {
 
-  if (_region == NULL)
-    return BOUNDARY_NONE;
-  else
-    return _region->getMinZBoundaryType();
+  boundaryType boundary = BOUNDARY_NONE;
+
+  /* Look in region for min z boundary */
+  if (_region != NULL)
+    boundary = _region->getMinZBoundaryType();
+
+  /* If no boundary was found in the region, it may be that the boundary
+     is in the Parent cell's region */
+  if (getParent() != NULL && boundary == BOUNDARY_NONE)
+    boundary = getParent()->getMinZBoundaryType();
+
+  return boundary;
 }
 
 
@@ -584,10 +624,18 @@ boundaryType Cell::getMinZBoundaryType() {
  */
 boundaryType Cell::getMaxZBoundaryType() {
 
-  if (_region == NULL)
-    return BOUNDARY_NONE;
-  else
-    return _region->getMaxZBoundaryType();
+  boundaryType boundary = BOUNDARY_NONE;
+
+  /* Look in region for max z boundary */
+  if (_region != NULL)
+    boundary = _region->getMaxZBoundaryType();
+
+  /* If no boundary was found in the region, it may be that the boundary
+     is in the Parent cell's region */
+  if (getParent() != NULL && boundary == BOUNDARY_NONE)
+    boundary = getParent()->getMaxZBoundaryType();
+
+  return boundary;
 }
 
 
