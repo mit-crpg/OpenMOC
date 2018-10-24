@@ -48,7 +48,7 @@ class SimpleLatticeTestHarness(TestHarness):
 
     def _get_results(self, num_iters=True, keff=True, fluxes=True,
                      num_fsrs=True, num_tracks=True, num_segments=True,
-                     hash_output=True):
+                     hash_output=False):
         """Digest info in the solver"""
         return super(SimpleLatticeTestHarness, self)._get_results(
                 num_iters=num_iters, keff=keff, fluxes=fluxes,
