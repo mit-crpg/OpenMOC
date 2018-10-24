@@ -339,8 +339,9 @@ public:
   int getDomainByCoords(LocalCoords* coords);
 
   /* Input/output of geometries from/to .geo files */
-  void dumpToFile(std::string filename);
-  void loadFromFile(std::string filename, bool twiddle=false);
+  void dumpToFile(std::string filename, bool non_uniform_lattice=false);
+  void loadFromFile(std::string filename, bool non_uniform_lattice=false, 
+                    bool twiddle=false);
   size_t twiddleRead(int* ptr, size_t size, size_t nmemb, FILE* stream);
   size_t twiddleRead(bool* ptr, size_t size, size_t nmemb, FILE* stream);
   size_t twiddleRead(char* ptr, size_t size, size_t nmemb, FILE* stream);
