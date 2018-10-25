@@ -45,7 +45,8 @@ struct RuntimeParametres {
     _use_axial_interpolation(false), _log_filename(NULL), _linear_solver(true),
     _MOC_src_residual_type(1), _SOR_factor(1.0), _CMFD_relaxation_factor(1.0),
     _segmentation_type(3), _verbose_report(true), _time_report(true),
-    _log_level((char*)"NORMAL"),_quadraturetype(2), _test_run(false) {}
+    _log_level((char*)"NORMAL"),_quadraturetype(2), _test_run(false), 
+    _geo_version(0) {}
   
   /* To debug or not when running, dead while loop */
   bool _debug_flag;
@@ -60,6 +61,8 @@ struct RuntimeParametres {
   char* _log_filename;
   /* Geometry file name */
   std::string _geo_filename;
+  /* The version of geometry file */
+  int _geo_version;
 
   
   double _azim_spacing;

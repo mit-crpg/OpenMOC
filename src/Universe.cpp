@@ -1488,10 +1488,15 @@ void Lattice::subdivideCells(double max_radius) {
   /* If the lattice pitch is smaller than max_radius parameter, over-ride it */
   if (radius < max_radius)
     max_radius = radius;
-
   /* Subdivide all Cells */
-  for (iter = universes.begin(); iter != universes.end(); ++iter)
-    iter->second->subdivideCells(max_radius);
+  for (iter = universes.begin(); iter != universes.end(); ++iter) {
+    log_printf(DEBUG, "univ_ID: %d, radias: %f, max_radius: %f", 
+               iter->first, unique_radius[iter->first], max_radius);
+    
+    /* If the lattice pitch is smaller than max_radius parameter, over-ride it*/
+    iter->second->subdivideCells(std::min(unique_radius[iter->first], 
+                                          max_radius));
+  }
 }
 
 
