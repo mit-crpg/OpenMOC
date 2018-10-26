@@ -1378,11 +1378,9 @@ void Cmfd::setCMFDRelaxationFactor(double relaxation_factor) {
   if (relaxation_factor <= 0.0 || relaxation_factor > 1.0)
     log_printf(ERROR, "The successive over-relaxation relaxation factor "
                       "must be greater than 0 and less than or equal to 1. "
-                      "Input value: %i", relaxation_factor);
+                      "Input value: %6.4f", relaxation_factor);
 
   _relaxation_factor = relaxation_factor;
-  if (fabs(relaxation_factor - 1.0) > FLT_EPSILON)
-    log_printf(NORMAL, "CMFD relaxation factor: %6.4f", _relaxation_factor);
 }
 
 
@@ -2803,9 +2801,7 @@ CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
   double ratio = 1.0;
   if (_use_axial_interpolation)
     interpolants = _axial_interpolants.at(fsr);
-  if (_use_axial_interpolation && _local_num_zn >= 3 && 
-      (fabs(interpolants[0]) > FLT_EPSILON || 
-       fabs(interpolants[2]) > FLT_EPSILON)) {
+  if (_use_axial_interpolation && _local_num_zn >= 3) {
     int z_ind = cell_id / (_local_num_xn * _local_num_yn);
     int cell_mid = cell_id;
 
@@ -2840,38 +2836,13 @@ CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
     if (fabs(old_flux) > FLT_EPSILON)
       ratio = new_flux / old_flux;
 
+    /* Fallback: using the cell average flux ratio */
     if (ratio < 0) {
-
-      /* Try a linear interpolation */
-      double zc_2 = 26.0/24.0 - interpolants[1];
-      if (zc_2 < 0.0)
-        zc_2 = 0.0;
-      double zc = sqrt(zc_2);
-      if (z_ind < _num_z / 2) {
-        old_flux = zc * (old_flux_mid - old_flux_prev) + old_flux_mid;
-        new_flux = zc * (new_flux_mid - new_flux_prev) + new_flux_mid;
-        if (fabs(old_flux) > FLT_EPSILON)
-          ratio = new_flux / old_flux;
-        else
-          ratio = 0;
-      }
-      else {
-        old_flux = zc * (old_flux_next - old_flux_mid) + old_flux_mid;
-        new_flux = zc * (new_flux_next - new_flux_mid) + new_flux_mid;
-        if (fabs(old_flux) > FLT_EPSILON)
-          ratio = new_flux / old_flux;
-        else
-          ratio = 0;
-      }
-
-      /* Fallback: using the cell average flux ratio */
-      if (ratio < 0) {
-        if (fabs(_old_flux->getValue(cell_id, group)) > FLT_EPSILON)
-          ratio = _new_flux->getValue(cell_id, group) /
-                  _old_flux->getValue(cell_id, group);
-        else
-          ratio = 0.0;
-      }
+      if (fabs(_old_flux->getValue(cell_id, group)) > FLT_EPSILON)
+        ratio = _new_flux->getValue(cell_id, group) /
+                _old_flux->getValue(cell_id, group);
+      else
+        ratio = 0.0;
     }
 
     return ratio;
