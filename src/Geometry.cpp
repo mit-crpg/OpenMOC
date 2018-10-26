@@ -3126,7 +3126,7 @@ std::vector<int>& Geometry::getFSRsToMaterialIDs() {
 
 /**
  * @brief Return a vector indexed by flat source region IDs which contains
- *        pointers to the corresponding Centroid Information.
+ *        pointers to the corresponding Centroid information.
  * @return an array of centroid pointers indexed by FSR ID
  */
 std::vector<Point*>& Geometry::getFSRsToCentroids() {

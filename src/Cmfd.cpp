@@ -2587,18 +2587,44 @@ void Cmfd::generateKNearestStencils() {
       _axial_interpolants.at(r) = new double[3]();
     }
     
-    /* Calculate common factors */
-    double dz = _cell_width_z;
-    double dz_2 = _cell_width_z * _cell_width_z;
-
     /* Loop over mesh cells */
     for (int i = 0; i < _local_num_xn*_local_num_yn*_local_num_zn; i++) {
 
+      /* Starting z number of CMFD mesh in this domain */
+      int z_start = 0;
+      if(_domain_communicator != NULL)
+        z_start = _accumulate_lmz[_domain_communicator->_domain_idx_z];
+      
       /* Calculate the CMFD cell z-coordinate */
       int z_ind = i / (_local_num_xn * _local_num_yn);
-      double z_cmfd = (z_ind + 0.5) * dz + _lattice->getMinZ();
-      if (_domain_communicator != NULL)
-        z_cmfd += _domain_communicator->_domain_idx_z * dz * _local_num_z;
+      
+      /* The heights of neighboring three CMFD meshes for quadratic fit */
+      double h0, h1, h2; 
+      
+      /* The z coordinate of middle CMFD mesh center */
+      double z_cmfd;
+      
+      if(z_ind == 0) {
+        h0 = _cell_widths_z[z_start + z_ind];
+        h1 = _cell_widths_z[z_start + z_ind + 1];
+        h2 = _cell_widths_z[z_start + z_ind + 2];
+        z_cmfd = _accumulate_z[z_start + z_ind+1] + h1/2. + _lattice->getMinZ();
+      }
+      else if(z_ind == _local_num_zn - 1) {
+        h0 = _cell_widths_z[z_start + z_ind - 2];
+        h1 = _cell_widths_z[z_start + z_ind - 1];
+        h2 = _cell_widths_z[z_start + z_ind];
+        z_cmfd = _accumulate_z[z_start + z_ind-1] + h1/2. + _lattice->getMinZ();
+      }
+      else {
+        h0 = _cell_widths_z[z_start + z_ind - 1];
+        h1 = _cell_widths_z[z_start + z_ind];
+        h2 = _cell_widths_z[z_start + z_ind + 1];
+        z_cmfd = _accumulate_z[z_start + z_ind] + h1/2. + _lattice->getMinZ();
+      }
+    
+      /* Start and end relative z-coordinate of an FSR */
+      double zs, ze;
 
       /* Loop over FRSs in mesh cell */
       int num_fissionable_FSRs = 0;
@@ -2608,27 +2634,29 @@ void Cmfd::generateKNearestStencils() {
         /* Get centroid and calculate relative z-coordinate */
         fsr_id = *fsr_iter;
         Point* centroid = _geometry->getFSRCentroid(fsr_id);
-        double zc = (centroid->getZ() - z_cmfd) / dz;
-        if (std::abs(zc) > 0.5)
-          log_printf(ERROR, "Found FSR %d with z-centroid offset in z "
-                     "from CMFD cell %d by %6.4f, whereas the CMFD z-spacing"
-                     " is %6.4f. Coordinates: (%6.4f, %6.4f, %6.4f), cmfd z: "
-                     "%6.4f", fsr_id, i, zc*dz, dz, centroid->getX(),
-                     centroid->getY(), centroid->getZ(), z_cmfd);
-
-        /* Check that the CMFD cell is not an end cell, for an end cell,
-           the index is shifted by one. */
-        if (z_ind == 0)
-          zc -= 1.0;
-        else if (z_ind == _local_num_z - 1)
-          zc += 1.0;
+        Point* feature_point = _geometry->getFSRPoint(fsr_id);
+        
+        double zc = (centroid->getZ() - z_cmfd) / h1;
+        zs = (feature_point->getZ() - z_cmfd) / h1;
+        ze = 2*zc - zs;
 
         /* Calculate components for quadratic interpolation */
-        _axial_interpolants.at(fsr_id)[0] = zc * zc/2.0 - zc/2.0 - 1.0/24.0;
-        _axial_interpolants.at(fsr_id)[1] = -zc * zc + 26.0/24.0;
-        _axial_interpolants.at(fsr_id)[2] = zc * zc/2.0 + zc/2.0 - 1.0/24.0;
+        _axial_interpolants.at(fsr_id)[0] = -h1*(h1 + 2*h1*ze + 4*h2*ze + 
+                2*h1*zs + 4*h2*zs - 4*h1*ze*ze - 4*h1*zs*zs - 4*h1*ze*zs)
+                                            /(4*(h0 + h1)*(h0 + h1 + h2));
+        
+        
+        _axial_interpolants.at(fsr_id)[1] = (h1 + h2 - h1*ze - h1*zs)/(h1 + h2)
+        + h1*(h1 + 2*h1*ze + 4*h2*ze + 2*h1*zs + 4*h2*zs - 4*h1*ze*ze - 4*h1*zs*zs - 4*h1*ze*zs)/(4*h2*(h0 + h1))
+        - (h1*h1*(h1 + 2*h1*ze + 4*h2*ze + 2*h1*zs + 4*h2*zs - 4*h1*ze*ze - 4*h1*zs*zs - 4*h1*ze*zs))
+        /(4*h2*(h1 + h2)*(h0 + h1 + h2));
+        
 
-        /* Set zero axial prolongation for cells with no fissionable material */
+        _axial_interpolants.at(fsr_id)[2] = h1*(4*h0*ze - h1 + 2*h1*ze + 
+                 4*h0*zs + 2*h1*zs + 4*h1*ze*ze + 4*h1*zs*zs + 4*h1*ze*zs)
+                                             /(4*(h1 + h2)*(h0 + h1 + h2));
+
+        /* Set zero axial prolongation for cells with no fissionalbe material */
         if (_FSR_materials[fsr_id]->isFissionable())
           num_fissionable_FSRs++;
       }

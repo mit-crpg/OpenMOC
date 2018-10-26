@@ -870,7 +870,7 @@ void TrackGenerator3D::initializeTracks() {
   if (_segment_formation == OTF_STACKS)
     allocateTemporaryTracks();
 
-  log_printf(NORMAL, "Number of 3D Tracks: %d", getNum3DTracks());
+  log_printf(NORMAL, "Number of 3D Tracks: %d", getNum3DTracks());//no need to output here, only one process.
 
   _contains_3D_tracks = true;
 }
