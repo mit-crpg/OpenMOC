@@ -265,7 +265,7 @@ private:
   double** _polar_spacings;
 
   /** Whether to use axial interpolation for flux update ratios */
-  bool _use_axial_interpolation;
+  int _use_axial_interpolation;
 
   /** Axial interpolation constants */
   std::vector<double*> _axial_interpolants;
@@ -461,7 +461,7 @@ public:
   void setDomainIndexes(int idx_x, int idx_y, int idx_z);
 #endif
   void setConvergenceData(ConvergenceData* convergence_data);
-  void useAxialInterpolation(bool interpolate);
+  void useAxialInterpolation(int interpolate);
   
   /* Methods to try to fix stability issues */
   void useFluxLimiting(bool flux_limiting);

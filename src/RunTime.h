@@ -42,7 +42,7 @@ struct RuntimeParametres {
     _num_threads(1), _azim_spacing(0.05), _num_azim(64), _polar_spacing(0.75), 
     _num_polar(10), _tolerance(1.0E-4), _max_iters(1000), _knearest(1),
     _CMFD_flux_update_on(true), _CMFD_centroid_update_on(false),
-    _use_axial_interpolation(false), _log_filename(NULL), _linear_solver(true),
+    _use_axial_interpolation(0), _log_filename(NULL), _linear_solver(true),
     _MOC_src_residual_type(1), _SOR_factor(1.0), _CMFD_relaxation_factor(1.0),
     _segmentation_type(3), _verbose_report(true), _time_report(true),
     _log_level((char*)"NORMAL"),_quadraturetype(2), _test_run(false), 
@@ -92,7 +92,7 @@ struct RuntimeParametres {
   /* Knearest update or conventional update */
   bool _CMFD_centroid_update_on;
   /* Whether to use axial interpolation for CMFD update */
-  bool _use_axial_interpolation; 
+  int _use_axial_interpolation; 
   /* CMFD linear solver SOR factor */
   double _SOR_factor;
   /* CMFD relaxation factor */

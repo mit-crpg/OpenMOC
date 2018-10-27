@@ -357,8 +357,12 @@ int setRuntimeParametres(RuntimeParametres &RP, int argc, char *argv[]) {
     printf("-knearest               : (1) knearest CMFD update\n");
     printf("-CMFD_centroid_update_on: (1)switch of the CMFD knearest "
            "centroid update\n");
-    printf("-use_axial_interpolation: (0)switch of the CMFD axial interpolation"
-           " update\n");
+    printf("-use_axial_interpolation: (0)option of the CMFD axial interpolation"
+           " update\n"
+           "                           0 - No axial interpolation\n"
+           "                           1 - FSR axially averaged value\n"
+           "                           2 - centroid z-coordinate evaluted value\n"
+          );
     printf("-SOR_factor             : (1.0)set CMFD SOR relaxation factor\n");
     printf("-CMFD_relaxation_factor : (1.0)set CMFD relaxation factor\n");
     printf("\n");

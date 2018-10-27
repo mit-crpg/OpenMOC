@@ -34,7 +34,7 @@ Cmfd::Cmfd() {
   _cell_width_z = 0.;
   _flux_update_on = true;
   _centroid_update_on = true;
-  _use_axial_interpolation = false;
+  _use_axial_interpolation = 0;
   _flux_limiting = true;
   _balance_sigma_t = false;
   _k_nearest = 1;
@@ -2343,9 +2343,15 @@ void Cmfd::setConvergenceData(ConvergenceData* convergence_data) {
 /**
  * @brief Set the flag indicating whether to use axial interpolation for update
  *        ratios
- * @param interpolate flag saying whether to use axial interpolation.
+ * @param interpolate flag meaning No interpolation(0), FSR axially averaged 
+          value(1) or centroid z-coordinate evaluted value(2)
  */
-void Cmfd::useAxialInterpolation(bool interpolate) {
+void Cmfd::useAxialInterpolation(int interpolate) {
+  
+  if(interpolate<0 || interpolate>2)
+    log_printf(ERROR, "interpolate can only has value 0, 1, or 2, respectively"
+               " meaning No interpolation, FSR axially averaged value or"
+               " centroid z-coordinate evaluted value");
   _use_axial_interpolation = interpolate;
 }
 
@@ -2576,7 +2582,6 @@ void Cmfd::generateKNearestStencils() {
 
 
   /* Compute axial quadratic interpolation values if requested */
-//need to be fixed, considering average value and non-uniform axial meshes.
   if (_use_axial_interpolation && _local_num_zn >= 3) {
 
     /* Initialize axial quadratic interpolant values */
@@ -2638,21 +2643,46 @@ void Cmfd::generateKNearestStencils() {
         zs = (feature_point->getZ() - z_cmfd) / h1;
         ze = 2*zc - zs;
 
-        /* Calculate components for quadratic interpolation */
-        _axial_interpolants.at(fsr_id)[0] = -h1*(h1 + 2*h1*ze + 4*h2*ze + 
-                2*h1*zs + 4*h2*zs - 4*h1*ze*ze - 4*h1*zs*zs - 4*h1*ze*zs)
-                                            /(4*(h0 + h1)*(h0 + h1 + h2));
-        
-        
-        _axial_interpolants.at(fsr_id)[1] = (h1 + h2 - h1*ze - h1*zs)/(h1 + h2)
-        + h1*(h1 + 2*h1*ze + 4*h2*ze + 2*h1*zs + 4*h2*zs - 4*h1*ze*ze - 4*h1*zs*zs - 4*h1*ze*zs)/(4*h2*(h0 + h1))
-        - (h1*h1*(h1 + 2*h1*ze + 4*h2*ze + 2*h1*zs + 4*h2*zs - 4*h1*ze*ze - 4*h1*zs*zs - 4*h1*ze*zs))
-        /(4*h2*(h1 + h2)*(h0 + h1 + h2));
-        
-
-        _axial_interpolants.at(fsr_id)[2] = h1*(4*h0*ze - h1 + 2*h1*ze + 
-                 4*h0*zs + 2*h1*zs + 4*h1*ze*ze + 4*h1*zs*zs + 4*h1*ze*zs)
-                                             /(4*(h1 + h2)*(h0 + h1 + h2));
+        /* Calculate components for quadratic interpolation of the FSR axially 
+           averaged value*/
+        if(_use_axial_interpolation ==1) {
+          _axial_interpolants.at(fsr_id)[0] = (h1*(h1+h1*zc*4.0+h2*zc*8.0-
+            h1*(zc*zc)*1.6E1-h1*(zs*zs)*4.0+h1*zc*zs*8.0)*(-1.0/4.0))
+                                              /((h0+h1)*(h0+h1+h2));
+          
+  
+          _axial_interpolants.at(fsr_id)[1] = (h1+h2-h1*zc*2.0)/(h1+h2)+(h1*(h1+
+          h1*zc*4.0+h2*zc*8.0-h1*(zc*zc)*1.6E1-h1*(zs*zs)*4.0+h1*zc*zs*8.0)*
+          (1.0/4.0))/(h2*(h0+h1))-((h1*h1)*(h1+h1*zc*4.0+h2*zc*8.0-h1*(zc*zc)*
+          1.6E1-h1*(zs*zs)*4.0+h1*zc*zs*8.0)*(1.0/4.0))/(h2*(h1+h2)*(h0+h1+h2));
+          
+  
+          _axial_interpolants.at(fsr_id)[2] = (h1*(-h1+h0*zc*8.0+h1*zc*4.0+
+            h1*(zc*zc)*1.6E1+h1*(zs*zs)*4.0-h1*zc*zs*8.0)*(1.0/4.0))
+                                              /((h1+h2)*(h0+h1+h2));
+        }
+        /* Calculate components for quadratic interpolation of the centroid  
+           z-coordinate evaluated value. */
+        else if(_use_axial_interpolation == 2) {
+          _axial_interpolants.at(fsr_id)[0] = -(h1*(h1+h1*zc*4.0+h2*zc*8.0-h1*
+          (zc*zc)*1.2E1))/((h0*4.0+h1*4.0)*(h0+h1+h2));  
+            
+          _axial_interpolants.at(fsr_id)[1] = (-zc*(h0*(h1*h1)*1.2E1+(h0*h0)*h1*
+          8.0-h1*(h2*h2)*8.0-(h1*h1)*h2*1.2E1)+h0*(h1*h1)*9.0+(h0*h0)*h1*4.0+h0*
+          (h2*h2)*4.0+(h0*h0)*h2*4.0+h1*(h2*h2)*4.0+(h1*h1)*h2*9.0+(h1*h1*h1)*6.0
+          -(zc*zc)*(h0*(h1*h1)*1.2E1+(h1*h1)*h2*1.2E1+(h1*h1*h1)*2.4E1)+h0*h1*h2
+          *1.2E1)/((h1+h2)*(h0*4.0+h1*4.0)*(h0+h1+h2));
+            
+            
+         _axial_interpolants.at(fsr_id)[2] = (h1*(-h1+h0*zc*8.0+h1*zc*4.0+h1*
+         (zc*zc)*1.2E1))/((h1*4.0+h2*4.0)*(h0+h1+h2));
+        }
+      
+        /* Calculate components for quadratic interpolation of the centroid  
+           z-coordinate evaluted value. For uniform CMFD*/
+        /*_axial_interpolants.at(fsr_id)[0] = zc * zc/2.0 - zc/2.0 - 1.0/24.0;
+        _axial_interpolants.at(fsr_id)[1] = -zc * zc + 26.0/24.0;
+        _axial_interpolants.at(fsr_id)[2] = zc * zc/2.0 + zc/2.0 - 1.0/24.0;*/
 
         /* Set zero axial prolongation for cells with no fissionalbe material */
         if (_FSR_materials[fsr_id]->isFissionable())
