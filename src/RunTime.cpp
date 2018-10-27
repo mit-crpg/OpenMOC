@@ -361,8 +361,8 @@ int setRuntimeParametres(RuntimeParametres &RP, int argc, char *argv[]) {
            " update\n"
            "                           0 - No axial interpolation\n"
            "                           1 - FSR axially averaged value\n"
-           "                           2 - centroid z-coordinate evaluted value\n"
-          );
+           "                           2 - centroid z-coordinate evaluated "
+           "value\n");
     printf("-SOR_factor             : (1.0)set CMFD SOR relaxation factor\n");
     printf("-CMFD_relaxation_factor : (1.0)set CMFD relaxation factor\n");
     printf("\n");

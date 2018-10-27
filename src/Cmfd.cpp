@@ -2352,6 +2352,9 @@ void Cmfd::useAxialInterpolation(int interpolate) {
     log_printf(ERROR, "interpolate can only has value 0, 1, or 2, respectively"
                " meaning No interpolation, FSR axially averaged value or"
                " centroid z-coordinate evaluted value");
+  if(interpolate==1 || interpolate==2)
+    log_printf(NORMAL, "WARNING: Axial interpolation CMFD prolongation may only"
+               " be effective when all the FSRs are axially homogeneous");
   _use_axial_interpolation = interpolate;
 }
 
@@ -2660,13 +2663,21 @@ void Cmfd::generateKNearestStencils() {
           _axial_interpolants.at(fsr_id)[2] = (h1*(-h1+h0*zc*8.0+h1*zc*4.0+
             h1*(zc*zc)*1.6E1+h1*(zs*zs)*4.0-h1*zc*zs*8.0)*(1.0/4.0))
                                               /((h1+h2)*(h0+h1+h2));
+          
+          
+          log_printf(DEBUG, "CMFD-ID: %d, FSR-ID: %ld, c0= %10.6f, c1= %10.6f,"
+                     " c2= %10.6f", i, fsr_id, _axial_interpolants.at(fsr_id)[0],
+                     _axial_interpolants.at(fsr_id)[1],
+                     _axial_interpolants.at(fsr_id)[2]);
         }
-        /* Calculate components for quadratic interpolation of the centroid  
+
+      /* Calculate components for quadratic interpolation of the centroid  
            z-coordinate evaluated value. */
         else if(_use_axial_interpolation == 2) {
           _axial_interpolants.at(fsr_id)[0] = -(h1*(h1+h1*zc*4.0+h2*zc*8.0-h1*
-          (zc*zc)*1.2E1))/((h0*4.0+h1*4.0)*(h0+h1+h2));  
+          (zc*zc)*1.2E1))/((h0*4.0+h1*4.0)*(h0+h1+h2));
             
+          
           _axial_interpolants.at(fsr_id)[1] = (-zc*(h0*(h1*h1)*1.2E1+(h0*h0)*h1*
           8.0-h1*(h2*h2)*8.0-(h1*h1)*h2*1.2E1)+h0*(h1*h1)*9.0+(h0*h0)*h1*4.0+h0*
           (h2*h2)*4.0+(h0*h0)*h2*4.0+h1*(h2*h2)*4.0+(h1*h1)*h2*9.0+(h1*h1*h1)*6.0
@@ -2676,8 +2687,13 @@ void Cmfd::generateKNearestStencils() {
             
          _axial_interpolants.at(fsr_id)[2] = (h1*(-h1+h0*zc*8.0+h1*zc*4.0+h1*
          (zc*zc)*1.2E1))/((h1*4.0+h2*4.0)*(h0+h1+h2));
+         
+         
+         log_printf(DEBUG, "CMFD-ID: %d, FSR-ID: %ld, c0= %10.6f, c1= %10.6f,"
+                    " c2= %10.6f", i, fsr_id, _axial_interpolants.at(fsr_id)[0],
+                    _axial_interpolants.at(fsr_id)[1],
+                    _axial_interpolants.at(fsr_id)[2]);
         }
-      
         /* Calculate components for quadratic interpolation of the centroid  
            z-coordinate evaluted value. For uniform CMFD*/
         /*_axial_interpolants.at(fsr_id)[0] = zc * zc/2.0 - zc/2.0 - 1.0/24.0;
