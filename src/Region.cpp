@@ -159,13 +159,16 @@ double Region::getMinX() {
     min_x = -std::numeric_limits<double>::infinity();
   else if(_region_type == UNION)
     min_x = +std::numeric_limits<double>::infinity();
-  else if(_region_type == COMPLEMENT)
-    log_printf(ERROR, "getMinX() is not implemented for complement regions");
+  else if(_region_type == COMPLEMENT) {
+    log_printf(WARNING, "getMinX() is not implemented for complement regions,"
+               " min x of region complemented returned.");
+    min_x = -std::numeric_limits<double>::infinity();
+  }
 
   /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
-    if(_region_type == INTERSECTION)
+    if(_region_type == INTERSECTION || _region_type == COMPLEMENT)
       min_x = std::max(min_x, (*iter)->getMinX());
     else if(_region_type == UNION)
       min_x = std::min(min_x, (*iter)->getMinX());
@@ -187,13 +190,16 @@ double Region::getMaxX() {
     max_x = +std::numeric_limits<double>::infinity();
   else if(_region_type == UNION)
     max_x = -std::numeric_limits<double>::infinity();
-  else if(_region_type == COMPLEMENT)
-    log_printf(ERROR, "getMaxX() is not implemented for complement regions");
+  else if(_region_type == COMPLEMENT) {
+    log_printf(WARNING, "getMaxX() is not implemented for complement regions,"
+               " max x of region complemented returned.");
+    max_x = +std::numeric_limits<double>::infinity();
+  }
 
   /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
-    if(_region_type == INTERSECTION)
+    if(_region_type == INTERSECTION || _region_type == COMPLEMENT)
       max_x = std::min(max_x, (*iter)->getMaxX());
     else if(_region_type == UNION)
       max_x = std::max(max_x, (*iter)->getMaxX());
@@ -215,13 +221,16 @@ double Region::getMinY() {
     min_y = -std::numeric_limits<double>::infinity();
   else if(_region_type == UNION)
     min_y = +std::numeric_limits<double>::infinity();
-  else if(_region_type == COMPLEMENT)
-    log_printf(ERROR, "getMinY() is not implemented for complement regions");
+  else if(_region_type == COMPLEMENT) {
+    log_printf(WARNING, "getMinY() is not implemented for complement regions,"
+               " min y of region complemented returned.");
+    min_y = -std::numeric_limits<double>::infinity();
+  }
 
   /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
-    if(_region_type == INTERSECTION)
+    if(_region_type == INTERSECTION || _region_type == COMPLEMENT)
       min_y = std::max(min_y, (*iter)->getMinY());
     else if(_region_type == UNION)
       min_y = std::min(min_y, (*iter)->getMinY());
@@ -243,13 +252,16 @@ double Region::getMaxY() {
     max_y = +std::numeric_limits<double>::infinity();
   else if(_region_type == UNION)
     max_y = -std::numeric_limits<double>::infinity();
-  else if(_region_type == COMPLEMENT)
-    log_printf(ERROR, "getMaxY() is not implemented for complement regions");
+  else if(_region_type == COMPLEMENT) {
+    log_printf(WARNING, "getMaxY() is not implemented for complement regions,"
+               " max y of region complemented returned.");
+    max_y = +std::numeric_limits<double>::infinity();
+  }
 
   /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
-    if(_region_type == INTERSECTION)
+    if(_region_type == INTERSECTION || _region_type == COMPLEMENT)
       max_y = std::min(max_y, (*iter)->getMaxY());
     else if(_region_type == UNION)
       max_y = std::max(max_y, (*iter)->getMaxY());
@@ -271,13 +283,16 @@ double Region::getMinZ() {
     min_z = -std::numeric_limits<double>::infinity();
   else if(_region_type == UNION)
     min_z = +std::numeric_limits<double>::infinity();
-  else if(_region_type == COMPLEMENT)
-    log_printf(ERROR, "getMinZ() is not implemented for complement regions");
+  else if(_region_type == COMPLEMENT) {
+    log_printf(WARNING, "getMinZ() is not implemented for complement regions,"
+               " min z of region complemented returned.");
+    min_z = -std::numeric_limits<double>::infinity();
+  }
 
   /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
-    if(_region_type == INTERSECTION)
+    if(_region_type == INTERSECTION || _region_type == COMPLEMENT)
       min_z = std::max(min_z, (*iter)->getMinZ());
     else if(_region_type == UNION)
       min_z = std::min(min_z, (*iter)->getMinZ());
@@ -299,13 +314,16 @@ double Region::getMaxZ() {
     max_z = +std::numeric_limits<double>::infinity();
   else if(_region_type == UNION)
     max_z = -std::numeric_limits<double>::infinity();
-  else if(_region_type == COMPLEMENT)
-    log_printf(ERROR, "getMaxZ() is not implemented for complement regions");
+  else if(_region_type == COMPLEMENT) {
+    log_printf(WARNING, "getMaxZ() is not implemented for complement regions,"
+               " max z of region complemented returned.");
+    max_z = +std::numeric_limits<double>::infinity();
+  }
 
   /* Loop over all nodes in the Region */
   std::vector<Region*>::iterator iter;
   for (iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
-    if(_region_type == INTERSECTION)
+    if(_region_type == INTERSECTION || _region_type == COMPLEMENT)
       max_z = std::min(max_z, (*iter)->getMaxZ());
     else if(_region_type == UNION)
       max_z = std::max(max_z, (*iter)->getMaxZ());
