@@ -109,14 +109,14 @@ mesh.upper_right = [10.71, 32.13, 10.71]
 mesh.width = [1.26, 1.26, 14.28]
 fission_rates = mesh.tally_fission_rates(solver, volume='integrated')
 for k in range(3):
-  print 'Z = ' + str(k)
+  print('Z = ' + str(k))
   for i in range(34):
     msg = ''
     for j in range(34):
       msg += str(fission_rates[i][j][k])
       msg += ' '
-    print msg
-  print '...'
+    print(msg)
+  print('...')
 
 ###############################################################################
 ############################   Generating Plots   #############################
