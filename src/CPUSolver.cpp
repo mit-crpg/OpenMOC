@@ -137,10 +137,10 @@ void CPUSolver::setNumThreads(int num_threads) {
   /* Check the MPI library has enough thread support */
   int provided;
   MPI_Query_thread(&provided);
-  if (num_threads > 1 and provided < MPI_THREAD_SERIALIZED)
-    log_printf(WARNING, "Not enough thread support in the MPI library, "
+  if (num_threads > 1 && provided < MPI_THREAD_SERIALIZED)
+    log_printf(WARNING, "Not enough thread support level in the MPI library, "
                "re-compile with another library. Thread support level should"
-               "be at least MPI_THREAD_SERIALIZED");
+               "be at least MPI_THREAD_SERIALIZED.");
 #endif
 
   if (_track_generator != NULL)
@@ -237,7 +237,7 @@ void CPUSolver::initializeFluxArrays() {
 
   long size;
 
-  /* Allocate memory for the Track boundary flux and leakage arrays */
+  /* Allocate memory for the Track boundary fluxes and leakage arrays */
   try {
     size = 2 * _tot_num_tracks * _fluxes_per_track;
     long max_size = size;
@@ -258,13 +258,13 @@ void CPUSolver::initializeFluxArrays() {
 
     /* Allocate memory for boundary leakage if necessary. CMFD is not set in
        solver at this point, so the value of _cmfd is always NULL as initial
-       value currently*/
+       value currently */
     if (_geometry->getCmfd() == NULL) {
       _boundary_leakage = new float[_tot_num_tracks];
       memset(_boundary_leakage, 0., _tot_num_tracks * sizeof(float));
     }
 
-    /* Determine the size of arrays for the FSR scalar flux */
+    /* Determine the size of arrays for the FSR scalar fluxes */
     size = _num_FSRs * _num_groups;
     max_size = size;
 #ifdef MPIX
@@ -296,7 +296,7 @@ void CPUSolver::initializeFluxArrays() {
     }
 
 #ifdef MPIx
-    /* Allocate memory for angular flux exchaning buffers */
+    /* Allocate memory for angular flux exchanging buffers */
     if (_geometry->isDomainDecomposed())
       setupMPIBuffers();
 #endif
@@ -512,10 +512,10 @@ void CPUSolver::setupMPIBuffers() {
       int start_idx = _fluxes_per_track + 1;
       for (int idx = start_idx; idx < length; idx += _track_message_size) {
         long* track_info_location =
-          reinterpret_cast<long*>(&_send_buffers.at(i)[idx]);
+             reinterpret_cast<long*>(&_send_buffers.at(i)[idx]);
         track_info_location[0] = -1;
         track_info_location =
-          reinterpret_cast<long*>(&_receive_buffers.at(i)[idx]);
+             reinterpret_cast<long*>(&_receive_buffers.at(i)[idx]);
         track_info_location[0] = -1;
       }
     }
@@ -649,7 +649,7 @@ void CPUSolver::deleteMPIBuffers() {
  *          that traverses the entire Geometry.
  * @param track_start The starting Track ID from which the cycle is followed
  * @param domain_start The domain for the starting Track
- * @param length The number of Track's to follow across the cycle
+ * @param length The number of Tracks to follow across the cycle
  */
 void CPUSolver::printCycle(long track_start, int domain_start, int length) {
 
