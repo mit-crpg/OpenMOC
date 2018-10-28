@@ -73,7 +73,7 @@ class ComplexRegionBoundsTestHarness(TestHarness):
         c2.addSurfaceInRegion(halfspace=-1, surface=p22)
         c2.addSurfaceInRegion(halfspace=-1, surface=p23)
 
-        # Plane limits area more
+        # Plane limits area even more
         c2a.addLogicalNode(1)
         c2a.addSurfaceInRegion(halfspace=+1, surface=p11)
 

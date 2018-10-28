@@ -5,7 +5,6 @@
  */
 Region::Region() {
 
-  _region_type = INTERSECTION;
   _parent_region = NULL;
 }
 
@@ -632,9 +631,6 @@ Region* Region::clone() {
     clone = new Union();
   else if (dynamic_cast<Complement*>(this))
     clone = new Complement();
-  //else if (dynamic_cast<Halfspace*>(this))
-  //  clone = new Halfspace(dynamic_cast<Halfspace*>(this)->getHalfspace(), 
-  //                        dynamic_cast<Halfspace*>(this)->getSurface());
 
   /* Add this region's nodes to the cloned region */
   std::vector<Region*>::iterator iter;
@@ -731,10 +727,10 @@ void Complement::addNode(Region* node, bool clone) {
 
 
 /**
- * @brief Determines whether a Point is contained inside the Union.
+ * @brief Determines whether a Point is contained inside the Complement.
  * @details Queries each of the Complement's nodes to determine if the Point
  *          is within the Complement. This point is only inside the
- *          Complement is not contained by the Complement's node.
+ *          Complement if not contained by the Complement's node.
  * @param point a pointer to a Point
  * @returns true if the Point is inside the Complement; otherwise false
  */

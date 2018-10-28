@@ -18,6 +18,7 @@ class SimpleLatticeTestHarness(TestHarness):
 
 
     def _create_trackgenerator(self):
+        """Dump and load the geometry then instantiate a TrackGenerator."""
 
         # Geometry should be dumped before FSRs are initialized
         # Dump the geometry
@@ -30,7 +31,7 @@ class SimpleLatticeTestHarness(TestHarness):
         self.input_set.geometry = openmoc.Geometry()
         self.input_set.geometry.loadFromFile("geometry_file.geo")
 
-        """Instantiate a TrackGenerator."""
+        # Instantiate a TrackGenerator
         geometry = self.input_set.geometry
         geometry.initializeFlatSourceRegions()
 
