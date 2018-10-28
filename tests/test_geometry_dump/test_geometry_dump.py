@@ -6,7 +6,8 @@ sys.path.insert(0, os.pardir)
 sys.path.insert(0, os.path.join(os.pardir, 'openmoc'))
 import openmoc
 from testing_harness import TestHarness
-
+from openmoc.log import py_printf
+import os
 
 class GeometryDumpTestHarness(TestHarness):
     """Test dumping a geometry to file."""
@@ -109,6 +110,16 @@ class GeometryDumpTestHarness(TestHarness):
         # Dump geometry
         self.geometry.dumpToFile("geometry_file.geo")
 
+        # Get rid of the geometry
+        self.geometry = None
+
+        # Reload the geometry
+        self.geometry = openmoc.Geometry()
+        self.geometry.loadFromFile("geometry_file.geo")
+
+        # Dump geometry again
+        self.geometry.dumpToFile("geometry_file_second.geo")
+
         # NOTE : dumping the geometry before and after FSRs are initialized
         # leads to different results, as the rings and sectors create new cells.
 
@@ -116,19 +127,15 @@ class GeometryDumpTestHarness(TestHarness):
     def _get_results(self, num_iters=False, keff=False, fluxes=False,
                      num_fsrs=False, num_tracks=False, num_segments=False,
                      hash_output=False):
-        """Digest geometry file and return as a string."""
+        """Compare the two geometry files."""
 
-        # Find the geometry file
-        filename = "geometry_file.geo"
+        # Assert that both files are the same
+        if (os.system("cmp geometry_file.geo geometry_file_second.geo") != 0):
+            py_printf(openmoc.ERROR, "Geometry files are not dumped and loaded "
+                      "properly")
 
-        # Read the file into a string
-        with open(filename, 'rb') as myfile:
-            lines = myfile.readlines()
-
-        for i, line in enumerate(lines):
-            lines[i] = str(line)
-
-        outstr = ''.join(lines[1:])
+        # Python2 and 3 binaries differ, cannot compare the file to a reference.
+        outstr = 'dummy'
         return outstr
 
 if __name__ == '__main__':

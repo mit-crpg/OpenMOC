@@ -3004,7 +3004,7 @@ void Geometry::initializeCmfd() {
         log_printf(ERROR, "CMFD mesh is incompatible with domain decomposition"
                    " in the X direction, make sure the mesh aligns with domain"
                    " boundaries");
-      if (_cmfd->getNumY() % _num_domains_z != 0)
+      if (_cmfd->getNumY() % _num_domains_y != 0)
         log_printf(ERROR, "CMFD mesh is incompatible with domain decomposition"
                    " in the Y direction, make sure the mesh aligns with domain"
                    " boundaries");
@@ -3455,7 +3455,7 @@ void Geometry::dumpToFile(std::string filename) {
   int num_groups = getNumEnergyGroups();
   fwrite(&num_groups, sizeof(int), 1, out);
 
-  /* Print all material infromation */
+  /* Print all material information */
   std::map<int, Material*> all_materials = getAllMaterials();
   int num_materials = all_materials.size();
   fwrite(&num_materials, sizeof(int), 1, out);
@@ -3681,6 +3681,7 @@ void Geometry::dumpToFile(std::string filename) {
 
     int num_nodes = all_nodes.size();
     fwrite(&num_nodes, sizeof(int), 1, out);
+
     for (node_iter = all_nodes.begin(); node_iter != all_nodes.end();
          ++node_iter) {
 
@@ -4019,7 +4020,7 @@ void Geometry::loadFromFile(std::string filename, bool twiddle) {
     ret = twiddleRead(&has_parent, sizeof(bool), 1, in);
     if (has_parent) {
       int parent_id;
-      ret = twiddleRead(&parent_id, sizeof(bool), 1, in);
+      ret = twiddleRead(&parent_id, sizeof(int), 1, in);
       cell_parent[key] = parent_id;
     }
 

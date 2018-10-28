@@ -4,7 +4,6 @@
  * @brief Constructor sets a few pointers to NULL
  */
 Region::Region() {
-
   _parent_region = NULL;
 }
 
@@ -177,7 +176,7 @@ double Region::getMinX() {
 
 
 /**
- * @brief Return the maximum reachable X-coordinate in the Region.
+ * @brief Return the maximum reachable x-coordinate in the Region.
  * @details This routine is overloaded for a Halfspace
  * @return the maximum x-coordinate
  */
@@ -671,7 +670,7 @@ bool Intersection::containsPoint(Point* point) {
 /**
  * @brief Constructor sets the type of Region (UNION).
  */
-Union::Union() {
+Union::Union() : Region() {
   _region_type = UNION;
 }
 
@@ -698,7 +697,7 @@ bool Union::containsPoint(Point* point) {
 /**
  * @brief Constructor sets the type of Region (COMPLEMENT).
  */
-Complement::Complement() {
+Complement::Complement() : Region() {
   _region_type = COMPLEMENT;
 }
 
