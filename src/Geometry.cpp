@@ -412,9 +412,9 @@ std::map<int, Surface*> Geometry::getAllSurfaces() {
   Cell* cell;
   Surface* surf;
   std::map<int, Surface*> all_surfs;
-  std::map<int, surface_halfspace*> surfs;
+  std::map<int, Halfspace*> surfs;
   std::map<int, Cell*>::iterator c_iter;
-  std::map<int, surface_halfspace*>::iterator s_iter;
+  std::map<int, Halfspace*>::iterator s_iter;
 
   if (_root_universe != NULL) {
     std::map<int, Cell*> all_cells = getAllCells();
@@ -586,6 +586,7 @@ bool Geometry::isDomainDecomposed() {
  * @return If this domain is the root domain (true) or not (false)
  */
 bool Geometry::isRootDomain() {
+
   bool first_domain = true;
   if (_domain_decomposed)
     if (_domain_index_x != 0 || _domain_index_y != 0 || _domain_index_z != 0)
@@ -732,6 +733,7 @@ MPI_Comm Geometry::getMPICart() {
  * @return The rank of the neighboring domain
  */
 int Geometry::getNeighborDomain(int offset_x, int offset_y, int offset_z) {
+
   int neighbor_rank = -1;
   int neighbor_coords[3];
   neighbor_coords[0] = offset_x + _domain_index_x;
@@ -864,6 +866,7 @@ Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
   Universe* univ = coords->getUniverse();
   Cell* cell;
 
+  /* Check if the coords are inside the geometry bounds */
   if (univ->getId() == _root_universe->getId()) {
     if (!withinBounds(coords))
       return NULL;
@@ -898,6 +901,7 @@ Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
  * @return returns a pointer to a cell if found, NULL if no cell found
 */
 Cell* Geometry::findFirstCell(LocalCoords* coords, double azim, double polar) {
+
   double delta_x = cos(azim) * sin(polar) * TINY_MOVE;
   double delta_y = sin(azim) * sin(polar) * TINY_MOVE;
   double delta_z = cos(polar) * TINY_MOVE;
@@ -962,7 +966,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
   /* If the current coords is outside the domain, return NULL */
   if (_domain_decomposed) {
     Point* point = coords->getHighestLevel()->getPoint();
-    if (!_domain_bounds->withinBounds(point))
+    if (!_domain_bounds->containsPoint(point))
       return NULL;
   }
 
@@ -1208,6 +1212,7 @@ long Geometry::getFSRId(LocalCoords* coords, bool err_check) {
  * @return The rank of the domain containing the coordinates
  */
 int Geometry::getDomainByCoords(LocalCoords* coords) {
+
   int domain = 0;
 #ifdef MPIx
   if (_domain_decomposed) {
@@ -1360,8 +1365,8 @@ void Geometry::getLocalFSRId(long global_fsr_id, long &local_fsr_id,
 
   /* Ensure a domain was found with the FSR ID */
   if (domain == -1)
-    log_printf(ERROR, "No domain was found with the global FSR ID %d. The "
-               "total number of FSRs in the Geometry is %d.", global_fsr_id,
+    log_printf(ERROR, "No domain was found with the global FSR ID %ld. The "
+               "total number of FSRs in the Geometry is %ld.", global_fsr_id,
                getNumTotalFSRs());
 
   local_fsr_id = global_fsr_id - cum_fsrs;
@@ -1849,8 +1854,9 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
     /* Checks that segment does not have the same start and end Points */
     if (fabs(start.getX() - end.getX()) < FLT_EPSILON
         && fabs(start.getY() - end.getY()) < FLT_EPSILON)
-      log_printf(ERROR, "Created segment with same start and end "
-                 "point: x = %f, y = %f", start.getX(), start.getY());
+      log_printf(ERROR, "Created 2D segment with same start and end "
+                 "point: x = %f, y = %f, z=%f", start.getX(), start.getY(),
+                 start.getZ());
 
     /* Find the segment length, Material and FSR ID */
     length = double(end.getPoint()->distanceToPoint(start.getPoint()));
@@ -2126,7 +2132,7 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
  *          to implicitly capturing all geometric radial detail at the defined
  *          z-heights, saving the lengths and region IDs to the extruded track
  *          and initializing ExtrudedFSR structs in the traversed FSRs.
- * @param flattend_track a pointer to a 2D track to segmentize into regions of
+ * @param flattened_track a pointer to a 2D track to segmentize into regions of
  *        extruded FSRs
  * @param z_coords a vector of axial heights in the root geometry at which
  *        the Geometry is segmentized radially
@@ -2750,7 +2756,7 @@ std::vector<long> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
       domains[i+j*dim1.size()] = -1;
 
       /* Extract the ID of the domain of interest */
-      if (withinGlobalBounds(point)) {
+      if (withinGlobalBounds(point) && cell != NULL) {
         if (strcmp(domain_type, "fsr") == 0)
           domains[i+j*dim1.size()] = getGlobalFSRId(point, false);
         else if (strcmp(domain_type, "material") == 0)
@@ -2900,7 +2906,7 @@ void Geometry::printFSRsToFile(const char* plane, int gridsize, double offset,
     dim2.at(i) = dim2_min + (i+1) * width2;
   }
 
-  /* Retrive data */
+  /* Retrieve data */
   log_printf(NORMAL, "Getting FSR layout on domains");
   std::vector<long> domain_data = getSpatialDataOnGrid(dim1, dim2, offset,
                                                        plane, "fsr");
@@ -2998,7 +3004,7 @@ void Geometry::initializeCmfd() {
         log_printf(ERROR, "CMFD mesh is incompatible with domain decomposition"
                    " in the X direction, make sure the mesh aligns with domain"
                    " boundaries");
-      if (_cmfd->getNumY() % _num_domains_z != 0)
+      if (_cmfd->getNumY() % _num_domains_y != 0)
         log_printf(ERROR, "CMFD mesh is incompatible with domain decomposition"
                    " in the Y direction, make sure the mesh aligns with domain"
                    " boundaries");
@@ -3314,11 +3320,11 @@ std::vector<double> Geometry::getUniqueZHeights(bool include_overlaid_mesh) {
       for (cell_iter = cells.begin(); cell_iter != cells.end(); ++cell_iter) {
 
         /* Get surfaces bounding the cell */
-        std::map<int, surface_halfspace*> surfaces =
+        std::map<int, Halfspace*> surfaces =
           cell_iter->second->getSurfaces();
 
         /* Cycle through all surfaces and add them to the set */
-        std::map<int, surface_halfspace*>::iterator surf_iter;
+        std::map<int, Halfspace*>::iterator surf_iter;
         for (surf_iter = surfaces.begin(); surf_iter != surfaces.end();
             ++surf_iter) {
 
@@ -3449,7 +3455,7 @@ void Geometry::dumpToFile(std::string filename) {
   int num_groups = getNumEnergyGroups();
   fwrite(&num_groups, sizeof(int), 1, out);
 
-  /* Print all material infromation */
+  /* Print all material information */
   std::map<int, Material*> all_materials = getAllMaterials();
   int num_materials = all_materials.size();
   fwrite(&num_materials, sizeof(int), 1, out);
@@ -3662,17 +3668,35 @@ void Geometry::dumpToFile(std::string filename) {
       fwrite(&parent_id, sizeof(int), 1, out);
     }
 
-    /* Print bounding surfaces */
-    std::map<int, surface_halfspace*> surfaces = cell->getSurfaces();
-    std::map<int, surface_halfspace*>::iterator surface_h_iter;
-    int num_cell_surfaces = surfaces.size();
-    fwrite(&num_cell_surfaces, sizeof(int), 1, out);
-    for (surface_h_iter = surfaces.begin(); surface_h_iter != surfaces.end();
-        ++surface_h_iter) {
-      int surface_id = surface_h_iter->first;
-      int halfspace = surface_h_iter->second->_halfspace;
-      fwrite(&surface_id, sizeof(int), 1, out);
-      fwrite(&halfspace, sizeof(int), 1, out);
+    /* Print region and halfspaces */
+    Region* region = cell->getRegion();
+    std::vector<Region*> all_nodes;
+    std::vector<Region*>::iterator node_iter;
+
+    if (region != NULL) {
+      /* Add local Region, head of the CSG Region tree, to the printed nodes */
+      all_nodes = region->getAllNodes();
+      all_nodes.insert(all_nodes.begin(), region);
+    }
+
+    int num_nodes = all_nodes.size();
+    fwrite(&num_nodes, sizeof(int), 1, out);
+
+    for (node_iter = all_nodes.begin(); node_iter != all_nodes.end();
+         ++node_iter) {
+
+      int region_type = (*node_iter)->getRegionType();
+      int num_subnodes = (*node_iter)->getAllNodes().size();
+      fwrite(&region_type, sizeof(int), 1, out);
+      fwrite(&num_subnodes, sizeof(int), 1, out);
+
+      if (region_type == HALFSPACE) {
+        int surface_id = 
+             static_cast<Halfspace*>(*node_iter)->getSurface()->getId();
+        int halfspace = static_cast<Halfspace*>(*node_iter)->getHalfspace();
+        fwrite(&surface_id, sizeof(int), 1, out);
+        fwrite(&halfspace, sizeof(int), 1, out);
+      }
     }
 
     //FIXME Print neighbors or decide to re-compute them
@@ -3757,7 +3781,8 @@ void Geometry::dumpToFile(std::string filename) {
 
 /**
  * @brief Loads all Geoemetry and Material details from a Geometry restart file
- * @param filename The name of the file where the data is loaded
+ * @param filename The name of the file from which the data is loaded
+ * @param twiddle Whether the bytes are inverted (BGQ) or not
  */
 void Geometry::loadFromFile(std::string filename, bool twiddle) {
 
@@ -3995,26 +4020,61 @@ void Geometry::loadFromFile(std::string filename, bool twiddle) {
     ret = twiddleRead(&has_parent, sizeof(bool), 1, in);
     if (has_parent) {
       int parent_id;
-      ret = twiddleRead(&parent_id, sizeof(bool), 1, in);
+      ret = twiddleRead(&parent_id, sizeof(int), 1, in);
       cell_parent[key] = parent_id;
     }
 
-    /* Read bounding surfaces */
-    int num_cell_surfaces;
-    ret = twiddleRead(&num_cell_surfaces, sizeof(int), 1, in);
-    for (int s=0; s < num_cell_surfaces; s++) {
-      int surface_id;
-      int halfspace;
-      ret = twiddleRead(&surface_id, sizeof(int), 1, in);
-      ret = twiddleRead(&halfspace, sizeof(int), 1, in);
-      all_cells[key]->addSurface(halfspace, all_surfaces[surface_id]);
+    /* Read region */
+    int num_nodes;
+    ret = twiddleRead(&num_nodes, sizeof(int), 1, in);
+
+    /* Vector to store the number of subnodes for each node */
+    std::vector<int> i_subnodes;
+    std::vector<int>::iterator iter;
+
+    /* This loop on the number of nodes reproduces the CSG tree of the region
+       , going down to the leaves to add Halfspaces, and adding logical nodes
+       (Intersection, Union, Complement) at the other levels */
+    for (int n=0; n < num_nodes; n++) {
+      int region_type, last_region_type;
+      int num_subnodes;
+      twiddleRead(&region_type, sizeof(int), 1, in);
+      twiddleRead(&num_subnodes, sizeof(int), 1, in);
+
+      /* Keep number of subnodes at all levels */
+      if (num_subnodes > 0)
+        i_subnodes.push_back(num_subnodes+1);
+
+      /* Remove zero values from subnode vector, and go up in region tree */
+      for (iter=i_subnodes.begin(); iter<i_subnodes.end(); iter++) {
+        if ((*iter) == 0) {
+          i_subnodes.erase(iter);
+          all_cells[key]->goUpOneRegionLogical();
+        }
+      }
+
+      /* Add surface */
+      if (region_type == HALFSPACE) {
+        int surface_id;
+        int halfspace;
+        ret = twiddleRead(&surface_id, sizeof(int), 1, in);
+        ret = twiddleRead(&halfspace, sizeof(int), 1, in);
+        all_cells[key]->addSurfaceInRegion(halfspace, all_surfaces[surface_id]);
+      }
+
+      /* Add Region logical node which will contain surfaces */
+      else
+        all_cells[key]->addLogicalNode(region_type);
+
+      /* Remove one from all subnode levels */
+      std::for_each(i_subnodes.begin(), i_subnodes.end(), [](int& d) {d-=1;});
     }
 
     /* Check that the key and ID match */
     if (key != id) {
       std::string str = all_cells[key]->toString();
-      log_printf(ERROR, "Cell key %d does not match it's corresponding ID "
-                        "%d for surface:\n%s", key, id, str.c_str());
+      log_printf(ERROR, "Cell key %d does not match its corresponding ID "
+                        "%d for cell:\n%s", key, id, str.c_str());
     }
   }
 

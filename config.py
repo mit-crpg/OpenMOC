@@ -120,6 +120,7 @@ class configuration:
                     'src/Point.cpp',
                     'src/Progress.cpp',
                     'src/Quadrature.cpp',
+                    'src/Region.cpp',
                     'src/Solver.cpp',
                     'src/Surface.cpp',
                     'src/Timer.cpp',

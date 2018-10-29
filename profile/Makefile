@@ -44,6 +44,7 @@ MOCKernel.cpp \
 Point.cpp \
 Progress.cpp \
 Quadrature.cpp \
+Region.cpp \
 Solver.cpp \
 Surface.cpp \
 Timer.cpp \

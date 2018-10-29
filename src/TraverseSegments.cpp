@@ -286,7 +286,7 @@ void TraverseSegments::traceSegmentsExplicit(Track* track, MOCKernel* kernel) {
  *        computed segments are passed to the provided kernel.
  * @details Segment lengths are computed on-the-fly using 2D segment lengths
  *          stored in a 2D Track object and 1D meshes from the extruded
- *          FSRs. Note: before calling this funciton with a SegmentationKernel,
+ *          FSRs. Note: before calling this function with a SegmentationKernel,
  *          the memory for the segments should be allocated and referenced by
  *          the kernel using the setSegments routine in the kernel.
  * @param flattened_track the 2D track associated with the 3D track for which
@@ -709,7 +709,7 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
         }
       }
 
-      /* Find if there are tracks the traverse the entire 2D length */
+      /* Find if there are tracks that traverse the entire 2D length */
       if (end_full > start_full) {
 
         /* Calculate distance traveled in 3D FSR */

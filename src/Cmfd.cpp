@@ -472,8 +472,9 @@ void Cmfd::collapseXS() {
     FP_PRECISION tot, nu_fis, chi;
     FP_PRECISION* scat;
 
-    double scat_tally[_num_cmfd_groups];
-    double chi_tally[_num_cmfd_groups];
+    //TODO Optimize : use groupwise scratches rather than allocate array
+    double* scat_tally = new double[_num_cmfd_groups]();
+    double* chi_tally = new double[_num_cmfd_groups]();
 
     /* Pointers to material objects */
     Material* fsr_material;
@@ -594,9 +595,9 @@ void Cmfd::collapseXS() {
         /* Save cross-sections to material */
         double rxn_tally = _reaction_tally[i][e];
 
-        if (fabs(rxn_tally) < FLT_EPSILON) {
-          log_printf(WARNING, "Zero reaction tally calculated in CMFD cell %d "
-                     "in CMFD group %d", i, e);
+        if (rxn_tally < FLT_EPSILON) {
+          log_printf(WARNING, "Negative or zero reaction tally calculated in "
+                     "CMFD cell %d in CMFD group %d", i, e);
           rxn_tally = ZERO_SIGMA_T;
           _reaction_tally[i][e] = ZERO_SIGMA_T;
           _diffusion_tally[i][e] = ZERO_SIGMA_T;
@@ -612,6 +613,9 @@ void Cmfd::collapseXS() {
         }
       }
     }
+    
+    delete[] chi_tally;
+    delete[] scat_tally;
   }
 
 #ifdef MPIx
@@ -736,7 +740,7 @@ CMFD_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     dif_coef *= computeLarsensEDCFactor(dif_coef, delta);
 
   /* If surface is on a boundary with REFLECTIVE or VACUUM BCs, choose
-   * approipriate BC */
+   * appropriate BC */
   if (global_cmfd_cell_next == -1) {
 
     /* REFLECTIVE BC */
@@ -897,7 +901,7 @@ double Cmfd::computeKeff(int moc_iteration) {
   /* Construct matrices */
   constructMatrices(moc_iteration);
 
-  /* Check neturon balance if requested */
+  /* Check neutron balance if requested */
   if (_check_neutron_balance)
     checkNeutronBalance();
 
@@ -959,8 +963,7 @@ double Cmfd::computeKeff(int moc_iteration) {
 
 
 /**
- * @
- * brief Rescale the initial and converged flux arrays.
+ * @brief Rescale the initial and converged flux arrays.
  * @details The diffusion problem is a generalized eigenvalue problem and
  *          therefore the solution is independent of flux level. This method
  *          rescales the input flux and converged flux to both have an average
@@ -994,7 +997,7 @@ void Cmfd::rescaleFlux() {
  *         matrix (M) in preparation for solving the eigenvalue problem.
  * @details This method loops over all mesh cells and energy groups and
  *          accumulates the iteraction and streaming terms into their
- *          approipriate positions in the loss + streaming matrix and
+ *          appropriate positions in the loss + streaming matrix and
  *          fission gain matrix.
  */
 void Cmfd::constructMatrices(int moc_iteration) {
@@ -1484,7 +1487,7 @@ void Cmfd::allocateTallies() {
                "initializing CMFD tallies.");
 
   if (_num_cmfd_groups == 0)
-    log_printf(ERROR, "Zero CMFD gropus. Please set CMFD group structure "
+    log_printf(ERROR, "Zero CMFD groups. Please set CMFD group structure "
                "before initializing CMFD tallies.");
 
   /* Determine tally sizes */
@@ -1725,6 +1728,7 @@ void Cmfd::splitVertexCurrents() {
 
         getVertexSplitSurfaces(global_id, v, &surfaces);
 
+        //TODO Optimize since dont want to look for cells at every group
         for (int g=0; g < ncg; g++) {
           /* Divide vertex current by 3 since we will split to 3 surfaces,
            * which propagate through 3 edges */
@@ -1845,6 +1849,7 @@ void Cmfd::splitEdgeCurrents() {
 
         getEdgeSplitSurfaces(global_id, e, &surfaces);
 
+        //TODO Optimize since dont want to look for cells at every group
         for (int g=0; g < ncg; g++) {
           /* Divide edge current by 2 since we will split to 2 surfaces,
            * which propagate through 2 surfaces */
@@ -2300,7 +2305,7 @@ void Cmfd::useFluxLimiting(bool flux_limiting) {
 /**
  * @brief Modifies the diagonal element to be consistent with the MOC solve
  * @details This function re-computes a new total cross-section x volume that
- *          maintains consistency with the MOC solution. Generall, this will
+ *          maintains consistency with the MOC solution. Generally, this will
  *          not change the diagonal element at all since CMFD should be
  *          consistent with MOC. However, if negative fluxes are corrected to
  *          zero after the MOC transport sweep, there will be an inconsistency.
@@ -2547,7 +2552,8 @@ void Cmfd::generateKNearestStencils() {
                      "%6.4f", fsr_id, i, zc*dz, dz, centroid->getX(),
                      centroid->getY(), centroid->getZ(), z_cmfd);
 
-        /* Check that the CMFD cell is not an end cell */
+        /* Check that the CMFD cell is not an end cell, for an end cell,
+           the index is shifted by one. */
         if (z_ind == 0)
           zc -= 1.0;
         else if (z_ind == _local_num_z - 1)
@@ -2558,7 +2564,7 @@ void Cmfd::generateKNearestStencils() {
         _axial_interpolants.at(fsr_id)[1] = -zc * zc + 26.0/24.0;
         _axial_interpolants.at(fsr_id)[2] = zc * zc/2.0 + zc/2.0 - 1.0/24.0;
 
-        /* Set zero axial prolongation for cells with no fissionalbe material */
+        /* Set zero axial prolongation for cells with no fissionable material */
         if (_FSR_materials[fsr_id]->isFissionable())
           num_fissionable_FSRs++;
       }
@@ -2691,7 +2697,7 @@ CMFD_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
 
 
 /**
- * @brief Retreives the ratio of pre- and post- CMFD solve fluxes
+ * @brief Retrieves the ratio of pre- and post- CMFD solve fluxes
  * @details The CMFD flux ratio is returned for the given FSR. A quadratic
  *          axial interpolant is used to estimate the value at the FSR.
  * @param cell_id The CMFD cell ID containing the FSR.
@@ -2710,14 +2716,19 @@ CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
        fabs(interpolants[2]) > FLT_EPSILON)) {
     int z_ind = cell_id / (_local_num_x * _local_num_y);
     int cell_mid = cell_id;
+
+    /* Shift up or down one cell if at top/bottom, interpolants corrects
+       for the shift in cells */
     if (z_ind == 0)
       cell_mid += _local_num_x * _local_num_y;
     else if (z_ind == _local_num_z - 1)
       cell_mid -= _local_num_x * _local_num_y;
 
+    /* Get cell index above and below current CMFD cell */
     int cell_prev = cell_mid - _local_num_x * _local_num_y;
     int cell_next = cell_mid + _local_num_x * _local_num_y;
 
+    /* Get new and old fluxes in bottom/mid/top cells */
     double old_flux_prev = _old_flux->getValue(cell_prev, group);
     double new_flux_prev = _new_flux->getValue(cell_prev, group);
 
@@ -2822,7 +2833,7 @@ double Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
   /* BOTTOM SIDE */
   else if (y > 0 && stencil_index == 1) {
     dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 0.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y - 0.5)*_cell_width_y),2.0);
+    dist_y = pow(centroid_y - (-_width_y/2.0 + (y - 0.5)*_cell_width_y), 2.0);
     found = true;
   }
 
@@ -3685,6 +3696,7 @@ void Cmfd::copyFullSurfaceCurrents() {
  *          compute the neutron balance in the CMFD cell. With regards to MOC,
  *          it loops over all fsrs in the cell to compute all reaction rates and
  *          currents.
+ * @param pre_split whether edge currents are not split (default true)
  */
 void Cmfd::checkNeutronBalance(bool pre_split) {
 
@@ -3699,13 +3711,14 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
   Vector a_phi(cell_locks, num_x, num_y, num_z, num_groups);
 
   /* Compute CMFD balance */
-
   /* Compute neutron production */
   matrixMultiplication(_M, _old_flux, &m_phi);
 
   /* Compute neutron transfer and loss */
   matrixMultiplication(_A, _old_flux, &a_phi);
   CMFD_PRECISION* a_phi_array = a_phi.getArray();
+
+#ifdef MPIx
   int* coupling_sizes = NULL;
   int** coupling_indexes = NULL;
   CMFD_PRECISION** coupling_coeffs = NULL;
@@ -3713,11 +3726,9 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
   int offset = 0;
   for (int color=0; color < 2; color++) {
 
-#ifdef MPIx
     getCouplingTerms(_domain_communicator, color, coupling_sizes,
                      coupling_indexes, coupling_coeffs, coupling_fluxes,
                      _old_flux->getArray(), offset);
-#endif
 
 #pragma omp parallel for collapse(2)
     for (int iz=0; iz < _local_num_z; iz++) {
@@ -3739,11 +3750,13 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
       }
     }
   }
+#endif
 
   double max_imbalance = 0.0;
   int max_imbalance_cell = -1;
   int max_imbalance_grp = -1;
 
+  /* Compute MOC balance */
   /* Loop over CMFD cells */
   for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
 
@@ -3791,7 +3804,7 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
         /* Calculate fission contribution to this CMFD coarse group */
         fission += chi * tot_fission / _k_eff;
 
-        /* Calcualte total reaction rate in this CMFD coarse group */
+        /* Calculate total reaction rate in this CMFD coarse group */
         for (int h = _group_indices[e]; h < _group_indices[e+1]; h++) {
           double tot = fsr_material->getSigmaTByGroup(h+1);
           total += tot * flux[h] * volume;
@@ -3819,7 +3832,7 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
           int direction[3];
           convertSurfaceToDirection(s, direction);
 
-          /* Copute the next CMFD cell from the cell indexes and direction */
+          /* Compute the next CMFD cell from the cell indexes and direction */
           int cmfd_cell_next = 0;
           int cell_next_ind[3];
           for (int d=0; d < 3; d++)
@@ -3928,6 +3941,7 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
         }
       }
 
+      /* Compute balance in given cell and group */
       double moc_balance = in_scattering + fission - total - net_current;
 
       double cmfd_balance = m_phi.getValue(i, e) / _k_eff -
@@ -4384,7 +4398,7 @@ int Cmfd::getGlobalCMFDCell(int cmfd_cell) {
 /**
  * @brief Converts a 3 integer vector direction into a surface
  * @details The direction is a tuplet with each value taking either
- *          +1 (positive directed), 0 (neutral, or -1 (negative directed)
+ *          +1 (positive directed), 0 (neutral), or -1 (negative directed)
  * @param direction The integer vector describing the direction
  * @return The surface associated with traveling the provided direction from
  *         the origin of the cell
@@ -4518,7 +4532,7 @@ std::string Cmfd::getSurfaceNameFromSurface(int surface) {
 
 
 /**
- * @brief A debugging tool that prints all prolongation facotrs to file
+ * @brief A debugging tool that prints all prolongation factors to file
  */
 void Cmfd::printProlongationFactors(int iteration) {
 
@@ -4557,6 +4571,7 @@ void Cmfd::printProlongationFactors(int iteration) {
       fname += group_num;
       fname += "_iter_";
       fname += iter_num;
+      fname += ".txt";
       std::ofstream out(fname);
 
       out << "[NORMAL]  Spatial distribution of prolongation factors:"

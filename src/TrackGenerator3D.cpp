@@ -417,7 +417,7 @@ void TrackGenerator3D::setSegmentationZones(std::vector<double> zones) {
                "length greater than or equal to 2.");
   }
 
-  /* Check that zones are montonic and within total Geometry bounds */
+  /* Check that zones are monotonic and within total Geometry bounds */
   for (int i=1; i < zones.size(); i++)
     if (zones.at(i) < zones.at(i-1))
       log_printf(ERROR, "Segmentation zones must be monotonically "
@@ -744,6 +744,8 @@ void TrackGenerator3D::initializeTracks() {
   double width_y = _geometry->getWidthY();
   double width_z  = _geometry->getWidthZ();
   double avg_polar_spacing = 0.0;
+  double sum_correction = 0.0;
+  double max_correction = 0.0;
 
   /* Determine angular quadrature and track spacing */
   for (int i = 0; i < _num_azim/4; i++) {
@@ -755,6 +757,7 @@ void TrackGenerator3D::initializeTracks() {
 
       /* Compute the cosine weighted average angle */
       double theta = _quadrature->getTheta(i, j);
+      double theta_new;
 
       /* Compute the length to traverse one domain y-width */
       double module_width_y = width_y / _geometry->getNumYModules();
@@ -774,8 +777,13 @@ void TrackGenerator3D::initializeTracks() {
       _dl_eff[i][j] = width_y / (sin(phi) * _num_l[i][j]);
       _dz_eff[i][j] = width_z / _num_z[i][j];
 
+      /* Evaluate the polar correction */
+      theta_new = atan(_dl_eff[i][j] / _dz_eff[i][j]);
+      sum_correction += pow(((theta_new - theta)/theta), 2);
+      max_correction = std::max(max_correction, std::abs((theta_new - theta)/theta));
+
       /* Set the corrected polar angle */
-      theta = atan(_dl_eff[i][j] / _dz_eff[i][j]);
+      theta = theta_new;
       _quadrature->setTheta(theta, i, j);
       _quadrature->setPolarSpacing(_dz_eff[i][j] * sin(theta), i, j);
 
@@ -799,6 +807,11 @@ void TrackGenerator3D::initializeTracks() {
       _dl_eff[supp_azim][comp_polar] = _dl_eff[i][j];
     }
   }
+
+  /* Report polar correction information */
+  log_printf(NORMAL, "RMS polar angle correction %f %%", sqrt(sum_correction)
+                      / _num_azim / _num_polar * 8 * 100);
+  log_printf(NORMAL, "Max polar angle correction %f %%", max_correction * 100);
 
   /* Compute the total number of chains */
   int num_chains = 0;
@@ -981,7 +994,7 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
   double width_x = _x_max - _x_min;
   double width_y = _y_max - _y_min;
 
-  /* Get the length from the begnning of the chain to the Track start point */
+  /* Get the length from the beginning of the chain to the Track start point */
   double l_start  = 0.0;
   if (tci->_polar < _num_polar / 2 && lz < nl)
     l_start = width_y / sin_phi - (lz + 0.5) * dl;
@@ -1359,7 +1372,7 @@ void TrackGenerator3D::create3DTracksArrays() {
     _tracks_per_azim[a] = tracks_per_azim;
   }
 
-  log_printf(NORMAL, "Total number of Tracks = %d", num_tracks);
+  log_printf(NORMAL, "Total number of Tracks = %ld", num_tracks);
 
   if (_segment_formation == EXPLICIT_3D) {
     _tracks_3D = new Track3D***[_num_azim/2];
@@ -1396,11 +1409,14 @@ long TrackGenerator3D::get3DTrackID(TrackStackIndexes* tsi) {
 
 /**
  * @brief Allocates a new Quadrature with the default Quadrature
- * @details The defualt quadrature for 3D calculations is equal weight
+ * @details The default quadrature for 3D calculations is equal weight
  */
 void TrackGenerator3D::initializeDefaultQuadrature() {
+
   if (_quadrature != NULL)
     delete _quadrature;
+
+  log_printf(NORMAL, "Initializing a default angular quadrature...");
   _quadrature = new GLPolarQuad();
   _quadrature->setNumAzimAngles(_num_azim);
   _quadrature->setNumPolarAngles(_num_polar);

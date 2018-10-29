@@ -10,6 +10,8 @@
  */
 LocalCoords::LocalCoords(double x, double y, double z, bool first) {
   _coords.setCoords(x, y, z);
+  _phi = 0.;
+  _polar = M_PI_2;
   _universe = NULL;
   _lattice = NULL;
   _cell = NULL;
@@ -127,6 +129,24 @@ double LocalCoords::getY() const {
  */
 double LocalCoords::getZ() const {
   return _coords.getZ();
+}
+
+
+/**
+ * @brief Returns the direction angle in radians with respect to the x-axis.
+ * @return the direction angle in radians
+ */
+double LocalCoords::getPhi() const {
+  return _phi;
+}
+
+
+/**
+ * @brief Returns the direction angle in radians with respect to the z-axis.
+ * @return the direction angle in radians
+ */
+double LocalCoords::getPolar() const {
+  return _polar;
 }
 
 
@@ -324,6 +344,24 @@ void LocalCoords::setY(double y) {
  */
 void LocalCoords::setZ(double z) {
   _coords.setZ(z);
+}
+
+
+/**
+ * @brief Set the azimuthal angle for this LocalCoords.
+ * @param phi the azimuthal angle
+ */
+void LocalCoords::setPhi(double phi) {
+  _phi = phi;
+}
+
+
+/**
+ * @brief Set the polar angle for this LocalCoords.
+ * @param polar the polar angle
+ */
+void LocalCoords::setPolar(double polar) {
+  _polar = polar;
 }
 
 

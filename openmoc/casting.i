@@ -13,6 +13,22 @@
     return dynamic_cast<Universe*>(lattice);
   }
 
+  Intersection* castRegionToIntersection(Region* region) {
+    return dynamic_cast<Intersection*>(region);
+  }
+
+  Union* castRegionToUnion(Region* region) {
+    return dynamic_cast<Union*>(region);
+  }
+
+   Complement* castRegionToComplement(Region* region) {
+    return dynamic_cast<Complement*>(region);
+  }
+
+   Halfspace* castRegionToHalfspace(Region* region) {
+    return dynamic_cast<Halfspace*>(region);
+  }
+
   Plane* castSurfaceToPlane(Surface* plane) {
     return dynamic_cast<Plane*>(plane);
   }

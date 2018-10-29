@@ -75,6 +75,8 @@ Cell::Cell(int id, const char* name) {
   setName(name);
 
   _cell_type = UNFILLED;
+  _region = NULL;
+  _current_region = NULL;
   _fill = NULL;
   _volume = 0.;
   _num_instances = 0;
@@ -97,16 +99,10 @@ Cell::Cell(int id, const char* name) {
  */
 Cell::~Cell() {
 
-  // DUPLICATE of region deletion
-  std::map<int, surface_halfspace*>::iterator iter;
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    delete iter->second;
-  _surfaces.clear();
-
   if (_name != NULL)
     delete [] _name;
-  //if (_region != NULL)  //FIXME will be used with MGXS
-  //  delete _region;
+  if (_region != NULL)
+    delete _region;
   /* Materials are deleted separately from cells, since multiple cells
       can share a same material */
   /* Universes are also deleted separately, since Universes can have been
@@ -171,6 +167,15 @@ Universe* Cell::getFillUniverse() {
     log_printf(ERROR, "Unable to get Universe fill from Cell ID=%d", _id);
 
   return (Universe*)_fill;
+}
+
+
+/**
+ * @brief Return the Cell's Region, its spatial domain.
+ * @return the Cell's Region
+ */
+Region* Cell::getRegion() {
+  return _region;
 }
 
 
@@ -376,19 +381,17 @@ int Cell::getNumSectors() {
  */
 double Cell::getMinX() {
 
-  /* Set a default min-x */
   double min_x = -std::numeric_limits<double>::infinity();
 
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
+  /* Look in region for minimum */
+  if (_region != NULL)
+    min_x = _region->getMinX();
 
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-    min_x = std::max(min_x, surface->getMinX(halfspace));
-  }
+  /* If region has an infinite min_x, it could be that some Halfspaces are only
+     kept in the Parent's region */
+  if (getParent() != NULL &&
+      std::abs(min_x) == std::numeric_limits<double>::infinity())
+    min_x = getParent()->getMinX();
 
   return min_x;
 }
@@ -400,19 +403,17 @@ double Cell::getMinX() {
  */
 double Cell::getMaxX() {
 
-  /* Set a default max-x */
-  double max_x = std::numeric_limits<double>::infinity();
+  double max_x = +std::numeric_limits<double>::infinity();
 
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
+  /* Look in region for maximum */
+  if (_region != NULL)
+    max_x = _region->getMaxX();
 
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-    max_x = std::min(max_x, surface->getMaxX(halfspace));
-  }
+  /* If region has an infinite max_x, it could be that some Halfspaces are only
+     kept in the Parent's region */
+  if (getParent() != NULL &&
+      std::abs(max_x) == std::numeric_limits<double>::infinity())
+    max_x = getParent()->getMaxX();
 
   return max_x;
 }
@@ -424,19 +425,17 @@ double Cell::getMaxX() {
  */
 double Cell::getMinY() {
 
-  /* Set a default min-y */
   double min_y = -std::numeric_limits<double>::infinity();
 
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
+  /* Look in region for minimum */
+  if (_region != NULL)
+    min_y = _region->getMinY();
 
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-    min_y = std::max(min_y, surface->getMinY(halfspace));
-  }
+  /* If region has an infinite min_y, it could be that some Halfspaces are only
+     kept in the Parent's region */
+  if (getParent() != NULL &&
+      std::abs(min_y) == std::numeric_limits<double>::infinity())
+    min_y = getParent()->getMinY();
 
   return min_y;
 }
@@ -448,19 +447,17 @@ double Cell::getMinY() {
  */
 double Cell::getMaxY() {
 
-  /* Set a default max-y */
-  double max_y = std::numeric_limits<double>::infinity();
+  double max_y = +std::numeric_limits<double>::infinity();
 
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
+  /* Look in region for maximum */
+  if (_region != NULL)
+    max_y = _region->getMaxY();
 
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-    max_y = std::min(max_y, surface->getMaxY(halfspace));
-  }
+  /* If region has an infinite max_y, it could be that some Halfspaces are only
+     kept in the Parent's region */
+  if (getParent() != NULL &&
+      std::abs(max_y) == std::numeric_limits<double>::infinity())
+    max_y = getParent()->getMaxY();
 
   return max_y;
 }
@@ -472,19 +469,17 @@ double Cell::getMaxY() {
  */
 double Cell::getMinZ() {
 
-  /* Set a default min-z */
   double min_z = -std::numeric_limits<double>::infinity();
 
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
+  /* Look in region for minimum */
+  if (_region != NULL)
+    min_z = _region->getMinZ();
 
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-    min_z = std::max(min_z, surface->getMinZ(halfspace));
-  }
+  /* If region has an infinite min_z, it could be that some Halfspaces are only
+     kept in the Parent's region */
+  if (getParent() != NULL &&
+      std::abs(min_z) == std::numeric_limits<double>::infinity())
+    min_z = getParent()->getMinZ();
 
   return min_z;
 }
@@ -496,19 +491,17 @@ double Cell::getMinZ() {
  */
 double Cell::getMaxZ() {
 
-  /* Set a default max-z */
-  double max_z = std::numeric_limits<double>::infinity();
+  double max_z = +std::numeric_limits<double>::infinity();
 
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
+  /* Look in region for maximum */
+  if (_region != NULL)
+    max_z = _region->getMaxZ();
 
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
-    max_z = std::min(max_z, surface->getMaxZ(halfspace));
-  }
+  /* If region has an infinite max_z, it could be that some Halfspaces are only
+     kept in the Parent's region */
+  if (getParent() != NULL &&
+      std::abs(max_z) == std::numeric_limits<double>::infinity())
+    max_z = getParent()->getMaxZ();
 
   return max_z;
 }
@@ -521,26 +514,18 @@ double Cell::getMaxZ() {
  */
 boundaryType Cell::getMinXBoundaryType() {
 
-  /* Set a default min-x and boundary type*/
-  double min_x = -std::numeric_limits<double>::infinity();
-  boundaryType bc = BOUNDARY_NONE;
+  boundaryType boundary = BOUNDARY_NONE;
 
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
+  /* Look in region for min x boundary */
+  if (_region != NULL)
+    boundary = _region->getMinXBoundaryType();
 
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
+  /* If no boundary was found in the region, it may be that the boundary
+     is in the Parent cell's region */
+  if (getParent() != NULL && boundary == BOUNDARY_NONE)
+    boundary = getParent()->getMinXBoundaryType();
 
-    if (min_x < surface->getMinX(halfspace)) {
-      min_x = surface->getMinX(halfspace);
-      bc = surface->getBoundaryType();
-    }
-  }
-
-  return bc;
+  return boundary;
 }
 
 
@@ -551,26 +536,18 @@ boundaryType Cell::getMinXBoundaryType() {
  */
 boundaryType Cell::getMaxXBoundaryType() {
 
-  /* Set a default max-x and boundary type*/
-  double max_x = std::numeric_limits<double>::infinity();
-  boundaryType bc = BOUNDARY_NONE;
+  boundaryType boundary = BOUNDARY_NONE;
 
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
+  /* Look in region for max x boundary */
+  if (_region != NULL)
+    boundary = _region->getMaxXBoundaryType();
 
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
+  /* If no boundary was found in the region, it may be that the boundary
+     is in the Parent cell's region */
+  if (getParent() != NULL && boundary == BOUNDARY_NONE)
+    boundary = getParent()->getMaxXBoundaryType();
 
-    if (max_x > surface->getMaxX(halfspace)) {
-      max_x = surface->getMaxX(halfspace);
-      bc = surface->getBoundaryType();
-    }
-  }
-
-  return bc;
+  return boundary;
 }
 
 
@@ -581,26 +558,18 @@ boundaryType Cell::getMaxXBoundaryType() {
  */
 boundaryType Cell::getMinYBoundaryType() {
 
-  /* Set a default min-y and boundary type*/
-  double min_y = -std::numeric_limits<double>::infinity();
-  boundaryType bc = BOUNDARY_NONE;
+  boundaryType boundary = BOUNDARY_NONE;
 
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
+  /* Look in region for min y boundary */
+  if (_region != NULL)
+    boundary = _region->getMinYBoundaryType();
 
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
+  /* If no boundary was found in the region, it may be that the boundary
+     is in the Parent cell's region */
+  if (getParent() != NULL && boundary == BOUNDARY_NONE)
+    boundary = getParent()->getMinYBoundaryType();
 
-    if (min_y < surface->getMinY(halfspace)) {
-      min_y = surface->getMinY(halfspace);
-      bc = surface->getBoundaryType();
-    }
-  }
-
-  return bc;
+  return boundary;
 }
 
 
@@ -611,86 +580,62 @@ boundaryType Cell::getMinYBoundaryType() {
  */
 boundaryType Cell::getMaxYBoundaryType() {
 
-  /* Set a default max-y and boundary type*/
-  double max_y = std::numeric_limits<double>::infinity();
-  boundaryType bc = BOUNDARY_NONE;
+  boundaryType boundary = BOUNDARY_NONE;
 
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
+  /* Look in region for max y boundary */
+  if (_region != NULL)
+    boundary = _region->getMaxYBoundaryType();
 
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
+  /* If no boundary was found in the region, it may be that the boundary
+     is in the Parent cell's region */
+  if (getParent() != NULL && boundary == BOUNDARY_NONE)
+    boundary = getParent()->getMaxYBoundaryType();
 
-    if (max_y > surface->getMaxY(halfspace)) {
-      max_y = surface->getMaxY(halfspace);
-      bc = surface->getBoundaryType();
-    }
-  }
-
-  return bc;
+  return boundary;
 }
 
 
 /**
  * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
  *        the minimum reachable z-coordinate in the Cell.
- * @return the boundary condition at the minimum y-coordinate
+ * @return the boundary condition at the minimum z-coordinate
  */
 boundaryType Cell::getMinZBoundaryType() {
 
-  /* Set a default min-y and boundary type*/
-  double min_z = -std::numeric_limits<double>::infinity();
-  boundaryType bc = BOUNDARY_NONE;
+  boundaryType boundary = BOUNDARY_NONE;
 
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
+  /* Look in region for min z boundary */
+  if (_region != NULL)
+    boundary = _region->getMinZBoundaryType();
 
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
+  /* If no boundary was found in the region, it may be that the boundary
+     is in the Parent cell's region */
+  if (getParent() != NULL && boundary == BOUNDARY_NONE)
+    boundary = getParent()->getMinZBoundaryType();
 
-    if (min_z < surface->getMinZ(halfspace)) {
-      min_z = surface->getMinZ(halfspace);
-      bc = surface->getBoundaryType();
-    }
-  }
-
-  return bc;
+  return boundary;
 }
 
 
 /**
  * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
- *        the maximum reachable y-coordinate in the Cell.
- * @return the boundary condition at the maximum y-coordinate
+ *        the maximum reachable z-coordinate in the Cell.
+ * @return the boundary condition at the maximum z-coordinate
  */
 boundaryType Cell::getMaxZBoundaryType() {
 
-  /* Set a default max-y and boundary type*/
-  double max_z = std::numeric_limits<double>::infinity();
-  boundaryType bc = BOUNDARY_NONE;
+  boundaryType boundary = BOUNDARY_NONE;
 
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-  Surface* surface;
-  int halfspace;
+  /* Look in region for max z boundary */
+  if (_region != NULL)
+    boundary = _region->getMaxZBoundaryType();
 
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-    surface = iter->second->_surface;
-    halfspace = iter->second->_halfspace;
+  /* If no boundary was found in the region, it may be that the boundary
+     is in the Parent cell's region */
+  if (getParent() != NULL && boundary == BOUNDARY_NONE)
+    boundary = getParent()->getMaxZBoundaryType();
 
-    if (max_z > surface->getMaxZ(halfspace)) {
-      max_z = surface->getMaxZ(halfspace);
-      bc = surface->getBoundaryType();
-    }
-  }
-
-  return bc;
+  return boundary;
 }
 
 
@@ -700,17 +645,23 @@ boundaryType Cell::getMaxZBoundaryType() {
  * @return the number of Surfaces
  */
 int Cell::getNumSurfaces() const {
-  return _surfaces.size();
+  std::map<int, Halfspace*> all_surfaces;
+  if (_region != NULL)
+    all_surfaces = _region->getAllSurfaces();
+  return all_surfaces.size();
 }
 
 
 /**
- * @brief Return the std::map of Surface pointers and halfspaces (+/-1) for all
- *        surfaces bounding the Cell.
- * @return std::map of Surface pointers and halfspaces
+ * @brief Return the std::map of Halfspace object pointers for all
+ *        surfaces within the Region bounding the Cell.
+ * @return std::map of Halfspace object pointers with surface ID as a key.
  */
-std::map<int, surface_halfspace*> Cell::getSurfaces() const {
-  return _surfaces;
+std::map<int, Halfspace*> Cell::getSurfaces() const {
+  std::map<int, Halfspace*> all_surfaces;
+  if (_region != NULL)
+    all_surfaces = _region->getAllSurfaces();
+  return all_surfaces;
 }
 
 
@@ -859,6 +810,18 @@ void Cell::setFill(Material* fill) {
 void Cell::setFill(Universe* fill) {
   _cell_type = FILL;
   _fill = fill;
+}
+
+
+/**
+ * @brief Sets the Region this Cell lives in.
+ * @details NOTE: This method deep copies the Region and stores
+ *          the copy. Any changes made to the Region will not be
+ *          reflected in the Region copy stored by the Cell.
+ * @param region the Region bounding the Cell
+ */
+void Cell::setRegion(Region* region) {
+  _region = region->clone();
 }
 
 
@@ -1041,7 +1004,8 @@ void Cell::setParent(Cell* parent) {
 
 
 /**
- * @brief Insert a Surface into this Cell's container of bounding Surfaces.
+ * @brief Insert a Surface into this Cell's bounding Region, assuming that an
+ *        intersection between the region and the halfspace is desired.
  * @param halfspace the Surface halfspace (+/-1)
  * @param surface a pointer to the Surface
  */
@@ -1051,11 +1015,40 @@ void Cell::addSurface(int halfspace, Surface* surface) {
     log_printf(ERROR, "Unable to add surface %d to cell %d since the halfspace"
                " %d is not -1 or 1", surface->getId(), _id, halfspace);
 
-  surface_halfspace* new_surf_half = new surface_halfspace;
-  new_surf_half->_surface = surface;
-  new_surf_half->_halfspace = halfspace;
+  Halfspace* new_halfspace = new Halfspace(halfspace, surface);
 
-  _surfaces[surface->getId()] = new_surf_half;
+  /* Assign the Halfspace as the Cell's Region if it has none */
+  if (_region == NULL)
+    _region = new_halfspace;
+  else{
+    if (dynamic_cast<Intersection*>(_region))
+      _region->addNode(new_halfspace, false);
+    else {
+      Intersection* intersection = new Intersection();
+      intersection->addNode(_region, false);
+      intersection->addNode(new_halfspace, false);
+      _region = intersection;
+    }
+  }
+}
+
+
+ /**
+  * @brief Insert a Surface into this Cell's bounding Region.
+  * @param halfspace the Surface halfspace (+/-1)
+  * @param surface a pointer to the Surface
+  */
+ void Cell::addSurfaceInRegion(int halfspace, Surface* surface) {
+ 
+   /* Create a new halfspace */
+   Halfspace* new_halfspace = new Halfspace(halfspace, surface);
+
+  /* Assign the Halfspace as the Cell's Region if it has none */
+  if (_region == NULL)
+    _region = new_halfspace;
+  /* Else add Halfspace to region */
+  else
+    _current_region->addNode(new_halfspace, false);
 }
 
 
@@ -1065,10 +1058,69 @@ void Cell::addSurface(int halfspace, Surface* surface) {
  */
 void Cell::removeSurface(Surface* surface) {
 
-  if (surface != NULL && _surfaces.find(surface->getId()) != _surfaces.end()) {
-    delete _surfaces[surface->getId()];
-    _surfaces.erase(surface->getId());
+  //FIXME This map cannot be modified, it's a const
+  std::map<int, Halfspace*> surfaces = getSurfaces();
+  if (surface != NULL && surfaces.find(surface->getId()) != surfaces.end()) {
+    delete surfaces[surface->getId()];
+    surfaces.erase(surface->getId());
   }
+}
+
+
+ /**
+  * @brief Insert a logical node (intersection or union) into the cell region
+  * @details This method creates a node in a tree of regions. The leaves, or the
+  *          nodes at the very bottom of the tree, are haflspaces. The region
+             is defined by that tree.
+  * @param region_type the logical operation
+  */
+ void Cell::addLogicalNode(int region_type) {
+ 
+   /* Create new region if void */
+   if (_region == NULL) {
+     if (region_type == INTERSECTION) {
+       Intersection* intersection = new Intersection();
+       _region = intersection;
+     }
+     else if (region_type == UNION) {
+       Union* _union = new Union();
+       _region = _union;
+     }
+     else if (region_type == COMPLEMENT) {
+       Complement* complement = new Complement();
+       _region = complement;
+     }
+     _current_region = _region;
+  }
+  /* Add node under current region, and move current region to said node */
+  else {
+    if (region_type == INTERSECTION) {
+      Intersection* intersection = new Intersection();
+      intersection->setParentRegion(_current_region);
+      _current_region->addNode(intersection, false);
+      _current_region = intersection;
+    }
+    else if (region_type == UNION) {
+      Union* _union = new Union();
+      _union->setParentRegion(_current_region);
+      _current_region->addNode(_union, false);
+      _current_region = _union;
+    }
+    else if (region_type == COMPLEMENT) {
+      Complement* complement = new Complement();
+      complement->setParentRegion(_current_region);
+      _current_region->addNode(complement, false);
+      _current_region = complement;
+    }
+  }
+}
+
+
+/**
+ * @brief Climb up the logical tree of regions.
+ */
+void Cell::goUpOneRegionLogical() {
+  _current_region = _current_region->getParentRegion();
 }
 
 
@@ -1086,26 +1138,32 @@ void Cell::addNeighborCell(Cell* cell) {
 
 /**
  * @brief Determines whether a Point is contained inside a Cell.
- * @details Queries each Surface inside the Cell to determine if the Point
- *          is on the same side of the Surface. This point is only inside
- *          the Cell if it is on the same side of every Surface in the Cell.
+ * @details Queries the Region bounding the Cell to determine if the Point
+ *          is within the Region. This point is only inside the Cell if it
+ *          is on the same side of every Surface bounding the Cell.
  * @param point a pointer to a Point
+ * @returns true if the Point is inside the Cell; otherwise false
  */
 bool Cell::containsPoint(Point* point) {
 
-  /* Loop over all Surfaces inside the Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
-
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-
-    /* Return false if the Point is not in the correct Surface halfspace */
-    if (iter->second->_surface->evaluate(point) * iter->second->_halfspace
-        < 0.0)
-      return false;
+  /* If a FILL Cell, query the filling Universe or Lattice */
+  if (_region == NULL) {
+    if (_cell_type == FILL) {
+      Universe* univ = static_cast<Universe*>(_fill);
+      if (univ->getType() == SIMPLE)
+        return univ->containsPoint(point);
+      else {
+        Lattice* latt = static_cast<Lattice*>(_fill);
+        return latt->containsPoint(point);
+      }
+    }
+    else
+      return true;
   }
 
-  /* Return true if the Point is in the correct halfspace for each Surface */
-  return true;
+  /* If not, query the Cell's bounding Region */
+  else
+    return _region->containsPoint(point);
 }
 
 
@@ -1122,6 +1180,22 @@ bool Cell::containsCoords(LocalCoords* coords) {
 
 
 /**
+ * @brief Computes the minimum distance to a Surface in the Cell's Region from
+ *        a point with a given trajectory at a certain angle stored in a
+ *        LocalCoords object.
+ * @details If the trajectory will not intersect any of the Surfaces in the
+ *          Cell returns INFINITY.
+ * @param coords a pointer to a localcoords
+ */
+double Cell::minSurfaceDist(LocalCoords* coords) {
+  if (_region == NULL)
+    return INFINITY;
+  else
+    return _region->minSurfaceDist(coords);
+}
+
+
+/**
  * @brief Computes the minimum distance to a Surface from a Point with a given
  *        trajectory at a certain angle.
  * @details If the trajectory will not intersect any of the Surfaces in the
@@ -1134,24 +1208,10 @@ bool Cell::containsCoords(LocalCoords* coords) {
  * @param min_intersection a pointer to the intersection Point that is found
  */
 double Cell::minSurfaceDist(Point* point, double azim, double polar) {
-
-  double min_dist = INFINITY;
-  double curr_dist;
-
-  std::map<int, surface_halfspace*>::iterator iter;
-
-  /* Loop over all of the Cell's Surfaces */
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
-
-    /* Find the minimum distance from this surface to this Point */
-    curr_dist = iter->second->_surface->getMinDistance(point, azim, polar);
-
-    /* If the distance to Cell is less than current min distance, update */
-    if (curr_dist < min_dist)
-      min_dist = curr_dist;
-  }
-
-  return min_dist;
+  if (_region == NULL)
+    return INFINITY;
+  else
+    return _region->minSurfaceDist(point, azim, polar);
 }
 
 
@@ -1179,7 +1239,7 @@ bool Cell::isFissionable() {
  * @brief Create a duplicate of the Cell.
  * @return a pointer to the clone
  */
-Cell* Cell::clone() {
+Cell* Cell::clone(bool clone_region) {
 
   /* Construct new Cell */
   Cell* new_cell = new Cell();
@@ -1193,16 +1253,14 @@ Cell* Cell::clone() {
   else
     new_cell->setFill((Universe*)_fill);
 
+  /* Clone the Cell's Region (cloning is done in setRegion) */
+  if (_region != NULL && clone_region)
+    new_cell->setRegion(_region);
+
   if (_rotated)
     new_cell->setRotation(_rotation, 3, "radians");
   if (_translated)
     new_cell->setTranslation(_translation, 3);
-
-  /* Loop over all of this Cell's Surfaces and add them to the clone */
-  std::map<int, surface_halfspace*>::iterator iter;
-
-  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    new_cell->addSurface(iter->second->_halfspace, iter->second->_surface);
 
   return new_cell;
 }
@@ -1247,7 +1305,7 @@ void Cell::sectorize(std::vector<Cell*>& subcells) {
   for (int i=0; i < _num_sectors; i++) {
 
     /* Create new Cell clone for this sector Cell */
-    Cell* sector = clone();
+    Cell* sector = clone(false);
 
     sector->setNumSectors(0);
     sector->setNumRings(0);
@@ -1297,13 +1355,14 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
   std::vector<Cell*> rings;
 
   /* See if the Cell contains 1 or 2 ZCYLINDER Surfaces */
-  std::map<int, surface_halfspace*>::iterator iter1;
+  std::map<int, Halfspace*>::iterator iter1;
+  std::map<int, Halfspace*> _surfaces = getSurfaces();
   for (iter1=_surfaces.begin(); iter1 != _surfaces.end(); ++iter1) {
 
     /* Determine if any of the Surfaces is a ZCylinder */
-    if (iter1->second->_surface->getSurfaceType() == ZCYLINDER) {
-      int halfspace = iter1->second->_halfspace;
-      ZCylinder* zcylinder = static_cast<ZCylinder*>(iter1->second->_surface);
+    if (iter1->second->getSurface()->getSurfaceType() == ZCYLINDER) {
+      int halfspace = iter1->second->getHalfspace();
+      ZCylinder* zcylinder = static_cast<ZCylinder*>(iter1->second->getSurface());
 
       /* Outermost bounding ZCylinder */
       if (halfspace == -1) {
@@ -1369,7 +1428,7 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
    * radius increment (e.g. moderator in a pin cell universe). */
   if (halfspace1 == 0){
     increment = fabs(radius1 - radius2) / _num_rings;
-  
+
     /* Heuristic to improve area-balancing for low number of rings */
     if (fabs(radius1 - max_radius) < FLT_EPSILON && _num_rings < 3)
       increment = 1.5 * (radius1 - radius2) / _num_rings;
@@ -1411,7 +1470,6 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
         Cell* ring = (*iter3)->clone();
         ring->setNumSectors(0);
         ring->setNumRings(0);
-        ring->removeSurface(zcylinder1);
 
         /* Add ZCylinder only if this is not the outermost ring in an
          * unbounded Cell (i.e. the moderator in a fuel pin cell) */
@@ -1423,10 +1481,9 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
           rings.push_back(ring);
           continue;
         }
-        else {
+        else
           ring->addSurface(+1, *(iter2+1));
-          ring->removeSurface(zcylinder2);
-        }
+
 
         /* Store the clone in the parent Cell's container of ring Cells */
         rings.push_back(ring);
@@ -1438,10 +1495,9 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
       log_printf(DEBUG, "Creating new ring in un-sectorized Cell %d",_id);
 
       /* Create a new Cell clone */
-      Cell* ring = clone();
+      Cell* ring = clone(false);
       ring->setNumSectors(0);
       ring->setNumRings(0);
-      ring->removeSurface(zcylinder1);
 
       /* Add ZCylinder only if this is not the outermost ring in an
        * unbounded Cell (i.e. the moderator in a fuel pin cell) */
@@ -1453,10 +1509,8 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
         rings.push_back(ring);
         break;
       }
-      else {
+      else
         ring->addSurface(+1, *(iter2+1));
-        ring->removeSurface(zcylinder2);
-      }
 
       /* Store the clone in the parent Cell's container of ring Cells */
       rings.push_back(ring);
@@ -1510,7 +1564,8 @@ void Cell::buildNeighbors() {
   int halfspace;
 
   /* Add this Cell to the neighbor lists of all this cell's surfaces */
-  std::map<int, surface_halfspace*>::iterator iter;
+  std::map<int, Halfspace*>::iterator iter;
+  std::map<int, Halfspace*> _surfaces = getSurfaces();
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
     surface = iter->second->_surface;
     halfspace = iter->second->_halfspace;
@@ -1564,7 +1619,8 @@ std::string Cell::toString() {
   string << ", # surfaces = " << getNumSurfaces();
 
   /** Add string data for the Surfaces in this Cell */
-  std::map<int, surface_halfspace*>::iterator iter;
+  std::map<int, Halfspace*>::iterator iter;
+  std::map<int, Halfspace*> _surfaces = getSurfaces();
   string << ", Surfaces: ";
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
     string << "\nhalfspace = " << iter->second->_halfspace << ", " <<
@@ -1589,10 +1645,11 @@ void Cell::printString() {
  */
 int Cell::getNumZCylinders() {
 
-  std::map<int, surface_halfspace*>::iterator iter1;
+  std::map<int, Halfspace*>::iterator iter;
+  std::map<int, Halfspace*> _surfaces = getSurfaces();
   int num = 0;
-  for (iter1=_surfaces.begin(); iter1 != _surfaces.end(); ++iter1)
-    if (iter1->second->_surface->getSurfaceType() == ZCYLINDER)
+  for (iter=_surfaces.begin(); iter != _surfaces.end(); ++iter)
+    if (iter->second->getSurface()->getSurfaceType() == ZCYLINDER)
       num++;
 
   return num;

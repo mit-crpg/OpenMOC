@@ -272,6 +272,47 @@ bool Surface::isCoordOnSurface(LocalCoords* coord) {
 
 
 /**
+ * @brief Finds the minimum distance to a Surface.
+ * @details Finds the miniumum distance to a Surface from a LocalCoords
+ *          with a trajectory defined by an angle to this Surface. If the
+ *          trajectory will not intersect the Surface, returns INFINITY.
+ * @param coords a pointer to a localcoords object
+ * @return the minimum distance to the Surface
+ */
+double Surface::getMinDistance(LocalCoords* coords) {
+
+  Point* point = coords->getPoint();
+  double phi = coords->getPhi();
+  double polar = coords->getPolar();
+
+  /* Point array for intersections with this Surface */
+  Point intersections[2];
+
+  /* Find the intersection Point(s) */
+  int num_inters = this->intersection(point, phi, polar, intersections);
+  double distance = INFINITY;
+
+  /* If there is one intersection Point */
+  if (num_inters == 1)
+    distance = intersections[0].distanceToPoint(point);
+
+  /* If there are two intersection Points */
+  else if (num_inters == 2) {
+    double dist1 = intersections[0].distanceToPoint(point);
+    double dist2 = intersections[1].distanceToPoint(point);
+
+    /* Determine which intersection Point is nearest */
+    if (dist1 < dist2)
+      distance = dist1;
+    else
+      distance = dist2;
+  }
+
+  return distance;
+}
+
+
+/**
  * @brief Prints a string representation of all of the Surface's objects to
  *        the console.
  */
@@ -897,17 +938,17 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
       zcurr = z0 + sqrt(interior) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
       if (azim < M_PI && ycurr > y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
+        if (zcurr > z0 && polar < M_PI_2)
           num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
+        else if (zcurr < z0 && polar > M_PI_2)
           num++;
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
       else if (azim > M_PI && ycurr < y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
+        if (zcurr > z0 && polar < M_PI_2)
           num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
+        else if (zcurr < z0 && polar > M_PI_2)
           num++;
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
@@ -918,17 +959,17 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
       zcurr = z0 + sqrt(interior) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
       if (azim < M_PI && ycurr > y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
+        if (zcurr > z0 && polar < M_PI_2)
           num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
+        else if (zcurr < z0 && polar > M_PI_2)
           num++;
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;
       }
       else if (azim > M_PI && ycurr < y0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
+        if (zcurr > z0 && polar < M_PI_2)
           num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
+        else if (zcurr < z0 && polar > M_PI_2)
           num++;
         else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
           num++;

@@ -1102,7 +1102,7 @@ void CPUSolver::boundaryFluxChecker() {
                 fabs(point->getZ() - z) > 1e-5)
               log_printf(ERROR, "Track linking error: Track %d in domain %d "
                          "with connecting point (%f, %f, %f) does not connect "
-                         "with \n Track %d in domain %d at pont (%f, %f, %f)",
+                         "with \n Track %d in domain %d at point (%f, %f, %f)",
                          t, my_rank, point->getX(), point->getY(),
                          point->getZ(), connection[0], dest, x, y, z);
 
@@ -1140,9 +1140,11 @@ void CPUSolver::boundaryFluxChecker() {
                            "in domain %d in %s direction at index %d. Boundary"
                            " angular flux at this location is %f but the "
                            "starting flux at connecting Track %d in domain %d "
-                           "in the %s direction is %f", t, my_rank,
+                           "in the -- direction is %f", t, my_rank,
                            dir_string.c_str(), pe, _boundary_flux(t, dir, pe),
                            connection[0], dest, angular_fluxes[pe]);
+                //FIXME Include track direction in track_info when debugging, 
+                //      but not in production mode
               }
             }
           }
@@ -1193,18 +1195,23 @@ void CPUSolver::boundaryFluxChecker() {
               if (fabs(_start_flux(connecting_idx, !connect_fwd, pe)
                   - _boundary_flux(t, dir, pe)) > 1e-7) {
                 std::string dir_string;
+                std::string dir_conn_string;
                 if (dir == 0)
                   dir_string = "FWD";
                 else
                   dir_string = "BWD";
+                if (connect_fwd)
+                  dir_conn_string = "FWD";
+                else
+                  dir_conn_string = "BWD";
                 log_printf(ERROR, "Angular flux mismatch found on Track %d "
                            "in domain %d in %s direction at index %d. Boundary"
                            " angular flux at this location is %f but the "
                            "starting flux at connecting Track %d in domain %d "
                            "in the %s direction is %f", t, my_rank, dir_string.c_str(),
                            pe, _boundary_flux(t, dir, pe), connecting_idx,
-                           my_rank, _start_flux(connecting_idx, !connect_fwd,
-                           pe));
+                           my_rank,  dir_conn_string.c_str(),
+                           _start_flux(connecting_idx, !connect_fwd, pe));
               }
             }
 
@@ -1653,7 +1660,7 @@ double CPUSolver::computeResidual(residualType res_type) {
   residual = pairwise_sum<double>(residuals, _num_FSRs);
 
 #ifdef MPIx
-  /* Reduce residuals across domians */
+  /* Reduce residuals across domains */
   if (_geometry->isDomainDecomposed()) {
 
     /* Get the communicator */

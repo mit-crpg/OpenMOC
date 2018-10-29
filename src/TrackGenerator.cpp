@@ -757,6 +757,18 @@ void TrackGenerator::generateTracks() {
     long num_FSRs = _geometry->getNumFSRs();
     _FSR_locks = new omp_lock_t[num_FSRs];
 
+    /* Print number of FSRs as soon as it's available */
+    long total_num_FSRs = num_FSRs;
+#ifdef MPIx
+    if (_geometry->isDomainDecomposed()) {
+      MPI_Comm MPI_cart = _geometry->getMPICart();
+      MPI_Allreduce(&num_FSRs, &total_num_FSRs, 1, MPI_LONG,
+                    MPI_SUM, MPI_cart);
+    }
+#endif
+    log_printf(NORMAL, "Total number of FSRs %ld", total_num_FSRs);
+    log_printf(DEBUG, "Number of FSRs in domain %ld", num_FSRs);
+
     /* Loop over all FSRs to initialize OpenMP locks */
 #pragma omp parallel for schedule(guided)
     for (long r=0; r < num_FSRs; r++)
@@ -790,8 +802,11 @@ void TrackGenerator::generateTracks() {
  * @details The defualt quadrature for 2D calculations is the TY quadrature
  */
 void TrackGenerator::initializeDefaultQuadrature() {
+
   if (_quadrature != NULL)
     delete _quadrature;
+
+  log_printf(NORMAL, "Initializing a default angular quadrature...");
   _quadrature = new TYPolarQuad();
   _quadrature->setNumAzimAngles(_num_azim);
   _quadrature->setNumPolarAngles(6);

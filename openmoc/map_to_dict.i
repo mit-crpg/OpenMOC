@@ -50,28 +50,26 @@
 }
 
 
-/* Typemap for all methods which return a std::map<int, surface_halfspace>.
+/* Typemap for all methods which return a std::map<int, Halfspace*>.
  * This includes the Cell::getSurfaces() method, which is useful for OpenCG
  * compatibility. */
-%clear std::map<int, surface_halfspace*>;
-%typemap(out) std::map<int, surface_halfspace*> {
-
-  $result = PyDict_New();
+%clear std::map<int, Halfspace*>;
+%typemap(out) std::map<int, Halfspace*> {
+   $result = PyDict_New();
   int size = $1.size();
-
-  std::map<int, surface_halfspace*>::iterator iter;
-  surface_halfspace* surf;
+   std::map<int, Halfspace*>::iterator iter;
+  Halfspace* surf;
   int surf_id;
-
-  for (iter = $1.begin(); iter != $1.end(); ++iter) {
+   for (iter = $1.begin(); iter != $1.end(); ++iter) {
     surf_id = iter->first;
     surf = iter->second;
     PyObject* value =
          SWIG_NewPointerObj(SWIG_as_voidptr(surf),
-                            $descriptor(surface_halfspace*), 0);
+                            $descriptor(Halfspace*), 0);
     PyDict_SetItem($result, PyInt_FromLong(surf_id), value);
   }
 }
+
 
 
 /* Typemap for all methods which return a std::map<int, Material*>.

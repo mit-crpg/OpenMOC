@@ -1261,7 +1261,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
             surface = domains_to_data.take(domains.flatten())
         # If domains-to-data was input as a Python dictionary
         else:
-            surface = np.zeros(domains.shape, dtype=np.int)
+            surface = np.zeros(domains.shape, dtype=np.float)
             for domain_id in domains_to_data:
                 indices = np.where(domains == domain_id)
                 surface[indices] = domains_to_data[domain_id]
@@ -1798,13 +1798,13 @@ def _get_pixel_coords(plot_params):
                    root.getMaxZ() - TINY_MOVE]
 
     if not plot_params.xlim is None:
-        bounds['x'] = plot_params.xlim
+        bounds['x'] = list(plot_params.xlim)
 
     if not plot_params.ylim is None:
-        bounds['y'] = plot_params.ylim
+        bounds['y'] = list(plot_params.ylim)
 
     if not plot_params.zlim is None:
-        bounds['z'] = plot_params.zlim
+        bounds['z'] = list(plot_params.zlim)
 
 
     # add attributes to coords dictionary
