@@ -284,7 +284,7 @@ int setRuntimeParametres(RuntimeParametres &RP, int argc, char *argv[]) {
       char *outer_ptr = NULL;
       char *inner_ptr = NULL;
       char *p;
-      std::vector<std::vector<double>> widths_offset;
+      std::vector<std::vector<double> > widths_offset;
       while((p = strtok_r(buf, "/", &outer_ptr)) != NULL) {
         buf = p;
         char *ql, *qr;

@@ -78,7 +78,7 @@ struct RuntimeParametres {
   
   
   /* CMFD group structure */
-  std::vector<std::vector<int>> _CMFD_group_structure;
+  std::vector<std::vector<int> > _CMFD_group_structure;
   /* CMFD lattice structure, used for uniform CMFD*/
   int _NCx, _NCy, _NCz;
   /** Physical dimensions of non-uniform CMFD meshes (for whole geometry) */
@@ -110,7 +110,7 @@ struct RuntimeParametres {
 
   
   /* uniform lattice output */
-  std::vector<std::vector<int>> _output_mesh_lattices; 
+  std::vector<std::vector<int> > _output_mesh_lattices; 
   /* widths and offsets of multiple output meshes with non-uniform lattice */
   Vector3D _non_uniform_mesh_lattices; 
   /* output reaction types for both uniform and non-uniform */

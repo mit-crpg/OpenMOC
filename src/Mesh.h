@@ -59,7 +59,7 @@ public:
   void setLattice(Lattice* lattice);
   std::vector<double> getReactionRates(RxType rx);
   Vector3D getFormattedReactionRates(RxType rx);
-  Vector3D getFormattedReactionRates(std::vector<std::vector<double>> 
+  Vector3D getFormattedReactionRates(std::vector<std::vector<double> > 
                                      widths_offsets, RxType rx);
   
 

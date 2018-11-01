@@ -220,7 +220,7 @@ Vector3D Mesh::getFormattedReactionRates(RxType rx) {
  *         x, y, and z indexes
  */
 Vector3D Mesh::getFormattedReactionRates
-                  (std::vector<std::vector<double>> widths_offsets, RxType rx) {
+                 (std::vector<std::vector<double> > widths_offsets, RxType rx) {
   Vector3D rx_rates;
   
   /* Get the root universe */

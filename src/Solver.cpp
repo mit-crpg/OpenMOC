@@ -1912,7 +1912,7 @@ void Solver::loadFSRFluxes(std::string fname, bool assign_k_eff,
   }
 
   /* Create mapping of FSRs to cell indexes */
-  std::unordered_map<long, std::vector<long>> hashed_lookup;
+  std::unordered_map<long, std::vector<long> > hashed_lookup;
   long nx = max_ind[0] - min_ind[0] + 1;
   long ny = max_ind[1] - min_ind[1] + 1;
   long nz = max_ind[2] - min_ind[2] + 1;
