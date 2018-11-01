@@ -38,10 +38,8 @@ class TestNonUniformCMFDMPITestHarness(TestHarness):
       rc = subprocess.call(cmd, shell=True)
       
        # Check for error code
-      if rc != 0:
-        print('\nERROR: Failed to copy run_time_standard.cpp or \
-              non-uniform-lattice.geo.\n')
-        os._exit(0)
+      assert rc == 0, '\nERROR: Failed to copy run_time_standard.cpp or '\
+              'non-uniform-lattice.geo.\n'
       
       
       os.chdir("../../profile/")
@@ -51,11 +49,8 @@ class TestNonUniformCMFDMPITestHarness(TestHarness):
       rc = subprocess.call(cmd, shell=True)
       
        # Check for error code
-      if rc != 0:
-        print('\nERROR: Failed to build the execute file. Check the Makefile \
-              or source code\n')
-        os._exit(0)
-
+      assert rc == 0, '\nERROR: Failed to build the execute file. Check the ' \
+             'Makefile or source code\n'
       
       
       os.chdir(pwd)
@@ -70,10 +65,8 @@ class TestNonUniformCMFDMPITestHarness(TestHarness):
       rc = subprocess.call(cmd, shell=True)                
 
        # Check for error code
-      if rc != 0:
-        print('\nERROR: Failed to run the test problem #1. \
-              Check the parameters\n')
-        os._exit(0)
+      assert rc == 0, '\nERROR: Failed to run the test problem #1.' \
+              'Check the parameters\n'
       
       # 2. Running in uniform CMFD with setLatticeStructure, with MPI
       cmd = """mpiexec -n 8 ./run_time_standard -domain_decompose 2,2,2 \
@@ -85,10 +78,8 @@ class TestNonUniformCMFDMPITestHarness(TestHarness):
       rc = subprocess.call(cmd, shell=True)                
 
        # Check for error code
-      if rc != 0:
-        print('\nERROR: Failed to run the test problem #2. \
-              Check the parameters\n')
-        os._exit(0)
+      assert rc == 0, '\nERROR: Failed to run the test problem #2.' \
+              'Check the parameters\n'
       
       # 3. Running in uniform CMFD with set uniform  XYZ widths, without MPI
       cmd = """mpiexec -n 1 ./run_time_standard -domain_decompose 1,1,1 \
@@ -101,10 +92,8 @@ class TestNonUniformCMFDMPITestHarness(TestHarness):
       rc = subprocess.call(cmd, shell=True)                
 
        # Check for error code
-      if rc != 0:
-        print('\nERROR: Failed to run the test problem #3. \
-              Check the parameters\n')
-        os._exit(0)
+      assert rc == 0, '\nERROR: Failed to run the test problem #3.' \
+              'Check the parameters\n'
       
       # 4. Running in uniform CMFD with set uniform  XYZ widths, with MPI
       cmd = """mpiexec -n 8 ./run_time_standard -domain_decompose 2,2,2 \
@@ -117,10 +106,8 @@ class TestNonUniformCMFDMPITestHarness(TestHarness):
       rc = subprocess.call(cmd, shell=True)                
 
        # Check for error code
-      if rc != 0:
-        print('\nERROR: Failed to run the test problem #4. \
-              Check the parameters\n')
-        os._exit(0)
+      assert rc == 0, '\nERROR: Failed to run the test problem #4.' \
+              'Check the parameters\n'
       
       # 5. Running in non-uniform CMFD, without MPI
       cmd = """mpiexec -n 1 ./run_time_standard -domain_decompose 1,1,1 \
@@ -133,10 +120,8 @@ class TestNonUniformCMFDMPITestHarness(TestHarness):
       rc = subprocess.call(cmd, shell=True)                
 
        # Check for error code
-      if rc != 0:
-        print('\nERROR: Failed to run the test problem #5. \
-              Check the parameters\n')
-        os._exit(0)
+      assert rc == 0, '\nERROR: Failed to run the test problem #5.' \
+              'Check the parameters\n'
       
       # 6. Running in non-uniform CMFD, with MPI
       cmd = """mpiexec -n 8 ./run_time_standard -domain_decompose 2,2,2 \
@@ -149,10 +134,8 @@ class TestNonUniformCMFDMPITestHarness(TestHarness):
       rc = subprocess.call(cmd, shell=True)                
 
        # Check for error code
-      if rc != 0:
-        print('\nERROR: Failed to run the test problem #6. \
-              Check the parameters\n')
-        os._exit(0)
+      assert rc == 0, '\nERROR: Failed to run the test problem #6.' \
+              'Check the parameters\n'
       
     def _get_results(self, num_iters=False, keff=False, fluxes=False,
                      num_fsrs=False, num_tracks=False, num_segments=False,
