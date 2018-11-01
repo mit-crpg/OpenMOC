@@ -9,13 +9,14 @@
 [  NORMAL ]  Reading Geometry from non-uniform-lattice.geo
 [  NORMAL ]  Read complete
 [  NORMAL ]  Creating CMFD mesh...
-[  NORMAL ]  CMFD relaxation factor: 0.7000
 [  NORMAL ]  Initializing flat source regions...
 [  NORMAL ]  Initializing the track generator...
 [  NORMAL ]  Initializing 2D tracks...
 [  NORMAL ]  Initializing 2D tracks reflections...
 [  NORMAL ]  Initializing 2D tracks array...
 [  NORMAL ]  Initializing 3D tracks...
+[  NORMAL ]  RMS polar angle correction 1.088869 %
+[  NORMAL ]  Max polar angle correction 18.785596 %
 [  NORMAL ]  Progress Initializing 3D Tracks: 0.00 %
 [  NORMAL ]  Progress Initializing 3D Tracks: 10.01 %
 [  NORMAL ]  Progress Initializing 3D Tracks: 20.01 %
@@ -29,7 +30,7 @@
 [  NORMAL ]  Progress Initializing 3D Tracks: 100.00 %
 [  NORMAL ]  Total number of Tracks = 190652
 [  NORMAL ]  Temporary Track storage per domain =   0.01 MB
-[  NORMAL ]  Number of 3D Tracks: 190652
+[  NORMAL ]  3D Tracks in domain: 190652
 [  NORMAL ]  Ray tracing for axially extruded track segmentation...
 [  NORMAL ]  Progress Segmenting 2D Tracks: 0.00 %
 [  NORMAL ]  Progress Segmenting 2D Tracks: 10.03 %
@@ -69,6 +70,7 @@
 [  NORMAL ]  Finished initializing 3D FSRs
 [  NORMAL ]  Initializing FSR lookup vectors
 [  NORMAL ]  Max temporary segment storage per domain =   0.01 MB
+[  NORMAL ]  Total number of FSRs 324
 [  NORMAL ]  Initializing MOC eigenvalue solver...
 [  NORMAL ]  Initializing solver arrays...
 [  NORMAL ]  Max linear constant storage per domain =   0.11 MB
@@ -107,18 +109,18 @@
 [  NORMAL ]  Using 1 threads
 [  NORMAL ]  Computing the eigenvalue...
 [  NORMAL ]  iter   k-eff   eps-k  eps-MOC   D.R.   eps-FS1   eps-FSN   #FS  eps-flux1 eps-fluxN  #FX1 #FXN  MAX P.F.
-[  NORMAL ]    0  1.228179  22817  0.111333  0.111  0.003056  0.000000   26  0.216163  0.000000   26   26    8.253968
-[  NORMAL ]    1  1.268360   4018  0.079836  0.717  0.002418  0.000000   26  0.113992  0.000000   26   26    2.448379
-[  NORMAL ]    2  1.276381    802  0.016814  0.211  0.001108  0.000000   26  0.037577  0.000000   29   26    1.699620
-[  NORMAL ]    3  1.276988     60  0.004595  0.273  0.000726  0.000000   26  0.009361  0.000000   38   26    1.393608
-[  NORMAL ]    4  1.276739    -24  0.003737  0.813  0.000134  0.000000   26  0.001365  0.000000   51   26    1.247388
-[  NORMAL ]    5  1.276604    -13  0.001227  0.328  0.000050  0.000000   26  0.001364  0.000000   48   26    1.163113
-[  NORMAL ]    6  1.276485    -11  0.000799  0.651  0.000057  0.000000   26  0.001636  0.000000   44   26    1.114275
-[  NORMAL ]    7  1.276424     -6  0.000165  0.206  0.000039  0.000000   26  0.001513  0.000000   41   26    1.078566
-[  NORMAL ]    8  1.276395     -2  0.000232  1.409  0.000029  0.000000   26  0.001224  0.000000   40   26    1.054605
-[  NORMAL ]    9  1.276374     -2  0.000146  0.630  0.000021  0.000000   26  0.000922  0.000000   40   26    1.039103
-[  NORMAL ]   10  1.276367      0  0.000107  0.731  0.000015  0.000000   26  0.000680  0.000000   40   26    1.027776
-[  NORMAL ]   11  1.276360      0  0.000063  0.591  0.000011  0.000000   26  0.000492  0.000000   40   26    1.020347
+[  NORMAL ]    0  1.228178  22817  0.111333  0.111  0.003056  0.000000   26  0.216163  0.000000   26   26    8.253972
+[  NORMAL ]    1  1.268359   4018  0.079836  0.717  0.002418  0.000000   26  0.113992  0.000000   26   26    2.448380
+[  NORMAL ]    2  1.276380    802  0.016814  0.211  0.001108  0.000000   26  0.037577  0.000000   29   26    1.699621
+[  NORMAL ]    3  1.276987     60  0.004595  0.273  0.000726  0.000000   26  0.009361  0.000000   38   26    1.393608
+[  NORMAL ]    4  1.276738    -24  0.003737  0.813  0.000134  0.000000   26  0.001365  0.000000   51   26    1.247388
+[  NORMAL ]    5  1.276603    -13  0.001227  0.328  0.000050  0.000000   26  0.001364  0.000000   48   26    1.163113
+[  NORMAL ]    6  1.276484    -11  0.000799  0.651  0.000057  0.000000   26  0.001636  0.000000   44   26    1.114275
+[  NORMAL ]    7  1.276423     -6  0.000165  0.206  0.000039  0.000000   26  0.001513  0.000000   41   26    1.078566
+[  NORMAL ]    8  1.276394     -2  0.000232  1.409  0.000029  0.000000   26  0.001224  0.000000   40   26    1.054605
+[  NORMAL ]    9  1.276373     -2  0.000146  0.630  0.000021  0.000000   26  0.000922  0.000000   40   26    1.039103
+[  NORMAL ]   10  1.276366      0  0.000107  0.731  0.000015  0.000000   26  0.000680  0.000000   40   26    1.027776
+[  NORMAL ]   11  1.276359      0  0.000063  0.591  0.000011  0.000000   26  0.000492  0.000000   40   26    1.020347
 [  TITLE  ]  ************************************************************************************************************************
 [  TITLE  ]                                                       TIMING REPORT                                                     
 [  TITLE  ]  ************************************************************************************************************************
@@ -142,13 +144,14 @@
 [  NORMAL ]  Read complete
 [  NORMAL ]  Successfully set 2 x 2 x 2 domain decomposition
 [  NORMAL ]  Creating CMFD mesh...
-[  NORMAL ]  CMFD relaxation factor: 0.7000
 [  NORMAL ]  Initializing flat source regions...
 [  NORMAL ]  Initializing the track generator...
 [  NORMAL ]  Initializing 2D tracks...
 [  NORMAL ]  Initializing 2D tracks reflections...
 [  NORMAL ]  Initializing 2D tracks array...
 [  NORMAL ]  Initializing 3D tracks...
+[  NORMAL ]  RMS polar angle correction 1.416831 %
+[  NORMAL ]  Max polar angle correction 33.609887 %
 [  NORMAL ]  Progress Initializing 3D Tracks: 0.00 %
 [  NORMAL ]  Progress Initializing 3D Tracks: 10.02 %
 [  NORMAL ]  Progress Initializing 3D Tracks: 20.02 %
@@ -162,7 +165,7 @@
 [  NORMAL ]  Progress Initializing 3D Tracks: 100.00 %
 [  NORMAL ]  Total number of Tracks = 56008
 [  NORMAL ]  Temporary Track storage per domain =   0.00 MB
-[  NORMAL ]  Number of 3D Tracks: 56008
+[  NORMAL ]  3D Tracks in domain: 56008
 [  NORMAL ]  Ray tracing for axially extruded track segmentation...
 [  NORMAL ]  Progress Segmenting 2D Tracks: 0.00 %
 [  NORMAL ]  Progress Segmenting 2D Tracks: 10.09 %
@@ -202,6 +205,7 @@
 [  NORMAL ]  Finished initializing 3D FSRs
 [  NORMAL ]  Initializing FSR lookup vectors
 [  NORMAL ]  Max temporary segment storage per domain =   0.00 MB
+[  NORMAL ]  Total number of FSRs 324
 [  NORMAL ]  Initializing MOC eigenvalue solver...
 [  NORMAL ]  Initializing solver arrays...
 [  NORMAL ]  Max linear constant storage per domain =   0.02 MB
@@ -247,26 +251,26 @@
 [  NORMAL ]  Using 1 threads
 [  NORMAL ]  Computing the eigenvalue...
 [  NORMAL ]  iter   k-eff   eps-k  eps-MOC   D.R.   eps-FS1   eps-FSN   #FS  eps-flux1 eps-fluxN  #FX1 #FXN  MAX P.F.
-[  NORMAL ]    0  1.174532  17453  0.092469  0.092  0.003839  0.000000   26  0.248344  0.000000   26   26    10.771166
-[  NORMAL ]    1  1.246154   7162  0.117148  1.267  0.005478  0.000000   26  0.182004  0.000000   26   26    3.895359
-[  NORMAL ]    2  1.269045   2289  0.010084  0.086  0.002235  0.000000   26  0.108997  0.000000   26   26    2.468097
-[  NORMAL ]    3  1.275849    680  0.006373  0.632  0.002706  0.000000   26  0.058214  0.000000   27   26    1.936387
-[  NORMAL ]    4  1.278007    215  0.001893  0.297  0.001186  0.000000   26  0.028710  0.000000   31   26    1.667535
-[  NORMAL ]    5  1.277918     -8  0.001218  0.643  0.000304  0.000000   26  0.014042  0.000000   36   26    1.496312
-[  NORMAL ]    6  1.277412    -50  0.000615  0.505  0.000218  0.000000   26  0.006075  0.000000   41   26    1.389824
-[  NORMAL ]    7  1.277007    -40  0.000714  1.161  0.000090  0.000000   26  0.001958  0.000000   50   26    1.308941
-[  NORMAL ]    8  1.276664    -34  0.000641  0.898  0.000076  0.000000   26  0.000858  0.000000   55   26    1.246847
-[  NORMAL ]    9  1.276447    -21  0.000325  0.508  0.000097  0.000000   26  0.001631  0.000000   48   26    1.200686
-[  NORMAL ]   10  1.276306    -14  0.000176  0.542  0.000096  0.000000   26  0.002161  0.000000   44   26    1.163675
-[  NORMAL ]   11  1.276241     -6  0.000061  0.345  0.000072  0.000000   26  0.002105  0.000000   43   26    1.135450
-[  NORMAL ]   12  1.276133    -10  0.000086  1.419  0.000057  0.000000   26  0.002093  0.000000   41   26    1.111781
+[  NORMAL ]    0  1.174531  17453  0.092469  0.092  0.003839  0.000000   26  0.248344  0.000000   26   26    10.771171
+[  NORMAL ]    1  1.246153   7162  0.117148  1.267  0.005478  0.000000   26  0.182004  0.000000   26   26    3.895360
+[  NORMAL ]    2  1.269044   2289  0.010084  0.086  0.002235  0.000000   26  0.108997  0.000000   26   26    2.468097
+[  NORMAL ]    3  1.275848    680  0.006373  0.632  0.002706  0.000000   26  0.058214  0.000000   27   26    1.936388
+[  NORMAL ]    4  1.278006    215  0.001893  0.297  0.001186  0.000000   26  0.028710  0.000000   31   26    1.667535
+[  NORMAL ]    5  1.277917     -8  0.001218  0.643  0.000304  0.000000   26  0.014042  0.000000   36   26    1.496312
+[  NORMAL ]    6  1.277411    -50  0.000615  0.505  0.000218  0.000000   26  0.006075  0.000000   41   26    1.389824
+[  NORMAL ]    7  1.277006    -40  0.000714  1.161  0.000090  0.000000   26  0.001958  0.000000   50   26    1.308941
+[  NORMAL ]    8  1.276663    -34  0.000641  0.898  0.000076  0.000000   26  0.000858  0.000000   55   26    1.246847
+[  NORMAL ]    9  1.276446    -21  0.000325  0.508  0.000097  0.000000   26  0.001631  0.000000   48   26    1.200686
+[  NORMAL ]   10  1.276305    -14  0.000176  0.542  0.000096  0.000000   26  0.002161  0.000000   44   26    1.163675
+[  NORMAL ]   11  1.276240     -6  0.000061  0.345  0.000072  0.000000   26  0.002105  0.000000   43   26    1.135450
+[  NORMAL ]   12  1.276132    -10  0.000086  1.419  0.000057  0.000000   26  0.002093  0.000000   41   26    1.111781
 [  NORMAL ]   13  1.276006    -12  0.000064  0.740  0.000043  0.000000   26  0.001942  0.000000   41   26    1.093813
-[  NORMAL ]   14  1.275956     -5  0.000047  0.733  0.000039  0.000000   26  0.001749  0.000000   40   26    1.078339
-[  NORMAL ]   15  1.275982      2  0.000041  0.867  0.000034  0.000000   26  0.001556  0.000000   40   26    1.065686
+[  NORMAL ]   14  1.275955     -5  0.000047  0.733  0.000039  0.000000   26  0.001749  0.000000   40   26    1.078339
+[  NORMAL ]   15  1.275981      2  0.000041  0.867  0.000034  0.000000   26  0.001556  0.000000   40   26    1.065686
 [  NORMAL ]   16  1.276026      4  0.000058  1.421  0.000032  0.000000   26  0.001366  0.000000   39   26    1.054841
 [  NORMAL ]   17  1.275986     -4  0.000027  0.467  0.000027  0.000000   26  0.001188  0.000000   39   26    1.046267
-[  NORMAL ]   18  1.275949     -3  0.000028  1.028  0.000023  0.000000   26  0.001034  0.000000   39   26    1.039192
-[  NORMAL ]   19  1.275949      0  0.000021  0.759  0.000019  0.000000   26  0.000890  0.000000   39   26    1.033251
+[  NORMAL ]   18  1.275948     -3  0.000028  1.028  0.000023  0.000000   26  0.001034  0.000000   39   26    1.039192
+[  NORMAL ]   19  1.275948      0  0.000021  0.759  0.000019  0.000000   26  0.000890  0.000000   39   26    1.033251
 [  TITLE  ]  ************************************************************************************************************************
 [  TITLE  ]                                                       TIMING REPORT                                                     
 [  TITLE  ]  ************************************************************************************************************************
@@ -289,13 +293,14 @@
 [  NORMAL ]  Reading Geometry from non-uniform-lattice.geo
 [  NORMAL ]  Read complete
 [  NORMAL ]  Creating CMFD mesh...
-[  NORMAL ]  CMFD relaxation factor: 0.7000
 [  NORMAL ]  Initializing flat source regions...
 [  NORMAL ]  Initializing the track generator...
 [  NORMAL ]  Initializing 2D tracks...
 [  NORMAL ]  Initializing 2D tracks reflections...
 [  NORMAL ]  Initializing 2D tracks array...
 [  NORMAL ]  Initializing 3D tracks...
+[  NORMAL ]  RMS polar angle correction 1.088869 %
+[  NORMAL ]  Max polar angle correction 18.785596 %
 [  NORMAL ]  Progress Initializing 3D Tracks: 0.00 %
 [  NORMAL ]  Progress Initializing 3D Tracks: 10.01 %
 [  NORMAL ]  Progress Initializing 3D Tracks: 20.01 %
@@ -309,7 +314,7 @@
 [  NORMAL ]  Progress Initializing 3D Tracks: 100.00 %
 [  NORMAL ]  Total number of Tracks = 190652
 [  NORMAL ]  Temporary Track storage per domain =   0.01 MB
-[  NORMAL ]  Number of 3D Tracks: 190652
+[  NORMAL ]  3D Tracks in domain: 190652
 [  NORMAL ]  Ray tracing for axially extruded track segmentation...
 [  NORMAL ]  Progress Segmenting 2D Tracks: 0.00 %
 [  NORMAL ]  Progress Segmenting 2D Tracks: 10.03 %
@@ -349,6 +354,7 @@
 [  NORMAL ]  Finished initializing 3D FSRs
 [  NORMAL ]  Initializing FSR lookup vectors
 [  NORMAL ]  Max temporary segment storage per domain =   0.01 MB
+[  NORMAL ]  Total number of FSRs 324
 [  NORMAL ]  Initializing MOC eigenvalue solver...
 [  NORMAL ]  Initializing solver arrays...
 [  NORMAL ]  Max linear constant storage per domain =   0.11 MB
@@ -387,18 +393,18 @@
 [  NORMAL ]  Using 1 threads
 [  NORMAL ]  Computing the eigenvalue...
 [  NORMAL ]  iter   k-eff   eps-k  eps-MOC   D.R.   eps-FS1   eps-FSN   #FS  eps-flux1 eps-fluxN  #FX1 #FXN  MAX P.F.
-[  NORMAL ]    0  1.228179  22817  0.111333  0.111  0.003056  0.000000   26  0.216163  0.000000   26   26    8.253968
-[  NORMAL ]    1  1.268360   4018  0.079836  0.717  0.002418  0.000000   26  0.113992  0.000000   26   26    2.448379
-[  NORMAL ]    2  1.276381    802  0.016814  0.211  0.001108  0.000000   26  0.037577  0.000000   29   26    1.699620
-[  NORMAL ]    3  1.276988     60  0.004595  0.273  0.000726  0.000000   26  0.009361  0.000000   38   26    1.393608
-[  NORMAL ]    4  1.276739    -24  0.003737  0.813  0.000134  0.000000   26  0.001365  0.000000   51   26    1.247388
-[  NORMAL ]    5  1.276604    -13  0.001227  0.328  0.000050  0.000000   26  0.001364  0.000000   48   26    1.163113
-[  NORMAL ]    6  1.276485    -11  0.000799  0.651  0.000057  0.000000   26  0.001636  0.000000   44   26    1.114275
-[  NORMAL ]    7  1.276424     -6  0.000165  0.206  0.000039  0.000000   26  0.001513  0.000000   41   26    1.078566
-[  NORMAL ]    8  1.276395     -2  0.000232  1.409  0.000029  0.000000   26  0.001224  0.000000   40   26    1.054605
-[  NORMAL ]    9  1.276374     -2  0.000146  0.630  0.000021  0.000000   26  0.000922  0.000000   40   26    1.039103
-[  NORMAL ]   10  1.276367      0  0.000107  0.731  0.000015  0.000000   26  0.000680  0.000000   40   26    1.027776
-[  NORMAL ]   11  1.276360      0  0.000063  0.591  0.000011  0.000000   26  0.000492  0.000000   40   26    1.020347
+[  NORMAL ]    0  1.228178  22817  0.111333  0.111  0.003056  0.000000   26  0.216163  0.000000   26   26    8.253972
+[  NORMAL ]    1  1.268359   4018  0.079836  0.717  0.002418  0.000000   26  0.113992  0.000000   26   26    2.448380
+[  NORMAL ]    2  1.276380    802  0.016814  0.211  0.001108  0.000000   26  0.037577  0.000000   29   26    1.699621
+[  NORMAL ]    3  1.276987     60  0.004595  0.273  0.000726  0.000000   26  0.009361  0.000000   38   26    1.393608
+[  NORMAL ]    4  1.276738    -24  0.003737  0.813  0.000134  0.000000   26  0.001365  0.000000   51   26    1.247388
+[  NORMAL ]    5  1.276603    -13  0.001227  0.328  0.000050  0.000000   26  0.001364  0.000000   48   26    1.163113
+[  NORMAL ]    6  1.276484    -11  0.000799  0.651  0.000057  0.000000   26  0.001636  0.000000   44   26    1.114275
+[  NORMAL ]    7  1.276423     -6  0.000165  0.206  0.000039  0.000000   26  0.001513  0.000000   41   26    1.078566
+[  NORMAL ]    8  1.276394     -2  0.000232  1.409  0.000029  0.000000   26  0.001224  0.000000   40   26    1.054605
+[  NORMAL ]    9  1.276373     -2  0.000146  0.630  0.000021  0.000000   26  0.000922  0.000000   40   26    1.039103
+[  NORMAL ]   10  1.276366      0  0.000107  0.731  0.000015  0.000000   26  0.000680  0.000000   40   26    1.027776
+[  NORMAL ]   11  1.276359      0  0.000063  0.591  0.000011  0.000000   26  0.000492  0.000000   40   26    1.020347
 [  TITLE  ]  ************************************************************************************************************************
 [  TITLE  ]                                                       TIMING REPORT                                                     
 [  TITLE  ]  ************************************************************************************************************************
@@ -422,13 +428,14 @@
 [  NORMAL ]  Read complete
 [  NORMAL ]  Successfully set 2 x 2 x 2 domain decomposition
 [  NORMAL ]  Creating CMFD mesh...
-[  NORMAL ]  CMFD relaxation factor: 0.7000
 [  NORMAL ]  Initializing flat source regions...
 [  NORMAL ]  Initializing the track generator...
 [  NORMAL ]  Initializing 2D tracks...
 [  NORMAL ]  Initializing 2D tracks reflections...
 [  NORMAL ]  Initializing 2D tracks array...
 [  NORMAL ]  Initializing 3D tracks...
+[  NORMAL ]  RMS polar angle correction 1.416831 %
+[  NORMAL ]  Max polar angle correction 33.609887 %
 [  NORMAL ]  Progress Initializing 3D Tracks: 0.00 %
 [  NORMAL ]  Progress Initializing 3D Tracks: 10.02 %
 [  NORMAL ]  Progress Initializing 3D Tracks: 20.02 %
@@ -442,7 +449,7 @@
 [  NORMAL ]  Progress Initializing 3D Tracks: 100.00 %
 [  NORMAL ]  Total number of Tracks = 56008
 [  NORMAL ]  Temporary Track storage per domain =   0.00 MB
-[  NORMAL ]  Number of 3D Tracks: 56008
+[  NORMAL ]  3D Tracks in domain: 56008
 [  NORMAL ]  Ray tracing for axially extruded track segmentation...
 [  NORMAL ]  Progress Segmenting 2D Tracks: 0.00 %
 [  NORMAL ]  Progress Segmenting 2D Tracks: 10.09 %
@@ -482,6 +489,7 @@
 [  NORMAL ]  Finished initializing 3D FSRs
 [  NORMAL ]  Initializing FSR lookup vectors
 [  NORMAL ]  Max temporary segment storage per domain =   0.00 MB
+[  NORMAL ]  Total number of FSRs 324
 [  NORMAL ]  Initializing MOC eigenvalue solver...
 [  NORMAL ]  Initializing solver arrays...
 [  NORMAL ]  Max linear constant storage per domain =   0.02 MB
@@ -527,26 +535,26 @@
 [  NORMAL ]  Using 1 threads
 [  NORMAL ]  Computing the eigenvalue...
 [  NORMAL ]  iter   k-eff   eps-k  eps-MOC   D.R.   eps-FS1   eps-FSN   #FS  eps-flux1 eps-fluxN  #FX1 #FXN  MAX P.F.
-[  NORMAL ]    0  1.174532  17453  0.092469  0.092  0.003839  0.000000   26  0.248344  0.000000   26   26    10.771166
-[  NORMAL ]    1  1.246154   7162  0.117148  1.267  0.005478  0.000000   26  0.182004  0.000000   26   26    3.895359
-[  NORMAL ]    2  1.269045   2289  0.010084  0.086  0.002235  0.000000   26  0.108997  0.000000   26   26    2.468097
-[  NORMAL ]    3  1.275849    680  0.006373  0.632  0.002706  0.000000   26  0.058214  0.000000   27   26    1.936387
-[  NORMAL ]    4  1.278007    215  0.001893  0.297  0.001186  0.000000   26  0.028710  0.000000   31   26    1.667535
-[  NORMAL ]    5  1.277918     -8  0.001218  0.643  0.000304  0.000000   26  0.014042  0.000000   36   26    1.496312
-[  NORMAL ]    6  1.277412    -50  0.000615  0.505  0.000218  0.000000   26  0.006075  0.000000   41   26    1.389824
-[  NORMAL ]    7  1.277007    -40  0.000714  1.161  0.000090  0.000000   26  0.001958  0.000000   50   26    1.308941
-[  NORMAL ]    8  1.276664    -34  0.000641  0.898  0.000076  0.000000   26  0.000858  0.000000   55   26    1.246847
-[  NORMAL ]    9  1.276447    -21  0.000325  0.508  0.000097  0.000000   26  0.001631  0.000000   48   26    1.200686
-[  NORMAL ]   10  1.276306    -14  0.000176  0.542  0.000096  0.000000   26  0.002161  0.000000   44   26    1.163675
-[  NORMAL ]   11  1.276241     -6  0.000061  0.345  0.000072  0.000000   26  0.002105  0.000000   43   26    1.135450
-[  NORMAL ]   12  1.276133    -10  0.000086  1.419  0.000057  0.000000   26  0.002093  0.000000   41   26    1.111781
+[  NORMAL ]    0  1.174531  17453  0.092469  0.092  0.003839  0.000000   26  0.248344  0.000000   26   26    10.771171
+[  NORMAL ]    1  1.246153   7162  0.117148  1.267  0.005478  0.000000   26  0.182004  0.000000   26   26    3.895360
+[  NORMAL ]    2  1.269044   2289  0.010084  0.086  0.002235  0.000000   26  0.108997  0.000000   26   26    2.468097
+[  NORMAL ]    3  1.275848    680  0.006373  0.632  0.002706  0.000000   26  0.058214  0.000000   27   26    1.936388
+[  NORMAL ]    4  1.278006    215  0.001893  0.297  0.001186  0.000000   26  0.028710  0.000000   31   26    1.667535
+[  NORMAL ]    5  1.277917     -8  0.001218  0.643  0.000304  0.000000   26  0.014042  0.000000   36   26    1.496312
+[  NORMAL ]    6  1.277411    -50  0.000615  0.505  0.000218  0.000000   26  0.006075  0.000000   41   26    1.389824
+[  NORMAL ]    7  1.277006    -40  0.000714  1.161  0.000090  0.000000   26  0.001958  0.000000   50   26    1.308941
+[  NORMAL ]    8  1.276663    -34  0.000641  0.898  0.000076  0.000000   26  0.000858  0.000000   55   26    1.246847
+[  NORMAL ]    9  1.276446    -21  0.000325  0.508  0.000097  0.000000   26  0.001631  0.000000   48   26    1.200686
+[  NORMAL ]   10  1.276305    -14  0.000176  0.542  0.000096  0.000000   26  0.002161  0.000000   44   26    1.163675
+[  NORMAL ]   11  1.276240     -6  0.000061  0.345  0.000072  0.000000   26  0.002105  0.000000   43   26    1.135450
+[  NORMAL ]   12  1.276132    -10  0.000086  1.419  0.000057  0.000000   26  0.002093  0.000000   41   26    1.111781
 [  NORMAL ]   13  1.276006    -12  0.000064  0.740  0.000043  0.000000   26  0.001942  0.000000   41   26    1.093813
-[  NORMAL ]   14  1.275956     -5  0.000047  0.733  0.000039  0.000000   26  0.001749  0.000000   40   26    1.078339
-[  NORMAL ]   15  1.275982      2  0.000041  0.867  0.000034  0.000000   26  0.001556  0.000000   40   26    1.065686
+[  NORMAL ]   14  1.275955     -5  0.000047  0.733  0.000039  0.000000   26  0.001749  0.000000   40   26    1.078339
+[  NORMAL ]   15  1.275981      2  0.000041  0.867  0.000034  0.000000   26  0.001556  0.000000   40   26    1.065686
 [  NORMAL ]   16  1.276026      4  0.000058  1.421  0.000032  0.000000   26  0.001366  0.000000   39   26    1.054841
 [  NORMAL ]   17  1.275986     -4  0.000027  0.467  0.000027  0.000000   26  0.001188  0.000000   39   26    1.046267
-[  NORMAL ]   18  1.275949     -3  0.000028  1.028  0.000023  0.000000   26  0.001034  0.000000   39   26    1.039192
-[  NORMAL ]   19  1.275949      0  0.000021  0.759  0.000019  0.000000   26  0.000890  0.000000   39   26    1.033251
+[  NORMAL ]   18  1.275948     -3  0.000028  1.028  0.000023  0.000000   26  0.001034  0.000000   39   26    1.039192
+[  NORMAL ]   19  1.275948      0  0.000021  0.759  0.000019  0.000000   26  0.000890  0.000000   39   26    1.033251
 [  TITLE  ]  ************************************************************************************************************************
 [  TITLE  ]                                                       TIMING REPORT                                                     
 [  TITLE  ]  ************************************************************************************************************************
@@ -569,13 +577,14 @@
 [  NORMAL ]  Reading Geometry from non-uniform-lattice.geo
 [  NORMAL ]  Read complete
 [  NORMAL ]  Creating CMFD mesh...
-[  NORMAL ]  CMFD relaxation factor: 0.7000
 [  NORMAL ]  Initializing flat source regions...
 [  NORMAL ]  Initializing the track generator...
 [  NORMAL ]  Initializing 2D tracks...
 [  NORMAL ]  Initializing 2D tracks reflections...
 [  NORMAL ]  Initializing 2D tracks array...
 [  NORMAL ]  Initializing 3D tracks...
+[  NORMAL ]  RMS polar angle correction 1.088869 %
+[  NORMAL ]  Max polar angle correction 18.785596 %
 [  NORMAL ]  Progress Initializing 3D Tracks: 0.00 %
 [  NORMAL ]  Progress Initializing 3D Tracks: 10.01 %
 [  NORMAL ]  Progress Initializing 3D Tracks: 20.01 %
@@ -589,7 +598,7 @@
 [  NORMAL ]  Progress Initializing 3D Tracks: 100.00 %
 [  NORMAL ]  Total number of Tracks = 190652
 [  NORMAL ]  Temporary Track storage per domain =   0.01 MB
-[  NORMAL ]  Number of 3D Tracks: 190652
+[  NORMAL ]  3D Tracks in domain: 190652
 [  NORMAL ]  Ray tracing for axially extruded track segmentation...
 [  NORMAL ]  Progress Segmenting 2D Tracks: 0.00 %
 [  NORMAL ]  Progress Segmenting 2D Tracks: 10.03 %
@@ -629,6 +638,7 @@
 [  NORMAL ]  Finished initializing 3D FSRs
 [  NORMAL ]  Initializing FSR lookup vectors
 [  NORMAL ]  Max temporary segment storage per domain =   0.01 MB
+[  NORMAL ]  Total number of FSRs 324
 [  NORMAL ]  Initializing MOC eigenvalue solver...
 [  NORMAL ]  Initializing solver arrays...
 [  NORMAL ]  Max linear constant storage per domain =   0.11 MB
@@ -667,18 +677,18 @@
 [  NORMAL ]  Using 1 threads
 [  NORMAL ]  Computing the eigenvalue...
 [  NORMAL ]  iter   k-eff   eps-k  eps-MOC   D.R.   eps-FS1   eps-FSN   #FS  eps-flux1 eps-fluxN  #FX1 #FXN  MAX P.F.
-[  NORMAL ]    0  1.223264  22326  0.111351  0.111  0.003562  0.000000   26  0.148814  0.000000   36   26    20.000000
-[  NORMAL ]    1  1.268506   4524  0.080260  0.721  0.000871  0.000000   26  0.027971  0.000000   69   26    3.558467
-[  NORMAL ]    2  1.276963    845  0.016726  0.208  0.000366  0.000000   26  0.011000  0.000000   80   26    1.713285
-[  NORMAL ]    3  1.277407     44  0.004232  0.253  0.000289  0.000000   26  0.006214  0.000000   26   26    1.396230
-[  NORMAL ]    4  1.276967    -44  0.003650  0.863  0.000113  0.000000   26  0.004319  0.000000   27   26    1.249243
-[  NORMAL ]    5  1.276716    -25  0.001247  0.342  0.000068  0.000000   26  0.003055  0.000000   30   26    1.167252
-[  NORMAL ]    6  1.276538    -17  0.000807  0.647  0.000042  0.000000   26  0.001832  0.000000   34   26    1.118175
-[  NORMAL ]    7  1.276453     -8  0.000159  0.197  0.000028  0.000000   26  0.001239  0.000000   36   26    1.081984
-[  NORMAL ]    8  1.276412     -4  0.000234  1.471  0.000018  0.000000   26  0.000846  0.000000   38   26    1.056668
-[  NORMAL ]    9  1.276384     -2  0.000144  0.614  0.000013  0.000000   26  0.000570  0.000000   39   26    1.040891
-[  NORMAL ]   10  1.276373     -1  0.000102  0.709  0.000009  0.000000   26  0.000395  0.000000   40   26    1.029400
-[  NORMAL ]   11  1.276364      0  0.000058  0.574  0.000006  0.000000   26  0.000277  0.000000   41   26    1.021411
+[  NORMAL ]    0  1.223263  22326  0.111351  0.111  0.003562  0.000000   26  0.148814  0.000000   36   26    20.000000
+[  NORMAL ]    1  1.268505   4524  0.080260  0.721  0.000871  0.000000   26  0.027971  0.000000   69   26    3.558468
+[  NORMAL ]    2  1.276962    845  0.016726  0.208  0.000366  0.000000   26  0.011000  0.000000   80   26    1.713285
+[  NORMAL ]    3  1.277406     44  0.004232  0.253  0.000289  0.000000   26  0.006214  0.000000   26   26    1.396230
+[  NORMAL ]    4  1.276966    -44  0.003650  0.863  0.000113  0.000000   26  0.004319  0.000000   27   26    1.249243
+[  NORMAL ]    5  1.276715    -25  0.001247  0.342  0.000068  0.000000   26  0.003055  0.000000   30   26    1.167252
+[  NORMAL ]    6  1.276537    -17  0.000807  0.647  0.000042  0.000000   26  0.001832  0.000000   34   26    1.118175
+[  NORMAL ]    7  1.276452     -8  0.000159  0.197  0.000028  0.000000   26  0.001239  0.000000   36   26    1.081984
+[  NORMAL ]    8  1.276411     -4  0.000234  1.471  0.000018  0.000000   26  0.000846  0.000000   38   26    1.056668
+[  NORMAL ]    9  1.276383     -2  0.000144  0.614  0.000013  0.000000   26  0.000570  0.000000   39   26    1.040891
+[  NORMAL ]   10  1.276372     -1  0.000102  0.709  0.000009  0.000000   26  0.000395  0.000000   40   26    1.029400
+[  NORMAL ]   11  1.276363      0  0.000058  0.574  0.000006  0.000000   26  0.000277  0.000000   41   26    1.021411
 [  TITLE  ]  ************************************************************************************************************************
 [  TITLE  ]                                                       TIMING REPORT                                                     
 [  TITLE  ]  ************************************************************************************************************************
@@ -702,13 +712,14 @@
 [  NORMAL ]  Read complete
 [  NORMAL ]  Successfully set 2 x 2 x 2 domain decomposition
 [  NORMAL ]  Creating CMFD mesh...
-[  NORMAL ]  CMFD relaxation factor: 0.7000
 [  NORMAL ]  Initializing flat source regions...
 [  NORMAL ]  Initializing the track generator...
 [  NORMAL ]  Initializing 2D tracks...
 [  NORMAL ]  Initializing 2D tracks reflections...
 [  NORMAL ]  Initializing 2D tracks array...
 [  NORMAL ]  Initializing 3D tracks...
+[  NORMAL ]  RMS polar angle correction 1.416831 %
+[  NORMAL ]  Max polar angle correction 33.609887 %
 [  NORMAL ]  Progress Initializing 3D Tracks: 0.00 %
 [  NORMAL ]  Progress Initializing 3D Tracks: 10.02 %
 [  NORMAL ]  Progress Initializing 3D Tracks: 20.02 %
@@ -722,7 +733,7 @@
 [  NORMAL ]  Progress Initializing 3D Tracks: 100.00 %
 [  NORMAL ]  Total number of Tracks = 56008
 [  NORMAL ]  Temporary Track storage per domain =   0.00 MB
-[  NORMAL ]  Number of 3D Tracks: 56008
+[  NORMAL ]  3D Tracks in domain: 56008
 [  NORMAL ]  Ray tracing for axially extruded track segmentation...
 [  NORMAL ]  Progress Segmenting 2D Tracks: 0.00 %
 [  NORMAL ]  Progress Segmenting 2D Tracks: 10.09 %
@@ -762,6 +773,7 @@
 [  NORMAL ]  Finished initializing 3D FSRs
 [  NORMAL ]  Initializing FSR lookup vectors
 [  NORMAL ]  Max temporary segment storage per domain =   0.00 MB
+[  NORMAL ]  Total number of FSRs 324
 [  NORMAL ]  Initializing MOC eigenvalue solver...
 [  NORMAL ]  Initializing solver arrays...
 [  NORMAL ]  Max linear constant storage per domain =   0.02 MB
@@ -807,26 +819,26 @@
 [  NORMAL ]  Using 1 threads
 [  NORMAL ]  Computing the eigenvalue...
 [  NORMAL ]  iter   k-eff   eps-k  eps-MOC   D.R.   eps-FS1   eps-FSN   #FS  eps-flux1 eps-fluxN  #FX1 #FXN  MAX P.F.
-[  NORMAL ]    0  1.169826  16982  0.092478  0.092  0.002993  0.000000   26  0.123729  0.000000   42   26    20.000000
-[  NORMAL ]    1  1.246392   7656  0.116735  1.262  0.002203  0.000000   26  0.023743  0.000000   85   26    5.503312
-[  NORMAL ]    2  1.269842   2344  0.010065  0.086  0.000553  0.000000   26  0.011475  0.000000   97   26    2.493036
-[  NORMAL ]    3  1.276339    649  0.005901  0.586  0.000984  0.000000   26  0.005449  0.000000  112   26    1.939922
-[  NORMAL ]    4  1.278292    195  0.001949  0.330  0.000416  0.000000   26  0.003319  0.000000   26   26    1.667341
+[  NORMAL ]    0  1.169825  16982  0.092478  0.092  0.002993  0.000000   26  0.123729  0.000000   42   26    20.000000
+[  NORMAL ]    1  1.246391   7656  0.116735  1.262  0.002203  0.000000   26  0.023743  0.000000   85   26    5.503313
+[  NORMAL ]    2  1.269841   2344  0.010065  0.086  0.000553  0.000000   26  0.011475  0.000000   97   26    2.493037
+[  NORMAL ]    3  1.276338    649  0.005901  0.586  0.000984  0.000000   26  0.005449  0.000000  112   26    1.939922
+[  NORMAL ]    4  1.278291    195  0.001949  0.330  0.000416  0.000000   26  0.003319  0.000000   26   26    1.667341
 [  NORMAL ]    5  1.278067    -22  0.001153  0.592  0.000089  0.000000   26  0.002873  0.000000   27   26    1.504578
-[  NORMAL ]    6  1.277491    -57  0.000581  0.504  0.000057  0.000000   26  0.002629  0.000000   30   26    1.396030
-[  NORMAL ]    7  1.277055    -43  0.000702  1.209  0.000048  0.000000   26  0.002253  0.000000   32   26    1.313026
-[  NORMAL ]    8  1.276697    -35  0.000624  0.888  0.000048  0.000000   26  0.002098  0.000000   34   26    1.251093
+[  NORMAL ]    6  1.277490    -57  0.000581  0.504  0.000057  0.000000   26  0.002629  0.000000   30   26    1.396030
+[  NORMAL ]    7  1.277054    -43  0.000702  1.209  0.000048  0.000000   26  0.002253  0.000000   32   26    1.313026
+[  NORMAL ]    8  1.276696    -35  0.000624  0.888  0.000048  0.000000   26  0.002098  0.000000   34   26    1.251093
 [  NORMAL ]    9  1.276469    -22  0.000319  0.511  0.000056  0.000000   26  0.001778  0.000000   35   26    1.204910
-[  NORMAL ]   10  1.276325    -14  0.000172  0.541  0.000051  0.000000   26  0.001571  0.000000   36   26    1.168181
-[  NORMAL ]   11  1.276255     -7  0.000063  0.368  0.000035  0.000000   26  0.001287  0.000000   38   26    1.139038
-[  NORMAL ]   12  1.276144    -11  0.000087  1.376  0.000029  0.000000   26  0.001122  0.000000   38   26    1.114733
-[  NORMAL ]   13  1.276018    -12  0.000062  0.715  0.000021  0.000000   26  0.000971  0.000000   39   26    1.094408
-[  NORMAL ]   14  1.275967     -5  0.000047  0.749  0.000016  0.000000   26  0.000824  0.000000   40   26    1.079421
-[  NORMAL ]   15  1.275990      2  0.000041  0.868  0.000013  0.000000   26  0.000685  0.000000   41   26    1.067309
-[  NORMAL ]   16  1.276031      4  0.000058  1.436  0.000012  0.000000   26  0.000574  0.000000   41   26    1.056899
-[  NORMAL ]   17  1.275991     -4  0.000026  0.451  0.000011  0.000000   26  0.000496  0.000000   41   26    1.047447
-[  NORMAL ]   18  1.275953     -3  0.000027  1.042  0.000008  0.000000   26  0.000428  0.000000   42   26    1.039536
-[  NORMAL ]   19  1.275953      0  0.000022  0.807  0.000008  0.000000   26  0.000362  0.000000   42   26    1.033690
+[  NORMAL ]   10  1.276324    -14  0.000172  0.541  0.000051  0.000000   26  0.001571  0.000000   36   26    1.168181
+[  NORMAL ]   11  1.276254     -7  0.000063  0.368  0.000035  0.000000   26  0.001287  0.000000   38   26    1.139038
+[  NORMAL ]   12  1.276143    -11  0.000087  1.376  0.000029  0.000000   26  0.001122  0.000000   38   26    1.114733
+[  NORMAL ]   13  1.276017    -12  0.000062  0.715  0.000021  0.000000   26  0.000971  0.000000   39   26    1.094408
+[  NORMAL ]   14  1.275966     -5  0.000047  0.749  0.000016  0.000000   26  0.000824  0.000000   40   26    1.079421
+[  NORMAL ]   15  1.275989      2  0.000041  0.868  0.000013  0.000000   26  0.000685  0.000000   41   26    1.067309
+[  NORMAL ]   16  1.276030      4  0.000058  1.436  0.000012  0.000000   26  0.000574  0.000000   41   26    1.056899
+[  NORMAL ]   17  1.275990     -4  0.000026  0.451  0.000011  0.000000   26  0.000496  0.000000   41   26    1.047447
+[  NORMAL ]   18  1.275952     -3  0.000027  1.042  0.000008  0.000000   26  0.000428  0.000000   42   26    1.039536
+[  NORMAL ]   19  1.275952      0  0.000022  0.807  0.000008  0.000000   26  0.000362  0.000000   42   26    1.033690
 [  TITLE  ]  ************************************************************************************************************************
 [  TITLE  ]                                                       TIMING REPORT                                                     
 [  TITLE  ]  ************************************************************************************************************************
