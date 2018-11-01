@@ -399,8 +399,8 @@ void Cmfd::setNumDomains(int num_x, int num_y, int num_z) {
   _accumulate_lmy.resize(num_y + 1, 0);
   _accumulate_lmz.resize(num_z + 1, 0);
   
-  /* To check the position of domain decomposition interfaces in non-uniform CMFD
-    mesh interfaces*/
+  /* To check the position of domain decomposition interfaces in non-uniform 
+     CMFD mesh interfaces. x direction */
   int j;
   for(int i=0; i<num_x; i++) {
     double coord = (i + 1) * _width_x / num_x;
@@ -416,8 +416,8 @@ void Cmfd::setNumDomains(int num_x, int num_y, int num_z) {
     }
   }
 
-  /* To check the position of domain decomposition interfaces in non-uniform CMFD
-    mesh interfaces*/
+  /* To check the position of domain decomposition interfaces in non-uniform 
+     CMFD mesh interfaces. y direction */
   for(int i=0; i<num_y; i++) {
     double coord = (i + 1) * _width_y / num_y;
     for(j=1; j<_num_y+1; j++) {
@@ -432,8 +432,8 @@ void Cmfd::setNumDomains(int num_x, int num_y, int num_z) {
     }
   }
 
-  /* To check the position of domain decomposition interfaces in non-uniform CMFD
-    mesh interfaces*/
+  /* To check the position of domain decomposition interfaces in non-uniform 
+     CMFD mesh interfaces. z direction */
   for(int i=0; i<num_z; i++) {
     double coord = (i + 1) * _width_z / num_z;
     for(j=1; j<_num_z+1; j++) {
@@ -771,7 +771,7 @@ CMFD_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
  *         (\f$ \tilde{D} \f$)
  */
 void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
-    int group, int moc_iteration,double& dif_surf, double& dif_surf_corr){
+    int group, int moc_iteration,double& dif_surf, double& dif_surf_corr) {
 
   FP_PRECISION current, current_out, current_in;
   CMFD_PRECISION flux_next;
@@ -878,10 +878,7 @@ void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     /* Compute the surface diffusion coefficient correction */
     dif_surf_corr = -(sense * dif_surf * (flux_next - flux) + current)
         / (flux_next + flux);
-    /*if (correction)
-      printf("cmfd_cell=%2d, surface=%2d, group=%2d,flux=%20.10E, flux_next=%20.10E, dif_surf=%20.10E, dif_surf_corr=%20.10E, current_out=%20.10E, current_in=%20.10E\n",
-                 cmfd_cell,surface,group,flux,flux_next,dif_surf,dif_surf_corr,current_out,current_in);
-*/
+
     /* Flux limiting condition */
     if (_flux_limiting && moc_iteration > 0) {
       double ratio = dif_surf_corr / dif_surf;
@@ -911,12 +908,6 @@ void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
    * with no MOC correction */
   if (moc_iteration == 0)
     dif_surf_corr = 0.0;
-
-  /* Determine which surface diffusion coefficient is corrected */
-  /*if (correction)
-    return dif_surf_corr;
-  else
-    return dif_surf;*/
 }
 
 
@@ -1628,6 +1619,8 @@ void Cmfd::initializeGroupMap() {
  */
 int Cmfd::findCmfdSurface(int cell, LocalCoords* coords) {
   Point* point = coords->getHighestLevel()->getPoint();
+  
+  /* If domain decomposition, compute the global CMFD cell ID*/
   if (_geometry->isDomainDecomposed())
     cell = getGlobalCMFDCell(cell);
   return _lattice->getLatticeSurface(cell, point);
@@ -1642,11 +1635,14 @@ int Cmfd::findCmfdSurface(int cell, LocalCoords* coords) {
 int Cmfd::findCmfdCell(LocalCoords* coords) {
   Point* point = coords->getHighestLevel()->getPoint();
   int global_cmfd_cell = _lattice->getLatticeCell(point);
+  
+  /* If domain decomposition, compute the local CMFD cell ID*/ 
   if (_geometry->isDomainDecomposed()) {
     int local_cmfd_cell = getLocalCMFDCell(global_cmfd_cell);
     return local_cmfd_cell;
   }
   else
+    /* If no domain decomposition, global and local CMFD cell ID equals.*/ 
     return global_cmfd_cell;
 }
 
@@ -2341,8 +2337,8 @@ void Cmfd::setConvergenceData(ConvergenceData* convergence_data) {
 
 
 /**
- * @brief Set the flag indicating whether to use axial interpolation for update
- *        ratios
+ * @brief Set the flag indicating whether to use quadratic axial interpolation 
+ *        for update ratios
  * @param interpolate flag meaning No interpolation(0), FSR axially averaged 
           value(1) or centroid z-coordinate evaluted value(2)
  */
@@ -2607,7 +2603,7 @@ void Cmfd::generateKNearestStencils() {
       /* The heights of neighboring three CMFD meshes for quadratic fit */
       double h0, h1, h2; 
       
-      /* The z coordinate of middle CMFD mesh center */
+      /* The z coordinate of the mesh center of the middle-CMFD cell  */
       double z_cmfd;
       
       if(z_ind == 0) {
@@ -2700,7 +2696,7 @@ void Cmfd::generateKNearestStencils() {
         _axial_interpolants.at(fsr_id)[1] = -zc * zc + 26.0/24.0;
         _axial_interpolants.at(fsr_id)[2] = zc * zc/2.0 + zc/2.0 - 1.0/24.0;*/
 
-        /* Set zero axial prolongation for cells with no fissionalbe material */
+        /* Set zero axial prolongation for cells with no fissionable material */
         if (_FSR_materials[fsr_id]->isFissionable())
           num_fissionable_FSRs++;
       }
@@ -2859,7 +2855,7 @@ CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
       cell_mid -= _local_num_xn * _local_num_yn;
 
     /* Get cell index above and below current CMFD cell */
-	int cell_prev = cell_mid - _local_num_xn * _local_num_yn;
+    int cell_prev = cell_mid - _local_num_xn * _local_num_yn;
     int cell_next = cell_mid + _local_num_xn * _local_num_yn;
 
     /* Get new and old fluxes in bottom/mid/top cells */
@@ -3148,10 +3144,6 @@ void Cmfd::initialize() {
 
     /* Initialize domain communicator */
     if (_domain_communicator != NULL) {
-      /* Size of domain in each direction */
-      //_local_num_x = _num_x / _domain_communicator->_num_domains_x;//_local_num_x need to be replaced.
-      //_local_num_y = _num_y / _domain_communicator->_num_domains_y;
-      //_local_num_z = _num_z / _domain_communicator->_num_domains_z;
       _domain_communicator->stop = false;
       int offset = _accumulate_lmx[_domain_communicator->_domain_idx_x] +
                    _accumulate_lmy[_domain_communicator->_domain_idx_y] +
@@ -3386,7 +3378,9 @@ void Cmfd::initialize() {
 
 
 /**
- * @brief Initialize the CMFD lattice and compute mesh dimenssions.
+ * @brief Initialize the CMFD lattice and compute mesh dimenssions, considering
+ *        both uniform/non-uniform and 2D/3D cases.
+ * @param offset the offset point of the CMFD Lattice
  */
 void Cmfd::initializeLattice(Point* offset) {
 
@@ -3400,7 +3394,7 @@ void Cmfd::initializeLattice(Point* offset) {
     _cell_width_y = _width_y / _num_y;
     _cell_width_z = _width_z / _num_z;
     
-    /* 2D case */
+    /* 2D case, set the axial width 1.0 */
     if(_width_z == std::numeric_limits<double>::infinity())
       _cell_width_z = 1.0;
     
@@ -3450,6 +3444,7 @@ void Cmfd::initializeLattice(Point* offset) {
   _lattice->setNumX(_num_x);
   _lattice->setNumY(_num_y);
   _lattice->setNumZ(_num_z);
+  
   if(_non_uniform)
     _lattice->setWidths(_cell_widths_x, _cell_widths_y, _cell_widths_z);
   else
@@ -3621,6 +3616,7 @@ void Cmfd::copyCurrentsToBackup() {
 /**
  * @brief Returns the width of a given surface
  * @param surface A surface index, from 0 to NUM_FACES - 1
+ * @param global_ind global index of a CMFD cell
  * @return The surface width
  */
 CMFD_PRECISION Cmfd::getSurfaceWidth(int surface, int global_ind) {
@@ -4956,10 +4952,11 @@ void Cmfd::setWidths(std::vector< std::vector<double> > widths) {
   _cell_widths_y = widths[1];
 }
 
+
 /**
  * @brief For debug use.
  */
-void Cmfd::printSizes() {
+void Cmfd::printCmfdCellSizes() {
   int i;
   printf("non_uniform=%d, \nNum_XYZ: %2d, %2d, %2d\n", _non_uniform,
          _num_x, _num_y, _num_z);

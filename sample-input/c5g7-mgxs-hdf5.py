@@ -293,7 +293,7 @@ control_rod.create_dataset('chi', data=chi)
 ################################      Clad       ##############################
 ###############################################################################
 
-# Create a subgroup for control rod materials data
+# Create a subgroup for Clad materials data
 clad = material_group.create_group('Clad')
 
 sigma_t = numpy.array([1.30060E-01, 3.05480E-01, 3.29910E-01, 

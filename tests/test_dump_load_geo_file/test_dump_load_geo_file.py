@@ -44,14 +44,12 @@ class DumpAndLoadTestHarness(TestHarness):
         # Initialize CMFD
         cmfd = openmoc.Cmfd()
         cmfd.setCMFDRelaxationFactor(0.7)
-        #cmfd.setLatticeStructure(17,17)
         cmfd.setWidths([[0.05,1.26,1.26,0.05], [0.05,1.26,1.26,0.05], [1.,1.5]])
         cmfd.setGroupStructure([[1,2,3],[4,5,6,7]])
         cmfd.setCentroidUpdateOn(False)
 
         # Add CMFD to the Geometry
         self.input_set.geometry.setCmfd(cmfd)
-        
         
 
     def _create_trackgenerator(self):
@@ -99,8 +97,6 @@ class DumpAndLoadTestHarness(TestHarness):
         self._setup()
         self._run_openmoc()
 
-        
-        
 
 if __name__ == '__main__':
     try:

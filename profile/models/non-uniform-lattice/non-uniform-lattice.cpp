@@ -13,7 +13,7 @@ int main(int argc,  char* argv[]) {
   log_set_ranks(MPI_COMM_WORLD);
 #endif
 
-	set_line_length(120);
+  set_line_length(120);
   std::string file = "non-uniform-lattice.geo";
   
   double start_time = omp_get_wtime();
@@ -37,16 +37,13 @@ int main(int argc,  char* argv[]) {
   /* Create CMFD lattice */
   Cmfd* cmfd = new Cmfd();
   cmfd->useAxialInterpolation(false);
-  //cmfd->setLatticeStructure(2, 2, 2);
-  /*std::vector<std::vector<double> > cmfd_widths{{0.05,0.1,0.2,0.3,0.4,0.26,1.26, 0.05},
-  	{0.05,0.1,0.2,0.3,0.4,0.26,1.26, 0.05},
-  	{1,0.25,1.25}};*/
-  	std::vector<std::vector<double> > cmfd_widths{{0.05,0.63,0.63,0.63,0.63, 0.05},
-  	{0.05,0.63,0.63,0.63,0.63, 0.05},
-  	{1.25,1.25}};
+
+  std::vector<std::vector<double> > cmfd_widths{{0.05,0.63,0.63,0.63,0.63, 0.05},
+                                                {0.05,0.63,0.63,0.63,0.63, 0.05},
+                                                {1.25,1.25}};
   cmfd->setWidths(cmfd_widths);
   cmfd->setCentroidUpdateOn(true); 
-	std::vector<std::vector<int> > cmfd_group_structure{{1,2,3},{4,5},{6,7}};
+  std::vector<std::vector<int> > cmfd_group_structure{{1,2,3},{4,5},{6,7}};
   cmfd->setGroupStructure(cmfd_group_structure);
   cmfd->setKNearest(1);
 
@@ -56,7 +53,7 @@ int main(int argc,  char* argv[]) {
   Geometry *geometry = new Geometry();
   geometry->loadFromFile(file, false); 
   
-  geometry->setCmfd(cmfd); //FIXME OFF /ON
+  geometry->setCmfd(cmfd);
 #ifdef MPIx
   geometry->setDomainDecomposition(2, 2, 2, MPI_COMM_WORLD);
 #endif
@@ -71,7 +68,7 @@ int main(int argc,  char* argv[]) {
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);
   track_generator.setSegmentFormation(OTF_STACKS);
-	std::vector<double> segmentation_zones{0.0, 1.0,2.5};
+  std::vector<double> segmentation_zones {0.0, 1.0, 2.5};
   track_generator.setSegmentationZones(segmentation_zones);
   track_generator.generateTracks();
 

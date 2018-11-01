@@ -5,6 +5,12 @@
 /**
  * @brief Process the run time options
  */
+/**
+ * @brief Process the run time options 
+ * @param RP A reference of RuntimeParametres
+ * @param argc number of run time command words
+ * @param argv content of run time command words
+ */
 int setRuntimeParametres(RuntimeParametres &RP, int argc, char *argv[]) {
   
   int arg_index = 0;
@@ -308,14 +314,55 @@ int setRuntimeParametres(RuntimeParametres &RP, int argc, char *argv[]) {
   MPI_Comm_rank(MPI_COMM_WORLD, &myid);
 #endif
   if ((print_usage) && (myid == 0)) {
-    printf("Usage: %s [<options>], default value in ()\n", argv[0]);
+    printf("Usage: %s [<options>], default value in (). Example commands as "
+           "below\n", argv[0]);
     printf("\n");
+    printf(
+      "mpiexec -n 8 ./run_time_standard                                    \\\n"
+      "-debug                   1                                          \\\n"
+      "-log_level               NORMAL                                     \\\n"
+      "-domain_decompose        2,2,2                                      \\\n"
+      "-num_domain_modules      1,1,1                                      \\\n"
+      "-num_threads             1                                          \\\n"
+      "-log_filename            test_problem.log                           \\\n"
+      "-geo_file_name           test_problem.geo                           \\\n"
+      "-geo-version             0                                          \\\n"
+      "-azim_spacing            0.10                                       \\\n"
+      "-num_azim                32                                         \\\n"
+      "-polar_spacing           0.5                                        \\\n"
+      "-num_polar               6                                          \\\n"
+      "-seg_zones               -1.0,2.0,3.0                               \\\n"
+      "-segmentation_type       3                                          \\\n"
+      "-quadraturetype          2                                          \\\n"
+      "-CMFD_group_structure    1-3/4,5/6-8,9                              \\\n"
+      "-CMFD_lattice            2,3,3                                      \\\n"
+      "-widths_x                1.36,1.26*15,1.36*2                        \\\n"
+      "-widths_y                1.36,1.26*15,1.36*2                        \\\n"
+      "-widths_z                1.19*54                                    \\\n"
+      "-CMFD_flux_update_on     1                                          \\\n"
+      "-knearest                2                                          \\\n"
+      "-CMFD_centroid_update_on 1                                          \\\n"
+      "-use_axial_interpolation 2                                          \\\n"
+      "-SOR_factor              1.5                                        \\\n"
+      "-CMFD_relaxation_factor  0.7                                        \\\n"
+      "-ls_solver               1                                          \\\n"
+      "-max_iters               100                                        \\\n"
+      "-MOC_src_residual_type   1                                          \\\n"
+      "-MOC_src_tolerance       1.0E-5                                     \\\n"
+      "-output_mesh_lattice     -output_mesh_lattice 5,5,9 -output_type 0  \\\n"
+      "-output_mesh_lattice     -output_mesh_lattice 5,5,9 -output_type 1  \\\n"
+      "-non_uniform_output      1.26*3/1*3/4.*3/-1.,1.,-1. -output_type 1  \\\n"
+      "-verbose_report          1                                          \\\n"
+      "-time_report             1                                          \\\n"
+    );
     
+    printf("\n");
     printf("General parameters\n");
-    printf("-debug                  : (0) or 1, stuck in infinite while loop\n");
+    printf("-debug                  : (0) or 1, waits in while loop for GDB to"
+           " attach\n");
     printf("-log_level              : (NORMAL)\n");
-    printf("-domain_decompose       : (1,1,1) domain decomposation structure\n");
-    printf("-num_domain_modules     : (1,1,1) modular Topo in a domain\n");
+    printf("-domain_decompose       : (1,1,1) domain decomposition structure\n");
+    printf("-num_domain_modules     : (1,1,1) modular structure in a domain\n");
     printf("-num_threads            : (1) Number of OpenMP threads to use\n");
     printf("-log_filename           : (NULL) the file name of the log file\n");
     printf("-geo_file_name          : (NULL) the file name of the geometry "
@@ -345,26 +392,28 @@ int setRuntimeParametres(RuntimeParametres &RP, int argc, char *argv[]) {
 
     printf("CMFD parameters\n");
     printf("-CMFD_group_structure   : (No group condensation) set CMFD group "
-           "structure with ',' and '/' \n");
-    printf("-CMFD_lattice           : (0,0,0)Uniform CMFD lattice structure\n");
+           "structure with ',', '-', and '/' \n");
+    printf("-CMFD_lattice           : (0,0,0) Uniform CMFD lattice structure."
+           "If both CMFD_lattice and widths are set,\n"
+           "                          CMFD_lattice will be overridded \n");
     printf("-widths_x               : (NULL) the widths of non-uniform CMFD "
-           "meshes in x direction\n");
+           "meshes in x direction, use '*' for repeat\n");
     printf("-widths_y               : (NULL) the widths of non-uniform CMFD "
-           "meshes in y direction\n");
+           "meshes in y direction, use '*' for repeat\n");
     printf("-widths_z               : (NULL) the widths of non-uniform CMFD "
-           "meshes in z direction\n");
-    printf("-CMFD_flux_update_on    : (1)switch of the CMFD update\n");
-    printf("-knearest               : (1) knearest CMFD update\n");
-    printf("-CMFD_centroid_update_on: (1)switch of the CMFD knearest "
+           "meshes in z direction, use '*' for repeat\n");
+    printf("-CMFD_flux_update_on    : (1) switch of the CMFD update\n");
+    printf("-knearest               : (1) number of CMFD knearest neighbors\n");
+    printf("-CMFD_centroid_update_on: (1) switch of the CMFD knearest "
            "centroid update\n");
-    printf("-use_axial_interpolation: (0)option of the CMFD axial interpolation"
-           " update\n"
+    printf("-use_axial_interpolation: (0) option of the CMFD quadratic axial "
+           "interpolation update\n"
            "                           0 - No axial interpolation\n"
            "                           1 - FSR axially averaged value\n"
            "                           2 - centroid z-coordinate evaluated "
            "value\n");
-    printf("-SOR_factor             : (1.0)set CMFD SOR relaxation factor\n");
-    printf("-CMFD_relaxation_factor : (1.0)set CMFD relaxation factor\n");
+    printf("-SOR_factor             : (1.0) set CMFD SOR relaxation factor\n");
+    printf("-CMFD_relaxation_factor : (1.0) set CMFD relaxation factor\n");
     printf("\n");
 
     printf("MOC solver parameters\n");
@@ -378,21 +427,21 @@ int setRuntimeParametres(RuntimeParametres &RP, int argc, char *argv[]) {
     printf("\n");
 
     printf("Output parameters\n");
-    printf("-output_mesh_lattice    : (0,0,0)Uniform reaction output mesh "
+    printf("-output_mesh_lattice    : (0,0,0) Uniform reaction output mesh "
            "lattice\n");
     printf("-non_uniform_output     : set the XYZ widths and offset of "
-           "non_uniform lattice for reaction output\n");
+           "non_uniform lattice for reaction output, use '*' for repeat\n");
     printf("-output_type            : (0 - FISSION_RX) set the output reaction "
-           "types\n"
+           "types, an output_type should always follow output lattice \n"
            "                           0 - FISSION_RX\n"
            "                           1 - TOTAL_RX\n"
            "                           2 - ABSORPTION_RX\n"
            "                           3 - FLUX_RX\n"
           );
-    printf("-verbose_report         : (1)switch of the verbose iteration "
+    printf("-verbose_report         : (1) switch of the verbose iteration "
            "report\n");
-    printf("-time_report            : (1)switch of the time report\n");
-    printf("-test_run               : (0)switch of the test running mode\n");
+    printf("-time_report            : (1) switch of the time report\n");
+    printf("-test_run               : (0) switch of the test running mode\n");
 
     printf("\n");
   }

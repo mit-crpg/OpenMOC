@@ -169,21 +169,24 @@ private:
   /** True if the lattice is non-uniform */
   bool _non_uniform;
   
-  /** The width of each Lattice cell (cm) along the x-axis */
+  /** The width of each Lattice cell (cm) along the x-axis
+      (uniform lattices only) */
   double _width_x;
   
   /** x-direction dimensions of non-uniform lattice meshes */
   std::vector<double> _widths_x;
   std::vector<double> _accumulate_x;
 
-  /** The width of each Lattice cell (cm) along the y-axis */
+  /** The width of each Lattice cell (cm) along the y-axis 
+      (uniform lattices only) */
   double _width_y;
   
   /** y-direction dimensions of non-uniform lattice meshes */
   std::vector<double> _widths_y;
   std::vector<double> _accumulate_y;
 
-  /** The width of each Lattice cell (cm) along the z-axis */
+  /** The width of each Lattice cell (cm) along the z-axis 
+      (uniform lattices only) */
   double _width_z;
   
   /** z-direction dimensions of non-uniform lattice meshes */
@@ -271,7 +274,7 @@ public:
   void computeSizes();
   
   /* For debug use */
-  void printSizes();
+  void printLatticeSizes();
   
 };
 
@@ -301,9 +304,5 @@ template<typename tMap>
 second_t<typename tMap::value_type> pair_second(const tMap& map) {
   return second_t<typename tMap::value_type>();
 }
-
-
-
-
 
 #endif /* UNIVERSE_H_ */

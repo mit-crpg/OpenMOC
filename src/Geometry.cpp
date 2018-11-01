@@ -2619,16 +2619,12 @@ void Geometry::initializeFSRVectors() {
     /* Allocate extruded FSR lookup vector and fill with extruded FSRs by ID */
     _extruded_FSR_lookup = std::vector<ExtrudedFSR*>(num_extruded_FSRs);
     ExtrudedFSR **extruded_value_list = _extruded_FSR_keys_map.values();
-    std::string *extruded_key_list = _extruded_FSR_keys_map.keys();
 #pragma omp parallel for
     for (int i=0; i < num_extruded_FSRs; i++) {
       long fsr_id = extruded_value_list[i]->_fsr_id;
       _extruded_FSR_lookup[fsr_id] = extruded_value_list[i];
-      /* log_printf(NORMAL, "ExtFSRId=%d, Extkey=%s\n", fsr_id, 
-                 extruded_key_list[i].c_str()); */
     }
 
-    delete [] extruded_key_list;
     delete [] extruded_value_list;
   }
 

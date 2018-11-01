@@ -480,7 +480,7 @@ public:
   void setWidths(std::vector< std::vector<double> > widths);
   
   /* For debug use */
-  void printSizes();
+  void printCmfdCellSizes();
 };
 
 

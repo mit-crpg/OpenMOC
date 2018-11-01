@@ -522,9 +522,12 @@ class NonUniformLatticeInput(InputSet):
         pin_pitch = 1.26
         gap_size = 0.05
         surfaces = {}
-        surfaces['Pin Cell ZCylinder'] = openmoc.ZCylinder(x=0, y=0, radius=r_fuel, name='Pin Cell ZCylinder')
-        surfaces['Clad Cell ZCylinder'] = openmoc.ZCylinder(x=0, y=0, radius=r_clad, name='Clad Cell ZCylinder')
-        surfaces['large'] = openmoc.ZCylinder(x=0, y=0, radius=r_large, name='large')
+        surfaces['Pin Cell ZCylinder'] = \
+          openmoc.ZCylinder(x=0, y=0, radius=r_fuel, name='Pin Cell ZCylinder')
+        surfaces['Clad Cell ZCylinder'] = openmoc.ZCylinder(x=0, y=0, \
+                                      radius=r_clad, name='Clad Cell ZCylinder')
+        surfaces['large'] = \
+        openmoc.ZCylinder(x=0, y=0, radius=r_large, name='large')
         surfaces['z-inf'] = openmoc.ZPlane(z=-1.0E10)
         surfaces['z+inf'] = openmoc.ZPlane(z= 1.0E10)
         
@@ -536,21 +539,25 @@ class NonUniformLatticeInput(InputSet):
         cells['large_fuel'] = openmoc.Cell()
         cells['large_mod'] = openmoc.Cell()
         
-        cells['fuel'].addSurface(halfspace=-1, surface=surfaces['Pin Cell ZCylinder'])
+        cells['fuel'].addSurface(halfspace=-1, \
+                                 surface=surfaces['Pin Cell ZCylinder'])
         cells['fuel'].addSurface(halfspace=+1, surface=surfaces['z-inf'])
         cells['fuel'].addSurface(halfspace=-1, surface=surfaces['z+inf'])
         cells['fuel'].setFill(self.materials['UO2'])
         cells['fuel'].setNumSectors(num_sectors)
         cells['fuel'].setNumRings(fuel_rings)
         
-        cells['clad'].addSurface(halfspace=+1, surface=surfaces['Pin Cell ZCylinder'])
-        cells['clad'].addSurface(halfspace=-1, surface=surfaces['Clad Cell ZCylinder'])
+        cells['clad'].addSurface(halfspace=+1, \
+                                 surface=surfaces['Pin Cell ZCylinder'])
+        cells['clad'].addSurface(halfspace=-1, \
+                                 surface=surfaces['Clad Cell ZCylinder'])
         cells['clad'].addSurface(halfspace=+1, surface=surfaces['z-inf'])
         cells['clad'].addSurface(halfspace=-1, surface=surfaces['z+inf'])
         cells['clad'].setFill(self.materials['Clad'])
         cells['clad'].setNumSectors(num_sectors)
         
-        cells['mod'].addSurface(halfspace=+1, surface=surfaces['Clad Cell ZCylinder'])
+        cells['mod'].addSurface(halfspace=+1, \
+                                surface=surfaces['Clad Cell ZCylinder'])
         cells['mod'].addSurface(halfspace=+1, surface=surfaces['z-inf'])
         cells['mod'].addSurface(halfspace=-1, surface=surfaces['z+inf'])
         cells['mod'].setFill(self.materials['Water'])
@@ -593,7 +600,8 @@ class NonUniformLatticeInput(InputSet):
                  [1.0,1.5])
         lattice = openmoc.Lattice(name='lattice with gap')
         lattice.setWidths(width[0], width[1], width[2])
-        lattice.setOffset(lower_left[0]+sum(width[0])/2., lower_left[1]+sum(width[1])/2., lower_left[2]+sum(width[2])/2.)
+        lattice.setOffset(lower_left[0]+sum(width[0])/2., \
+                 lower_left[1]+sum(width[1])/2., lower_left[2]+sum(width[2])/2.)
                           
         f = universes['pin']
         g = universes['uniform gap']

@@ -1,10 +1,10 @@
 /**
  * @file RunTime.h
  * @brief Utility functions for processing run time options
- * @details OpenMOC provide another option of input by .cpp file. With these run time options, it's possible to run various problems with different parameters via
- a standard built excutive file,
- , avoiding the necessity to build the code each time.
- *          
+ * @details OpenMOC provide another option of input by .cpp file. With these run
+ *          time options, it's possible to run various problems with different 
+ *          parameters via a standard built executive file, avoiding the 
+ *          necessity to build the code each time.
  * @author Wenbin Wu (wenbin@mit.edu)
  * @date October 12, 2018
  *
@@ -53,7 +53,7 @@ struct RuntimeParametres {
   char* _log_level;
   /* Domain decomposation structure */
   int _NDx, _NDy, _NDz;
-  /* Moduler structure, defined for sub-domains */
+  /* Modules structure, used to define sub-domains */
   int _NMx, _NMy, _NMz;
   /* Number of OpenMP threads */
   int _num_threads;
@@ -64,7 +64,7 @@ struct RuntimeParametres {
   /* The version of geometry file */
   int _geo_version;
 
-  
+  /* Space and angle quadrature parameters */
   double _azim_spacing;
   int _num_azim;
   double _polar_spacing;
@@ -87,7 +87,7 @@ struct RuntimeParametres {
   std::vector<double> _cell_widths_z;
   /* CMFD flux update on or not*/
   bool _CMFD_flux_update_on;
-  /* The order of knearest update */
+  /* The order of k-nearest update */
   int _knearest;
   /* Knearest update or conventional update */
   bool _CMFD_centroid_update_on;
@@ -117,13 +117,10 @@ struct RuntimeParametres {
   std::vector<int> _output_types; 
   bool _verbose_report;
   bool _time_report;
-  /* Run the code for test */
+  /* whether to run the code for test */
   bool _test_run;
 };
 
-/**
- * @brief Process the run time options
- */
 int setRuntimeParametres(RuntimeParametres &RP, int argc, char *argv[]);
 
 #endif /* RUNTIME_H_ */

@@ -10,7 +10,8 @@ from input_set import NonUniformLatticeInput
 
 
 class NonUniformLatticeTestHarness(TestHarness):
-    """An eigenvalue calculation in a 3D Non-uniform Lattice with 7-group C5G7 data."""
+    """An eigenvalue calculation in a 3D Non-uniform Lattice 
+       with 7-group C5G7 data."""
 
     def __init__(self):
         super(NonUniformLatticeTestHarness, self).__init__()
@@ -29,15 +30,11 @@ class NonUniformLatticeTestHarness(TestHarness):
         # Initialize CMFD
         cmfd = openmoc.Cmfd()
         cmfd.setCMFDRelaxationFactor(0.7)
-        #cmfd.setLatticeStructure(17,17)
         cmfd.setWidths([[0.05,1.26,1.26,0.05], [0.05,1.26,1.26,0.05], [1.,1.5]])
         cmfd.setGroupStructure([[1,2,3],[4,5,6,7]])
-        cmfd.setCentroidUpdateOn(False)
 
         # Add CMFD to the Geometry
         self.input_set.geometry.setCmfd(cmfd)
-        self.input_set.geometry.dumpToFile('non-uniform-lattice3.geo', non_uniform_lattice=True)
-        
 
     def _create_trackgenerator(self):
         """Instantiate a TrackGenerator."""

@@ -29,13 +29,10 @@ lattices['MOX Unrodded Assembly']       = openmoc.Lattice()
 lattices['MOX Rodded Assembly']         = openmoc.Lattice()
 lattices['Root']                        = openmoc.Lattice()
 
-#lattices['Gap Refined Reflector Mesh']      = openmoc.Lattice()
-#lattices['Gap Reflector Unrodded Assembly'] = openmoc.Lattice()
 lattices['Gap Reflector Rodded Assembly']   = openmoc.Lattice()
 lattices['Gap Reflector Right Assembly']    = openmoc.Lattice()
 lattices['Gap Reflector Bottom Assembly']   = openmoc.Lattice()
 lattices['Gap Reflector Corner Assembly']   = openmoc.Lattice()
-#lattices['Gap Reflector Assembly']          = openmoc.Lattice()
 lattices['Gap UO2 Unrodded Assembly']       = openmoc.Lattice()
 lattices['Gap UO2 Rodded Assembly']         = openmoc.Lattice()
 lattices['Gap MOX Unrodded Assembly']       = openmoc.Lattice()
@@ -392,9 +389,6 @@ template = template.tolist()
 lattices['Gap Reflector Corner Assembly'].setUniverses(template)
 
 
-
-
-
 # Fill cells with lattices
 cells['Refined Reflector Mesh']     .setFill(lattices['Refined Reflector Mesh'])
 cells['UO2 Unrodded Assembly']      .setFill(lattices['UO2 Unrodded Assembly'])
@@ -415,9 +409,7 @@ cells['Gap UO2 Unrodded Assembly']      .setFill(lattices['Gap UO2 Unrodded Asse
 cells['Gap UO2 Rodded Assembly']        .setFill(lattices['Gap UO2 Rodded Assembly'])
 cells['Gap MOX Unrodded Assembly']      .setFill(lattices['Gap MOX Unrodded Assembly'])
 cells['Gap MOX Rodded Assembly']        .setFill(lattices['Gap MOX Rodded Assembly'])
-#cells['Gap Reflector Unrodded Assembly'].setFill(lattices['Gap Reflector Unrodded Assembly'])
 cells['Gap Reflector Rodded Assembly']  .setFill(lattices['Gap Reflector Rodded Assembly'])
 cells['Gap Reflector Right Assembly']   .setFill(lattices['Gap Reflector Right Assembly'])
 cells['Gap Reflector Bottom Assembly']  .setFill(lattices['Gap Reflector Bottom Assembly'])
 cells['Gap Reflector Corner Assembly']  .setFill(lattices['Gap Reflector Corner Assembly'])
-#cells['Gap Reflector Assembly']         .setFill(lattices['Gap Reflector Assembly'])

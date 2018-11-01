@@ -4,8 +4,8 @@
 
 COMPILER    	 ?= mpi
 OPENMP      	 ?= yes
-OPTIMIZE    	 ?= no
-DEBUG       	 ?= yes
+OPTIMIZE    	 ?= yes
+DEBUG       	 ?= no
 PROFILE     	 ?= no
 PRECISION   	 ?= double
 CMFD_PRECISION ?= double

@@ -1079,33 +1079,69 @@ double Lattice::getWidthZ() const {
   return _width_z;
 }
 
+
+/**
+ * @brief Return the non-uniform boolean of Lattice.
+ * @return the non-uniform boolean of Lattice
+ */
 bool Lattice::getNonUniform() const {
   return _non_uniform;
 }
 
+
+/**
+ * @brief Return the widths of non-uniform Lattice in x direction
+ * @return the widths of non-uniform Lattice in x direction
+ */
 const std::vector<double>& Lattice::getWidthsX() const {
   return _widths_x;
 }
 
+
+/**
+ * @brief Return the widths of non-uniform Lattice in y direction
+ * @return the widths of non-uniform Lattice in y direction
+ */
 const std::vector<double>& Lattice::getWidthsY() const {
   return _widths_y;
 }
 
+
+/**
+ * @brief Return the widths of non-uniform Lattice in z direction
+ * @return the widths of non-uniform Lattice in z direction
+ */
 const std::vector<double>& Lattice::getWidthsZ() const {
   return _widths_z;
 }
 
+
+/**
+ * @brief Return the accumulate widths of non-uniform Lattice in x direction
+ * @return the accumulate widths of non-uniform Lattice in x direction
+ */
 const std::vector<double>& Lattice::getAccumulateX() const {
   return _accumulate_x;
 }
 
+
+/**
+ * @brief Return the accumulate widths of non-uniform Lattice in y direction
+ * @return the accumulate widths of non-uniform Lattice in y direction
+ */
 const std::vector<double>& Lattice::getAccumulateY() const {
   return _accumulate_y;
 }
 
+
+/**
+ * @brief Return the accumulate widths of non-uniform Lattice in z direction
+ * @return the accumulate widths of non-uniform Lattice in z direction
+ */
 const std::vector<double>& Lattice::getAccumulateZ() const {
   return _accumulate_z;
 }
+
 
 /**
  * @brief Returns the minimum reachable x-coordinate in the Lattice.
@@ -1343,29 +1379,68 @@ void Lattice::setWidth(double width_x, double width_y, double width_z) {
   _width_z = width_z;
 }
 
+
+/**
+ * @brief Set the non-uniform boolean of Lattice.
+ * @param non_uniform the non-uniform boolean of Lattice
+ */
 void Lattice::setNonUniform(bool non_uniform) {
   _non_uniform = non_uniform;
 }
 
+
+/**
+ * @brief Set the widths of non-uniform Lattice in x direction
+ * @param widthsx the widths of non-uniform Lattice in x direction
+ */
 void Lattice::setWidthsX(std::vector<double> widthsx) {
   _widths_x = widthsx;
 }
 
+
+/**
+ * @brief Set the widths of non-uniform Lattice in y direction
+ * @param widthsy the widths of non-uniform Lattice in y direction
+ */
 void Lattice::setWidthsY(std::vector<double> widthsy) {
   _widths_y = widthsy;
 }
+
+
+/**
+ * @brief Set the widths of non-uniform Lattice in z direction
+ * @param widthsz the widths of non-uniform Lattice in z direction
+ */
 void Lattice::setWidthsZ(std::vector<double> widthsz) {
   _widths_z = widthsz;
 }
 
+
+/**
+ * @brief Set the accumulate widths of non-uniform Lattice in x direction
+ * @param accumulatex the accumulate widths of non-uniform Lattice in x 
+          direction
+ */
 void Lattice::setAccumulateX(std::vector<double> accumulatex) {
   _accumulate_x = accumulatex;
 }
 
+
+/**
+ * @brief Set the accumulate widths of non-uniform Lattice in y direction
+ * @param accumulatey the accumulate widths of non-uniform Lattice in y 
+          direction
+ */
 void Lattice::setAccumulateY(std::vector<double> accumulatey) {
   _accumulate_y = accumulatey;
 }
 
+
+/**
+ * @brief Set the accumulate widths of non-uniform Lattice in z direction
+ * @param accumulatez the accumulate widths of non-uniform Lattice in z 
+          direction
+ */
 void Lattice::setAccumulateZ(std::vector<double> accumulatez) {
   _accumulate_z = accumulatez;
 }
@@ -1512,10 +1587,11 @@ void Lattice::subdivideCells(double max_radius) {
 
   /* Subdivide all Cells */
   for (iter = universes.begin(); iter != universes.end(); ++iter) {
-    log_printf(DEBUG, "univ_ID: %d, radias: %f, max_radius: %f", 
+    log_printf(DEBUG, "univ_ID: %d, radius: %f, max_radius: %f", 
                iter->first, unique_radius[iter->first], max_radius);
     
-    /* If the lattice pitch is smaller than max_radius parameter, over-ride it*/
+    /* If the  local universe equivalent radius is smaller than max_radius 
+       parameter, over-ride it*/
     iter->second->subdivideCells(std::min(unique_radius[iter->first], 
                                           max_radius));
   }
@@ -1682,7 +1758,7 @@ double Lattice::minSurfaceDist(Point* point, double azim, double polar) {
     lat_y++;
   if (u_z > 0)
     lat_z++;
-  
+
   /* Get the min distance for X PLANE  */
   double dist_x;
   if (fabs(u_x) > FLT_EPSILON) {
@@ -2124,12 +2200,13 @@ int Lattice::getLatticeSurfaceOTF(int cell, double z, int surface_2D) {
     return NUM_SURFACES * cell + surface_2D % NUM_SURFACES;
 }
 
+
 /**
  * @brief Set width of non-uniform meshes in x y z directions.
  * @details An example of how this may be called from Python illustrated below:
  *
  * @code
- *          Lattice::setWidths([1,2,3], [4,5,6,7], [3.3,2.4])
+ *          Lattice::setWidths([1.0,2.1,3.0], [4.0,5.1,6.0,7.0], [3.3,2.4])
  * @endcode
  *
  * @param widths_x x-direction widths of non-uniform meshes
@@ -2143,6 +2220,7 @@ void Lattice::setWidths(std::vector<double> widths_x,
   _widths_y = widths_y;
   _widths_z = widths_z;
 }
+
 
 /**
  * @brief Set _widths_x, _widths_y, _widths_z for uniform case, compute 
@@ -2176,7 +2254,11 @@ void Lattice::computeSizes(){
     _accumulate_z[i+1] = _accumulate_z[i] + _widths_z[i];  
 }
 
-void Lattice::printSizes() {
+
+/**
+ * @brief For debug use.
+ */
+void Lattice::printLatticeSizes() {
   int i;
   printf("non_uniform=%d, \nNum_XYZ: %2d, %2d, %2d\n", _non_uniform, 
          _num_x, _num_y, _num_z);

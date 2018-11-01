@@ -29,7 +29,6 @@ class CmfdPwrAssemblyTestHarness(TestHarness):
         cmfd.setWidths([[1.26]*17, [1.26]*17])
         cmfd.setGroupStructure([[1,2,3], [4,5,6,7]])
         cmfd.setKNearest(3)
-        cmfd.setCentroidUpdateOn(False)
 
         # Add CMFD to the Geometry
         self.input_set.geometry.setCmfd(cmfd)
