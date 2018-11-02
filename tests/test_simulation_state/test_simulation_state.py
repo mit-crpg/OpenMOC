@@ -19,6 +19,11 @@ class SimulationStateTestHarness(TestHarness):
         super(SimulationStateTestHarness, self).__init__()
         self.input_set = SimpleLatticeInput()
 
+        # Change spacing to avoid having rays start on lattice planes
+        # Those rays are problematic because they cross through fuel pins
+        # parallelly to sector planes.
+        self.spacing = 0.12
+
     def _run_openmoc(self):
         """Run an eigenvalue calculation and store the simulation state."""
         super(SimulationStateTestHarness, self)._run_openmoc()

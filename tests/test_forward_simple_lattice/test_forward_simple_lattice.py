@@ -16,6 +16,11 @@ class SimpleLatticeTestHarness(TestHarness):
         super(SimpleLatticeTestHarness, self).__init__()
         self.input_set = SimpleLatticeInput()
 
+        # Change spacing to avoid having rays start on lattice planes
+        # Those rays are problematic because they cross through fuel pins
+        # parallelly to sector planes.
+        self.spacing = 0.12
+
     def _get_results(self, num_iters=True, keff=True, fluxes=True,
                      num_fsrs=False, num_tracks=False, num_segments=False,
                      hash_output=True):
