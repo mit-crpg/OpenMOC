@@ -3404,10 +3404,12 @@ void Cmfd::initializeLattice(Point* offset) {
   }
 
   /* 2D case */
+  bool is_2D = false;
   if(_width_z == std::numeric_limits<double>::infinity()) {
     _width_z = 1.0;
     setBoundary(SURFACE_Z_MIN, REFLECTIVE);
     setBoundary(SURFACE_Z_MAX, REFLECTIVE);
+    is_2D = true;
   }
   _accumulate_x.resize(_num_x+1,0.0);
   _accumulate_y.resize(_num_y+1,0.0);
@@ -3447,8 +3449,13 @@ void Cmfd::initializeLattice(Point* offset) {
   
   if(_non_uniform)
     _lattice->setWidths(_cell_widths_x, _cell_widths_y, _cell_widths_z);
-  else
-    _lattice->setWidth(_cell_width_x, _cell_width_y, _cell_width_z);
+  else {
+    if(is_2D)
+      _lattice->setWidth(_cell_width_x, _cell_width_y, 
+                         std::numeric_limits<double>::infinity());
+    else
+      _lattice->setWidth(_cell_width_x, _cell_width_y, _cell_width_z);
+  }
   
   _lattice->setOffset(offset->getX(), offset->getY(), offset->getZ());
   

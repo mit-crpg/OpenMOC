@@ -1802,7 +1802,7 @@ double Lattice::minSurfaceDist(Point* point, double azim, double polar) {
  */
 int Lattice::getLatX(Point* point) {
 
-  int lat_x;
+  int lat_x = -1;
   
   /* get the distance to the left surface */
   double dist_to_left = point->getX() - getMinX();
@@ -1821,10 +1821,10 @@ int Lattice::getLatX(Point* point) {
     lat_x = 0;
   else if (fabs(dist_to_left - _accumulate_x[_num_x]) < ON_SURFACE_THRESH)
     lat_x = _num_x - 1;
-  else if (lat_x < 0 || lat_x > _num_x-1)
-    log_printf(ERROR, "Trying to get lattice x index for point that is "
-               "outside lattice bounds: %i, %i, %f, %f", lat_x, _num_x,
-               dist_to_left, point->getX());
+  if(lat_x == -1)
+    log_printf(ERROR, "Trying to get lattice x index for point(x = %f) that is "
+               "outside lattice bounds. dist_to_left = %f is not within "
+               "[0.0, %f]", point->getX(), dist_to_left, _accumulate_x[_num_x]);
 
   return lat_x;
 }
@@ -1837,7 +1837,7 @@ int Lattice::getLatX(Point* point) {
  */
 int Lattice::getLatY(Point* point) {
 
-  int lat_y;
+  int lat_y = -1;
 
   /* get the distance to the bottom surface */
   double dist_to_bottom = point->getY() - getMinY();
@@ -1857,11 +1857,11 @@ int Lattice::getLatY(Point* point) {
     lat_y = 0;
   else if (fabs(dist_to_bottom - _accumulate_y[_num_y]) < ON_SURFACE_THRESH)
     lat_y = _num_y - 1;
-  else if (lat_y < 0 || lat_y > _num_y-1)
-    log_printf(ERROR, "Trying to get lattice y index for point that is "
-               "outside lattice bounds: %i, %i, %f, %f, %f", lat_y, _num_y,
-               dist_to_bottom, point->getY(), _offset.getY());
-
+  if(lat_y == -1)
+    log_printf(ERROR, "Trying to get lattice y index for point(y = %f) that is "
+               "outside lattice bounds. dist_to_bottom = %f is not within "
+             "[0.0, %f]", point->getY(), dist_to_bottom, _accumulate_y[_num_y]);
+  
   return lat_y;
 }
 
@@ -1877,7 +1877,7 @@ int Lattice::getLatZ(Point* point) {
   if (_width_z == std::numeric_limits<double>::infinity())
     return 0;
 
-  int lat_z;
+  int lat_z = -1;
   
   /* get the distance to the bottom surface */
   double dist_to_bottom = point->getZ() - getMinZ();
@@ -1897,10 +1897,10 @@ int Lattice::getLatZ(Point* point) {
     lat_z = 0;
   else if (fabs(dist_to_bottom - _accumulate_z[_num_z]) < ON_SURFACE_THRESH)
     lat_z = _num_z - 1;
-  else if (lat_z < 0 || lat_z > _num_z-1)
-    log_printf(ERROR, "Trying to get lattice z index for point that is "
-               "outside lattice bounds: %i, %i, %f, %f, %f", lat_z, _num_z,
-               dist_to_bottom, point->getZ(), _offset.getZ());
+  if(lat_z == -1)
+    log_printf(ERROR, "Trying to get lattice z index for point(z = %f) that is "
+               "outside lattice bounds. dist_to_bottom = %f is not within "
+             "[0.0, %f]", point->getZ(), dist_to_bottom, _accumulate_z[_num_z]);
 
   return lat_z;
 }
@@ -1918,10 +1918,23 @@ std::string Lattice::toString() {
          << ", name = " << _name
          << ", # cells along x = " << _num_x
          << ", # cells along y = " << _num_y
-         << ", # cells along z = " << _num_z
-         << ", x width = " << _width_x
-         << ", y width = " << _width_y
-         << ", z width = " << _width_z;
+         << ", # cells along z = " << _num_z;
+  
+  if(_non_uniform) {
+    string << "This lattice is non-uniform.\nx widths: ";
+    for(int i=0; i<_num_x; i++)
+      string << _widths_x[i] << "  ";
+    string << "\ny widths: ";
+    for(int i=0; i<_num_y; i++)
+      string << _widths_y[i] << "  ";   
+    string << "\nz widths: ";
+    for(int i=0; i<_num_z; i++)
+      string << _widths_z[i] << "  ";
+  }
+  else  
+    string << ", x width = " << _width_x
+           << ", y width = " << _width_y
+           << ", z width = " << _width_z;
 
   string << "\n\t\tUniverse IDs within this Lattice: ";
 
