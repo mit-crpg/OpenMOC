@@ -1642,7 +1642,7 @@ int Cmfd::findCmfdCell(LocalCoords* coords) {
     return local_cmfd_cell;
   }
   else
-    /* If no domain decomposition, global and local CMFD cell ID equals.*/ 
+    /* Without decomposition, global and local CMFD cell ID are equal.*/ 
     return global_cmfd_cell;
 }
 

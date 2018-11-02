@@ -1118,7 +1118,7 @@ const std::vector<double>& Lattice::getWidthsZ() const {
 
 /**
  * @brief Return the accumulate widths of non-uniform Lattice in x direction
- * @return the accumulate widths of non-uniform Lattice in x direction
+ * @return the accumulated widths of non-uniform Lattice in x direction
  */
 const std::vector<double>& Lattice::getAccumulateX() const {
   return _accumulate_x;
@@ -1127,7 +1127,7 @@ const std::vector<double>& Lattice::getAccumulateX() const {
 
 /**
  * @brief Return the accumulate widths of non-uniform Lattice in y direction
- * @return the accumulate widths of non-uniform Lattice in y direction
+ * @return the accumulated widths of non-uniform Lattice in y direction
  */
 const std::vector<double>& Lattice::getAccumulateY() const {
   return _accumulate_y;
@@ -1136,7 +1136,7 @@ const std::vector<double>& Lattice::getAccumulateY() const {
 
 /**
  * @brief Return the accumulate widths of non-uniform Lattice in z direction
- * @return the accumulate widths of non-uniform Lattice in z direction
+ * @return the accumulated widths of non-uniform Lattice in z direction
  */
 const std::vector<double>& Lattice::getAccumulateZ() const {
   return _accumulate_z;
@@ -1265,9 +1265,11 @@ std::map<int, double> Lattice::getUniqueRadius
   std::map<int, Universe*>::iterator iter;
   Universe* universe;
   
+  /* Create and initialize the <universe ID, unique radius> map */
   for (iter = unique_universes.begin(); iter != unique_universes.end(); ++iter)
     unique_radius[iter->first] = 0.;
   
+  /* Get the maximum equivalent radius of each unique universe */
   for (int k = _universes.size()-1; k > -1; k--) {
     for (int j = _universes.at(k).size()-1; j > -1;  j--) {
       for (int i = 0; i < _universes.at(k).at(j).size(); i++) {

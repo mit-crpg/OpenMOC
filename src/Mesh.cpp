@@ -70,8 +70,8 @@ void Mesh::createLattice(int num_x, int num_y, int num_z) {
 
 
 /**
- * @brief Set the _lattice of a mesh to be an existing one.
- *        the user-input dimensions
+ * @brief Set the _lattice of a mesh to be an existing one, for which the user 
+ *        inputs the dimensions.
  * @param lattice the existing lattice to be set to the Mesh
  */
 void Mesh::setLattice(Lattice* lattice) {
@@ -213,8 +213,8 @@ Vector3D Mesh::getFormattedReactionRates(RxType rx) {
  * @brief Tallies reaction rates of the given type over the user defined 
  *        non-uniform lattice
  * @param widths_offsets The XYZ-direction widths and offset of a non-uniform 
- *        Lattice. If the widths_offsets size is 3, that means center-point of 
- *        the geometry is used as the offset.
+ *        Lattice. If the widths_offsets size is 3, the center-point of the
+ *        geometry is used as the offset.
  * @param rx The type of reaction to tally
  * @return The reaction rates in a 3D vector indexed by the lattice cell
  *         x, y, and z indexes
@@ -250,8 +250,9 @@ Vector3D Mesh::getFormattedReactionRates
                              widths_offsets[3][2]);
   output_lattice.computeSizes();
   
-  /* The whole geometry Lattice based on user defined one. To make use of 
-     getFormattedReactionRates function because it's defined on whole geometry*/
+  /* The whole geometry Lattice based on the user defined one. This new lattice  
+     allows to make use of getFormattedReactionRates function because it's 
+     defined on whole geometry*/
   Lattice wrap_lattice;
   
   std::vector<double> widths_x = widths_offsets[0];
@@ -289,7 +290,7 @@ Vector3D Mesh::getFormattedReactionRates
     surface[5]=true;
   }
   
-  /* set the whole geometry Lattice */
+  /* Set the whole geometry Lattice */
   wrap_lattice.setNumX(widths_x.size());
   wrap_lattice.setNumY(widths_y.size());
   wrap_lattice.setNumZ(widths_z.size());
