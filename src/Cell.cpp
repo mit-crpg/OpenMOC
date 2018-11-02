@@ -1313,14 +1313,22 @@ void Cell::sectorize(std::vector<Cell*>& subcells) {
     log_printf(DEBUG, "Creating a new sector Cell %d for Cell %d",
                sector->getId(), _id);
 
-    /* Add new bounding planar Surfaces to the clone */
-    sector->addSurface(+1, planes.at(i));
-
     if (_num_sectors != 2) {
+      /* Add new bounding planar Surfaces to the clone */
+      sector->addSurface(+1, planes.at(i));
+      
       if (i+1 < _num_sectors)
         sector->addSurface(-1, planes.at(i+1));
       else
         sector->addSurface(-1, planes.at(0));
+    }
+    else {
+      /* for _num_sectors==2, planes[0] and planes[1] are actually the same but 
+         opposite direction, so the two adjacent sectors will have the same 
+         Halfspace value, which will cause trouble when a point is on the plane.
+         This is to avoid it. */
+      int halfspace = (i==0? +1 : -1);
+      sector->addSurface(halfspace, planes.at(0));
     }
 
     /* Store the clone in the parent Cell's container of sector Cells */
