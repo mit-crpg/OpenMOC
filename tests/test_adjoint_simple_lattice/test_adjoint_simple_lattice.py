@@ -19,6 +19,10 @@ class SimpleLatticeAdjointTestHarness(TestHarness):
         self.input_set = SimpleLatticeInput()
         self.calculation_mode = openmoc.ADJOINT
 
+        # Change spacing to avoid having rays start on lattice planes
+        # Those rays are problematic because they cross through fuel pins
+        # parallelly to sector planes.
+        self.spacing = 0.12
 
     def _get_results(self, num_iters=True, keff=True, fluxes=True,
                      num_fsrs=False, num_tracks=False, num_segments=False,
