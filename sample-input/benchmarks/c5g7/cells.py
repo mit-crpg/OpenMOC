@@ -49,12 +49,10 @@ cells['Gap UO2 Unrodded Assembly']       = openmoc.Cell()
 cells['Gap UO2 Rodded Assembly']         = openmoc.Cell()
 cells['Gap MOX Unrodded Assembly']       = openmoc.Cell()
 cells['Gap MOX Rodded Assembly']         = openmoc.Cell()
-#cells['Gap Reflector Unrodded Assembly'] = openmoc.Cell()
 cells['Gap Reflector Rodded Assembly']   = openmoc.Cell()
 cells['Gap Reflector Right Assembly']    = openmoc.Cell()
 cells['Gap Reflector Bottom Assembly']   = openmoc.Cell()
 cells['Gap Reflector Corner Assembly']   = openmoc.Cell()
-#cells['Gap Reflector Assembly']          = openmoc.Cell()
 
 # Set material fills
 cells['UO2']             .setFill(materials['UO2'])

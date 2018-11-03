@@ -36,8 +36,8 @@ typedef std::vector<std::vector<std::vector<double> > > Vector3D;
 /**
  * @brief Structure for run time options
  */
-struct RuntimeParametres {
-  RuntimeParametres() : _debug_flag(false), _NDx(1), _NDy(1), _NDz(1),
+struct RuntimeParameters {
+  RuntimeParameters() : _debug_flag(false), _NDx(1), _NDy(1), _NDz(1),
     _NMx(1), _NMy(1), _NMz(1), _NCx(0), _NCy(0), _NCz(0), 
     _num_threads(1), _azim_spacing(0.05), _num_azim(64), _polar_spacing(0.75), 
     _num_polar(10), _tolerance(1.0E-4), _max_iters(1000), _knearest(1),
@@ -51,7 +51,7 @@ struct RuntimeParametres {
   /* To debug or not when running, dead while loop */
   bool _debug_flag;
   char* _log_level;
-  /* Domain decomposation structure */
+  /* Domain decomposition structure */
   int _NDx, _NDy, _NDz;
   /* Modules structure, used to define sub-domains */
   int _NMx, _NMy, _NMz;
@@ -61,7 +61,7 @@ struct RuntimeParametres {
   char* _log_filename;
   /* Geometry file name */
   std::string _geo_filename;
-  /* The version of geometry file */
+  /* The version of the geometry file (uniform or non-uniform lattice) */
   int _geo_version;
 
   /* Space and angle quadrature parameters */
@@ -69,7 +69,7 @@ struct RuntimeParametres {
   int _num_azim;
   double _polar_spacing;
   int _num_polar;  
-  /* Segmentation zones for 2D extruded segmention*/
+  /* Segmentation zones for 2D extruded segmentation*/
   std::vector<double> _seg_zones;
   /* Segmentation type of track generation*/
   int _segmentation_type;
@@ -79,13 +79,13 @@ struct RuntimeParametres {
   
   /* CMFD group structure */
   std::vector<std::vector<int> > _CMFD_group_structure;
-  /* CMFD lattice structure, used for uniform CMFD*/
+  /* CMFD lattice structure, used for uniform CMFD */
   int _NCx, _NCy, _NCz;
   /** Physical dimensions of non-uniform CMFD meshes (for whole geometry) */
   std::vector<double> _cell_widths_x;
   std::vector<double> _cell_widths_y;
   std::vector<double> _cell_widths_z;
-  /* CMFD flux update on or not*/
+  /* CMFD flux update on or not */
   bool _CMFD_flux_update_on;
   /* The order of k-nearest update */
   int _knearest;
@@ -121,6 +121,6 @@ struct RuntimeParametres {
   bool _test_run;
 };
 
-int setRuntimeParametres(RuntimeParametres &RP, int argc, char *argv[]);
+int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]);
 
 #endif /* RUNTIME_H_ */

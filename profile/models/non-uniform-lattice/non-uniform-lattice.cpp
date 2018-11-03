@@ -21,7 +21,6 @@ int main(int argc,  char* argv[]) {
   /* Define simulation parameters */
   #ifdef OPENMP
   int num_threads = 1;
-  //omp_get_num_procs();
   #else
   int num_threads = 1;
   #endif
@@ -29,17 +28,17 @@ int main(int argc,  char* argv[]) {
   double azim_spacing = 0.05;
   int num_azim = 64; 
   double polar_spacing = 0.75;
-  int num_polar = 10; // 2
+  int num_polar = 10;
 
   double tolerance = 1e-5;
-  int max_iters = 1000; //FIXME: 27 
+  int max_iters = 1000;  
   
   /* Create CMFD lattice */
   Cmfd* cmfd = new Cmfd();
   cmfd->useAxialInterpolation(false);
 
-  std::vector<std::vector<double> > cmfd_widths{{0.05,0.63,0.63,0.63,0.63, 0.05},
-                                                {0.05,0.63,0.63,0.63,0.63, 0.05},
+  std::vector<std::vector<double> > cmfd_widths{{0.05,0.63,0.63,0.63,0.63,0.05},
+                                                {0.05,0.63,0.63,0.63,0.63,0.05},
                                                 {1.25,1.25}};
   cmfd->setWidths(cmfd_widths);
   cmfd->setCentroidUpdateOn(true); 

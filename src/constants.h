@@ -8,9 +8,6 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
-
-#include <limits> 
-
 /** Threshold to determine if a float equals to 0.0 */
 #define FLT_EPSILON 1.0E-12
 

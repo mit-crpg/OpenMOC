@@ -7,15 +7,16 @@
  */
 /**
  * @brief Process the run time options 
- * @param RP A reference of RuntimeParametres
+ * @param RP A reference of RuntimeParameters
  * @param argc number of run time command words
  * @param argv content of run time command words
  */
-int setRuntimeParametres(RuntimeParametres &RP, int argc, char *argv[]) {
+int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]) {
   
   int arg_index = 0;
   int print_usage = 0;
   
+  /* Parse the run time commands*/
   while (arg_index < argc) {
     if(strcmp(argv[arg_index], "-debug") == 0) {
       arg_index++;
@@ -128,7 +129,10 @@ int setRuntimeParametres(RuntimeParametres &RP, int argc, char *argv[]) {
       arg_index++;
       RP._use_axial_interpolation = atoi(argv[arg_index++]);
     } 
-    else if(strcmp(argv[arg_index], "-help") == 0) {
+    else if(strcmp(argv[arg_index], "-help") == 0 ||
+            strcmp(argv[arg_index], "--help") == 0 ||
+            strcmp(argv[arg_index], "-h") == 0 ||
+            strcmp(argv[arg_index], "--h") == 0) {
       print_usage = 1;
       break;
     }

@@ -95,7 +95,7 @@
 %ignore twiddleRead(boundaryType* ptr, size_t size, size_t nmemb, FILE* stream);
 %ignore twiddleRead(double* ptr, size_t size, size_t nmemb, FILE* stream);
 %ignore twiddleRead(long* ptr, size_t size, size_t nmemb, FILE* stream);
-%ignore setRuntimeParametres(RuntimeParametres &RP, int argc, char *argv[]); 
+%ignore setRuntimeParameters(RuntimeParametres &RP, int argc, char *argv[]); 
 
 
 /* Instruct SWIG to ignore methods used in getting CSR Matrix format and Vector

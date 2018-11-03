@@ -3378,7 +3378,7 @@ void Cmfd::initialize() {
 
 
 /**
- * @brief Initialize the CMFD lattice and compute mesh dimenssions, considering
+ * @brief Initialize the CMFD lattice and compute mesh dimensions, considering
  *        both uniform/non-uniform and 2D/3D cases.
  * @param offset the offset point of the CMFD Lattice
  */

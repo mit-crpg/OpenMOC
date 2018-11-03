@@ -3279,7 +3279,7 @@ std::vector<double> Geometry::getUniqueZHeights(bool include_overlaid_mesh) {
       /* Get offset of the lattice */
       double offset = z_offset + lattice->getMinZ();
       for (int k=0; k<nz+1; k++) {
-        double z_height = accumulatez[k]+ offset;
+        double z_height = accumulatez[k] + offset;
         z_heights.push_back(z_height);
       }
 

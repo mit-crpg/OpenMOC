@@ -1323,10 +1323,10 @@ void Cell::sectorize(std::vector<Cell*>& subcells) {
         sector->addSurface(-1, planes.at(0));
     }
     else {
-      /* for _num_sectors==2, planes[0] and planes[1] are actually the same but 
+      /* For _num_sectors==2, planes[0] and planes[1] are actually the same but 
          opposite direction, so the two adjacent sectors will have the same 
          Halfspace value, which will cause trouble when a point is on the plane.
-         This is to avoid it. */
+         This is to avoid this trouble. */
       int halfspace = (i==0? +1 : -1);
       sector->addSurface(halfspace, planes.at(0));
     }

@@ -21,8 +21,8 @@ int main(int argc, char* argv[]) {
     arg_index++;
   }
   
-  RuntimeParametres runtime;
-  setRuntimeParametres(runtime, argc, argv);
+  RuntimeParameters runtime;
+  setRuntimeParameters(runtime, argc, argv);
   
   /* stuck here for debug tools to attach */
   while (runtime._debug_flag) ;
@@ -58,9 +58,10 @@ int main(int argc, char* argv[]) {
 #endif
   geometry->setNumDomainModules(runtime._NMx, runtime._NMy, runtime._NMz);
 
-  if((runtime._NCx >0 && runtime._NCy > 0 && runtime._NCz > 0) ||
+  if ((runtime._NCx >0 && runtime._NCy > 0 && runtime._NCz > 0) ||
       (!runtime._cell_widths_x.empty() && !runtime._cell_widths_y.empty() &&
        !runtime._cell_widths_z.empty())) {
+    
     /* Create CMFD mesh */
     log_printf(NORMAL, "Creating CMFD mesh...");
     Cmfd* cmfd = new Cmfd();
@@ -74,7 +75,7 @@ int main(int argc, char* argv[]) {
           runtime._cell_widths_y, runtime._cell_widths_z};
       cmfd->setWidths(cmfd_widths);
     }
-    if(!runtime._CMFD_group_structure.empty())
+    if (!runtime._CMFD_group_structure.empty())
       cmfd->setGroupStructure(runtime._CMFD_group_structure);
     cmfd->setKNearest(runtime._knearest);
     cmfd->setCentroidUpdateOn(runtime._CMFD_centroid_update_on);
@@ -85,7 +86,7 @@ int main(int argc, char* argv[]) {
 
   geometry->initializeFlatSourceRegions();
 
-  /* Generate tracks */
+  /* Initialize track generator and generate tracks */
   log_printf(NORMAL, "Initializing the track generator...");
   Quadrature* quad = NULL;
   switch(runtime._quadraturetype) {
@@ -109,7 +110,7 @@ int main(int argc, char* argv[]) {
     track_generator.setSegmentationZones(runtime._seg_zones);
   track_generator.generateTracks();
 
-  /* Run simulation */
+  /* Initialize solver and run simulation */
   CPUSolver *solver = NULL;
   if(runtime._linear_solver)
     solver= new CPULSSolver(&track_generator);
