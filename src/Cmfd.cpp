@@ -2668,7 +2668,7 @@ void Cmfd::generateKNearestStencils() {
         }
 
       /* Calculate components for quadratic interpolation of the centroid  
-           z-coordinate evaluated value. */
+         z-coordinate evaluated value. */
         else if(_use_axial_interpolation == 2) {
           _axial_interpolants.at(fsr_id)[0] = -(h1*(h1+h1*zc*4.0+h2*zc*8.0-h1*
           (zc*zc)*1.2E1))/((h0*4.0+h1*4.0)*(h0+h1+h2));

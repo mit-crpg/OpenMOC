@@ -755,9 +755,9 @@ class AxialExtendedInput(InputSet):
         g = universes['uniform gap']
         l = universes['large_pin']
         a = numpy.array([[g,g,g,g],
-                      [g,f,f,g],
-                      [g,f,f,g],
-                      [g,g,g,g]])
+                         [g,f,f,g],
+                         [g,f,f,g],
+                         [g,g,g,g]])
         fill_universes = numpy.tile(a,(20,1,1))
         
         # make the geometry axially heterogeneous

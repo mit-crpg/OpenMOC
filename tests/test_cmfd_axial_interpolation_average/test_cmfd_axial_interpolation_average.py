@@ -31,6 +31,8 @@ class AxialQuadraticCMFDTestHarness(TestHarness):
         cmfd = openmoc.Cmfd()
         cmfd.setSORRelaxationFactor(1.5)
         cmfd.setCMFDRelaxationFactor(0.7)
+        
+        # Use FSR axially average value for CMFD prolongation
         cmfd.useAxialInterpolation(1)
         # Set CMFD widths with axially non-uniform
         cmfd.setWidths([[0.05,1.26,1.26,0.05], [0.05,1.26,1.26,0.05], 
