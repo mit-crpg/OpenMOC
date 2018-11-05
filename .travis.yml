@@ -41,8 +41,10 @@ install:
   - sudo apt-get install swig
   - sudo rm /usr/bin/gcc
   - sudo rm /usr/bin/g++
+  # - sudo apt install mpich libmpich-dev
   - sudo ln -s /usr/bin/gcc-4.8 /usr/bin/gcc
   - sudo ln -s /usr/bin/g++-4.8 /usr/bin/g++
+  
 
 script:
   - cd tests

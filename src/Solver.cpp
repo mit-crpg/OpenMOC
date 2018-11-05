@@ -1019,13 +1019,6 @@ void Solver::initializeCmfd() {
   else if (!_cmfd->isFluxUpdateOn())
     return;
 
-  /* If 2D Solve, set CMFD z-direction mesh size to 1 and depth to 1.0 */
-  if (!_solve_3D) {
-    _cmfd->setNumZ(1);
-    _cmfd->setBoundary(SURFACE_Z_MIN, REFLECTIVE);
-    _cmfd->setBoundary(SURFACE_Z_MAX, REFLECTIVE);
-  }
-
   /* Intialize the CMFD energy group structure */
   _cmfd->setSourceConvergenceThreshold(_converge_thresh*1.e-1); //FIXME
   _cmfd->setNumMOCGroups(_num_groups);
@@ -1742,6 +1735,14 @@ FP_PRECISION* Solver::getFluxesArray() {
   return _scalar_flux;
 }
 
+/**
+ * @brief Sets computation method of k-eff from fission, absorption, and leakage
+ *        rates rather than from fission rates.
+ *        keff = fission/(absorption + leakage)
+ */
+void Solver::setKeffFromNeutronBalance() {
+  _keff_from_fission_rates = false;
+}
 
 /**
  * @brief Sets residuals to be computed a error relative to a reference
@@ -1911,7 +1912,7 @@ void Solver::loadFSRFluxes(std::string fname, bool assign_k_eff,
   }
 
   /* Create mapping of FSRs to cell indexes */
-  std::unordered_map<long, std::vector<long>> hashed_lookup;
+  std::unordered_map<long, std::vector<long> > hashed_lookup;
   long nx = max_ind[0] - min_ind[0] + 1;
   long ny = max_ind[1] - min_ind[1] + 1;
   long nz = max_ind[2] - min_ind[2] + 1;

@@ -4,8 +4,9 @@ import openmoc.plotter as plotter
 from openmoc.options import Options
 from openmoc import process
 from lattices import lattices, universes, cells, surfaces
+from surfaces import gap
 
-axial_refines = 3
+axial_refines = 6
 
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
@@ -27,20 +28,21 @@ max_iters = options.max_iters
 
 cells['Root'].addSurface(+1, surfaces['Root Small z-min'])
 cells['Root'].addSurface(-1, surfaces['Root Small z-max'])
+cells['Gap Root'].addSurface(+1, surfaces['Root Small z-min'])
+cells['Gap Root'].addSurface(-1, surfaces['Root Small z-max'])
 
-uu = universes['UO2 Unrodded Assembly']
-ur = universes['UO2 Rodded Assembly']
-mu = universes['MOX Unrodded Assembly']
-mr = universes['MOX Rodded Assembly']
-ru = universes['Reflector Unrodded Assembly']
-rr = universes['Reflector Rodded Assembly']
-ri = universes['Reflector Right Assembly']
-rb = universes['Reflector Bottom Assembly']
-rc = universes['Reflector Corner Assembly']
+uu = universes['Gap UO2 Unrodded Assembly']
+ur = universes['Gap UO2 Rodded Assembly']
+mu = universes['Gap MOX Unrodded Assembly']
+mr = universes['Gap MOX Rodded Assembly']
+rr = universes['Gap Reflector Rodded Assembly']
+ri = universes['Gap Reflector Right Assembly']
+rb = universes['Gap Reflector Bottom Assembly']
+rc = universes['Gap Reflector Corner Assembly']
 
 # 3 x 3 x 9 core to represent 3D core
-lattices['Root'].setWidth(width_x=21.42, width_y=21.42, width_z=7.14/axial_refines)
-lattices['Root'].setUniverses([[[rr, rr, ri],
+lattices['Root'].setWidth(width_x=21.42+2*gap, width_y=21.42+2*gap, width_z=7.14/axial_refines)
+lattices['Root'].setUniverses(  [[[rr, rr, ri],
                                   [rr, rr, ri],
                                   [rb, rb, rc]]] * 3 * axial_refines +
                                 [[[ur, mr, ri],
@@ -71,7 +73,7 @@ cmfd.setCentroidUpdateOn(False)
 log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = openmoc.Geometry()
-geometry.setRootUniverse(universes['Root'])
+geometry.setRootUniverse(universes['Gap Root'])
 geometry.setCmfd(cmfd)
 geometry.initializeFlatSourceRegions()
 

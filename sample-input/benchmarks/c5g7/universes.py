@@ -1,5 +1,6 @@
 import openmoc
 from cells import cells, surfaces
+from surfaces import gap
 
 ###############################################################################
 ##########################   Creating Universes   #############################
@@ -9,6 +10,7 @@ universes = {}
 
 # Instantiate Cells
 universes['Root']                        = openmoc.Universe()
+universes['Gap Root']                    = openmoc.Universe()
 universes['UO2']                         = openmoc.Universe()
 universes['MOX 4.3%']                    = openmoc.Universe()
 universes['MOX 7.0%']                    = openmoc.Universe()
@@ -30,8 +32,18 @@ universes['Reflector Bottom Assembly']   = openmoc.Universe()
 universes['Reflector Corner Assembly']   = openmoc.Universe()
 universes['Reflector Assembly']          = openmoc.Universe()
 
+universes['Gap UO2 Unrodded Assembly']       = openmoc.Universe()
+universes['Gap UO2 Rodded Assembly']         = openmoc.Universe()
+universes['Gap MOX Unrodded Assembly']       = openmoc.Universe()
+universes['Gap MOX Rodded Assembly']         = openmoc.Universe()
+universes['Gap Reflector Rodded Assembly']   = openmoc.Universe()
+universes['Gap Reflector Right Assembly']    = openmoc.Universe()
+universes['Gap Reflector Bottom Assembly']   = openmoc.Universe()
+universes['Gap Reflector Corner Assembly']   = openmoc.Universe()
+
 # Add cells to universes
 universes['Root']                       .addCell(cells['Root'])
+universes['Gap Root']                   .addCell(cells['Gap Root'])
 universes['UO2']                        .addCell(cells['UO2'])
 universes['UO2']                        .addCell(cells['Moderator'])
 universes['MOX 4.3%']                   .addCell(cells['MOX 4.3%'])
@@ -60,3 +72,12 @@ universes['Reflector Right Assembly']   .addCell(cells['Reflector Right Assembly
 universes['Reflector Bottom Assembly']  .addCell(cells['Reflector Bottom Assembly'])
 universes['Reflector Corner Assembly']  .addCell(cells['Reflector Corner Assembly'])
 universes['Reflector Assembly']         .addCell(cells['Reflector Assembly'])
+
+universes['Gap UO2 Unrodded Assembly']      .addCell(cells['Gap UO2 Unrodded Assembly'])
+universes['Gap UO2 Rodded Assembly']        .addCell(cells['Gap UO2 Rodded Assembly'])
+universes['Gap MOX Unrodded Assembly']      .addCell(cells['Gap MOX Unrodded Assembly'])
+universes['Gap MOX Rodded Assembly']        .addCell(cells['Gap MOX Rodded Assembly'])
+universes['Gap Reflector Rodded Assembly']  .addCell(cells['Gap Reflector Rodded Assembly'])
+universes['Gap Reflector Right Assembly']   .addCell(cells['Gap Reflector Right Assembly'])
+universes['Gap Reflector Bottom Assembly']  .addCell(cells['Gap Reflector Bottom Assembly'])
+universes['Gap Reflector Corner Assembly']  .addCell(cells['Gap Reflector Corner Assembly'])

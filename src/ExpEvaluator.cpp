@@ -217,7 +217,7 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
   if (!_interpolate)
     return;
 
-  log_printf(NORMAL, "Initializing exponential interpolation table...");
+  log_printf(DEBUG, "Initializing exponential interpolation table...");
 
   /* Set size of interpolation table for linear interpolation */
   int num_array_values = _max_optical_length * sqrt(1. / (8. * _exp_precision));

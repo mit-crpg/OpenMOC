@@ -166,14 +166,32 @@ private:
   /** The number of Lattice cells along the z-axis */
   int _num_z;
 
-  /** The width of each Lattice cell (cm) along the x-axis */
+  /** True if the lattice is non-uniform */
+  bool _non_uniform;
+  
+  /** The width of each Lattice cell (cm) along the x-axis
+      (uniform lattices only) */
   double _width_x;
+  
+  /** x-direction dimensions of non-uniform lattice meshes */
+  std::vector<double> _widths_x;
+  std::vector<double> _accumulate_x;
 
-  /** The width of each Lattice cell (cm) along the y-axis */
+  /** The width of each Lattice cell (cm) along the y-axis 
+      (uniform lattices only) */
   double _width_y;
+  
+  /** y-direction dimensions of non-uniform lattice meshes */
+  std::vector<double> _widths_y;
+  std::vector<double> _accumulate_y;
 
-  /** The width of each Lattice cell (cm) along the z-axis */
+  /** The width of each Lattice cell (cm) along the z-axis 
+      (uniform lattices only) */
   double _width_z;
+  
+  /** z-direction dimensions of non-uniform lattice meshes */
+  std::vector<double> _widths_z;
+  std::vector<double> _accumulate_z;
 
   /** The coordinates of the offset for the Universe */
   Point _offset;
@@ -195,6 +213,13 @@ public:
   double getWidthX() const;
   double getWidthY() const;
   double getWidthZ() const;
+  bool getNonUniform() const;
+  const std::vector<double>& getWidthsX() const;
+  const std::vector<double>& getWidthsY() const;
+  const std::vector<double>& getWidthsZ() const;
+  const std::vector<double>& getAccumulateX() const;
+  const std::vector<double>& getAccumulateY() const;
+  const std::vector<double>& getAccumulateZ() const;
   double getMinX();
   double getMaxX();
   double getMinY();
@@ -206,6 +231,7 @@ public:
   std::vector< std::vector< std::vector< std::pair<int, Universe*> > > >*
       getUniverses();
   std::map<int, Universe*> getUniqueUniverses();
+  std::map<int, double> getUniqueRadius(std::map<int, Universe*> unique_universes);
   std::map<int, Cell*> getAllCells();
   std::map<int, Universe*> getAllUniverses();
 
@@ -214,6 +240,13 @@ public:
   void setNumZ(int num_z);
   void setWidth(double width_x, double width_y,
                 double width_z=std::numeric_limits<double>::infinity());
+  void setNonUniform(bool non_uniform);
+  void setWidthsX(std::vector<double> widthsx);
+  void setWidthsY(std::vector<double> widthsy);
+  void setWidthsZ(std::vector<double> widthsz);
+  void setAccumulateX(std::vector<double> accumulatex);
+  void setAccumulateY(std::vector<double> accumulatey);
+  void setAccumulateZ(std::vector<double> accumulatez);
   void setUniverses(int num_z, int num_y, int num_x, Universe** universes);
   void updateUniverse(int lat_x, int lat_y, int lat_z, Universe* universe);
   void removeUniverse(Universe* universe);
@@ -234,6 +267,15 @@ public:
 
   std::string toString();
   void printString();
+  
+  /* Set XYZ widths of non-uniform meshes */
+  void setWidths(std::vector<double> widths_x, std::vector<double> widths_y, 
+                 std::vector<double> widths_z);
+  void computeSizes();
+  
+  /* For debug use */
+  void printLatticeSizes();
+  
 };
 
 /**
@@ -262,9 +304,5 @@ template<typename tMap>
 second_t<typename tMap::value_type> pair_second(const tMap& map) {
   return second_t<typename tMap::value_type>();
 }
-
-
-
-
 
 #endif /* UNIVERSE_H_ */

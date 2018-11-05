@@ -28,6 +28,7 @@
   #include "../src/Progress.h"
   #include "../src/Quadrature.h"
   #include "../src/Region.h"
+  #include "../src/RunTime.h"
   #include "../src/segmentation_type.h"
   #include "../src/Solver.h"
   #include "../src/CPUSolver.h"
@@ -94,6 +95,7 @@
 %ignore twiddleRead(boundaryType* ptr, size_t size, size_t nmemb, FILE* stream);
 %ignore twiddleRead(double* ptr, size_t size, size_t nmemb, FILE* stream);
 %ignore twiddleRead(long* ptr, size_t size, size_t nmemb, FILE* stream);
+%ignore setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]); 
 
 
 /* Instruct SWIG to ignore methods used in getting CSR Matrix format and Vector
@@ -134,6 +136,7 @@ namespace std {
   %template(IntVector) vector<int>;
   %template(LongVector) vector<long>;
   %template(Array) vector< vector<int> >;
+  %template(DoubleArray) vector< vector<double> >;
 }
 
 /* Include the MPI library */
@@ -159,6 +162,7 @@ namespace std {
 %include ../src/Quadrature.h
 %include ../src/Region.h
 %include ../src/segmentation_type.h
+%include ../src/RunTime.h
 %include ../src/Solver.h
 %include ../src/CPUSolver.h
 %include ../src/CPULSSolver.h

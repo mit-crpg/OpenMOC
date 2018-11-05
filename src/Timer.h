@@ -13,6 +13,7 @@
 #include "Python.h"
 #endif
 #include "log.h"
+#include "constants.h"
 #include <time.h>
 #include <omp.h>
 #include <iostream>

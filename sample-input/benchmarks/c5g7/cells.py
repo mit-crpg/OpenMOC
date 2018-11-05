@@ -1,6 +1,7 @@
 import openmoc
 import openmoc.materialize as materialize
 from surfaces import surfaces
+from surfaces import gap
 
 fuel_rings      = 5
 moderator_rings = 0
@@ -20,6 +21,7 @@ cells = {}
 
 # Instantiate Cells
 cells['Root']                        = openmoc.Cell()
+cells['Gap Root']                    = openmoc.Cell()
 cells['UO2']                         = openmoc.Cell()
 cells['MOX 4.3%']                    = openmoc.Cell()
 cells['MOX 7.0%']                    = openmoc.Cell()
@@ -42,6 +44,15 @@ cells['Reflector Right Assembly']    = openmoc.Cell()
 cells['Reflector Bottom Assembly']   = openmoc.Cell()
 cells['Reflector Corner Assembly']   = openmoc.Cell()
 cells['Reflector Assembly']          = openmoc.Cell()
+
+cells['Gap UO2 Unrodded Assembly']       = openmoc.Cell()
+cells['Gap UO2 Rodded Assembly']         = openmoc.Cell()
+cells['Gap MOX Unrodded Assembly']       = openmoc.Cell()
+cells['Gap MOX Rodded Assembly']         = openmoc.Cell()
+cells['Gap Reflector Rodded Assembly']   = openmoc.Cell()
+cells['Gap Reflector Right Assembly']    = openmoc.Cell()
+cells['Gap Reflector Bottom Assembly']   = openmoc.Cell()
+cells['Gap Reflector Corner Assembly']   = openmoc.Cell()
 
 # Set material fills
 cells['UO2']             .setFill(materials['UO2'])
@@ -93,3 +104,8 @@ cells['Root']            .addSurface(+1, surfaces['Root x-min'])
 cells['Root']            .addSurface(-1, surfaces['Root x-max'])
 cells['Root']            .addSurface(+1, surfaces['Root y-min'])
 cells['Root']            .addSurface(-1, surfaces['Root y-max'])
+
+cells['Gap Root']        .addSurface(+1, surfaces['Gap Root x-min'])
+cells['Gap Root']        .addSurface(-1, surfaces['Gap Root x-max'])
+cells['Gap Root']        .addSurface(+1, surfaces['Gap Root y-min'])
+cells['Gap Root']        .addSurface(-1, surfaces['Gap Root y-max'])

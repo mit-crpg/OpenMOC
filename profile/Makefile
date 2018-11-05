@@ -2,30 +2,32 @@
 # User Options
 #===============================================================================
 
-COMPILER    = gnu
-OPENMP      = yes
-OPTIMIZE    = yes
-DEBUG       = no
-PROFILE     = no
-PRECISION   = single
-CMFD_PRECISION = single
+COMPILER    	 ?= mpi
+OPENMP      	 ?= yes
+OPTIMIZE    	 ?= yes
+DEBUG       	 ?= no
+PROFILE     	 ?= no
+PRECISION   	 ?= double
+CMFD_PRECISION ?= double
 
 #===============================================================================
 # Source Code List
 #===============================================================================
 
-#case = load-geometry/load-full-core.cpp
-#case = load-geometry/load-single-assembly.cpp
-#case = load-geometry/load-tc-study.cpp
-#case = load-geometry/load-few-assm.cpp
-#case = load-geometry/load-2D-full-core.cpp
-#case = load-geometry/trunc-core-2D.cpp
-#case = load-geometry/load-corner.cpp
-#case = load-geometry/load-assembly-lattice.cpp
+#case = models/load-geometry/load-full-core.cpp
+#case = models/load-geometry/load-single-assembly.cpp
+#case = models/load-geometry/load-tc-study.cpp
+#case = models/load-geometry/load-few-assm.cpp
+#case = models/load-geometry/load-2D-full-core.cpp
+#case = models/load-geometry/trunc-core-2D.cpp
+#case = models/load-geometry/load-corner.cpp
+#case = models/load-geometry/load-assembly-lattice.cpp
 
-#case = load-geometry/load-geometry.cpp
-case = simple-lattice/simple-lattice-3d.cpp
-#case = homogeneous/homogeneous.cpp
+#case = models/load-geometry/load-geometry.cpp
+#case = models/simple-lattice/simple-lattice-3d.cpp
+#case = models/homogeneous/homogeneous.cpp
+#case = models/non-uniform-lattice/non-uniform-lattice.cpp
+case ?= models/run_time_standard/run_time_standard.cpp
 
 source = \
 Cell.cpp \
@@ -45,6 +47,7 @@ Point.cpp \
 Progress.cpp \
 Quadrature.cpp \
 Region.cpp \
+RunTime.cpp \
 Solver.cpp \
 Surface.cpp \
 Timer.cpp \
@@ -80,7 +83,8 @@ load-geometry/trunc-core-2D.cpp \
 load-geometry/load-corner.cpp \
 load-geometry/load-assembly-lattice.cpp \
 load-geometry/load-tc-study.cpp \
-load-geometry/load-full-core.cpp
+load-geometry/load-full-core.cpp \
+non-uniform-lattice/non-uniform-lattice.cpp \
 
 #===============================================================================
 # Sets Flags
@@ -214,6 +218,7 @@ endif
   CFLAGS += -DOPENMP
 endif
 
+CFLAGS += -I../src/
 #===============================================================================
 # Program Name and Object Files
 #===============================================================================
@@ -225,7 +230,7 @@ headers = $(source:.cpp=.h)
 
 obj := $(addprefix obj/, $(obj))
 cases := $(addprefix models/, $(cases))
-case := $(addprefix models/, $(case))
+cases += $(case)
 
 programs = $(cases:.cpp=)
 program = $(case:.cpp=)
@@ -236,13 +241,13 @@ program = $(case:.cpp=)
 
 default: folder $(addsuffix .o, $(program)) $(program)
 
-$(programs): $(obj)  $(headers)
+$(programs): $(obj)  $(headers) $(addsuffix .o, $(program))
 	$(CC) $(CFLAGS) $(obj) $(addsuffix .o, $@) -o $@ $(LDFLAGS)
 
 obj/%.o: ../src/%.cpp Makefile
 	$(CC) $(CFLAGS) -c $< -o $@
 
-models/%.o: models/%.cpp Makefile
+%.o: %.cpp Makefile
 	$(CC) $(CFLAGS) -c $< -o $@
 
 folder:

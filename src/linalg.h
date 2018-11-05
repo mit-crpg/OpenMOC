@@ -25,20 +25,32 @@
 #endif
 
 
-//FIXME
+/**
+ * @brief Verbose iteration information for the CMFD eigenvalue solver 
+ */
 struct ConvergenceData {
+  /* The Max. prolongation factor of the CMFD */
   double pf;
+  /* The initial residual of the CMFD eigenvalue problem */
   double cmfd_res_1;
+  /* The final residual of the CMFD eigenvalue problem */
   double cmfd_res_end;
+  /* The linear solver residual of the first CMFD eigenvalue iteration */
   double linear_res_1;
+  /* The linear solver residual of the final CMFD eigenvalue iteration */
   double linear_res_end;
+  /* The number of the CMFD eigenvalue iterations */
   int cmfd_iters;
+  /* The number of linear iterations for the first CMFD eigenvalue iteration */
   int linear_iters_1;
+  /* The number of linear iterations for the final CMFD eigenvalue iteration */
   int linear_iters_end;
 };
 
 
-//FIXME
+/**
+ * @brief Structure for communication of fluxes between neighbor domains
+ */
 struct DomainCommunicator {
   int _num_domains_x;
   int _num_domains_y;
@@ -49,12 +61,20 @@ struct DomainCommunicator {
   int _local_num_x;
   int _local_num_y;
   int _local_num_z;
+  /* Sum of the starting CMFD global indexes of a domain, for the color*/
   int _offset;
+  /* Number of connecting neighbors for each surface cell */
   int** num_connections;
+  /* Indexes of connecting neighbors for each surface cell */
   int*** indexes;
+  /* Surface numbers of connecting neighbors for each surface cell */
   int*** domains;
+  /* Coupling coeffs between connecting neighbors and itself for each 
+     surface cell */
   CMFD_PRECISION*** coupling_coeffs;
+  /* Fluxes of connecting neighbors for each surface cell*/
   CMFD_PRECISION*** fluxes;
+  /* Buffer for sending/receiving fluxes to/from connecting neighbors */
   CMFD_PRECISION** buffer;
   int num_groups;
   bool stop;
@@ -63,7 +83,10 @@ struct DomainCommunicator {
 #endif
 };
 
-//FIXME
+/**
+ * @brief Get coupling fluxes and other information from neighbors. 
+ * The information are transfered by reference.
+ */
 #ifdef MPIx
 void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
                       int**& coupling_indexes, CMFD_PRECISION**& coupling_coeffs,

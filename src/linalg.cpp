@@ -357,14 +357,26 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 
 
 
-//FIXME
+/**
+ * @brief Get coupling fluxes and other information from neighbors. 
+ *        The information are transfered by reference.
+ * @param comm Structure for communication of fluxes between neighbor domains
+ * @param color red or black color
+ * @param coupling_sizes Number of connecting neighbors for each surface cell
+ * @param coupling_indexes Surface numbers of connecting neighbors for each 
+ *        surface cell
+ * @param coupling_coeffs Coupling coeffs between connecting neighbors and 
+ *        itself for each surface cell
+ * @param coupling_fluxes Fluxes of connecting neighbors for each surface cell
+ * @param curr_fluxes CMFD cell fluxes of current iteration
+ * @param offset Sum of the starting CMFD global indexes of a domain, for 
+ *        calculation of the color
+ */
 #ifdef MPIx
 void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
                       int**& coupling_indexes, CMFD_PRECISION**& coupling_coeffs,
                       CMFD_PRECISION**& coupling_fluxes,
-                      CMFD_PRECISION* curr_fluxes,
-                      int& offset) {
-
+                      CMFD_PRECISION* curr_fluxes, int& offset) {
   if (comm != NULL) {
     coupling_sizes = comm->num_connections[color];
     coupling_indexes = comm->indexes[color];

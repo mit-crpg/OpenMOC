@@ -261,7 +261,7 @@ water.create_dataset('chi', data=chi)
 ################################   Control Rod   ##############################
 ###############################################################################
 
-# Create a subdictionary for water materials data
+# Create a subgroup for control rod materials data
 control_rod = material_group.create_group('Control Rod')
 
 sigma_t = numpy.array([2.16768E-01, 4.80098E-01, 8.86369E-01,
@@ -287,6 +287,35 @@ control_rod.create_dataset('scatter matrix', data=sigma_s)
 control_rod.create_dataset('fission', data=sigma_f)
 control_rod.create_dataset('nu-fission', data=nu_sigma_f)
 control_rod.create_dataset('chi', data=chi)
+
+
+###############################################################################
+################################      Clad       ##############################
+###############################################################################
+
+# Create a subgroup for Clad materials data
+clad = material_group.create_group('Clad')
+
+sigma_t = numpy.array([1.30060E-01, 3.05480E-01, 3.29910E-01, 
+                       2.69700E-01, 2.72780E-01, 2.77940E-01,
+                       2.95630E-01])
+sigma_s = numpy.array([9.72490E-02, 3.25480E-02, 0.00000E+00, 0.00000E+00, 0.00000E+00, 0.00000E+00, 0.00000E+00,
+  0.00000E+00, 3.03980E-01, 7.72850E-04, 0.00000E+00, 0.00000E+00, 0.00000E+00, 0.00000E+00,
+  0.00000E+00, 0.00000E+00, 3.24280E-01, 5.94050E-04, 0.00000E+00, 0.00000E+00, 0.00000E+00,
+  0.00000E+00, 0.00000E+00, 0.00000E+00, 2.63200E-01, 5.31350E-03, 0.00000E+00, 0.00000E+00,
+  0.00000E+00, 0.00000E+00, 0.00000E+00, 2.12680E-03, 2.53950E-01, 1.39080E-02, 0.00000E+00,
+  0.00000E+00, 0.00000E+00, 0.00000E+00, 0.00000E+00, 1.48500E-02, 2.41850E-01, 1.65340E-02,
+  0.00000E+00, 0.00000E+00, 0.00000E+00, 0.00000E+00, 0.00000E+00, 2.98990E-02, 2.57160E-01])
+sigma_f = numpy.zeros(7)
+nu_sigma_f = numpy.zeros(7)
+chi = numpy.zeros(7)
+
+# Create datasets for each cross-section type
+clad.create_dataset('total', data=sigma_t)
+clad.create_dataset('scatter matrix', data=sigma_s)
+clad.create_dataset('fission', data=sigma_f)
+clad.create_dataset('nu-fission', data=nu_sigma_f)
+clad.create_dataset('chi', data=chi)
 
 # Close the hdf5 data file
 f.close()

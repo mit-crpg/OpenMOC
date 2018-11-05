@@ -34,7 +34,7 @@ Cmfd::Cmfd() {
   _cell_width_z = 0.;
   _flux_update_on = true;
   _centroid_update_on = true;
-  _use_axial_interpolation = false;
+  _use_axial_interpolation = 0;
   _flux_limiting = true;
   _balance_sigma_t = false;
   _k_nearest = 1;
@@ -48,6 +48,8 @@ Cmfd::Cmfd() {
   _check_neutron_balance = false;
   _old_dif_surf_valid = false;
 
+  _non_uniform = false;
+  
   /* Energy group and polar angle problem parameters */
   _num_moc_groups = 0;
   _num_cmfd_groups = 0;
@@ -159,7 +161,7 @@ Cmfd::~Cmfd() {
 
   /* Delete CMFD materials array */
   if (_materials != NULL) {
-    for (int i=0; i < _local_num_x * _local_num_y * _local_num_z; i++)
+    for (int i=0; i < _local_num_xn * _local_num_yn * _local_num_zn; i++)
       delete _materials[i];
     delete [] _materials;
   }
@@ -199,7 +201,7 @@ Cmfd::~Cmfd() {
   }
 
   /* De-allocate domain communicator */
-  int num_cells_local = _local_num_x * _local_num_y * _local_num_z;
+  int num_cells_local = _local_num_xn * _local_num_yn * _local_num_zn;
   if (_domain_communicator != NULL) {
     if(_domain_communicator_allocated) {
       for (int rb=0; rb<2; rb++) {
@@ -261,10 +263,9 @@ void Cmfd::setNumX(int num_x) {
 
   _num_x = num_x;
   _local_num_x = _num_x;
+  _local_num_xn = _local_num_x;
   if (_domain_communicator != NULL)
     _local_num_x = _num_x / _domain_communicator->_num_domains_x;
-  if (_width_x != 0.)
-    _cell_width_x = _width_x / _num_x;
 }
 
 
@@ -280,10 +281,9 @@ void Cmfd::setNumY(int num_y) {
 
   _num_y = num_y;
   _local_num_y = _num_y;
+  _local_num_yn = _local_num_y;
   if (_domain_communicator != NULL)
     _local_num_y = _num_y / _domain_communicator->_num_domains_y;
-  if (_width_y != 0.)
-    _cell_width_y = _width_y / _num_y;
 }
 
 
@@ -299,12 +299,9 @@ void Cmfd::setNumZ(int num_z) {
 
   _num_z = num_z;
   _local_num_z = _num_z;
+  _local_num_zn = _local_num_z;
   if (_domain_communicator != NULL)
     _local_num_z = _num_z / _domain_communicator->_num_domains_z;
-  if (_width_z != 0.)
-    _cell_width_z = _width_z / _num_z;
-  if (_width_z == std::numeric_limits<double>::infinity())
-    _cell_width_z = 1.0;
 }
 
 
@@ -359,8 +356,6 @@ CMFD_PRECISION*** Cmfd::getBoundarySurfaceCurrents() {
  */
 void Cmfd::setWidthX(double width) {
   _width_x = width;
-  if (_num_x != 0)
-    _cell_width_x = _width_x / _num_x;
 }
 
 
@@ -370,8 +365,6 @@ void Cmfd::setWidthX(double width) {
  */
 void Cmfd::setWidthY(double width) {
   _width_y = width;
-  if (_num_y != 0)
-    _cell_width_y = _width_y / _num_y;
 }
 
 
@@ -381,8 +374,6 @@ void Cmfd::setWidthY(double width) {
  */
 void Cmfd::setWidthZ(double width) {
   _width_z = width;
-  if (_num_z != 0)
-    _cell_width_z = _width_z / _num_z;
 }
 
 
@@ -403,7 +394,61 @@ void Cmfd::setNumDomains(int num_x, int num_y, int num_z) {
   _domain_communicator->_num_domains_x = num_x;
   _domain_communicator->_num_domains_y = num_y;
   _domain_communicator->_num_domains_z = num_z;
+  
+  _accumulate_lmx.resize(num_x + 1, 0);
+  _accumulate_lmy.resize(num_y + 1, 0);
+  _accumulate_lmz.resize(num_z + 1, 0);
+  
+  /* To check the position of domain decomposition interfaces in non-uniform 
+     CMFD mesh interfaces. x direction */
+  int j;
+  for(int i=0; i<num_x; i++) {
+    double coord = (i + 1) * _width_x / num_x;
+    for(j=1; j<_num_x+1; j++) {
+      if(fabs(coord - _accumulate_x[j]) < FLT_EPSILON) {
+        _accumulate_lmx[i+1] = j;
+        break;
+      }
+    }
+    if(j == _num_x+1) {
+      log_printf(ERROR, "The domain decomposition interface x[%d] = %f is NOT "
+                 "among the CMFD mesh division in the x direction", i, coord);
+    }
+  }
 
+  /* To check the position of domain decomposition interfaces in non-uniform 
+     CMFD mesh interfaces. y direction */
+  for(int i=0; i<num_y; i++) {
+    double coord = (i + 1) * _width_y / num_y;
+    for(j=1; j<_num_y+1; j++) {
+      if(fabs(coord - _accumulate_y[j]) < FLT_EPSILON) {
+        _accumulate_lmy[i+1] = j;
+        break;
+      }
+    }
+    if(j == _num_y+1) {
+      log_printf(ERROR, "The domain decomposition interface y[%d] = %f is NOT "
+                 "among the CMFD mesh division in the y direction", i, coord);
+    }
+  }
+
+  /* To check the position of domain decomposition interfaces in non-uniform 
+     CMFD mesh interfaces. z direction */
+  for(int i=0; i<num_z; i++) {
+    double coord = (i + 1) * _width_z / num_z;
+    for(j=1; j<_num_z+1; j++) {
+      if(fabs(coord - _accumulate_z[j]) < FLT_EPSILON) {
+        _accumulate_lmz[i+1] = j;
+        break;
+      }
+    }
+    if(j == _num_z+1) {
+      log_printf(ERROR, "The domain decomposition interface z[%d] = %f is NOT "
+                 "among the CMFD mesh division in the z direction", i, coord);
+    }
+  }
+
+//The next three sentences would be deleted when done.
   _local_num_x = _num_x / num_x;
   _local_num_y = _num_y / num_y;
   _local_num_z = _num_z / num_z;
@@ -423,6 +468,12 @@ void Cmfd::setDomainIndexes(int idx_x, int idx_y, int idx_z) {
   _domain_communicator->_domain_idx_x = idx_x;
   _domain_communicator->_domain_idx_y = idx_y;
   _domain_communicator->_domain_idx_z = idx_z;
+  
+  _local_num_xn = _accumulate_lmx[idx_x + 1] - _accumulate_lmx[idx_x];
+  _local_num_yn = _accumulate_lmy[idx_y + 1] - _accumulate_lmy[idx_y];
+  _local_num_zn = _accumulate_lmz[idx_z + 1] - _accumulate_lmz[idx_z];
+  //log_printf(NODAL, "_local_num_xn=%d, _local_num_yn=%d, _local_num_zn=%d,%d, %d, %d",
+   //          _local_num_xn, _local_num_yn, _local_num_zn, idx_x, idx_y, idx_z);
 }
 #endif
 
@@ -482,7 +533,7 @@ void Cmfd::collapseXS() {
 
     /* Loop over CMFD cells */
 #pragma omp for
-    for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
+    for (int i = 0; i < _local_num_xn * _local_num_yn * _local_num_zn; i++) {
 
       std::vector<long>::iterator iter;
       cell_material = _materials[i];
@@ -587,7 +638,9 @@ void Cmfd::collapseXS() {
               fabs(trans_tally_group) > FLT_EPSILON) {
             CMFD_PRECISION flux_avg_sigma_t = trans_tally_group /
                 rxn_tally_group;
-            _diffusion_tally[i][e] += rxn_tally_group /
+//why times rxn_tally_group here and divided by _reaction_tally[cmfd_cell][group]
+//in getDiffusionCoefficient?
+            _diffusion_tally[i][e] += rxn_tally_group / 
                 (3.0 * flux_avg_sigma_t);
           }
         }
@@ -637,7 +690,7 @@ void Cmfd::collapseXS() {
 
   /* Calculate (local) old fluxes and set volumes */
 #pragma omp parallel for
-  for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
+  for (int i = 0; i < _local_num_xn * _local_num_yn * _local_num_zn; i++) {
 
     /* Loop over CMFD coarse energy groups */
     for (int e = 0; e < _num_cmfd_groups; e++) {
@@ -717,11 +770,9 @@ CMFD_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
  * @return The surface diffusion coefficient, (\f$ \hat{D} \f$) or
  *         (\f$ \tilde{D} \f$)
  */
-CMFD_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
-                                                  int group, int moc_iteration,
-                                                  bool correction) {
+void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
+    int group, int moc_iteration,double& dif_surf, double& dif_surf_corr) {
 
-  CMFD_PRECISION dif_surf, dif_surf_corr;
   FP_PRECISION current, current_out, current_in;
   CMFD_PRECISION flux_next;
 
@@ -730,8 +781,13 @@ CMFD_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
   int global_cmfd_cell = getGlobalCMFDCell(cmfd_cell);
   int global_cmfd_cell_next = getCellNext(global_cmfd_cell, surface);
   CMFD_PRECISION flux = _old_flux->getValue(cmfd_cell, group);
-  CMFD_PRECISION delta_interface = getSurfaceWidth(surface);
-  CMFD_PRECISION delta = getPerpendicularSurfaceWidth(surface);
+  CMFD_PRECISION delta_interface = getSurfaceWidth(surface, global_cmfd_cell);
+  CMFD_PRECISION delta = getPerpendicularSurfaceWidth(surface, global_cmfd_cell);
+  
+  CMFD_PRECISION delta_next = 0.0;
+  if(global_cmfd_cell_next != -1) 
+    delta_next = getPerpendicularSurfaceWidth(surface, global_cmfd_cell_next);
+    
   int sense = getSense(surface);
 
   /* Correct the diffusion coefficient with Larsen's effective diffusion
@@ -814,7 +870,7 @@ CMFD_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
     /* Compute the surface diffusion coefficient */
     dif_surf = 2.0 * dif_coef * dif_coef_next
-        / (delta * dif_coef + delta * dif_coef_next);
+               / (delta_next * dif_coef + delta * dif_coef_next);
 
     /* Compute the surface-averaged net current across the surface */
     current = sense * (current_out - current_in) / delta_interface;
@@ -852,12 +908,6 @@ CMFD_PRECISION Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
    * with no MOC correction */
   if (moc_iteration == 0)
     dif_surf_corr = 0.0;
-
-  /* Determine which surface diffusion coefficient is corrected */
-  if (correction)
-    return dif_surf_corr;
-  else
-    return dif_surf;
 }
 
 
@@ -1010,7 +1060,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
 
   /* Zero the number of connections */
   if (_domain_communicator != NULL) {
-    int num_local_cells = _local_num_x * _local_num_y * _local_num_z;
+    int num_local_cells = _local_num_xn * _local_num_yn * _local_num_zn;
     for (int c=0; c<2; c++) {
       for (int ncg=0; ncg < num_local_cells * _num_cmfd_groups; ncg++) {
         _domain_communicator->num_connections[c][ncg] = 0;
@@ -1033,18 +1083,18 @@ void Cmfd::constructMatrices(int moc_iteration) {
     int z_end = _num_z;
     if (_geometry->isDomainDecomposed()) {
       if (_domain_communicator != NULL) {
-        x_start = _domain_communicator->_domain_idx_x * _local_num_x;
-        x_end = x_start + _local_num_x;
-        y_start = _domain_communicator->_domain_idx_y * _local_num_y;
-        y_end = y_start + _local_num_y;
-        z_start = _domain_communicator->_domain_idx_z * _local_num_z;
-        z_end = z_start + _local_num_z;
+        x_start = _accumulate_lmx[_domain_communicator->_domain_idx_x];
+        x_end = x_start + _local_num_xn;
+        y_start = _accumulate_lmy[_domain_communicator->_domain_idx_y];
+        y_end = y_start + _local_num_yn;
+        z_start = _accumulate_lmz[_domain_communicator->_domain_idx_z];
+        z_end = z_start + _local_num_zn;
       }
     }
 
     /* Loop over cells */
 #pragma omp for
-    for (int i = 0; i < _local_num_x*_local_num_y*_local_num_z; i++) {
+    for (int i = 0; i < _local_num_xn*_local_num_yn*_local_num_zn; i++) {
 
       int global_ind = getGlobalCMFDCell(i);
       int color = getCellColor(global_ind);
@@ -1074,14 +1124,13 @@ void Cmfd::constructMatrices(int moc_iteration) {
         for (int s = 0; s < NUM_FACES; s++) {
 
           sense = getSense(s);
-          delta = getSurfaceWidth(s);
+          delta = getSurfaceWidth(s, global_ind);
 
-          /* Set transport term on diagonal */
-          dif_surf = getSurfaceDiffusionCoefficient(
-              i, s, e, moc_iteration, false);
-          dif_surf_corr = getSurfaceDiffusionCoefficient(
-              i, s, e, moc_iteration, true);
-
+          /* Set transport term on diagonal.
+          dif_surf and dif_surf_corr are modified via reference */
+           getSurfaceDiffusionCoefficient(i, s, e, moc_iteration, dif_surf, 
+                                          dif_surf_corr);
+           
           /* Record the corrected diffusion coefficient */
           _old_dif_surf_corr->setValue(i, s*_num_cmfd_groups+e, dif_surf_corr);
           _old_dif_surf_valid = true;
@@ -1143,7 +1192,7 @@ void Cmfd::updateMOCFlux() {
 
   /* Loop over mesh cells */
 #pragma omp parallel for
-  for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
+  for (int i = 0; i < _local_num_xn * _local_num_yn * _local_num_zn; i++) {
 
     std::vector<long>::iterator iter;
 
@@ -1320,11 +1369,9 @@ void Cmfd::setCMFDRelaxationFactor(double relaxation_factor) {
   if (relaxation_factor <= 0.0 || relaxation_factor > 1.0)
     log_printf(ERROR, "The successive over-relaxation relaxation factor "
                       "must be greater than 0 and less than or equal to 1. "
-                      "Input value: %i", relaxation_factor);
+                      "Input value: %6.4f", relaxation_factor);
 
   _relaxation_factor = relaxation_factor;
-  if (fabs(relaxation_factor - 1.0) > FLT_EPSILON)
-    log_printf(NORMAL, "CMFD relaxation factor: %6.4f", _relaxation_factor);
 }
 
 
@@ -1404,19 +1451,19 @@ void Cmfd::initializeMaterials() {
 
   /* Delete old CMFD surface currents vector if it exists */
   if (_materials != NULL){
-    for (int i=0; i < _local_num_x * _local_num_y * _local_num_z; i++)
+    for (int i=0; i < _local_num_xn * _local_num_yn * _local_num_zn; i++)
       delete _materials[i];
     delete [] _materials;
   }
 
 
   try {
-    _materials = new Material*[_local_num_x*_local_num_y*_local_num_z];
-    for (int z = 0; z < _local_num_z; z++) {
-      for (int y = 0; y < _local_num_y; y++) {
-        for (int x = 0; x < _local_num_x; x++) {
-          int ind = z*_local_num_x*_local_num_y + y*_local_num_x + x;
-          material = new Material(ind);
+    _materials = new Material*[_local_num_xn*_local_num_yn*_local_num_zn];
+    for (int z = 0; z < _local_num_zn; z++) {
+      for (int y = 0; y < _local_num_yn; y++) {
+        for (int x = 0; x < _local_num_xn; x++) {
+          int ind = z*_local_num_xn*_local_num_yn + y*_local_num_xn + x;
+          material = new Material(ind); //ind might be greater than DEFAULT_INIT_ID, dangerous.
           material->setNumEnergyGroups(_num_cmfd_groups);
           _materials[ind] = material;
         }
@@ -1440,17 +1487,17 @@ void Cmfd::initializeCurrents() {
     delete _surface_currents;
 
   /* Allocate memory for the CMFD Mesh surface and corner currents Vectors */
-  _surface_currents = new Vector(_cell_locks, _local_num_x, _local_num_y,
-                                 _local_num_z, _num_cmfd_groups * NUM_FACES);
+  _surface_currents = new Vector(_cell_locks, _local_num_xn, _local_num_yn,
+                                 _local_num_zn, _num_cmfd_groups * NUM_FACES);
 
   if (_balance_sigma_t) {
     /* Allocate memory for the actual starting currents on boundary CMFD cells */
-    _starting_currents = new Vector(_cell_locks, _local_num_x, _local_num_y,
-                                    _local_num_z, _num_cmfd_groups);
+    _starting_currents = new Vector(_cell_locks, _local_num_xn, _local_num_yn,
+                                    _local_num_zn, _num_cmfd_groups);
 
     /* Allocate memory for the net currents of all CMFD cells */
-    _net_currents = new Vector(_cell_locks, _local_num_x, _local_num_y,
-                               _local_num_z, _num_cmfd_groups);
+    _net_currents = new Vector(_cell_locks, _local_num_xn, _local_num_yn,
+                               _local_num_zn, _num_cmfd_groups);
   }
 }
 
@@ -1465,9 +1512,9 @@ void Cmfd::initializeCurrents() {
 void Cmfd::initializeCellMap() {
 
   /* Allocate memory for mesh cell FSR vectors */
-  for (int z = 0; z < _local_num_z; z++) {
-    for (int y = 0; y < _local_num_y; y++) {
-      for (int x = 0; x < _local_num_x; x++)
+  for (int z = 0; z < _local_num_zn; z++) {
+    for (int y = 0; y < _local_num_yn; y++) {
+      for (int x = 0; x < _local_num_xn; x++)
         _cell_fsrs.push_back(std::vector<long>());
     }
   }
@@ -1492,7 +1539,7 @@ void Cmfd::allocateTallies() {
 
   /* Determine tally sizes */
   int num_cells = _num_x * _num_y * _num_z;
-  int local_num_cells = _local_num_x * _local_num_y * _local_num_z;
+  int local_num_cells = _local_num_xn * _local_num_yn * _local_num_zn;
   int tally_size = local_num_cells * _num_cmfd_groups;
   _total_tally_size = 3 * tally_size;
   _tally_memory = new CMFD_PRECISION[_total_tally_size];
@@ -1572,7 +1619,10 @@ void Cmfd::initializeGroupMap() {
  */
 int Cmfd::findCmfdSurface(int cell, LocalCoords* coords) {
   Point* point = coords->getHighestLevel()->getPoint();
-  cell = getGlobalCMFDCell(cell);
+  
+  /* If domain decomposition, compute the global CMFD cell ID*/
+  if (_geometry->isDomainDecomposed())
+    cell = getGlobalCMFDCell(cell);
   return _lattice->getLatticeSurface(cell, point);
 }
 
@@ -1585,8 +1635,15 @@ int Cmfd::findCmfdSurface(int cell, LocalCoords* coords) {
 int Cmfd::findCmfdCell(LocalCoords* coords) {
   Point* point = coords->getHighestLevel()->getPoint();
   int global_cmfd_cell = _lattice->getLatticeCell(point);
-  int local_cmfd_cell = getLocalCMFDCell(global_cmfd_cell);
-  return local_cmfd_cell;
+  
+  /* If domain decomposition, compute the local CMFD cell ID*/ 
+  if (_geometry->isDomainDecomposed()) {
+    int local_cmfd_cell = getLocalCMFDCell(global_cmfd_cell);
+    return local_cmfd_cell;
+  }
+  else
+    /* Without decomposition, global and local CMFD cell ID are equal.*/ 
+    return global_cmfd_cell;
 }
 
 
@@ -1714,7 +1771,7 @@ void Cmfd::splitVertexCurrents() {
 
 
 #pragma omp for
-    for (int i=0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
+    for (int i=0; i < _local_num_xn * _local_num_yn * _local_num_zn; i++) {
 
       int global_id = getGlobalCMFDCell(i);
 
@@ -1835,7 +1892,7 @@ void Cmfd::splitEdgeCurrents() {
     int cell, surface;
 
 #pragma omp for
-    for (int i=0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
+    for (int i=0; i < _local_num_xn * _local_num_yn * _local_num_zn; i++) {
 
       int global_id = getGlobalCMFDCell(i);
 
@@ -2072,15 +2129,15 @@ int Cmfd::getCellNext(int cell, int surface_id, bool global, bool neighbor) {
     nz = _num_z;
   }
   else {
-    x = (cell % (_local_num_x * _local_num_y)) % _local_num_x;
-    y = (cell % (_local_num_x * _local_num_y)) / _local_num_x;
-    z = cell / (_local_num_x * _local_num_y);
-    x_global = x + _domain_communicator->_domain_idx_x * _local_num_x;
-    y_global = y + _domain_communicator->_domain_idx_y * _local_num_y;
-    z_global = z + _domain_communicator->_domain_idx_z * _local_num_z;
-    nx = _local_num_x;
-    ny = _local_num_y;
-    nz = _local_num_z;
+    x = (cell % (_local_num_xn * _local_num_yn)) % _local_num_xn;
+    y = (cell % (_local_num_xn * _local_num_yn)) / _local_num_xn;
+    z = cell / (_local_num_xn * _local_num_yn);
+    x_global = x + _accumulate_lmx[_domain_communicator->_domain_idx_x];
+    y_global = y + _accumulate_lmy[_domain_communicator->_domain_idx_y];
+    z_global = z + _accumulate_lmz[_domain_communicator->_domain_idx_z];
+    nx = _local_num_xn;
+    ny = _local_num_yn;
+    nz = _local_num_zn;
   }
 
   /* Find the cell on the other side of the surface */
@@ -2088,7 +2145,7 @@ int Cmfd::getCellNext(int cell, int surface_id, bool global, bool neighbor) {
     if (x != 0)
       cell_next = cell - 1;
     else if (neighbor && !global && x_global != 0)
-      cell_next = z * _local_num_y + y;
+      cell_next = z * _local_num_yn + y;
     else if (_boundaries[SURFACE_X_MIN] == PERIODIC)
       cell_next = cell + (_num_x-1);
   }
@@ -2097,7 +2154,7 @@ int Cmfd::getCellNext(int cell, int surface_id, bool global, bool neighbor) {
     if (y != 0)
       cell_next = cell - nx;
     else if (neighbor && !global && y_global != 0)
-      cell_next = z * _local_num_x + x;
+      cell_next = z * _local_num_xn + x;
     else if (_boundaries[SURFACE_Y_MIN] == PERIODIC)
       cell_next = cell + _num_x*(_num_y-1);
   }
@@ -2106,7 +2163,7 @@ int Cmfd::getCellNext(int cell, int surface_id, bool global, bool neighbor) {
     if (z != 0)
       cell_next = cell - nx*ny;
     else if (neighbor && !global && z_global != 0)
-      cell_next = y * _local_num_x + x;
+      cell_next = y * _local_num_xn + x;
     else if (_boundaries[SURFACE_Z_MIN] == PERIODIC)
       cell_next = cell + _num_x*_num_y*(_num_z-1);
   }
@@ -2115,7 +2172,7 @@ int Cmfd::getCellNext(int cell, int surface_id, bool global, bool neighbor) {
     if (x != nx - 1)
       cell_next = cell + 1;
     else if (neighbor && !global && x_global != _num_x - 1)
-      cell_next = z * _local_num_y + y;
+      cell_next = z * _local_num_yn + y;
     else if (_boundaries[SURFACE_X_MAX] == PERIODIC)
       cell_next = cell - (_num_x-1);
   }
@@ -2124,7 +2181,7 @@ int Cmfd::getCellNext(int cell, int surface_id, bool global, bool neighbor) {
     if (y != ny - 1)
       cell_next = cell + nx;
     else if (neighbor && !global && y_global != _num_y - 1)
-      cell_next = z * _local_num_x + x;
+      cell_next = z * _local_num_xn + x;
     else if (_boundaries[SURFACE_Y_MAX] == PERIODIC)
       cell_next = cell - _num_x*(_num_y-1);
   }
@@ -2133,7 +2190,7 @@ int Cmfd::getCellNext(int cell, int surface_id, bool global, bool neighbor) {
     if (z != nz - 1)
       cell_next = cell + nx*ny;
     else if (neighbor && !global && z_global != _num_z - 1)
-      cell_next = y * _local_num_x + x;
+      cell_next = y * _local_num_xn + x;
     else if (_boundaries[SURFACE_Z_MAX] == PERIODIC)
       cell_next = cell - _num_x*_num_y*(_num_z-1);
   }
@@ -2182,7 +2239,7 @@ int Cmfd::getBoundary(int side) {
 int Cmfd::convertFSRIdToCmfdCell(long fsr_id) {
 
   std::vector<long>::iterator iter;
-  for (int cell_id=0; cell_id < _local_num_x*_local_num_y*_local_num_z;
+  for (int cell_id=0; cell_id < _local_num_xn*_local_num_yn*_local_num_zn;
       cell_id++) {
     for (iter = _cell_fsrs.at(cell_id).begin();
          iter != _cell_fsrs.at(cell_id).end(); ++iter) {
@@ -2280,11 +2337,20 @@ void Cmfd::setConvergenceData(ConvergenceData* convergence_data) {
 
 
 /**
- * @brief Set the flag indicating whether to use axial interpolation for update
- *        ratios
- * @param interpolate flag saying whether to use axial interpolation.
+ * @brief Set the flag indicating whether to use quadratic axial interpolation 
+ *        for update ratios
+ * @param interpolate flag meaning No interpolation(0), FSR axially averaged 
+          value(1) or centroid z-coordinate evaluted value(2)
  */
-void Cmfd::useAxialInterpolation(bool interpolate) {
+void Cmfd::useAxialInterpolation(int interpolate) {
+  
+  if(interpolate<0 || interpolate>2)
+    log_printf(ERROR, "interpolate can only has value 0, 1, or 2, respectively"
+               " meaning No interpolation, FSR axially averaged value or"
+               " centroid z-coordinate evaluted value");
+  if(interpolate==1 || interpolate==2)
+    log_printf(NORMAL, "WARNING: Axial interpolation CMFD prolongation may only"
+               " be effective when all the FSRs are axially homogeneous");
   _use_axial_interpolation = interpolate;
 }
 
@@ -2450,7 +2516,7 @@ void Cmfd::generateKNearestStencils() {
     int num_cells_in_stencil = 9;
   
     /* Loop over mesh cells */
-    for (int i = 0; i < _local_num_x*_local_num_y*_local_num_z; i++) {
+    for (int i = 0; i < _local_num_xn*_local_num_yn*_local_num_zn; i++) {
   
       int global_ind = getGlobalCMFDCell(i);
   
@@ -2515,7 +2581,7 @@ void Cmfd::generateKNearestStencils() {
 
 
   /* Compute axial quadratic interpolation values if requested */
-  if (_use_axial_interpolation && _local_num_z >= 3) {
+  if (_use_axial_interpolation && _local_num_zn >= 3) {
 
     /* Initialize axial quadratic interpolant values */
     _axial_interpolants.resize(_num_FSRs);
@@ -2523,18 +2589,44 @@ void Cmfd::generateKNearestStencils() {
       _axial_interpolants.at(r) = new double[3]();
     }
     
-    /* Calculate common factors */
-    double dz = _cell_width_z;
-    double dz_2 = _cell_width_z * _cell_width_z;
-
     /* Loop over mesh cells */
-    for (int i = 0; i < _local_num_x*_local_num_y*_local_num_z; i++) {
+    for (int i = 0; i < _local_num_xn*_local_num_yn*_local_num_zn; i++) {
 
+      /* Starting z number of CMFD mesh in this domain */
+      int z_start = 0;
+      if(_domain_communicator != NULL)
+        z_start = _accumulate_lmz[_domain_communicator->_domain_idx_z];
+      
       /* Calculate the CMFD cell z-coordinate */
-      int z_ind = i / (_local_num_x * _local_num_y);
-      double z_cmfd = (z_ind + 0.5) * dz + _lattice->getMinZ();
-      if (_domain_communicator != NULL)
-        z_cmfd += _domain_communicator->_domain_idx_z * dz * _local_num_z;
+      int z_ind = i / (_local_num_xn * _local_num_yn);
+      
+      /* The heights of neighboring three CMFD meshes for quadratic fit */
+      double h0, h1, h2; 
+      
+      /* The z coordinate of the mesh center of the middle-CMFD cell  */
+      double z_cmfd;
+      
+      if(z_ind == 0) {
+        h0 = _cell_widths_z[z_start + z_ind];
+        h1 = _cell_widths_z[z_start + z_ind + 1];
+        h2 = _cell_widths_z[z_start + z_ind + 2];
+        z_cmfd = _accumulate_z[z_start + z_ind+1] + h1/2. + _lattice->getMinZ();
+      }
+      else if(z_ind == _local_num_zn - 1) {
+        h0 = _cell_widths_z[z_start + z_ind - 2];
+        h1 = _cell_widths_z[z_start + z_ind - 1];
+        h2 = _cell_widths_z[z_start + z_ind];
+        z_cmfd = _accumulate_z[z_start + z_ind-1] + h1/2. + _lattice->getMinZ();
+      }
+      else {
+        h0 = _cell_widths_z[z_start + z_ind - 1];
+        h1 = _cell_widths_z[z_start + z_ind];
+        h2 = _cell_widths_z[z_start + z_ind + 1];
+        z_cmfd = _accumulate_z[z_start + z_ind] + h1/2. + _lattice->getMinZ();
+      }
+    
+      /* Start and end relative z-coordinate of an FSR */
+      double zs, ze;
 
       /* Loop over FRSs in mesh cell */
       int num_fissionable_FSRs = 0;
@@ -2544,25 +2636,65 @@ void Cmfd::generateKNearestStencils() {
         /* Get centroid and calculate relative z-coordinate */
         fsr_id = *fsr_iter;
         Point* centroid = _geometry->getFSRCentroid(fsr_id);
-        double zc = (centroid->getZ() - z_cmfd) / dz;
-        if (std::abs(zc) > 0.5)
-          log_printf(ERROR, "Found FSR %d with z-centroid offset in z "
-                     "from CMFD cell %d by %6.4f, whereas the CMFD z-spacing"
-                     " is %6.4f. Coordinates: (%6.4f, %6.4f, %6.4f), cmfd z: "
-                     "%6.4f", fsr_id, i, zc*dz, dz, centroid->getX(),
-                     centroid->getY(), centroid->getZ(), z_cmfd);
+        Point* feature_point = _geometry->getFSRPoint(fsr_id);
+        
+        double zc = (centroid->getZ() - z_cmfd) / h1;
+        zs = (feature_point->getZ() - z_cmfd) / h1;
+        ze = 2*zc - zs;
 
-        /* Check that the CMFD cell is not an end cell, for an end cell,
-           the index is shifted by one. */
-        if (z_ind == 0)
-          zc -= 1.0;
-        else if (z_ind == _local_num_z - 1)
-          zc += 1.0;
+        /* Calculate components for quadratic interpolation of the FSR axially 
+           averaged value*/
+        if(_use_axial_interpolation ==1) {
+          _axial_interpolants.at(fsr_id)[0] = (h1*(h1+h1*zc*4.0+h2*zc*8.0-
+            h1*(zc*zc)*1.6E1-h1*(zs*zs)*4.0+h1*zc*zs*8.0)*(-1.0/4.0))
+                                              /((h0+h1)*(h0+h1+h2));
+          
+  
+          _axial_interpolants.at(fsr_id)[1] = (h1+h2-h1*zc*2.0)/(h1+h2)+(h1*(h1+
+          h1*zc*4.0+h2*zc*8.0-h1*(zc*zc)*1.6E1-h1*(zs*zs)*4.0+h1*zc*zs*8.0)*
+          (1.0/4.0))/(h2*(h0+h1))-((h1*h1)*(h1+h1*zc*4.0+h2*zc*8.0-h1*(zc*zc)*
+          1.6E1-h1*(zs*zs)*4.0+h1*zc*zs*8.0)*(1.0/4.0))/(h2*(h1+h2)*(h0+h1+h2));
+          
+  
+          _axial_interpolants.at(fsr_id)[2] = (h1*(-h1+h0*zc*8.0+h1*zc*4.0+
+            h1*(zc*zc)*1.6E1+h1*(zs*zs)*4.0-h1*zc*zs*8.0)*(1.0/4.0))
+                                              /((h1+h2)*(h0+h1+h2));
+          
+          
+          log_printf(DEBUG, "CMFD-ID: %d, FSR-ID: %ld, c0= %10.6f, c1= %10.6f,"
+                     " c2= %10.6f", i, fsr_id, _axial_interpolants.at(fsr_id)[0],
+                     _axial_interpolants.at(fsr_id)[1],
+                     _axial_interpolants.at(fsr_id)[2]);
+        }
 
-        /* Calculate components for quadratic interpolation */
-        _axial_interpolants.at(fsr_id)[0] = zc * zc/2.0 - zc/2.0 - 1.0/24.0;
+      /* Calculate components for quadratic interpolation of the centroid  
+         z-coordinate evaluated value. */
+        else if(_use_axial_interpolation == 2) {
+          _axial_interpolants.at(fsr_id)[0] = -(h1*(h1+h1*zc*4.0+h2*zc*8.0-h1*
+          (zc*zc)*1.2E1))/((h0*4.0+h1*4.0)*(h0+h1+h2));
+            
+          
+          _axial_interpolants.at(fsr_id)[1] = (-zc*(h0*(h1*h1)*1.2E1+(h0*h0)*h1*
+          8.0-h1*(h2*h2)*8.0-(h1*h1)*h2*1.2E1)+h0*(h1*h1)*9.0+(h0*h0)*h1*4.0+h0*
+          (h2*h2)*4.0+(h0*h0)*h2*4.0+h1*(h2*h2)*4.0+(h1*h1)*h2*9.0+(h1*h1*h1)*6.0
+          -(zc*zc)*(h0*(h1*h1)*1.2E1+(h1*h1)*h2*1.2E1+(h1*h1*h1)*2.4E1)+h0*h1*h2
+          *1.2E1)/((h1+h2)*(h0*4.0+h1*4.0)*(h0+h1+h2));
+            
+            
+         _axial_interpolants.at(fsr_id)[2] = (h1*(-h1+h0*zc*8.0+h1*zc*4.0+h1*
+         (zc*zc)*1.2E1))/((h1*4.0+h2*4.0)*(h0+h1+h2));
+         
+         
+         log_printf(DEBUG, "CMFD-ID: %d, FSR-ID: %ld, c0= %10.6f, c1= %10.6f,"
+                    " c2= %10.6f", i, fsr_id, _axial_interpolants.at(fsr_id)[0],
+                    _axial_interpolants.at(fsr_id)[1],
+                    _axial_interpolants.at(fsr_id)[2]);
+        }
+        /* Calculate components for quadratic interpolation of the centroid  
+           z-coordinate evaluted value. For uniform CMFD*/
+        /*_axial_interpolants.at(fsr_id)[0] = zc * zc/2.0 - zc/2.0 - 1.0/24.0;
         _axial_interpolants.at(fsr_id)[1] = -zc * zc + 26.0/24.0;
-        _axial_interpolants.at(fsr_id)[2] = zc * zc/2.0 + zc/2.0 - 1.0/24.0;
+        _axial_interpolants.at(fsr_id)[2] = zc * zc/2.0 + zc/2.0 - 1.0/24.0;*/
 
         /* Set zero axial prolongation for cells with no fissionable material */
         if (_FSR_materials[fsr_id]->isFissionable())
@@ -2588,51 +2720,51 @@ void Cmfd::generateKNearestStencils() {
 int Cmfd::getCellByStencil(int cell_id, int stencil_id) {
 
   int cell_next_id = -1;
-  int x = (cell_id % (_local_num_x * _local_num_y)) % _local_num_x;
-  int y = (cell_id % (_local_num_x * _local_num_y)) / _local_num_x;
+  int x = (cell_id % (_local_num_xn * _local_num_yn)) % _local_num_xn;
+  int y = (cell_id % (_local_num_xn * _local_num_yn)) / _local_num_xn;
 
   if (stencil_id == 0) {
     if (x != 0 && y != 0)
-      cell_next_id = cell_id - _local_num_x - 1;
+      cell_next_id = cell_id - _local_num_xn - 1;
   }
   else if (stencil_id == 1) {
     if (y != 0)
-      cell_next_id = cell_id - _local_num_x;
+      cell_next_id = cell_id - _local_num_xn;
     else if (_boundaries[SURFACE_Y_MIN] == PERIODIC)
-      cell_next_id = cell_id + _local_num_x * (_local_num_y - 1);
+      cell_next_id = cell_id + _local_num_xn * (_local_num_yn - 1);
   }
   else if (stencil_id == 2) {
-    if (x != _local_num_x - 1 && y != 0)
-      cell_next_id = cell_id - _local_num_x + 1;
+    if (x != _local_num_xn - 1 && y != 0)
+      cell_next_id = cell_id - _local_num_xn + 1;
   }
   else if (stencil_id == 3) {
     if (x != 0)
       cell_next_id = cell_id - 1;
     else if (_boundaries[SURFACE_X_MIN] == PERIODIC)
-      cell_next_id = cell_id + (_local_num_x - 1);
+      cell_next_id = cell_id + (_local_num_xn - 1);
   }
   else if (stencil_id == 4) {
     cell_next_id = cell_id;
   }
   else if (stencil_id == 5) {
-    if (x != _local_num_x - 1)
+    if (x != _local_num_xn - 1)
       cell_next_id = cell_id + 1;
     else if (_boundaries[SURFACE_X_MAX] == PERIODIC)
-      cell_next_id = cell_id - (_local_num_x - 1);
+      cell_next_id = cell_id - (_local_num_xn - 1);
   }
   else if (stencil_id == 6) {
-    if (x != 0 && y != _local_num_y - 1)
-      cell_next_id = cell_id + _local_num_x - 1;
+    if (x != 0 && y != _local_num_yn - 1)
+      cell_next_id = cell_id + _local_num_xn - 1;
   }
   else if (stencil_id == 7) {
-    if (y != _local_num_y - 1)
-      cell_next_id = cell_id + _local_num_x;
+    if (y != _local_num_yn - 1)
+      cell_next_id = cell_id + _local_num_xn;
     else if (_boundaries[SURFACE_Y_MAX] == PERIODIC)
-      cell_next_id = cell_id - _local_num_x * (_local_num_y - 1);
+      cell_next_id = cell_id - _local_num_xn * (_local_num_yn - 1);
   }
   else if (stencil_id == 8) {
-    if (x != _local_num_x - 1 && y != _local_num_y - 1)
-      cell_next_id = cell_id + _local_num_x + 1;
+    if (x != _local_num_xn - 1 && y != _local_num_yn - 1)
+      cell_next_id = cell_id + _local_num_xn + 1;
   }
 
   return cell_next_id;
@@ -2674,7 +2806,7 @@ CMFD_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
          iter != _k_nearest_stencils[fsr].end(); ++iter) {
 
       if (iter->first != 4) {
-        cell_next_id = getCellByStencil(getLocalCMFDCell(cell_id), iter->first);
+        cell_next_id = getCellByStencil(cell_id, iter->first);//cell_id is Local itself here.
 
         ratio += iter->second * getFluxRatio(cell_next_id, group, fsr);
       }
@@ -2711,22 +2843,20 @@ CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
   double ratio = 1.0;
   if (_use_axial_interpolation)
     interpolants = _axial_interpolants.at(fsr);
-  if (_use_axial_interpolation && _local_num_z >= 3 && 
-      (fabs(interpolants[0]) > FLT_EPSILON || 
-       fabs(interpolants[2]) > FLT_EPSILON)) {
-    int z_ind = cell_id / (_local_num_x * _local_num_y);
+  if (_use_axial_interpolation && _local_num_zn >= 3) {
+    int z_ind = cell_id / (_local_num_xn * _local_num_yn);
     int cell_mid = cell_id;
 
     /* Shift up or down one cell if at top/bottom, interpolants corrects
        for the shift in cells */
     if (z_ind == 0)
-      cell_mid += _local_num_x * _local_num_y;
-    else if (z_ind == _local_num_z - 1)
-      cell_mid -= _local_num_x * _local_num_y;
+      cell_mid += _local_num_xn * _local_num_yn;
+    else if (z_ind == _local_num_zn - 1)
+      cell_mid -= _local_num_xn * _local_num_yn;
 
     /* Get cell index above and below current CMFD cell */
-    int cell_prev = cell_mid - _local_num_x * _local_num_y;
-    int cell_next = cell_mid + _local_num_x * _local_num_y;
+    int cell_prev = cell_mid - _local_num_xn * _local_num_yn;
+    int cell_next = cell_mid + _local_num_xn * _local_num_yn;
 
     /* Get new and old fluxes in bottom/mid/top cells */
     double old_flux_prev = _old_flux->getValue(cell_prev, group);
@@ -2748,38 +2878,13 @@ CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
     if (fabs(old_flux) > FLT_EPSILON)
       ratio = new_flux / old_flux;
 
+    /* Fallback: using the cell average flux ratio */
     if (ratio < 0) {
-
-      /* Try a linear interpolation */
-      double zc_2 = 26.0/24.0 - interpolants[1];
-      if (zc_2 < 0.0)
-        zc_2 = 0.0;
-      double zc = sqrt(zc_2);
-      if (z_ind < _num_z / 2) {
-        old_flux = zc * (old_flux_mid - old_flux_prev) + old_flux_mid;
-        new_flux = zc * (new_flux_mid - new_flux_prev) + new_flux_mid;
-        if (fabs(old_flux) > FLT_EPSILON)
-          ratio = new_flux / old_flux;
-        else
-          ratio = 0;
-      }
-      else {
-        old_flux = zc * (old_flux_next - old_flux_mid) + old_flux_mid;
-        new_flux = zc * (new_flux_next - new_flux_mid) + new_flux_mid;
-        if (fabs(old_flux) > FLT_EPSILON)
-          ratio = new_flux / old_flux;
-        else
-          ratio = 0;
-      }
-
-      /* Fallback: using the cell average flux ratio */
-      if (ratio < 0) {
-        if (fabs(_old_flux->getValue(cell_id, group)) > FLT_EPSILON)
-          ratio = _new_flux->getValue(cell_id, group) /
-                  _old_flux->getValue(cell_id, group);
-        else
-          ratio = 0.0;
-      }
+      if (fabs(_old_flux->getValue(cell_id, group)) > FLT_EPSILON)
+        ratio = _new_flux->getValue(cell_id, group) /
+                _old_flux->getValue(cell_id, group);
+      else
+        ratio = 0.0;
     }
 
     return ratio;
@@ -2822,67 +2927,72 @@ double Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
   bool found = false;
   double centroid_x = centroid->getX();
   double centroid_y = centroid->getY();
+  
+  /* The center of geometry is not always at (0,0,0), then relative coordinates
+     should be used. */
+  double dx = centroid_x - _lattice->getMinX();
+  double dy = centroid_y - _lattice->getMinY();
 
   /* LOWER LEFT CORNER */
   if (x > 0 && y > 0 && stencil_index == 0) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x - 0.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y - 0.5)*_cell_width_y), 2.0);
+    dist_x = pow(dx - (_accumulate_x[x-1]+_cell_widths_x[x-1]/2), 2.0);
+    dist_y = pow(dy - (_accumulate_y[y-1]+_cell_widths_y[y-1]/2), 2.0);
     found = true;
   }
 
   /* BOTTOM SIDE */
   else if (y > 0 && stencil_index == 1) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 0.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y - 0.5)*_cell_width_y), 2.0);
+    dist_x = pow(dx - (_accumulate_x[x  ]+_cell_widths_x[x  ]/2), 2.0);
+    dist_y = pow(dy - (_accumulate_y[y-1]+_cell_widths_y[y-1]/2), 2.0);
     found = true;
   }
 
   /* LOWER RIGHT CORNER */
   else if (x < _num_x - 1 && y > 0 && stencil_index == 2) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 1.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y - 0.5)*_cell_width_y), 2.0);
+    dist_x = pow(dx - (_accumulate_x[x+1]+_cell_widths_x[x+1]/2), 2.0);
+    dist_y = pow(dy - (_accumulate_y[y-1]+_cell_widths_y[y-1]/2), 2.0);
     found = true;
   }
 
   /* LEFT SIDE */
   else if (x > 0 && stencil_index == 3) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x - 0.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 0.5)*_cell_width_y), 2.0);
+    dist_x = pow(dx - (_accumulate_x[x-1]+_cell_widths_x[x-1]/2), 2.0);
+    dist_y = pow(dy - (_accumulate_y[y  ]+_cell_widths_y[y  ]/2), 2.0);
     found = true;
   }
 
   /* CURRENT */
   else if (stencil_index == 4) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 0.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 0.5)*_cell_width_y), 2.0);
+    dist_x = pow(dx - (_accumulate_x[x  ]+_cell_widths_x[x  ]/2), 2.0);
+    dist_y = pow(dy - (_accumulate_y[y  ]+_cell_widths_y[y  ]/2), 2.0);
     found = true;
   }
 
   /* RIGHT SIDE */
   else if (x < _num_x - 1 && stencil_index == 5) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 1.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 0.5)*_cell_width_y), 2.0);
+    dist_x = pow(dx - (_accumulate_x[x+1]+_cell_widths_x[x+1]/2 ), 2.0);
+    dist_y = pow(dy - (_accumulate_y[y  ]+_cell_widths_y[y  ]/2 ), 2.0);
     found = true;
   }
 
   /* UPPER LEFT CORNER */
   else if (x > 0 && y < _num_y - 1 && stencil_index == 6) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x - 0.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 1.5)*_cell_width_y), 2.0);
+    dist_x = pow(dx - (_accumulate_x[x-1]+_cell_widths_x[x-1]/2), 2.0);
+    dist_y = pow(dy - (_accumulate_y[y+1]+_cell_widths_y[y+1]/2), 2.0);
     found = true;
   }
 
   /* TOP SIDE */
   else if (y < _num_y - 1 && stencil_index == 7) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 0.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 1.5)*_cell_width_y), 2.0);
+    dist_x = pow(dx - (_accumulate_x[x  ]+_cell_widths_x[x  ]/2), 2.0);
+    dist_y = pow(dy - (_accumulate_y[y+1]+_cell_widths_y[y+1]/2), 2.0);
     found = true;
   }
 
   /* UPPER RIGHT CORNER */
   else if (x < _num_x - 1 && y < _num_y - 1 && stencil_index == 8) {
-    dist_x = pow(centroid_x - (-_width_x/2.0 + (x + 1.5)*_cell_width_x), 2.0);
-    dist_y = pow(centroid_y - (-_width_y/2.0 + (y + 1.5)*_cell_width_y), 2.0);
+    dist_x = pow(dx - (_accumulate_x[x+1]+_cell_widths_x[x+1]/2), 2.0);
+    dist_y = pow(dy - (_accumulate_y[y+1]+_cell_widths_y[y+1]/2), 2.0);
     found = true;
   }
 
@@ -2987,7 +3097,7 @@ void Cmfd::initialize() {
     delete [] _cell_locks;
 
   /* Calculate the number of elements */
-  int num_cells = _local_num_x * _local_num_y * _local_num_z;
+  int num_cells = _local_num_xn * _local_num_yn * _local_num_zn;
   int ncg = _num_cmfd_groups;
 
   try {
@@ -3008,22 +3118,23 @@ void Cmfd::initialize() {
     omp_init_lock(&_edge_corner_lock);
 
     /* Allocate memory for matrix and vector objects */
-    _M = new Matrix(_cell_locks, _local_num_x, _local_num_y, _local_num_z,
+    _M = new Matrix(_cell_locks, _local_num_xn, _local_num_yn, _local_num_zn,
                     ncg);
-    _A = new Matrix(_cell_locks, _local_num_x, _local_num_y, _local_num_z,
+    _A = new Matrix(_cell_locks, _local_num_xn, _local_num_yn, _local_num_zn,
                     ncg);
-    _old_source = new Vector(_cell_locks, _local_num_x, _local_num_y,
-                             _local_num_z, ncg);
-    _new_source = new Vector(_cell_locks, _local_num_x, _local_num_y,
-                             _local_num_z, ncg);
-    _old_flux = new Vector(_cell_locks, _local_num_x, _local_num_y,
-                           _local_num_z, ncg);
-    _new_flux = new Vector(_cell_locks, _local_num_x, _local_num_y,
-                           _local_num_z, ncg);
-    _old_dif_surf_corr = new Vector(_cell_locks, _local_num_x, _local_num_y,
-                                    _local_num_z, NUM_FACES * ncg);
+    _old_source = new Vector(_cell_locks, _local_num_xn, _local_num_yn,
+                             _local_num_zn, ncg);
+    _new_source = new Vector(_cell_locks, _local_num_xn, _local_num_yn,
+                             _local_num_zn, ncg);
+    _old_flux = new Vector(_cell_locks, _local_num_xn, _local_num_yn,
+                           _local_num_zn, ncg);
+    _new_flux = new Vector(_cell_locks, _local_num_xn, _local_num_yn,
+                           _local_num_zn, ncg);
+    _old_dif_surf_corr = new Vector(_cell_locks, _local_num_xn, _local_num_yn,
+                                    _local_num_zn, NUM_FACES * ncg);
     _old_dif_surf_corr->setAll(0.0);
-    _volumes = new Vector(_cell_locks, _local_num_x, _local_num_y, _local_num_z, 1);
+    _volumes = new Vector(_cell_locks, _local_num_xn, _local_num_yn, 
+                          _local_num_zn, 1);
 
     /* Initialize k-nearest stencils, currents, flux, materials and tallies */
     generateKNearestStencils();
@@ -3033,22 +3144,18 @@ void Cmfd::initialize() {
 
     /* Initialize domain communicator */
     if (_domain_communicator != NULL) {
-      /* Size of domain in each direction */
-      _local_num_x = _num_x / _domain_communicator->_num_domains_x;
-      _local_num_y = _num_y / _domain_communicator->_num_domains_y;
-      _local_num_z = _num_z / _domain_communicator->_num_domains_z;
       _domain_communicator->stop = false;
-      int offset = _domain_communicator->_domain_idx_x * _local_num_x +
-                    _domain_communicator->_domain_idx_y * _local_num_y +
-                    _domain_communicator->_domain_idx_z * _local_num_z;
+      int offset = _accumulate_lmx[_domain_communicator->_domain_idx_x] +
+                   _accumulate_lmy[_domain_communicator->_domain_idx_y] +
+                   _accumulate_lmz[_domain_communicator->_domain_idx_z];
       _domain_communicator->_offset = offset;
-      _domain_communicator->_local_num_x = _local_num_x;
-      _domain_communicator->_local_num_y = _local_num_y;
-      _domain_communicator->_local_num_z = _local_num_z;
+      _domain_communicator->_local_num_x = _local_num_xn;
+      _domain_communicator->_local_num_y = _local_num_yn;
+      _domain_communicator->_local_num_z = _local_num_zn;
       _domain_communicator->num_groups = ncg;
 
-      int dir_sizes[3] = {num_cells / _local_num_x,  num_cells / _local_num_y,
-                          num_cells / _local_num_z};
+      int dir_sizes[3] = {num_cells / _local_num_xn,  num_cells / _local_num_yn,
+                          num_cells / _local_num_zn};
 
       /* Allocate arrays to contain information about the domain's neighbors */
       _domain_communicator->num_connections = new int*[2];
@@ -3087,9 +3194,9 @@ void Cmfd::initialize() {
       }
 
       int storage_per_cell = ((2 + NUM_FACES) * ncg + 1);
-      int num_per_side[3] = {_local_num_y * _local_num_z,
-                          _local_num_x * _local_num_z,
-                          _local_num_x * _local_num_y};
+      int num_per_side[3] = {_local_num_yn * _local_num_zn,
+                          _local_num_xn * _local_num_zn,
+                          _local_num_xn * _local_num_yn};
 
       /* Count total number of cells at all faces of the domain */
       int num_boundary_cells = 0;
@@ -3197,66 +3304,66 @@ void Cmfd::initialize() {
       }
 
       /* Calculate the starting and ending indexes of on-domain CMFD cells */
-      int x_start = _domain_communicator->_domain_idx_x * _local_num_x;
-      int x_end = x_start + _local_num_x;
-      int y_start = _domain_communicator->_domain_idx_y * _local_num_y;
-      int y_end = y_start + _local_num_y;
-      int z_start = _domain_communicator->_domain_idx_z * _local_num_z;
-      int z_end = z_start + _local_num_z;
-
+      int x_start = _accumulate_lmx[_domain_communicator->_domain_idx_x];
+      int x_end = x_start + _local_num_xn;
+      int y_start = _accumulate_lmy[_domain_communicator->_domain_idx_y];
+      int y_end = y_start + _local_num_yn;
+      int z_start = _accumulate_lmz[_domain_communicator->_domain_idx_z];
+      int z_end = z_start + _local_num_zn;
+      
       _boundary_index_map.resize(NUM_FACES);
 
       /* Map connecting cells on x-surfaces */
       int global_ind;
-      for (int y=0; y < _local_num_y; y++) {
-        for (int z=0; z < _local_num_z; z++) {
-          if (x_start - 1 >= 0) {
+      for (int y=0; y < _local_num_yn; y++) {
+        for (int z=0; z < _local_num_zn; z++) {
+          if (x_start > 0) {
             global_ind = ((z_start + z) * _num_y + y + y_start) *
                             _num_x + x_start - 1;
-            _boundary_index_map.at(SURFACE_X_MIN)[global_ind] = z * _local_num_y
+            _boundary_index_map.at(SURFACE_X_MIN)[global_ind] = z * _local_num_yn
                                                               + y;
           }
-          if (x_start + _local_num_x < _num_x) {
+          if (x_end < _num_x) {
             global_ind = ((z_start + z) * _num_y + y + y_start) *
-                            _num_x + x_start + _local_num_x;
+                            _num_x + x_end;
 
-            _boundary_index_map.at(SURFACE_X_MAX)[global_ind] = z * _local_num_y
+            _boundary_index_map.at(SURFACE_X_MAX)[global_ind] = z * _local_num_yn
                                                                 + y;
           }
         }
       }
 
       /* Map connecting cells on y-surfaces */
-      for (int x=0; x < _local_num_x; x++) {
-        for (int z=0; z < _local_num_z; z++) {
-          if (y_start - 1 >= 0) {
+      for (int x=0; x < _local_num_xn; x++) {
+        for (int z=0; z < _local_num_zn; z++) {
+          if (y_start > 0) {
             global_ind = ((z_start + z) * _num_y + y_start-1) *
                             _num_x + x + x_start;
-            _boundary_index_map.at(SURFACE_Y_MIN)[global_ind] = z * _local_num_x
+            _boundary_index_map.at(SURFACE_Y_MIN)[global_ind] = z * _local_num_xn
                                                                 + x;
           }
-          if (y_start + _local_num_y < _num_y) {
-            global_ind = ((z_start + z) * _num_y + _local_num_y + y_start)
+          if (y_end < _num_y) {
+            global_ind = ((z_start + z) * _num_y + y_end)
                           * _num_x + x + x_start;
-            _boundary_index_map.at(SURFACE_Y_MAX)[global_ind] = z * _local_num_x
+            _boundary_index_map.at(SURFACE_Y_MAX)[global_ind] = z * _local_num_xn
                                                                 + x;
           }
         }
       }
 
       /* Map connecting cells on z-surfaces */
-      for (int x=0; x < _local_num_x; x++) {
-        for (int y=0; y < _local_num_y; y++) {
-          if (z_start - 1 >= 0) {
+      for (int x=0; x < _local_num_xn; x++) {
+        for (int y=0; y < _local_num_yn; y++) {
+          if (z_start > 0) {
             global_ind = ((z_start-1) * _num_y + y + y_start) *
                           _num_x + x + x_start;
-            _boundary_index_map.at(SURFACE_Z_MIN)[global_ind] = y * _local_num_x
+            _boundary_index_map.at(SURFACE_Z_MIN)[global_ind] = y * _local_num_xn
                                                                 + x;
           }
-          if (z_start + _local_num_z < _num_z) {
-            global_ind = ((_local_num_z + z_start) * _num_y + y + y_start) *
+          if (z_end < _num_z) {
+            global_ind = (z_end * _num_y + y + y_start) *
                             _num_x + x + x_start;
-            _boundary_index_map.at(SURFACE_Z_MAX)[global_ind] = y * _local_num_x
+            _boundary_index_map.at(SURFACE_Z_MAX)[global_ind] = y * _local_num_xn
                                                                 + x;
           }
         }
@@ -3271,9 +3378,64 @@ void Cmfd::initialize() {
 
 
 /**
- * @brief Initialize the CMFD lattice.
+ * @brief Initialize the CMFD lattice and compute mesh dimensions, considering
+ *        both uniform/non-uniform and 2D/3D cases.
+ * @param offset the offset point of the CMFD Lattice
  */
 void Cmfd::initializeLattice(Point* offset) {
+
+  if(_non_uniform) {
+    setNumX(_cell_widths_x.size());
+    setNumY(_cell_widths_y.size());
+    setNumZ(_cell_widths_z.size());
+  }
+  else {
+    _cell_width_x = _width_x / _num_x;
+    _cell_width_y = _width_y / _num_y;
+    _cell_width_z = _width_z / _num_z;
+    
+    /* 2D case, set the axial width 1.0 */
+    if(_width_z == std::numeric_limits<double>::infinity())
+      _cell_width_z = 1.0;
+    
+    _cell_widths_x.resize(_num_x,_cell_width_x);
+    _cell_widths_y.resize(_num_y,_cell_width_y);
+    _cell_widths_z.resize(_num_z,_cell_width_z);
+  }
+
+  /* 2D case */
+  bool is_2D = false;
+  if(_width_z == std::numeric_limits<double>::infinity()) {
+    _width_z = 1.0;
+    setBoundary(SURFACE_Z_MIN, REFLECTIVE);
+    setBoundary(SURFACE_Z_MAX, REFLECTIVE);
+    is_2D = true;
+  }
+  _accumulate_x.resize(_num_x+1,0.0);
+  _accumulate_y.resize(_num_y+1,0.0);
+  _accumulate_z.resize(_num_z+1,0.0);
+  
+  for(int i=0; i<_num_x; i++)
+    _accumulate_x[i+1] = _accumulate_x[i] + _cell_widths_x[i];
+    
+  for(int i=0; i<_num_y; i++)
+    _accumulate_y[i+1] = _accumulate_y[i] + _cell_widths_y[i];  
+    
+  for(int i=0; i<_num_z; i++)
+    _accumulate_z[i+1] = _accumulate_z[i] + _cell_widths_z[i];
+  
+  if(fabs(_width_x - _accumulate_x[_num_x]) > FLT_EPSILON ||
+     fabs(_width_y - _accumulate_y[_num_y]) > FLT_EPSILON ||
+     fabs(_width_z - _accumulate_z[_num_z]) > FLT_EPSILON)
+    log_printf(ERROR, "The sum of non-uniform mesh widths are not consistent "
+      "with geometry dimensions. width_x = %20.17E, width_y = %20.17E, " 
+      "width_z = %20.17E, sum_x = %20.17E, sum_y = %20.17E, sum_z = %20.17E, "
+      "diff_x = %20.17E, diff_y = %20.17E, diff_z = %20.17E, FLT_EPSILON = "
+      "%20.17E", _width_x, _width_y, _width_z, _accumulate_x[_num_x],
+      _accumulate_y[_num_y], _accumulate_z[_num_z],
+      fabs(_width_x - _accumulate_x[_num_x]), 
+      fabs(_width_y - _accumulate_y[_num_y]), 
+      fabs(_width_z - _accumulate_z[_num_z]), FLT_EPSILON);
 
   /* Delete old lattice if it exists */
   if (_lattice != NULL)
@@ -3284,8 +3446,20 @@ void Cmfd::initializeLattice(Point* offset) {
   _lattice->setNumX(_num_x);
   _lattice->setNumY(_num_y);
   _lattice->setNumZ(_num_z);
-  _lattice->setWidth(_cell_width_x, _cell_width_y, _cell_width_z);
+  
+  if(_non_uniform)
+    _lattice->setWidths(_cell_widths_x, _cell_widths_y, _cell_widths_z);
+  else {
+    if(is_2D)
+      _lattice->setWidth(_cell_width_x, _cell_width_y, 
+                         std::numeric_limits<double>::infinity());
+    else
+      _lattice->setWidth(_cell_width_x, _cell_width_y, _cell_width_z);
+  }
+  
   _lattice->setOffset(offset->getX(), offset->getY(), offset->getZ());
+  
+  _lattice->computeSizes();
 }
 
 
@@ -3394,7 +3568,7 @@ void Cmfd::copyCurrentsToBackup() {
 
   /* Copy on-node surface currents */
 #pragma omp parallel for
-  for (int i=0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
+  for (int i=0; i < _local_num_xn * _local_num_yn * _local_num_zn; i++) {
 
     for (int f=0; f < NUM_FACES; f++) {
 
@@ -3449,20 +3623,23 @@ void Cmfd::copyCurrentsToBackup() {
 /**
  * @brief Returns the width of a given surface
  * @param surface A surface index, from 0 to NUM_FACES - 1
+ * @param global_ind global index of a CMFD cell
  * @return The surface width
  */
-CMFD_PRECISION Cmfd::getSurfaceWidth(int surface) {
+CMFD_PRECISION Cmfd::getSurfaceWidth(int surface, int global_ind) {
 
   CMFD_PRECISION width;
-
+  
+  int ix = global_ind % _num_x;
+  int iy = (global_ind % (_num_x * _num_y)) / _num_x;
+  int iz = global_ind / (_num_x * _num_y);
+  
   if (surface == SURFACE_X_MIN || surface == SURFACE_X_MAX)
-    width = _cell_width_y * _cell_width_z;
+    return _cell_widths_y[iy] * _cell_widths_z[iz];
   else if (surface == SURFACE_Y_MIN || surface == SURFACE_Y_MAX)
-    width = _cell_width_x * _cell_width_z;
+    return _cell_widths_x[ix] * _cell_widths_z[iz];
   else
-    width = _cell_width_x * _cell_width_y;
-
-  return width;
+    return _cell_widths_x[ix] * _cell_widths_y[iy];
 }
 
 
@@ -3471,14 +3648,18 @@ CMFD_PRECISION Cmfd::getSurfaceWidth(int surface) {
  * @param surface A surface index, from 0 to NUM_FACES - 1
  * @return The perpendicular surface width
  */
-CMFD_PRECISION Cmfd::getPerpendicularSurfaceWidth(int surface) {
+CMFD_PRECISION Cmfd::getPerpendicularSurfaceWidth(int surface, int global_ind) {
 
+  int ix = global_ind % _num_x;
+  int iy = (global_ind % (_num_x * _num_y)) / _num_x;
+  int iz = global_ind / (_num_x * _num_y);
+  
   if (surface == SURFACE_X_MIN || surface == SURFACE_X_MAX)
-    return _cell_width_x;
+    return _cell_widths_x[ix];
   else if (surface == SURFACE_Y_MIN || surface == SURFACE_Y_MAX)
-    return _cell_width_y;
+    return _cell_widths_y[iy];
   else
-    return _cell_width_z;
+    return _cell_widths_z[iz];
 }
 
 
@@ -3659,15 +3840,15 @@ void Cmfd::copyFullSurfaceCurrents() {
 
   /* Allocate full surface currents if necessary */
   if (_full_surface_currents == NULL)
-    _full_surface_currents = new Vector(_cell_locks, _local_num_x,
-                                        _local_num_y, _local_num_z,
+    _full_surface_currents = new Vector(_cell_locks, _local_num_xn,
+                                        _local_num_yn, _local_num_zn,
                                         _num_cmfd_groups * NUM_SURFACES);
 
   /* Clear the currently saved surface currents */
   _full_surface_currents->clear();
 
   /* Copy surface currents from surface faces */
-  for (int i=0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
+  for (int i=0; i < _local_num_xn * _local_num_yn * _local_num_zn; i++) {
     for (int s=0; s < NUM_FACES; s++) {
       for (int g=0; g < _num_cmfd_groups; g++) {
         FP_PRECISION current =
@@ -3731,10 +3912,10 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
                      _old_flux->getArray(), offset);
 
 #pragma omp parallel for collapse(2)
-    for (int iz=0; iz < _local_num_z; iz++) {
-      for (int iy=0; iy < _local_num_y; iy++) {
-        for (int ix=(iy+iz+color+offset)%2; ix < _local_num_x; ix+=2) {
-          int cell = (iz*_local_num_y + iy)*_local_num_x + ix;
+    for (int iz=0; iz < _local_num_zn; iz++) {
+      for (int iy=0; iy < _local_num_yn; iy++) {
+        for (int ix=(iy+iz+color+offset)%2; ix < _local_num_xn; ix+=2) {
+          int cell = (iz*_local_num_yn + iy)*_local_num_xn + ix;
           for (int g=0; g < _num_cmfd_groups; g++) {
 
             int row = cell * _num_cmfd_groups + g;
@@ -3758,11 +3939,11 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
 
   /* Compute MOC balance */
   /* Loop over CMFD cells */
-  for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
+  for (int i = 0; i < _local_num_xn * _local_num_yn * _local_num_zn; i++) {
 
-    int x = (i % (_local_num_x * _local_num_y)) % _local_num_x;
-    int y = (i % (_local_num_x * _local_num_y)) / _local_num_x;
-    int z = i / (_local_num_x * _local_num_y);
+    int x = (i % (_local_num_xn * _local_num_yn)) % _local_num_xn;
+    int y = (i % (_local_num_xn * _local_num_yn)) / _local_num_xn;
+    int z = i / (_local_num_xn * _local_num_yn);
 
     Material* cell_material = _materials[i];
 
@@ -3818,11 +3999,11 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
       if (pre_split) {
 
         /* Create arrays of cell indexes and bounds */
-        int cell_limits[3] = {_local_num_x, _local_num_y, _local_num_z};
+        int cell_limits[3] = {_local_num_xn, _local_num_yn, _local_num_zn};
         int cell_ind[3];
-        cell_ind[0] = i % _local_num_x;
-        cell_ind[1] = (i / _local_num_x) % _local_num_y;
-        cell_ind[2] = i / (_local_num_x * _local_num_y);
+        cell_ind[0] = i % _local_num_xn;
+        cell_ind[1] = (i / _local_num_xn) % _local_num_yn;
+        cell_ind[2] = i / (_local_num_xn * _local_num_yn);
 
         /* Tally current from all surfaces including edges and corners */
         for (int s=0; s < NUM_SURFACES; s++) {
@@ -3838,8 +4019,8 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
           for (int d=0; d < 3; d++)
             cell_next_ind[d] = cell_ind[d] + direction[d];
 
-          cmfd_cell_next = cell_next_ind[0] + cell_next_ind[1] * _local_num_x
-                         + cell_next_ind[2] * (_local_num_x * _local_num_y);
+          cmfd_cell_next = cell_next_ind[0] + cell_next_ind[1] * _local_num_xn
+                         + cell_next_ind[2] * (_local_num_xn * _local_num_yn);
 
           /* Compute the opposite direction vector */
           int op_direction[3];
@@ -3899,8 +4080,8 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
               for (int d=0; d < 3; d++)
                 cell_next_ind[d] = cell_ind[d] + transmit_direction[d];
               cmfd_cell_next = cell_next_ind[0] + cell_next_ind[1] *
-                              _local_num_x + cell_next_ind[2] *
-                              (_local_num_x * _local_num_y);
+                              _local_num_xn + cell_next_ind[2] *
+                              (_local_num_xn * _local_num_yn);
             }
           }
 
@@ -3993,27 +4174,27 @@ void Cmfd::packBuffers() {
   int current_idx[6] = {0,0,0,0,0,0};
   bool found_surfaces[NUM_FACES];
 
-  for (int z=0; z < _local_num_z; z++) {
-    for (int y=0; y < _local_num_y; y++) {
-      for (int x=0; x < _local_num_x; x++) {
+  for (int z=0; z < _local_num_zn; z++) {
+    for (int y=0; y < _local_num_yn; y++) {
+      for (int x=0; x < _local_num_xn; x++) {
         for (int s=0; s < NUM_FACES; s++)
           found_surfaces[s] = false;
         if (x == 0)
           found_surfaces[SURFACE_X_MIN] = true;
-        if (x == _local_num_x-1)
+        if (x == _local_num_xn-1)
           found_surfaces[SURFACE_X_MAX] = true;
         if (y == 0)
           found_surfaces[SURFACE_Y_MIN] = true;
-        if (y == _local_num_y-1)
+        if (y == _local_num_yn-1)
           found_surfaces[SURFACE_Y_MAX] = true;
         if (z == 0)
           found_surfaces[SURFACE_Z_MIN] = true;
-        if (z == _local_num_z-1)
+        if (z == _local_num_zn-1)
           found_surfaces[SURFACE_Z_MAX] = true;
         for (int s=0; s < NUM_FACES; s++) {
           if (found_surfaces[s]) {
             int idx = current_idx[s];
-            int cell_id = ((z * _local_num_y) + y) * _local_num_x + x;
+            int cell_id = ((z * _local_num_yn) + y) * _local_num_xn + x;
             _send_volumes[s][idx][0] = _volume_tally[cell_id][0];
             for (int e=0; e < _num_cmfd_groups; e++) {
               _send_reaction[s][idx][e] = _reaction_tally[cell_id][e];
@@ -4072,22 +4253,22 @@ void Cmfd::ghostCellExchange() {
       // Figure out serialized buffer length for this face
       int size = 0;
       if (surf == SURFACE_X_MIN) {
-        size = _local_num_y * _local_num_z * storage_per_cell;
+        size = _local_num_yn * _local_num_zn * storage_per_cell;
       }
       else if (surf == SURFACE_X_MAX) {
-        size = _local_num_y * _local_num_z * storage_per_cell;
+        size = _local_num_yn * _local_num_zn * storage_per_cell;
       }
       else if (surf == SURFACE_Y_MIN) {
-        size = _local_num_x * _local_num_z * storage_per_cell;
+        size = _local_num_xn * _local_num_zn * storage_per_cell;
       }
       else if (surf == SURFACE_Y_MAX) {
-        size = _local_num_x * _local_num_z * storage_per_cell;
+        size = _local_num_xn * _local_num_zn * storage_per_cell;
       }
       else if (surf == SURFACE_Z_MIN) {
-        size = _local_num_x * _local_num_y * storage_per_cell;
+        size = _local_num_xn * _local_num_yn * storage_per_cell;
       }
       else if (surf == SURFACE_Z_MAX) {
-        size = _local_num_x * _local_num_y * storage_per_cell;
+        size = _local_num_xn * _local_num_yn * storage_per_cell;
       }
 
       sizes[surf] = size;
@@ -4167,22 +4348,22 @@ void Cmfd::communicateSplits(bool faces) {
       // Figure out serialized buffer length for this face
       int size = 0;
       if (surf == SURFACE_X_MIN) {
-        size = _local_num_y * _local_num_z * storage_per_cell;
+        size = _local_num_yn * _local_num_zn * storage_per_cell;
       }
       else if (surf == SURFACE_X_MAX) {
-        size = _local_num_y * _local_num_z * storage_per_cell;
+        size = _local_num_yn * _local_num_zn * storage_per_cell;
       }
       else if (surf == SURFACE_Y_MIN) {
-        size = _local_num_x * _local_num_z * storage_per_cell;
+        size = _local_num_xn * _local_num_zn * storage_per_cell;
       }
       else if (surf == SURFACE_Y_MAX) {
-        size = _local_num_x * _local_num_z * storage_per_cell;
+        size = _local_num_xn * _local_num_zn * storage_per_cell;
       }
       else if (surf == SURFACE_Z_MIN) {
-        size = _local_num_x * _local_num_y * storage_per_cell;
+        size = _local_num_xn * _local_num_yn * storage_per_cell;
       }
       else if (surf == SURFACE_Z_MAX) {
-        size = _local_num_x * _local_num_y * storage_per_cell;
+        size = _local_num_xn * _local_num_yn * storage_per_cell;
       }
 
       sizes[surf] = size;
@@ -4238,24 +4419,24 @@ void Cmfd::unpackSplitCurrents(bool faces) {
   bool found_surfaces[NUM_FACES];
 
   /* Loop over all CMFD cells */
-  for (int z=0; z < _local_num_z; z++) {
-    for (int y=0; y < _local_num_y; y++) {
-      for (int x=0; x < _local_num_x; x++) {
+  for (int z=0; z < _local_num_zn; z++) {
+    for (int y=0; y < _local_num_yn; y++) {
+      for (int x=0; x < _local_num_xn; x++) {
 
         /* Look for boundaries touching the CMFD cell */
         for (int s=0; s < NUM_FACES; s++)
           found_surfaces[s] = false;
         if (x == 0)
           found_surfaces[SURFACE_X_MIN] = true;
-        if (x == _local_num_x-1)
+        if (x == _local_num_xn-1)
           found_surfaces[SURFACE_X_MAX] = true;
         if (y == 0)
           found_surfaces[SURFACE_Y_MIN] = true;
-        if (y == _local_num_y-1)
+        if (y == _local_num_yn-1)
           found_surfaces[SURFACE_Y_MAX] = true;
         if (z == 0)
           found_surfaces[SURFACE_Z_MIN] = true;
-        if (z == _local_num_z-1)
+        if (z == _local_num_zn-1)
           found_surfaces[SURFACE_Z_MAX] = true;
 
         /* Handle all boundaries */
@@ -4263,7 +4444,7 @@ void Cmfd::unpackSplitCurrents(bool faces) {
           if (found_surfaces[s]) {
 
             /* Convert the (x,y,z) indexes to a cell ID and boundary index */
-            int cell_id = ((z * _local_num_y) + y) * _local_num_x + x;
+            int cell_id = ((z * _local_num_yn) + y) * _local_num_xn + x;
             int idx = current_idx[s];
 
             /* Copy the appropriate face or edge information */
@@ -4344,12 +4525,12 @@ int Cmfd::getLocalCMFDCell(int cmfd_cell) {
   int z_end = _num_z;
   if (_geometry->isDomainDecomposed()) {
     if (_domain_communicator != NULL) {
-      x_start = _domain_communicator->_domain_idx_x * _local_num_x;
-      x_end = x_start + _local_num_x;
-      y_start = _domain_communicator->_domain_idx_y * _local_num_y;
-      y_end = y_start + _local_num_y;
-      z_start = _domain_communicator->_domain_idx_z * _local_num_z;
-      z_end = z_start + _local_num_z;
+      x_start = _accumulate_lmx[_domain_communicator->_domain_idx_x];
+      x_end = x_start + _local_num_xn;
+      y_start = _accumulate_lmy[_domain_communicator->_domain_idx_y];
+      y_end = y_start + _local_num_yn;
+      z_start = _accumulate_lmz[_domain_communicator->_domain_idx_z];
+      z_end = z_start + _local_num_zn;
     }
   }
 
@@ -4362,8 +4543,8 @@ int Cmfd::getLocalCMFDCell(int cmfd_cell) {
       iz < z_start || iz >= z_end)
     local_cmfd_cell = -1;
   else
-    local_cmfd_cell = ((iz - z_start) * _local_num_y + iy - y_start) * _local_num_x
-                      + ix - x_start;
+    local_cmfd_cell = ((iz - z_start) * _local_num_yn + iy - y_start)
+                      * _local_num_xn + ix - x_start;
   return local_cmfd_cell;
 }
 
@@ -4380,15 +4561,15 @@ int Cmfd::getGlobalCMFDCell(int cmfd_cell) {
   int z_start = 0;
   if (_geometry->isDomainDecomposed()) {
     if (_domain_communicator != NULL) {
-      x_start = _domain_communicator->_domain_idx_x * _local_num_x;
-      y_start = _domain_communicator->_domain_idx_y * _local_num_y;
-      z_start = _domain_communicator->_domain_idx_z * _local_num_z;
+      x_start = _accumulate_lmx[_domain_communicator->_domain_idx_x];
+      y_start = _accumulate_lmy[_domain_communicator->_domain_idx_y];
+      z_start = _accumulate_lmz[_domain_communicator->_domain_idx_z];
     }
   }
 
-  int ix = cmfd_cell % _local_num_x;
-  int iy = (cmfd_cell % (_local_num_x * _local_num_y)) / _local_num_x;
-  int iz = cmfd_cell / (_local_num_x * _local_num_y);
+  int ix = cmfd_cell % _local_num_xn;
+  int iy = (cmfd_cell % (_local_num_xn * _local_num_yn)) / _local_num_xn;
+  int iz = cmfd_cell / (_local_num_xn * _local_num_yn);
 
   return ((iz + z_start) * _num_y + iy + y_start) * _num_x
                 + ix + x_start;
@@ -4543,7 +4724,7 @@ void Cmfd::printProlongationFactors(int iteration) {
     double log_ratios[_num_x * _num_y * _num_z];
     for (int i = 0; i < _num_x * _num_y * _num_z; i++)
       log_ratios[i] = 0.0;
-    for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
+    for (int i = 0; i < _local_num_xn * _local_num_yn * _local_num_zn; i++) {
 
       double old_flux = _old_flux->getValue(i, e);
       double new_flux = _new_flux->getValue(i, e);
@@ -4636,14 +4817,14 @@ void Cmfd::tallyStartingCurrent(Point* point, double delta_x, double delta_y,
   if (cell == -1)
     log_printf(ERROR, "Failed to find starting CMFD cell for track start "
                "point");
-  int cell_x = cell % _local_num_x;
-  int cell_y = (cell % (_local_num_x * _local_num_y)) / _local_num_x;
-  int cell_z = cell / (_local_num_x * _local_num_y);
+  int cell_x = cell % _local_num_xn;
+  int cell_y = (cell % (_local_num_xn * _local_num_yn)) / _local_num_xn;
+  int cell_z = cell / (_local_num_xn * _local_num_yn);
   int bounds[3];
-  bool singular[3] = {_local_num_x == 1, _local_num_y == 1, _local_num_z == 1};
-  bounds[0] = -1 * (cell_x == 0) + (cell_x == _local_num_x-1);
-  bounds[1] = -1 * (cell_y == 0) + (cell_y == _local_num_y-1);
-  bounds[2] = -1 * (cell_z == 0) + (cell_z == _local_num_z-1);
+  bool singular[3] = {_local_num_xn == 1, _local_num_yn == 1, _local_num_zn == 1};
+  bounds[0] = -1 * (cell_x == 0) + (cell_x == _local_num_xn-1);
+  bounds[1] = -1 * (cell_y == 0) + (cell_y == _local_num_yn-1);
+  bounds[2] = -1 * (cell_z == 0) + (cell_z == _local_num_zn-1);
   if ((bounds[0] == 0 && !singular[0]) && (bounds[1] == 0 && !singular[1]) &&
       (bounds[2] == 0 && !singular[2]))
     log_printf(ERROR, "Track start point not on a boundary CMFD cell. "
@@ -4680,7 +4861,7 @@ void Cmfd::tallyStartingCurrent(Point* point, double delta_x, double delta_y,
 void Cmfd::recordNetCurrents() {
 
 #pragma omp parallel for
-  for (int i=0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
+  for (int i=0; i < _local_num_xn * _local_num_yn * _local_num_zn; i++) {
 
     for (int e=0; e < _num_cmfd_groups; e++)
       _net_currents->incrementValue(i, e,
@@ -4688,9 +4869,9 @@ void Cmfd::recordNetCurrents() {
 
     /* Compute cell indexes */
     int cell_ind[3];
-    cell_ind[0] = i % _local_num_x;
-    cell_ind[1] = (i / _local_num_x) % _local_num_y;
-    cell_ind[2] = i / (_local_num_x * _local_num_y);
+    cell_ind[0] = i % _local_num_xn;
+    cell_ind[1] = (i / _local_num_xn) % _local_num_yn;
+    cell_ind[2] = i / (_local_num_xn * _local_num_yn);
 
     /* Tally current from all surfaces including edges and corners */
     for (int s=0; s < NUM_SURFACES; s++) {
@@ -4714,11 +4895,11 @@ void Cmfd::recordNetCurrents() {
       for (int d=0; d < 3; d++)
         cell_next_ind[d] = cell_ind[d] + direction[d];
 
-      cmfd_cell_next = cell_next_ind[0] + cell_next_ind[1] * _local_num_x
-                     + cell_next_ind[2] * (_local_num_x * _local_num_y);
-      if (cell_next_ind[0] < 0 || cell_next_ind[0] >= _local_num_x ||
-          cell_next_ind[1] < 0 || cell_next_ind[1] >= _local_num_y ||
-          cell_next_ind[2] < 0 || cell_next_ind[2] >= _local_num_z)
+      cmfd_cell_next = cell_next_ind[0] + cell_next_ind[1] * _local_num_xn
+                     + cell_next_ind[2] * (_local_num_xn * _local_num_yn);
+      if (cell_next_ind[0] < 0 || cell_next_ind[0] >= _local_num_xn ||
+          cell_next_ind[1] < 0 || cell_next_ind[1] >= _local_num_yn ||
+          cell_next_ind[2] < 0 || cell_next_ind[2] >= _local_num_zn)
         cmfd_cell_next = -1;
 
       /* Tally net currents */
@@ -4752,4 +4933,64 @@ void Cmfd::recordNetCurrents() {
       }
     }
   }
+}
+
+/**
+ * @brief Set width of non-uniform meshes in x y z directions.
+ * @details An example of how this may be called from Python illustrated below:
+ *
+ * @code
+ *          cmfd.setWidths([[1,2,3], [4,5,6,7], [3.3,2.4]])
+ * @endcode
+ *
+ * @param widths A vector of 3 vectors for the x y z sizes of non-uniform meshes
+ */
+void Cmfd::setWidths(std::vector< std::vector<double> > widths) {
+  
+  if(widths.size() == 3) 
+    _cell_widths_z = widths[2];
+  else if(widths.size() == 2)
+    _cell_widths_z.push_back(1.0);
+  else  
+    log_printf(ERROR, "widths must have dimension 2 or 3");
+  
+  _non_uniform = true;
+  _cell_widths_x = widths[0];
+  _cell_widths_y = widths[1];
+}
+
+
+/**
+ * @brief For debug use.
+ */
+void Cmfd::printCmfdCellSizes() {
+  int i;
+  printf("non_uniform=%d, \nNum_XYZ: %2d, %2d, %2d\n", _non_uniform,
+         _num_x, _num_y, _num_z);
+  printf("Num_Local_XYZ: %2d, %2d, %2d\n", _local_num_x, 
+         _local_num_y, _local_num_z);
+  printf("width_XYZ: %f, %f, %f\n", _width_x,_width_y,_width_z);
+  printf("cell_width_XYZ: %f, %f, %f\n", _cell_width_x,
+         _cell_width_y,_cell_width_z);
+  printf("cell_widths_XYZ:\n");
+  for(i=0; i<_num_x; i++)
+    printf("i=%d, %f; ",i, _cell_widths_x[i]);
+  printf("\n");
+  for(i=0; i<_num_y; i++)
+    printf("i=%d, %f; ",i, _cell_widths_y[i]);
+  printf("\n");
+  for(i=0; i<_num_z; i++)
+    printf("i=%d, %f; ",i, _cell_widths_z[i]);
+  printf("\n");
+
+  printf("accumulates_XYZ:\n");
+  for(i=0; i<_num_x+1; i++)
+    printf("i=%d, %f; ",i, _accumulate_x[i]);
+  printf("\n");
+  for(i=0; i<_num_y+1; i++)
+    printf("i=%d, %f; ",i, _accumulate_y[i]);
+  printf("\n");
+  for(i=0; i<_num_z+1; i++)
+    printf("i=%d, %f; ",i, _accumulate_z[i]);
+  printf("\n");
 }

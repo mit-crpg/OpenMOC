@@ -115,15 +115,12 @@ void CPULSSolver::initializeSourceArrays() {
         / (double) (1e6);
     log_printf(NORMAL, "Max linear source storage per domain = %6.2f MB",
                max_size_mb);
-
-    _reduced_sources_xyz = new FP_PRECISION[size];
+    /* Initialize source moments to zero */
+    _reduced_sources_xyz = new FP_PRECISION[size]();
   }
   catch(std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for FSR source moments");
   }
-
-  /* Initialize source moments to zero */
-  memset(_reduced_sources_xyz, 0.0, sizeof(FP_PRECISION) * size);
 }
 
 

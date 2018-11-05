@@ -1745,6 +1745,9 @@ void CPUSolver::computeKeff() {
     num_rates=3;
   }
 
+  /* Get the total number of source regions */
+  long total_num_FSRs = _num_FSRs;
+  
 #ifdef MPIx
   /* Reduce rates across domians */
   if (_geometry->isDomainDecomposed()) {
@@ -1759,13 +1762,16 @@ void CPUSolver::computeKeff() {
  
      /* Reduce computed rates */
     MPI_Allreduce(local_rates, rates, num_rates, MPI_DOUBLE, MPI_SUM, comm);
+    
+    /* Get total number of FSRs across all domains */
+    MPI_Allreduce(&_num_FSRs, &total_num_FSRs, 1, MPI_LONG, MPI_SUM, comm);
   }
 #endif
   if (!_keff_from_fission_rates)
     /* Compute k-eff from fission, absorption, and leakage rates */
     _k_eff = rates[0] / (rates[1] + rates[2]);
   else
-    _k_eff *= rates[0] / _num_FSRs;
+    _k_eff *= rates[0] / total_num_FSRs;
 }
 
 

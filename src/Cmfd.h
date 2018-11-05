@@ -191,7 +191,20 @@ private:
   double _cell_width_x;
   double _cell_width_y;
   double _cell_width_z;
-
+  
+  /** Physical dimensions of non-uniform CMFD meshes (for whole geometry) */
+  std::vector<double> _cell_widths_x;
+  std::vector<double> _cell_widths_y;
+  std::vector<double> _cell_widths_z;
+  
+  /** Distance of each mesh from the left-lower-bottom most point */
+  std::vector<double> _accumulate_x;
+  std::vector<double> _accumulate_y;
+  std::vector<double> _accumulate_z;
+  
+  /** True if the cmfd meshes are non-uniform */
+  bool _non_uniform;
+  
   /** Array of geometry boundaries */
   boundaryType* _boundaries;
 
@@ -252,7 +265,7 @@ private:
   double** _polar_spacings;
 
   /** Whether to use axial interpolation for flux update ratios */
-  bool _use_axial_interpolation;
+  int _use_axial_interpolation;
 
   /** Axial interpolation constants */
   std::vector<double*> _axial_interpolants;
@@ -286,6 +299,15 @@ private:
 
   /* The number of on-domain cells in the z-direction */
   int _local_num_z;
+  
+  std::vector<int> _accumulate_lmx;
+  std::vector<int> _accumulate_lmy;
+  std::vector<int> _accumulate_lmz;
+  
+  //for substitution of _local_num_x, _local_num_y, _local_num_y, checking the 
+  //code is completely and fully changed to non-uniform version. Cuz 
+  //_local_num_x, _local_num_y, _local_num_y is used too much in the code.
+  int _local_num_xn, _local_num_yn, _local_num_zn;
 
   /* Size of _tally_memory array */
   long _total_tally_size;
@@ -342,12 +364,11 @@ private:
   CMFD_PRECISION getUpdateRatio(int cell_id, int moc_group, int fsr);
   double getDistanceToCentroid(Point* centroid, int cell_id,
                                      int stencil_index);
-  CMFD_PRECISION getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
-                                                int group, int moc_iteration,
-                                                bool correction);
+  void getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
+        int group, int moc_iteration,double& dif_surf, double& dif_surf_corr);
   CMFD_PRECISION getDiffusionCoefficient(int cmfd_cell, int group);
-  CMFD_PRECISION getSurfaceWidth(int surface);
-  CMFD_PRECISION getPerpendicularSurfaceWidth(int surface);
+  CMFD_PRECISION getSurfaceWidth(int surface, int global_ind);
+  CMFD_PRECISION getPerpendicularSurfaceWidth(int surface, int global_ind);
   int getSense(int surface);
   int getLocalCMFDCell(int cmfd_cell); //TODO: optimize, document
   int getGlobalCMFDCell(int cmfd_cell); //TODO: optimize, document
@@ -440,7 +461,7 @@ public:
   void setDomainIndexes(int idx_x, int idx_y, int idx_z);
 #endif
   void setConvergenceData(ConvergenceData* convergence_data);
-  void useAxialInterpolation(bool interpolate);
+  void useAxialInterpolation(int interpolate);
   
   /* Methods to try to fix stability issues */
   void useFluxLimiting(bool flux_limiting);
@@ -454,6 +475,12 @@ public:
   void setFSRSources(FP_PRECISION* sources);
   void setCellFSRs(std::vector< std::vector<long> >* cell_fsrs);
   void setFluxMoments(FP_PRECISION* flux_moments);
+  
+  /* Set XYZ widths of non-uniform meshes */
+  void setWidths(std::vector< std::vector<double> > widths);
+  
+  /* For debug use */
+  void printCmfdCellSizes();
 };
 
 

@@ -147,6 +147,8 @@ def add_test(name, cc='gcc', num_threads=1, debug=False, ):
 # a subset of these configurations
 add_test('normal-gcc', cc='gcc', num_threads=1)
 add_test('normal-openmp-gcc', cc='gcc', num_threads=4)
+#add_test('normal-gcc-debug', cc='gcc', num_threads=1, debug=True)
+#add_test('normal-openmp-gcc-debug', cc='gcc', num_threads=4, debug=True)
 #add_test('normal-icpc', cc='icpc', num_threads=1)
 #add_test('normal-openmp-icpc', cc='icpc', num_threads=4)
 #add_test('normal-clang', cc='clang', num_threads=1)
