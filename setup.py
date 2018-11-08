@@ -2,7 +2,7 @@
 The setup script for OpenMOC
 '''
 
-import os, string
+import os, sys, string
 from distutils.errors import DistutilsOptionError
 import distutils.ccompiler
 import multiprocessing
@@ -380,6 +380,7 @@ dist = setup(name = 'openmoc',
 
 # Rerun the build_py to setup links for C++ extension modules created by SWIG
 # This prevents us from having to install twice
-build_py = build_py(dist)
-build_py.ensure_finalized()
-build_py.run()
+if "build" in sys.argv or "install" in sys.argv:
+    build_py = build_py(dist)
+    build_py.ensure_finalized()
+    build_py.run()
