@@ -12,7 +12,10 @@
 CPUSolver::CPUSolver(TrackGenerator* track_generator)
   : Solver(track_generator) {
 
-  setNumThreads(1);
+  /* Initialize number of threads to 1, set later with setNumThreads() */
+  _num_threads = 1;
+  omp_set_num_threads(1);
+
   _FSR_locks = NULL;
   _source_type = "Flat";
 #ifdef MPIx
@@ -147,9 +150,10 @@ void CPUSolver::setNumThreads(int num_threads) {
     if ((_track_generator->getSegmentFormation() == OTF_STACKS ||
        _track_generator->getSegmentFormation() == OTF_TRACKS) &&
        _track_generator->getNumThreads() != num_threads)
-      log_printf(WARNING, "The number of threads used in track generation "
-               "should match the number of threads used in the solver for OTF "
-               "ray-tracing methods, as threaded buffers are shared.");
+      log_printf(WARNING, "The number of threads used in track generation (%d)"
+               "should match the number of threads used in the solver (%d) for OTF "
+               "ray-tracing methods, as threaded buffers are shared.",
+               _track_generator->getNumThreads(), num_threads);
 
   /* Set the number of threads for OpenMP */
   _num_threads = num_threads;

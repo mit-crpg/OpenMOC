@@ -1223,6 +1223,8 @@ void TrackGenerator3D::segmentizeExtruded() {
   else
     z_coords = _geometry->getUniqueZPlanes();
 
+  log_printf(NORMAL, "Number of unique Z-planes %d", z_coords.size());
+
   /* Loop over all extruded Tracks */
   Progress progress(_num_2D_tracks, "Segmenting 2D Tracks", 0.1, _geometry,
                     true);
@@ -1245,7 +1247,7 @@ void TrackGenerator3D::segmentizeExtruded() {
   _geometry->initializeAxialFSRs(_global_z_mesh);
   _geometry->initializeFSRVectors();
   _contains_2D_segments = true;
-   
+
   /* Count the number of segments in each track */
   countSegments();
 }

@@ -573,7 +573,7 @@ Cell* Universe::findCell(LocalCoords* coords) {
  */
 void Universe::subdivideCells(double max_radius) {
 
-  log_printf(DEBUG, "Subdividing Cells for Universe ID=%d "
+  log_printf(NORMAL, "Subdividing Cells for Universe ID=%d "
              "with max radius %f", _id, max_radius);
 
   std::map<int, Cell*>::iterator iter;
@@ -977,7 +977,7 @@ Lattice::Lattice(const int id, const char* name): Universe(id, name) {
   _width_x = 0;
   _width_y = 0;
   _width_z = 0;
-  
+
   _non_uniform = false;
 }
 
@@ -1578,7 +1578,7 @@ void Lattice::removeUniverse(Universe* universe) {
  */
 void Lattice::subdivideCells(double max_radius) {
 
-  log_printf(DEBUG, "Subdividing Cells for Lattice ID=%d "
+  log_printf(NORMAL, "Subdividing Cells for Lattice ID=%d "
              "with max radius %f", _id, max_radius);
 
   std::map<int, Universe*>::iterator iter;
@@ -1589,9 +1589,9 @@ void Lattice::subdivideCells(double max_radius) {
 
   /* Subdivide all Cells */
   for (iter = universes.begin(); iter != universes.end(); ++iter) {
-    log_printf(DEBUG, "univ_ID: %d, radius: %f, max_radius: %f", 
+    log_printf(NORMAL, "univ_ID: %d, radius: %f, max_radius: %f", 
                iter->first, unique_radius[iter->first], max_radius);
-    
+
     /* If the  local universe equivalent radius is smaller than max_radius 
        parameter, over-ride it*/
     iter->second->subdivideCells(std::min(unique_radius[iter->first], 
@@ -1709,8 +1709,8 @@ Cell* Lattice::findCell(LocalCoords* coords) {
   double next_z = coords->getZ()
                   - (getMinZ() + _widths_z[lat_z]/2. + _accumulate_z[lat_z]);
 
-  /* Check for 2D problem */
-  if (_width_z == std::numeric_limits<double>::infinity())
+  /* Check for 2D problem or 2D lattice */
+  if (_width_z > FLT_INFINITY)
     next_z = coords->getZ();
 
   /* Create a new LocalCoords object for the next level Universe */
@@ -1921,8 +1921,8 @@ std::string Lattice::toString() {
          << ", # cells along x = " << _num_x
          << ", # cells along y = " << _num_y
          << ", # cells along z = " << _num_z;
-  
-  if(_non_uniform) {
+
+  if (_non_uniform) {
     string << "This lattice is non-uniform.\nx widths: ";
     for(int i=0; i<_num_x; i++)
       string << _widths_x[i] << "  ";
@@ -2239,11 +2239,11 @@ void Lattice::setWidths(std::vector<double> widths_x,
 
 /**
  * @brief Set _widths_x, _widths_y, _widths_z for uniform case, compute 
- *        accumulate variavles.
+ *        accumulate variables.
  */
 void Lattice::computeSizes(){
-  if(_non_uniform) {
-    if(_widths_x.size() != _num_x || _widths_y.size() != _num_y ||
+  if (_non_uniform) {
+    if (_widths_x.size() != _num_x || _widths_y.size() != _num_y ||
         _widths_z.size() != _num_z)
       log_printf(ERROR,"The sizes of non-uniform mesh widths are not consistent"
                  " with the sizes of filling Universes into Lattice");
@@ -2254,17 +2254,17 @@ void Lattice::computeSizes(){
     _widths_z.resize(_num_z, _width_z);
   }
 
-  
+  /* Compute the accumulate lengths along each axis */
   _accumulate_x.resize(_num_x+1,0.0);
   _accumulate_y.resize(_num_y+1,0.0);
   _accumulate_z.resize(_num_z+1,0.0);
-  
+
   for(int i=0; i<_num_x; i++)
     _accumulate_x[i+1] = _accumulate_x[i] + _widths_x[i];
-  
+
   for(int i=0; i<_num_y; i++)
     _accumulate_y[i+1] = _accumulate_y[i] + _widths_y[i];  
-  
+
   for(int i=0; i<_num_z; i++)
     _accumulate_z[i+1] = _accumulate_z[i] + _widths_z[i];  
 }
