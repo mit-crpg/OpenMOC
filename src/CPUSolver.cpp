@@ -595,7 +595,7 @@ void CPUSolver::setupMPIBuffers() {
           int neighbor = neighbor_connections.at(domains[d]);
 
           long slot;
-#pragma omp critical
+#pragma omp atomic capture
           {
             slot = num_tracks[neighbor];
             num_tracks[neighbor]++;

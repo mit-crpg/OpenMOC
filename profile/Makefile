@@ -243,25 +243,25 @@ program = $(case:.cpp=)
 default: folder $(addsuffix .o, $(program)) $(program)
 
 $(programs): $(obj)  $(headers) $(addsuffix .o, $(program))
-    $(CC) $(CFLAGS) $(obj) $(addsuffix .o, $@) -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) $(obj) $(addsuffix .o, $@) -o $@ $(LDFLAGS)
 
 obj/%.o: ../src/%.cpp Makefile
-    $(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 %.o: %.cpp Makefile
-    $(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 folder:
-    mkdir -p obj
+	mkdir -p obj
 
 all: folder $(addsuffix .o, $(programs)) $(programs)
 
 clean:
-    rm -rf $(program) $(obj) $(addsuffix .o, $(programs))
+	rm -rf $(program) $(obj) $(addsuffix .o, $(programs))
 
 edit:
-    vim -p $(case) $(cases)
+	vim -p $(case) $(cases)
 
 run:
-    ./$(program)
-    #mpirun -np 2 ./$(program)
+	./$(program)
+	#mpirun -np 2 ./$(program)

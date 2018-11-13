@@ -2829,8 +2829,7 @@ std::string Geometry::toString() {
  *          Surfaces, Cell, Universes and Lattices contained by the Geometry.
  */
 void Geometry::printString() {
-  std::string geom_string = toString();
-  log_printf(RESULT, "%s", geom_string);
+  log_printf(RESULT, "%s", toString().c_str());
 }
 
 

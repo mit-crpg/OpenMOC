@@ -298,7 +298,7 @@ long FixedHashMap<K,V>::insert_and_get_count(K key, V value) {
 
   /* increment counter and return number */
   size_t N;
-#pragma omp critical (node_incr)
+#pragma omp atomic capture
     N = _N++;
 
   return (long) N;

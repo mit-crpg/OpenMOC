@@ -130,7 +130,7 @@ void SegmentCounter::onTrack(Track* track, segment* segments) {
     _max_num_segments = std::max(_max_num_segments, track->getNumSegments());
   }
   if (_count_total_segments) {
-#pragma omp critical
+#pragma omp atommic update
     _total_num_segments += track->getNumSegments();
   }
 }
