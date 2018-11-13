@@ -1283,7 +1283,7 @@ void Cell::sectorize(std::vector<Cell*>& subcells) {
   /* A container for each of the bounding planes for the sector Cells */
   std::vector<Plane*> planes;
 
-  log_printf(NORMAL, "Sectorizing Cell %d with %d sectors",_id, _num_sectors);
+  log_printf(DEBUG, "Sectorizing Cell %d with %d sectors", _id, _num_sectors);
 
   /* Create each of the bounding planes for the sector Cells */
   for (int i=0; i < _num_sectors; i++) {

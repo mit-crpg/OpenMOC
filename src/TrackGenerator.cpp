@@ -708,7 +708,7 @@ void TrackGenerator::checkBoundaryConditions() {
  *          Points, azimuthal angle, and azimuthal angle quadrature weight.
  */
 void TrackGenerator::generateTracks() {
-    
+
   /* Start recording track generation time */
   _timer->startTimer();
 
@@ -769,12 +769,6 @@ void TrackGenerator::generateTracks() {
     log_printf(NORMAL, "Total number of FSRs %ld", total_num_FSRs);
     log_printf(DEBUG, "Number of FSRs in domain %ld", num_FSRs);
 
-    for (long r=0; r < num_FSRs; r++) {
-      Cell* cell = _geometry->findCellContainingFSR(r);
-      //log_printf(NORMAL, "fsr %d : cell %d %s", r, cell->getId(), cell->getName());
-    }
-
-
     /* Loop over all FSRs to initialize OpenMP locks */
 #pragma omp parallel for schedule(guided)
     for (long r=0; r < num_FSRs; r++)
@@ -788,7 +782,7 @@ void TrackGenerator::generateTracks() {
     log_printf(ERROR, "Unable to allocate memory needed to generate "
                "Tracks. Backtrace:\n%s", e.what());
   }
-  
+
   /* Stop recording track generation time and print */
 #ifdef MPIx
   if (_geometry->isDomainDecomposed())

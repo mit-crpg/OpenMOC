@@ -404,7 +404,7 @@ public:
   Solver(TrackGenerator* track_generator=NULL);
   virtual ~Solver();
 
-  virtual void setGeometry(Geometry* geometry);
+  void setGeometry(Geometry* geometry);
 
   Geometry* getGeometry();
   TrackGenerator* getTrackGenerator();
@@ -429,12 +429,12 @@ public:
   void loadInitialFSRFluxes(std::string fname);
   void loadFSRFluxes(std::string fname, bool assign_k_eff=false, double tolerance=0.01);
 
-  virtual double getFlux(long fsr_id, int group);
+  double getFlux(long fsr_id, int group);
   virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) = 0;
   double getFSRSource(long fsr_id, int group);
 
-  virtual void setTrackGenerator(TrackGenerator* track_generator);
-  virtual void setConvergenceThreshold(double threshold);
+  void setTrackGenerator(TrackGenerator* track_generator);
+  void setConvergenceThreshold(double threshold);
   virtual void setFixedSourceByFSR(long fsr_id, int group, double source);
   void setFixedSourceByCell(Cell* cell, int group, double source);
   void setFixedSourceByMaterial(Material* material, int group,
@@ -493,7 +493,7 @@ public:
   void limitXS();
   void setLimitingXSMaterials(std::vector<int> material_ids,
                               int reset_iteration);
-  virtual void checkLimitXS(int iteration);
+  void checkLimitXS(int iteration);
 
 
   /**

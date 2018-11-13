@@ -67,7 +67,7 @@ Universe::Universe(const int id, const char* name) {
 
   _uid = _n;
   _n++;
-  
+
   /* Add the ID to the used set */
   used_ids.insert(_id);
 
@@ -573,7 +573,7 @@ Cell* Universe::findCell(LocalCoords* coords) {
  */
 void Universe::subdivideCells(double max_radius) {
 
-  log_printf(NORMAL, "Subdividing Cells for Universe ID=%d "
+  log_printf(DEBUG, "Subdividing Cells for Universe ID=%d "
              "with max radius %f", _id, max_radius);
 
   std::map<int, Cell*>::iterator iter;
@@ -704,7 +704,7 @@ void Universe::calculateBoundaries() {
   * reachable x-coordinate in the Universe and store it in _min_x_bound
   */
   _min_x_bound = BOUNDARY_NONE;
-  
+
   /* Check if the universe contains a cell with an x-min boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
     std::map<int, Halfspace*> surfs = c_iter->second->getSurfaces();
@@ -826,7 +826,7 @@ void Universe::calculateBoundaries() {
   /* Calculate the maximum reachable y-coordinate in the geometry and store it
    * in _max_y */
   double max_y = -std::numeric_limits<double>::infinity();
-  
+
   /* Calculate the boundary condition at the maximum
   * reachable y-coordinate in the Universe and store it in _max_y_bound
   */
@@ -841,7 +841,7 @@ void Universe::calculateBoundaries() {
     for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
       surf = s_iter->second->_surface;
       halfspace = s_iter->second->_halfspace;
-      
+
       if (surf->getSurfaceType() == YPLANE && halfspace == -1 &&
         surf->getBoundaryType() != BOUNDARY_NONE) {
         if(surf->getMaxY(halfspace) < cell_max_y) {
@@ -914,7 +914,7 @@ void Universe::calculateBoundaries() {
   /* Calculate the boundary condition at the maximum
   * reachable z-coordinate in the Universe and store it in _max_z_bound */
   _max_z_bound = BOUNDARY_NONE;
-  
+
   /* Check if the universe contains a cell with an y-max boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
     std::map<int, Halfspace*>surfs = c_iter->second->getSurfaces();
@@ -924,7 +924,7 @@ void Universe::calculateBoundaries() {
     for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
       surf = s_iter->second->_surface;
       halfspace = s_iter->second->_halfspace;
-      
+
       if (surf->getSurfaceType() == ZPLANE && halfspace == -1 &&
           surf->getBoundaryType() != BOUNDARY_NONE) {
         if(surf->getMaxZ(halfspace) < cell_max_z) {
@@ -950,6 +950,7 @@ void Universe::calculateBoundaries() {
 
   _boundaries_inspected = true;
 }
+
 
 /**
   * @brief  sets _boundaries_not_updated to true so boundaries will be
@@ -1447,6 +1448,7 @@ void Lattice::setAccumulateZ(std::vector<double> accumulatez) {
   _accumulate_z = accumulatez;
 }
 
+
 /**
  * @brief Sets the array of Universe pointers filling each Lattice cell.
  * @details This is a helper method for SWIG to allow users to assign Universes
@@ -1578,7 +1580,7 @@ void Lattice::removeUniverse(Universe* universe) {
  */
 void Lattice::subdivideCells(double max_radius) {
 
-  log_printf(NORMAL, "Subdividing Cells for Lattice ID=%d "
+  log_printf(DEBUG, "Subdividing Cells for Lattice ID=%d "
              "with max radius %f", _id, max_radius);
 
   std::map<int, Universe*>::iterator iter;
@@ -1863,7 +1865,7 @@ int Lattice::getLatY(Point* point) {
     log_printf(ERROR, "Trying to get lattice y index for point(y = %f) that is "
                "outside lattice bounds. dist_to_bottom = %f is not within "
              "[0.0, %f]", point->getY(), dist_to_bottom, _accumulate_y[_num_y]);
-  
+
   return lat_y;
 }
 
@@ -2254,7 +2256,7 @@ void Lattice::computeSizes(){
     _widths_z.resize(_num_z, _width_z);
   }
 
-  /* Compute the accumulate lengths along each axis */
+  /* Compute the accumulated lengths along each axis */
   _accumulate_x.resize(_num_x+1,0.0);
   _accumulate_y.resize(_num_y+1,0.0);
   _accumulate_z.resize(_num_z+1,0.0);
@@ -2289,7 +2291,7 @@ void Lattice::printLatticeSizes() {
   for(i=0; i<_num_z; i++)
     printf("i=%d, %f; ",i, _widths_z[i]);
   printf("\n");
-  
+
   printf("accumulates_XYZ:\n");
   for(i=0; i<_num_x+1; i++)
     printf("i=%d, %f; ",i, _accumulate_x[i]);

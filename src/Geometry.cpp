@@ -3656,7 +3656,6 @@ void Geometry::dumpToFile(std::string filename, bool non_uniform_lattice) {
     int num_sectors = cell->getNumSectors();
     fwrite(&num_rings, sizeof(int), 1, out);
     fwrite(&num_sectors, sizeof(int), 1, out);
-    log_printf(NORMAL, "Printing sectors %d", num_sectors);
 
     /* Print parent cell */
     bool has_parent = cell->hasParent();
@@ -4024,7 +4023,6 @@ void Geometry::loadFromFile(std::string filename, bool non_uniform_lattice,
     ret = twiddleRead(&num_sectors, sizeof(int), 1, in);
     all_cells[key]->setNumRings(num_rings);
     all_cells[key]->setNumSectors(num_sectors);
-    log_printf(NORMAL, "Reading sectors %d", num_sectors);
 
     /* Read parent cell */
     bool has_parent;
@@ -4150,7 +4148,7 @@ void Geometry::loadFromFile(std::string filename, bool non_uniform_lattice,
         ret = twiddleRead(&widths_y[0], sizeof(double), num_y, in);
         ret = twiddleRead(&widths_z[0], sizeof(double), num_z, in);
       }
-     
+
       /* Create lattice */
       Lattice* new_lattice = new Lattice(id, name);
       all_universes[key] = new_lattice;
@@ -4163,7 +4161,7 @@ void Geometry::loadFromFile(std::string filename, bool non_uniform_lattice,
       }
       else
         new_lattice->setWidth(width_x, width_y, width_z);
-      
+
       new_lattice->setNonUniform(non_uniform);
       new_lattice->setOffset(offset[0], offset[1], offset[2]);
 

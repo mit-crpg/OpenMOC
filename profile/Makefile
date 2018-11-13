@@ -2,7 +2,7 @@
 # User Options
 #===============================================================================
 
-COMPILER       ?= gnu
+COMPILER       ?= mpi
 OPENMP         ?= yes
 OPTIMIZE       ?= yes
 DEBUG          ?= no
@@ -183,10 +183,10 @@ CFLAGS += -DVEC_ALIGNMENT=16
 # Optimization Flags
 ifeq ($(OPTIMIZE),yes)
 ifeq ($(COMPILER),gnu)
-  CFLAGS += -O3 -ffast-math -fpic
+  CFLAGS += -O3 -ffast-math -fpic -march=native
 endif
 ifeq ($(COMPILER),mpi)
-  CFLAGS += -O3 -ffast-math -fpic
+  CFLAGS += -O3 -ffast-math -fpic -march=native
 endif
 ifeq ($(COMPILER),intel)
   CFLAGS += -O3 -xhost -fast -ansi-alias -no-prec-div -ipo
@@ -243,25 +243,25 @@ program = $(case:.cpp=)
 default: folder $(addsuffix .o, $(program)) $(program)
 
 $(programs): $(obj)  $(headers) $(addsuffix .o, $(program))
-	$(CC) $(CFLAGS) $(obj) $(addsuffix .o, $@) -o $@ $(LDFLAGS)
+    $(CC) $(CFLAGS) $(obj) $(addsuffix .o, $@) -o $@ $(LDFLAGS)
 
 obj/%.o: ../src/%.cpp Makefile
-	$(CC) $(CFLAGS) -c $< -o $@
+    $(CC) $(CFLAGS) -c $< -o $@
 
 %.o: %.cpp Makefile
-	$(CC) $(CFLAGS) -c $< -o $@
+    $(CC) $(CFLAGS) -c $< -o $@
 
 folder:
-	mkdir -p obj
+    mkdir -p obj
 
 all: folder $(addsuffix .o, $(programs)) $(programs)
 
 clean:
-	rm -rf $(program) $(obj) $(addsuffix .o, $(programs))
+    rm -rf $(program) $(obj) $(addsuffix .o, $(programs))
 
 edit:
-	vim -p $(case) $(cases)
+    vim -p $(case) $(cases)
 
 run:
-	./$(program)
-	#mpirun -np 2 ./$(program)
+    ./$(program)
+    #mpirun -np 2 ./$(program)

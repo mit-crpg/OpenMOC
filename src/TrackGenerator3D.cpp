@@ -1216,7 +1216,7 @@ void TrackGenerator3D::segmentizeExtruded() {
 
   log_printf(NORMAL, "Ray tracing for axially extruded track segmentation...");
 
-  /* Get all unique z-coords at which 2D radial segementation is performed */
+  /* Get all unique z-coords at which 2D radial segmentation is performed */
   std::vector<double> z_coords;
   if (_contains_segmentation_heights)
     z_coords = _segmentation_heights;
