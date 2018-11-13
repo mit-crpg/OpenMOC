@@ -1223,7 +1223,20 @@ void TrackGenerator3D::segmentizeExtruded() {
   else
     z_coords = _geometry->getUniqueZPlanes();
 
-  log_printf(NORMAL, "Number of unique Z-planes %d", z_coords.size());
+  /* Print number of unique Z planes */
+  int num_Z_planes = z_coords.size();
+  int _num_Z_planes = num_Z_planes - 1;
+  int max_num_Z_planes = num_Z_planes;
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed()) {
+    MPI_Allreduce(&num_Z_planes, &_num_Z_planes, 1, MPI_INT, MPI_SUM,
+                  _geometry->getMPICart());
+    MPI_Allreduce(&num_Z_planes, &max_num_Z_planes, 1, MPI_INT, MPI_MAX,
+                  _geometry->getMPICart());
+  }
+#endif
+  log_printf(NORMAL, "Max / total number of unique Z-planes %d / %d",
+             max_num_Z_planes, _num_Z_planes + 1);
 
   /* Loop over all extruded Tracks */
   Progress progress(_num_2D_tracks, "Segmenting 2D Tracks", 0.1, _geometry,

@@ -2465,13 +2465,6 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
 
       /* Shoot vertical track through the geometry to initialize 3D FSRs */
       segmentize3D(&track, true);
-      //log_printf(NORMAL, "number of fsrs here %d", _FSR_keys_map.size());
-      //if (_FSR_keys_map.size() < 500) {
-      //  for (long r=0; r < _FSR_keys_map.size(); r++) {
-          //Cell* cell = findCellContainingFSR(r);
-          //log_printf(NORMAL, "fsr %d : cell %d %s", r, cell->getId(), cell->getName());
-      //  }
-      //}
 
       /* Extract segments from track */
       int num_segments = track.getNumSegments();
@@ -2508,7 +2501,6 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
 
   /* Re-order FSR IDs so they are sequential in the axial direction */
   reorderFSRIDs();
-  log_printf(NORMAL, "number of fsrs here %d", _FSR_keys_map.size());
   log_printf(NORMAL, "Finished initializing 3D FSRs");
 }
 
