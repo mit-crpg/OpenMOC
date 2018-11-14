@@ -771,7 +771,8 @@ CMFD_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
  *         (\f$ \tilde{D} \f$)
  */
 void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
-    int group, int moc_iteration,double& dif_surf, double& dif_surf_corr) {
+    int group, int moc_iteration, CMFD_PRECISION& dif_surf, 
+    CMFD_PRECISION& dif_surf_corr) {
 
   FP_PRECISION current, current_out, current_in;
   CMFD_PRECISION flux_next;

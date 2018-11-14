@@ -37,13 +37,13 @@ before_install:
 
 install:
   # ================= Get C++11-compatible compiler ==================
-  - sudo apt-get install -qq gcc-4.8 g++-4.8
+  - sudo apt-get install -qq gcc-6 g++-6
   - sudo apt-get install swig
   - sudo rm /usr/bin/gcc
   - sudo rm /usr/bin/g++
   # - sudo apt install mpich libmpich-dev
-  - sudo ln -s /usr/bin/gcc-4.8 /usr/bin/gcc
-  - sudo ln -s /usr/bin/g++-4.8 /usr/bin/g++
+  - sudo ln -s /usr/bin/gcc-6.2 /usr/bin/gcc
+  - sudo ln -s /usr/bin/g++-6.2 /usr/bin/g++
   
 
 script:

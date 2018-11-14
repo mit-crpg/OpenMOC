@@ -365,7 +365,7 @@ private:
   double getDistanceToCentroid(Point* centroid, int cell_id,
                                      int stencil_index);
   void getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
-        int group, int moc_iteration,double& dif_surf, double& dif_surf_corr);
+        int group, int moc_iteration, CMFD_PRECISION& dif_surf, CMFD_PRECISION& dif_surf_corr);
   CMFD_PRECISION getDiffusionCoefficient(int cmfd_cell, int group);
   CMFD_PRECISION getSurfaceWidth(int surface, int global_ind);
   CMFD_PRECISION getPerpendicularSurfaceWidth(int surface, int global_ind);
