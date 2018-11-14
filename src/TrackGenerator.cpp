@@ -7,10 +7,9 @@
  * @param geometry a pointer to a Geometry object
  * @param num_azim number of azimuthal angles in \f$ [0, 2\pi] \f$
  * @param spacing track spacing (cm)
- * @param z_slice z-coordinate at which the 3D geometry should be sliced to 2D
  */
 TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
-                               double azim_spacing, double z_slice) {
+                               double azim_spacing) {
 
   setGeometry(geometry);
   setNumThreads(1);
@@ -19,7 +18,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
   _contains_2D_tracks = false;
   _contains_2D_segments = false;
   _quadrature = NULL;
-  _z_coord = z_slice;
+  _z_coord = 0;
   _segment_formation = EXPLICIT_2D;
   _max_optical_length = std::numeric_limits<FP_PRECISION>::max();
   _max_num_segments = 0;
@@ -408,24 +407,34 @@ void TrackGenerator::setNumThreads(int num_threads) {
                "be at least MPI_THREAD_SERIALIZED.");
 #endif
 
-  /* Print CPU assignments, useful for NUMA where by-socket is the preferred
-   * CPU grouping */
-  std::vector<int> cpus;
-#pragma omp parallel for
-  for (int i=0; i<num_threads; i++)
-    cpus.push_back(sched_getcpu());
-  sort(cpus.begin(), cpus.end());
-  std::stringstream str_cpus;
-  for (int i=0; i<num_threads; i++)
-      str_cpus << cpus.at(i) << " ";
-  log_printf(INFO, "CPUs on rank 0 process: %s", str_cpus.str());
-
   _num_threads = num_threads;
 
   /* Set the number of threads for OpenMP */
   omp_set_num_threads(_num_threads);
   if (_geometry != NULL)
     _geometry->reserveKeyStrings(num_threads);
+
+  /* Print CPU assignments, useful for NUMA where by-socket is the preferred
+   * CPU grouping */
+  std::vector<int> cpus;
+  cpus.reserve(num_threads);
+#pragma omp parallel for schedule(static,1)
+  for (int i=0; i<num_threads; i++)
+    cpus.push_back(sched_getcpu());
+  std::stringstream str_cpus;
+  for (int i=0; i<cpus.size(); i++)
+      str_cpus << cpus.at(i) << " ";
+
+  /* Get rank of process */
+  int rank = 0;
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed())
+    MPI_Comm_rank(_MPI_cart, &rank);
+#endif
+
+  if (num_threads > 1)
+    log_printf(NODAL, "CPUs on rank %d process: %s", rank, 
+               str_cpus.str().c_str());
 }
 
 
