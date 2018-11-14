@@ -295,7 +295,6 @@ TransportKernel::TransportKernel(TrackGenerator* track_generator, int row_num)
   _azim_index = 0;
   _polar_index = 0;
   _track_id = 0;
-  _thread_fsr_flux = new FP_PRECISION[_num_groups];
 }
 
 
@@ -303,7 +302,6 @@ TransportKernel::TransportKernel(TrackGenerator* track_generator, int row_num)
  * @brief Destructor for the TransportKernel.
  */
 TransportKernel::~TransportKernel() {
-  delete [] _thread_fsr_flux;
 }
 
 
@@ -412,7 +410,7 @@ void TransportKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
 
     /* Apply MOC equations */
     _cpu_solver->tallyScalarFlux(&curr_segment, _azim_index, _polar_index,
-                                 track_flux, _thread_fsr_flux);
+                                 track_flux);
     _cpu_solver->tallyCurrent(&curr_segment, _azim_index, _polar_index,
                                      track_flux, true);
 

@@ -11,6 +11,9 @@
 /** Threshold to determine if a float equals to 0.0 */
 #define FLT_EPSILON 1.0E-12
 
+/** Threshold to determine if a float is equal to infinity */
+#define FLT_INFINITY 1.0E308
+
 /* The single line width permissible for timer / memory logger reports */
 #define REPORT_WIDTH 53
 

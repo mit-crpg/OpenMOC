@@ -1710,7 +1710,7 @@ Cell* Lattice::findCell(LocalCoords* coords) {
                   - (getMinZ() + _widths_z[lat_z]/2. + _accumulate_z[lat_z]);
 
   /* Check for 2D problem */
-  if (_width_z == std::numeric_limits<double>::infinity())
+  if (_width_z > FLT_INFINITY)
     next_z = coords->getZ();
 
   /* Create a new LocalCoords object for the next level Universe */

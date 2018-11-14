@@ -1832,14 +1832,12 @@ void CPUSolver::transportSweep() {
  *          scalar flux, and updates the Track's angular flux.
  * @param curr_segment a pointer to the Track segment of interest
  * @param azim_index azimuthal angle index for this segment
- * @param polar_index polar angle index for this segment 
+ * @param polar_index polar angle index for this segment
  * @param track_flux a pointer to the Track's angular flux
- * @param fsr_flux a pointer to the temporary FSR flux buffer
  */
 void CPUSolver::tallyScalarFlux(segment* curr_segment,
                                 int azim_index, int polar_index,
-                                float* track_flux,
-                                FP_PRECISION* fsr_flux) {
+                                float* track_flux) {
 
   long fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
@@ -1848,8 +1846,8 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   /* The change in angular flux along this Track segment in the FSR */
   ExpEvaluator* exp_evaluator = _exp_evaluators[azim_index][polar_index];
 
-  /* Set the FSR scalar flux buffer to zero */
-  memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
+  /* Allocate a temporary flux buffer on the stack (free) and initialize it */
+  FP_PRECISION fsr_flux[_num_groups] = {0.0};
 
   if (_solve_3D) {
 

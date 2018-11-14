@@ -139,7 +139,8 @@ protected:
 
 public:
 
-  TrackGenerator(Geometry* geometry, int num_azim, double azim_spacing);
+  TrackGenerator(Geometry* geometry, int num_azim, double azim_spacing,
+                 double z_slice=0.);
   virtual ~TrackGenerator();
 
   /* Get parameters */

@@ -7,8 +7,8 @@ OPENMP      	 ?= yes
 OPTIMIZE    	 ?= yes
 DEBUG       	 ?= no
 PROFILE     	 ?= no
-PRECISION   	 ?= double
-CMFD_PRECISION ?= double
+PRECISION   	 ?= single
+CMFD_PRECISION ?= single
 
 #===============================================================================
 # Source Code List

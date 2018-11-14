@@ -7,9 +7,10 @@
  * @param geometry a pointer to a Geometry object
  * @param num_azim number of azimuthal angles in \f$ [0, 2\pi] \f$
  * @param spacing track spacing (cm)
+ * @param z_slice z-coordinate at which the 3D geometry should be sliced to 2D
  */
 TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
-                               double azim_spacing) {
+                               double azim_spacing, double z_slice) {
 
   setGeometry(geometry);
   setNumThreads(1);
@@ -18,7 +19,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
   _contains_2D_tracks = false;
   _contains_2D_segments = false;
   _quadrature = NULL;
-  _z_coord = 0.0;
+  _z_coord = z_slice;
   _segment_formation = EXPLICIT_2D;
   _max_optical_length = std::numeric_limits<FP_PRECISION>::max();
   _max_num_segments = 0;
@@ -406,6 +407,18 @@ void TrackGenerator::setNumThreads(int num_threads) {
                "re-compile with another library. Thread support level should"
                "be at least MPI_THREAD_SERIALIZED.");
 #endif
+
+  /* Print CPU assignments, useful for NUMA where by-socket is the preferred
+   * CPU grouping */
+  std::vector<int> cpus;
+#pragma omp parallel for
+  for (int i=0; i<num_threads; i++)
+    cpus.push_back(sched_getcpu());
+  sort(cpus.begin(), cpus.end());
+  std::stringstream str_cpus;
+  for (int i=0; i<num_threads; i++)
+      str_cpus << cpus.at(i) << " ";
+  log_printf(INFO, "CPUs on rank 0 process: %s", str_cpus.str());
 
   _num_threads = num_threads;
 

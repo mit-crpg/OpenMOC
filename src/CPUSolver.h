@@ -123,8 +123,7 @@ public:
   virtual void printInputParamsSummary();
 
   virtual void tallyScalarFlux(segment* curr_segment, int azim_index,
-                               int polar_index, float* track_flux,
-                               FP_PRECISION* fsr_flux);
+                               int polar_index, float* track_flux);
 
   virtual void tallyCurrent(segment* curr_segment, int azim_index,
                             int polar_index, float* track_flux,
