@@ -1634,7 +1634,7 @@ void Solver::printTimerReport() {
       _num_iterations;
   double time_per_integration = (transport_sweep / num_integrations * 
                                  (omp_get_max_threads() * num_ranks));
-  msg_string = "Integration time per segment by thread";
+  msg_string = "Integration time per segment-group by thread";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_integration);
 

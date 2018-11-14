@@ -784,7 +784,7 @@ void Quadrature::precomputeWeights(bool solve_3D) {
 
   /* Create uncorrected weights if no angles have been set yet */
   if (_phis == NULL) {
-    log_printf(WARNING, "Using uncorrected angles for weights");
+    log_printf(NORMAL, "WARNING: Using uncorrected angles for weights");
     double phi = M_PI / _num_azim;
     for (int a = 0; a < _num_azim/4; a++) {
       setPhi(phi, a);

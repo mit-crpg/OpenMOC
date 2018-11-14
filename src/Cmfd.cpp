@@ -2351,8 +2351,9 @@ void Cmfd::useAxialInterpolation(int interpolate) {
                " meaning No interpolation, FSR axially averaged value or"
                " centroid z-coordinate evaluted value");
   if(interpolate==1 || interpolate==2)
-    log_printf(WARNING, "Axial interpolation CMFD prolongation may only"
+    log_printf(NORMAL, "WARNING: Axial interpolation CMFD prolongation may only"
                " be effective when all the FSRs are axially homogeneous");
+  //FIXME Use a log level that prints the warning once for all nodes, without NORMAL
   _use_axial_interpolation = interpolate;
 }
 
