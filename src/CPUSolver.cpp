@@ -1852,7 +1852,9 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   if (_solve_3D) {
 
     FP_PRECISION length_2D = exp_evaluator->convertDistance3Dto2D(length);
+    FP_PRECISION delta_psi[_num_groups];
 
+#pragma simd
     for (int e=0; e < _num_groups; e++) {
 
       FP_PRECISION tau = sigma_t[e] * length_2D;
@@ -1861,11 +1863,15 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
       FP_PRECISION exponential = exp_evaluator->computeExponential(tau, 0);
 
       /* Attenuate and tally the flux */
-      FP_PRECISION delta_psi = (tau * track_flux[e] - length_2D *
+      delta_psi[e] = (tau * track_flux[e] - length_2D *
               _reduced_sources(fsr_id, e)) * exponential;
-      fsr_flux[e] += delta_psi * _quad->getWeightInline(azim_index,
+    }
+
+#pragma simd
+    for (int e=0; e < _num_groups; e++) {
+      fsr_flux[e] += delta_psi[e] * _quad->getWeightInline(azim_index,
                                                         polar_index);
-      track_flux[e] -= delta_psi;
+      track_flux[e] -= delta_psi[e];
     }
   }
   else {
@@ -1873,11 +1879,13 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
     int pe = 0;
 
     /* Loop over energy groups */
+#pragma simd
     for (int e=0; e < _num_groups; e++) {
 
       FP_PRECISION tau = sigma_t[e] * length;
 
       /* Loop over polar angles */
+#pragma simd
       for (int p=0; p < _num_polar/2; p++) {
 
         /* Compute the exponential */

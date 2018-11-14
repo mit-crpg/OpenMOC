@@ -215,6 +215,8 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
 
   /* If no exponential table is needed, return */
   if (!_interpolate)
+    log_printf(ERROR, "Intrinsic exponential is commented out in source code" 
+               " for optimization purposes");
     return;
 
   log_printf(DEBUG, "Initializing exponential interpolation table...");

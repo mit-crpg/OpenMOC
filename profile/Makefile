@@ -5,7 +5,7 @@
 COMPILER    	 ?= mpi
 OPENMP      	 ?= yes
 OPTIMIZE    	 ?= yes
-DEBUG       	 ?= no
+DEBUG       	 ?= yes
 PROFILE     	 ?= no
 PRECISION   	 ?= single
 CMFD_PRECISION ?= single
@@ -135,10 +135,16 @@ endif
 
 # Debug Flags
 ifeq ($(DEBUG),yes)
-  CFLAGS += -O0
-  CFLAGS += -g
+  #CFLAGS += -O0
+  #CFLAGS += -g
   ifeq ($(COMPILER),intel)
-  CFLAGS += -vec-report
+  CFLAGS += -qopt-report n=5 -qopt-report-phase=all
+  endif
+  ifeq ($(COMPILER),gnu)
+  CFLAGS += -fopt-info-all
+  endif
+  ifeq ($(COMPILER),mpi)
+  CFLAGS += -fopt-info-all
   endif
   ifeq ($(OPENMP),yes)
   CFLAGS += -openmp-report
@@ -182,10 +188,10 @@ CFLAGS += -DVEC_ALIGNMENT=16
 # Optimization Flags
 ifeq ($(OPTIMIZE),yes)
 ifeq ($(COMPILER),gnu)
-  CFLAGS += -O3 -ffast-math -fpic
+  CFLAGS += -O3 -ffast-math -fpic -march=native
 endif
 ifeq ($(COMPILER),mpi)
-  CFLAGS += -O3 -ffast-math -fpic
+  CFLAGS += -O3 -ffast-math -fpic -march=native
 endif
 ifeq ($(COMPILER),intel)
   CFLAGS += -O3 -xhost -fast -ansi-alias -no-prec-div -ipo
