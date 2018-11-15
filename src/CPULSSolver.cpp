@@ -365,9 +365,6 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   /* Allocate a temporary flux buffer on the stack (free) and initialize it */
   FP_PRECISION fsr_flux[4 * _num_groups] = {0.0};
 
-  /* Allocate a scratch_pad for exponentials and sources */
-  FP_PRECISION scratch_pad[5 * _num_groups];
-
   if (_solve_3D) {
 
     /* Compute the segment midpoint */
@@ -379,66 +376,52 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     FP_PRECISION length_2D = exp_evaluator->convertDistance3Dto2D(length);
 
     // Compute the exponential terms
-    FP_PRECISION* exponentials = &scratch_pad[0];
+    FP_PRECISION exponentials[3*_num_groups];
 #pragma omp simd
     for (int e=0; e < _num_groups; e++) {
       int idx = 3*e;
       FP_PRECISION tau = sigma_t[e] * length_2D;
-      exp_evaluator->retrieveExponentialComponents(tau, 0, &scratch_pad[idx],
-                                                   &scratch_pad[idx+1],
-                                                   &scratch_pad[idx+2]);
+      exp_evaluator->retrieveExponentialComponents(tau, 0, &exponentials[idx],
+                                                   &exponentials[idx+1],
+                                                   &exponentials[idx+2]);
     }
 
     // Compute the sources
-    FP_PRECISION* sources = &scratch_pad[3*_num_groups];
+    FP_PRECISION src_flat[_num_groups];
+    FP_PRECISION src_linear[_num_groups] = {0.0};
 #pragma omp simd
     for (int e=0; e < _num_groups; e++) {
-
-      // Compute indexes upfront for performance
-      long scalar_idx = start_scalar_idx + e;
-      long first_linear_idx = start_linear_idx + 3*e;
-      int flat_idx = 2*e;
-
-      // Compute the flat and linear components of the source
-      sources[flat_idx] = 0.0;
-      sources[flat_idx+1] = 0.0;
+      src_flat[e] = _reduced_sources[start_scalar_idx+e];
       for (int i=0; i<3; i++) {
-        int linear_idx = first_linear_idx + i;
-        sources[flat_idx] += _reduced_sources_xyz[linear_idx] * center_x2[i];
-        sources[flat_idx+1] += _reduced_sources_xyz[linear_idx] * direction[i];
+        src_flat[e] += _reduced_sources_xyz[start_linear_idx+3*e+i] * center_x2[i];
+        src_linear[e] += _reduced_sources_xyz[start_linear_idx+3*e+i] * direction[i];
       }
-      sources[flat_idx] += _reduced_sources[scalar_idx];
     }
+
+    // Compute the flux attenuation and tally contribution
+    FP_PRECISION delta_psi[_num_groups];
 #pragma omp simd
     for (int e=0; e < _num_groups; e++) {
 
-      // Load sources
-      int first_idx = 2*e;
-      FP_PRECISION src_flat = sources[first_idx];
-      FP_PRECISION src_linear = sources[first_idx+1];
-
-      // Load exponential terms
-      first_idx += e; // equivalent to 3*e
-      FP_PRECISION exp_F1 = exponentials[first_idx];
-      FP_PRECISION exp_F2 = exponentials[first_idx+1];
-      FP_PRECISION exp_H = exponentials[first_idx+2];
       FP_PRECISION tau = sigma_t[e] * length_2D;
 
       // Compute the change in flux across the segment
-      exp_H *= length * track_flux[e] * tau * wgt;
-      FP_PRECISION delta_psi = (tau * track_flux[e] - length_2D * src_flat) *
-          exp_F1 - src_linear * length_2D * length_2D * exp_F2;
+      exponentials[3*e+2] *= length * track_flux[e] * tau * wgt;
+      delta_psi[e] = (tau * track_flux[e] - length_2D * src_flat[e]) *
+          exponentials[3*e] - src_linear[e] * length_2D * length_2D *
+          exponentials[3*e+1];
 
       // Increment the fsr scalar flux and scalar flux moments
-      first_idx += e; // equivalent to 4*e
-      fsr_flux[first_idx] += wgt * delta_psi;
-      first_idx++;
+      fsr_flux[4*e] += wgt * delta_psi[e];
       for (int i=0; i<3; i++)
-        fsr_flux[first_idx + i] += exp_H * direction[i] + wgt * delta_psi *
-                                    position[i];
+        fsr_flux[4*e + 1 + i] += exponentials[3*e+2] * direction[i] + wgt * 
+                                 delta_psi[e] * position[i];
+    }
 
-      // Decrement the track flux
-      track_flux[e] -= delta_psi;
+    // Attenuate the flux
+#pragma omp simd
+    for (int e=0; e < _num_groups; e++) {
+      track_flux[e] -= delta_psi[e];
     }
   }
   else {
