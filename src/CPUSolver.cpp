@@ -1881,11 +1881,12 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   }
   else {
 
-    FP_PRECISION delta_psi[_num_groups * _num_polar/2];
+    int _num_polar_2 = _num_polar/2;
+    FP_PRECISION delta_psi[_num_groups * _num_polar_2];
 
     /* Loop over polar angles */
-#pragma omp simd
-      for (int p=0; p < _num_polar/2; p++) {
+    for (int p=0; p < _num_polar_2; p++) {
+      FP_PRECISION track_weight = _quad->getWeightInline(azim_index, p);
 
       /* Loop over energy groups */
 #pragma omp simd
@@ -1898,14 +1899,13 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
         /* Compute attenuation and tally the flux */
         delta_psi[p*_num_groups+e] = (tau * track_flux[p*_num_groups+e] -
                 length * _reduced_sources(fsr_id,e)) * exponential;
-        fsr_flux[e] += delta_psi[p*_num_groups+e] * 
-                       _quad->getWeightInline(azim_index, p);
+        fsr_flux[e] += delta_psi[p*_num_groups+e] * track_weight;
       }
     }
 
     /* Attenuate the track angular flux */
 #pragma omp simd
-    for (int pe=0; pe < _num_groups*_num_polar/2; pe++) {
+    for (int pe=0; pe < _num_groups*_num_polar_2; pe++) {
         track_flux[pe] -= delta_psi[pe];
     }
   }

@@ -476,20 +476,19 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
 #pragma omp simd
       for (int e=0; e < _num_groups; e++) {
         FP_PRECISION tau = sigma_t[e] * length;
-        exp_H[p*_num_groups+e] *= track_flux[p*_num_groups+e];
+        exp_H[p*_num_groups+e] *=  tau * length * track_flux[p*_num_groups+e];
 
         // Compute the change in flux across the segment
         FP_PRECISION delta_psi = (tau * track_flux[p*_num_groups+e] - length
               * src_flat[e]) * exp_F1[p*_num_groups+e] - length * length 
               * src_linear[p*_num_groups+e] * exp_F2[p*_num_groups+e];
 
-
         // Increment the fsr scalar flux and scalar flux moments
         fsr_flux[4*e] += track_weight * delta_psi;
-        fsr_flux[4*e+1] += track_weight * (exp_H[p*_num_groups+e] * direction[0]
-              + delta_psi * position[0]);
-        fsr_flux[4*e+2] += track_weight * (exp_H[p*_num_groups+e] * direction[1]
-              + delta_psi * position[1]);
+        fsr_flux[4*e+1] += track_weight * (exp_H[p*_num_groups+e] * direction[0] +
+              delta_psi * position[0]);
+        fsr_flux[4*e+2] += track_weight * (exp_H[p*_num_groups+e] * direction[1] +
+              delta_psi * position[1]);
         //FIXME Only so that compiler doesn't complain about a gap in access
         fsr_flux[4*e+3] = 0;
         track_flux[p*_num_groups+e] -= delta_psi;
