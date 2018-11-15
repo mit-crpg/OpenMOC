@@ -17,6 +17,8 @@
 #include <stdlib.h>
 #endif
 
+/** Macro to be used for number of groups/dimensions tailored optimization */
+#define assume(cond) do { if (!(cond)) __builtin_unreachable(); } while (0)
 
 /** Indexing macro for the scalar flux in each FSR and energy group */
 #define _scalar_flux_xyz(r,e,x) (_scalar_flux_xyz[(r)*_num_groups*3 + (e)*3 + (x)])
