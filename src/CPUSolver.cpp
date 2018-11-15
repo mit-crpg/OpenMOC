@@ -1839,6 +1839,10 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
                                 int azim_index, int polar_index,
                                 float* track_flux) {
 
+  /* Additional unsafe compiler optimizations */
+  //assume(_num_groups == 70);
+  //assume(_solve_3D == true);
+
   long fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
@@ -1854,7 +1858,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
     FP_PRECISION length_2D = exp_evaluator->convertDistance3Dto2D(length);
     FP_PRECISION delta_psi[_num_groups];
 
-#pragma simd
+#pragma omp simd
     for (int e=0; e < _num_groups; e++) {
 
       FP_PRECISION tau = sigma_t[e] * length_2D;
@@ -1870,7 +1874,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
     }
 
     /* Attenuate the track angular flux */
-#pragma simd
+#pragma omp simd
     for (int e=0; e < _num_groups; e++) {
       track_flux[e] -= delta_psi[e];
     }
@@ -1880,11 +1884,11 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
     FP_PRECISION delta_psi[_num_groups * _num_polar/2];
 
     /* Loop over polar angles */
-#pragma simd
+#pragma omp simd
       for (int p=0; p < _num_polar/2; p++) {
 
       /* Loop over energy groups */
-#pragma simd
+#pragma omp simd
       for (int e=0; e < _num_groups; e++) {
 
         FP_PRECISION tau = sigma_t[e] * length;
@@ -1900,7 +1904,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
     }
 
     /* Attenuate the track angular flux */
-#pragma simd
+#pragma omp simd
     for (int pe=0; pe < _num_groups*_num_polar/2; pe++) {
         track_flux[pe] -= delta_psi[pe];
     }
@@ -1908,10 +1912,9 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
 
   /* Atomically increment the FSR scalar flux from the temporary array */
   omp_set_lock(&_FSR_locks[fsr_id]);
-  {
+#pragma omp simd
     for (int e=0; e < _num_groups; e++)
       _scalar_flux(fsr_id,e) += fsr_flux[e];
-  }
   omp_unset_lock(&_FSR_locks[fsr_id]);
 }
 
