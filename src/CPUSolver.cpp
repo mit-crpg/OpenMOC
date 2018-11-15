@@ -1862,42 +1862,47 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
       /* Compute the exponential */
       FP_PRECISION exponential = exp_evaluator->computeExponential(tau, 0);
 
-      /* Attenuate and tally the flux */
+      /* Compute attenuation and tally the flux */
       delta_psi[e] = (tau * track_flux[e] - length_2D *
               _reduced_sources(fsr_id, e)) * exponential;
-    }
-
-#pragma simd
-    for (int e=0; e < _num_groups; e++) {
       fsr_flux[e] += delta_psi[e] * _quad->getWeightInline(azim_index,
                                                         polar_index);
+    }
+
+    /* Attenuate the track angular flux */
+#pragma simd
+    for (int e=0; e < _num_groups; e++) {
       track_flux[e] -= delta_psi[e];
     }
   }
   else {
 
-    int pe = 0;
+    FP_PRECISION delta_psi[_num_groups * _num_polar/2];
 
-    /* Loop over energy groups */
-#pragma simd
-    for (int e=0; e < _num_groups; e++) {
-
-      FP_PRECISION tau = sigma_t[e] * length;
-
-      /* Loop over polar angles */
+    /* Loop over polar angles */
 #pragma simd
       for (int p=0; p < _num_polar/2; p++) {
 
+      /* Loop over energy groups */
+#pragma simd
+      for (int e=0; e < _num_groups; e++) {
+
+        FP_PRECISION tau = sigma_t[e] * length;
         /* Compute the exponential */
         FP_PRECISION exponential = exp_evaluator->computeExponential(tau, p);
 
-        /* Attenuate and tally the flux */
-        FP_PRECISION delta_psi = (tau * track_flux[pe] -
+        /* Compute attenuation and tally the flux */
+        delta_psi[p*_num_groups+e] = (tau * track_flux[p*_num_groups+e] -
                 length * _reduced_sources(fsr_id,e)) * exponential;
-        fsr_flux[e] += delta_psi * _quad->getWeightInline(azim_index, p);
-        track_flux[pe] -= delta_psi;
-        pe++;
+        fsr_flux[e] += delta_psi[p*_num_groups+e] * 
+                       _quad->getWeightInline(azim_index, p);
       }
+    }
+
+    /* Attenuate the track angular flux */
+#pragma simd
+    for (int pe=0; pe < _num_groups*_num_polar/2; pe++) {
+        track_flux[pe] -= delta_psi[pe];
     }
   }
 
