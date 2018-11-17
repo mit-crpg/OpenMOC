@@ -788,7 +788,7 @@ void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
   CMFD_PRECISION delta_next = 0.0;
   if(global_cmfd_cell_next != -1) 
     delta_next = getPerpendicularSurfaceWidth(surface, global_cmfd_cell_next);
-    
+
   int sense = getSense(surface);
 
   /* Correct the diffusion coefficient with Larsen's effective diffusion
@@ -1129,9 +1129,9 @@ void Cmfd::constructMatrices(int moc_iteration) {
 
           /* Set transport term on diagonal.
           dif_surf and dif_surf_corr are modified via reference */
-           getSurfaceDiffusionCoefficient(i, s, e, moc_iteration, dif_surf, 
+          getSurfaceDiffusionCoefficient(i, s, e, moc_iteration, dif_surf, 
                                           dif_surf_corr);
-           
+
           /* Record the corrected diffusion coefficient */
           _old_dif_surf_corr->setValue(i, s*_num_cmfd_groups+e, dif_surf_corr);
           _old_dif_surf_valid = true;
@@ -1457,6 +1457,11 @@ void Cmfd::initializeMaterials() {
     delete [] _materials;
   }
 
+  /* Compute and log size in memory of Material array */
+  double size = (double) (_num_cmfd_groups + 4) * _num_cmfd_groups *
+              _local_num_xn * _local_num_yn * _local_num_zn * 
+              sizeof(FP_PRECISION) / (double) 1e6;
+  log_printf(NORMAL, "CMFD material storage per domain = %6.2f MB", size);
 
   try {
     _materials = new Material*[_local_num_xn*_local_num_yn*_local_num_zn];

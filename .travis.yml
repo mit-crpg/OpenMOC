@@ -42,8 +42,8 @@ install:
   - sudo rm /usr/bin/gcc
   - sudo rm /usr/bin/g++
   # - sudo apt install mpich libmpich-dev
-  - sudo ln -s /usr/bin/gcc-6.2 /usr/bin/gcc
-  - sudo ln -s /usr/bin/g++-6.2 /usr/bin/g++
+  - sudo ln -s /usr/bin/gcc-6 /usr/bin/gcc
+  - sudo ln -s /usr/bin/g++-6 /usr/bin/g++
   
 
 script:

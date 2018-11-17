@@ -376,14 +376,16 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     FP_PRECISION length_2D = exp_evaluator->convertDistance3Dto2D(length);
 
     // Compute the exponential terms
-    FP_PRECISION exponentials[3*_num_groups];
+    FP_PRECISION exp_F1[_num_groups];
+    FP_PRECISION exp_F2[_num_groups];
+    FP_PRECISION exp_H[_num_groups];
 #pragma omp simd
     for (int e=0; e < _num_groups; e++) {
-      int idx = 3*e;
+      int idx = e;
       FP_PRECISION tau = sigma_t[e] * length_2D;
-      exp_evaluator->retrieveExponentialComponents(tau, 0, &exponentials[idx],
-                                                   &exponentials[idx+1],
-                                                   &exponentials[idx+2]);
+      exp_evaluator->retrieveExponentialComponents(tau, 0, &exp_F1[idx],
+                                                   &exp_F2[idx],
+                                                   &exp_H[idx]);
     }
 
     // Compute the sources
@@ -406,15 +408,15 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       FP_PRECISION tau = sigma_t[e] * length_2D;
 
       // Compute the change in flux across the segment
-      exponentials[3*e+2] *= length * track_flux[e] * tau * wgt;
+      exp_H[e] *= length * track_flux[e] * tau * wgt;
       delta_psi[e] = (tau * track_flux[e] - length_2D * src_flat[e]) *
-          exponentials[3*e] - src_linear[e] * length_2D * length_2D *
-          exponentials[3*e+1];
+          exp_F1[e] - src_linear[e] * length_2D * length_2D *
+          exp_F2[e];
 
       // Increment the fsr scalar flux and scalar flux moments
       fsr_flux[4*e] += wgt * delta_psi[e];
       for (int i=0; i<3; i++)
-        fsr_flux[4*e + 1 + i] += exponentials[3*e+2] * direction[i] + wgt * 
+        fsr_flux[4*e + 1 + i] += exp_H[e] * direction[i] + wgt * 
                                  delta_psi[e] * position[i];
     }
 

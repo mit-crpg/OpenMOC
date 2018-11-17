@@ -5,8 +5,9 @@
 COMPILER    	 ?= mpi
 OPENMP      	 ?= yes
 OPTIMIZE    	 ?= yes
-DEBUG       	 ?= yes
+DEBUG       	 ?= no
 PROFILE     	 ?= no
+INFO           ?= no
 PRECISION   	 ?= single
 CMFD_PRECISION ?= single
 
@@ -27,7 +28,8 @@ CMFD_PRECISION ?= single
 #case = models/simple-lattice/simple-lattice-3d.cpp
 #case = models/homogeneous/homogeneous.cpp
 #case = models/non-uniform-lattice/non-uniform-lattice.cpp
-case ?= models/run_time_standard/run_time_standard.cpp
+#case ?= models/run_time_standard/run_time_standard.cpp
+case = models/assembly_5/load-assembly.cpp
 
 source = \
 Cell.cpp \
@@ -135,20 +137,8 @@ endif
 
 # Debug Flags
 ifeq ($(DEBUG),yes)
-  #CFLAGS += -O0
-  #CFLAGS += -g
-  ifeq ($(COMPILER),intel)
-  CFLAGS += -qopt-report n=5 -qopt-report-phase=all
-  endif
-  ifeq ($(COMPILER),gnu)
-  CFLAGS += -fopt-info-all
-  endif
-  ifeq ($(COMPILER),mpi)
-  CFLAGS += -fopt-info-all
-  endif
-  ifeq ($(OPENMP),yes)
-  CFLAGS += -openmp-report
-  endif
+  CFLAGS += -O0
+  CFLAGS += -g
 endif
 
 # Profiling Flags
@@ -168,12 +158,6 @@ ifeq ($(PRECISION),double)
 #  CFLAGS += -DDOUBLE
 endif
 
-ifeq ($(NEW_PRECISION),single)
-  CFLAGS += -DNEW_PRECISION=float
-endif
-ifeq ($(NEW_PRECISION),double)
-  CFLAGS += -DNEW_PRECISION=double
-endif
 ifeq ($(CMFD_PRECISION),single)
   CFLAGS += -DCMFD_PRECISION=float
 endif
@@ -202,6 +186,22 @@ endif
 ifeq ($(COMPILER),clang)
   CFLAGS += -O3 -ffast-math -fvectorize -fpic
 endif
+endif
+
+# Optimization report flags
+ifeq ($(INFO),yes)
+  ifeq ($(COMPILER),intel)
+  CFLAGS += -qopt-report n=5 -qopt-report-phase=all
+  endif
+  ifeq ($(COMPILER),gnu)
+  CFLAGS += -fopt-info-all
+  endif
+  ifeq ($(COMPILER),mpi)
+  CFLAGS += -fopt-info-all
+  endif
+  ifeq ($(OPENMP),yes)
+  CFLAGS += -openmp-report
+  endif
 endif
 
 # OpenMP

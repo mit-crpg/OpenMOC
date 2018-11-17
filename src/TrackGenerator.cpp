@@ -7,10 +7,9 @@
  * @param geometry a pointer to a Geometry object
  * @param num_azim number of azimuthal angles in \f$ [0, 2\pi] \f$
  * @param spacing track spacing (cm)
- * @param z_slice z-coordinate at which the 3D geometry should be sliced to 2D
  */
 TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
-                               double azim_spacing, double z_slice) {
+                               double azim_spacing) {
 
   setGeometry(geometry);
   setNumThreads(1);
@@ -19,7 +18,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
   _contains_2D_tracks = false;
   _contains_2D_segments = false;
   _quadrature = NULL;
-  _z_coord = z_slice;
+  _z_coord = 0.0;
   _segment_formation = EXPLICIT_2D;
   _max_optical_length = std::numeric_limits<FP_PRECISION>::max();
   _max_num_segments = 0;
