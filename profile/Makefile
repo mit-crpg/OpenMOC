@@ -29,7 +29,7 @@ CMFD_PRECISION ?= single
 #case = models/homogeneous/homogeneous.cpp
 #case = models/non-uniform-lattice/non-uniform-lattice.cpp
 #case ?= models/run_time_standard/run_time_standard.cpp
-case = models/assembly_6/load-assembly.cpp
+case = models/assembly_3/load-assembly.cpp
 
 source = \
 Cell.cpp \
@@ -186,6 +186,8 @@ endif
 ifeq ($(COMPILER),clang)
   CFLAGS += -O3 -ffast-math -fvectorize -fpic
 endif
+  # Set the number of groups and dimension (3D) at compile time
+  #CFLAGS += -DNGROUPS=70
 endif
 
 # Optimization report flags

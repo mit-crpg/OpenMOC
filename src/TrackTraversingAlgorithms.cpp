@@ -446,7 +446,9 @@ LinearExpansionGenerator::LinearExpansionGenerator(CPULSSolver* solver)
   _FSR_volumes = track_generator->getFSRVolumesBuffer();
   _FSR_locks = track_generator->getFSRLocks();
   _quadrature = track_generator->getQuadrature();
+#ifndef NGROUPS
   _num_groups = track_generator->getGeometry()->getNumEnergyGroups();
+#endif
 
   /* Determine the number of linear coefficients */
   _num_flat = 0;

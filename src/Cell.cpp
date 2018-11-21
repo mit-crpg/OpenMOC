@@ -1,5 +1,6 @@
 #include "Cell.h"
 #include <set>
+#include <cmath>
 
 
 int Cell::_n = 0;

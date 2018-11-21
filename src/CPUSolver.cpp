@@ -1839,10 +1839,6 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
                                 int azim_index, int polar_index,
                                 float* track_flux) {
 
-  /* Additional unsafe compiler optimizations */
-  //assume(_num_groups == 70);
-  //assume(_solve_3D == true);
-
   long fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
@@ -1856,7 +1852,6 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   if (_solve_3D) {
 
     FP_PRECISION length_2D = exp_evaluator->convertDistance3Dto2D(length);
-    FP_PRECISION delta_psi[_num_groups];
 
 #pragma omp simd
     for (int e=0; e < _num_groups; e++) {
@@ -1866,23 +1861,17 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
       /* Compute the exponential */
       FP_PRECISION exponential = exp_evaluator->computeExponential(tau, 0);
 
-      /* Compute attenuation and tally the flux */
-      delta_psi[e] = (tau * track_flux[e] - length_2D *
+      /* Compute attenuation and tally the contribution to the scalar flux */
+      FP_PRECISION delta_psi = (tau * track_flux[e] - length_2D *
               _reduced_sources(fsr_id, e)) * exponential;
-      fsr_flux[e] += delta_psi[e] * _quad->getWeightInline(azim_index,
+      track_flux[e] -= delta_psi;
+      fsr_flux[e] += delta_psi * _quad->getWeightInline(azim_index,
                                                         polar_index);
-    }
-
-    /* Attenuate the track angular flux */
-#pragma omp simd
-    for (int e=0; e < _num_groups; e++) {
-      track_flux[e] -= delta_psi[e];
     }
   }
   else {
 
     int _num_polar_2 = _num_polar/2;
-    FP_PRECISION delta_psi[_num_groups * _num_polar_2];
 
     /* Loop over polar angles */
     for (int p=0; p < _num_polar_2; p++) {
@@ -1896,17 +1885,12 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
         /* Compute the exponential */
         FP_PRECISION exponential = exp_evaluator->computeExponential(tau, p);
 
-        /* Compute attenuation and tally the flux */
-        delta_psi[p*_num_groups+e] = (tau * track_flux[p*_num_groups+e] -
+        /* Compute attenuation and tally to scalar flux buffer */
+        FP_PRECISION delta_psi = (tau * track_flux[p*_num_groups+e] -
                 length * _reduced_sources(fsr_id,e)) * exponential;
-        fsr_flux[e] += delta_psi[p*_num_groups+e] * track_weight;
+        track_flux[p*_num_groups+e] -= delta_psi;
+        fsr_flux[e] += delta_psi * track_weight;
       }
-    }
-
-    /* Attenuate the track angular flux */
-#pragma omp simd
-    for (int pe=0; pe < _num_groups*_num_polar_2; pe++) {
-        track_flux[pe] -= delta_psi[pe];
     }
   }
 
