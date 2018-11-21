@@ -20,8 +20,6 @@
 
 #undef track_flux
 
-/** Macro to be used for number of groups/dimensions tailored optimization */
-#define assume(cond) do { if (!(cond)) __builtin_unreachable(); } while (0)
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
  *  group for either the forward or reverse direction for a given Track */

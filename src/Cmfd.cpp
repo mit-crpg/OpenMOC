@@ -3123,6 +3123,15 @@ void Cmfd::initialize() {
       omp_init_lock(&_cell_locks[r]);
     omp_init_lock(&_edge_corner_lock);
 
+    /* Compute and log size in memory of CMFD matrices */
+    int num_rows = _num_cmfd_groups * _local_num_xn * _local_num_yn *
+                   _local_num_zn;
+    int num_non_zero_coeffs = 7 * 10; // 10 is est. number of scatter groups
+    double size = (double) (num_rows) * num_non_zero_coeffs *
+                  sizeof(CMFD_PRECISION) / (double) 1e6;
+    log_printf(NORMAL, "CMFD A matrix est. storage per domain = %6.2f MB", 
+               size);
+
     /* Allocate memory for matrix and vector objects */
     _M = new Matrix(_cell_locks, _local_num_xn, _local_num_yn, _local_num_zn,
                     ncg);

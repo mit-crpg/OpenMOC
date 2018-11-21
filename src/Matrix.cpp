@@ -10,7 +10,7 @@
  *         form. The matrix is ordered by cell (as opposed to by group) on the
  *         outside. Locks are used to make the matrix thread-safe against
  *         concurrent writes the same value. One lock locks out multiple rows of
- *         the matrix at a time reprsenting multiple groups in the same cell.
+ *         the matrix at a time representing multiple groups in the same cell.
  * @param cell_locks Omp locks for atomic cell operations
  * @param num_x The number of cells in the x direction.
  * @param num_y The number of cells in the y direction.
@@ -219,7 +219,7 @@ void Matrix::convertToCSR() {
 
   _IA[_num_rows] = NNZ;
 
-  /* Reset flat indicating the CSR objects have the same values as the
+  /* Reset flat indicating whether the CSR objects have the same values as the
    * LIL object */
   _modified = false;
 }

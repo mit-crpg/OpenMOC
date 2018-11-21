@@ -349,10 +349,6 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
                                     float* track_flux,
                                     FP_PRECISION direction[3]) {
 
-  /* Additional unsafe compiler optimizations */
-  //assume(_num_groups == 70);
-  //assume(_solve_3D == true);
-
   long fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
@@ -383,9 +379,9 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     for (int e=0; e < _num_groups; e++) {
       int idx = e;
       FP_PRECISION tau = sigma_t[e] * length_2D;
-      exp_evaluator->retrieveExponentialComponents(tau, 0, &exp_F1[idx],
-                                                   &exp_F2[idx],
-                                                   &exp_H[idx]);
+      exp_evaluator->retrieveExponentialComponents(tau, 0, &exp_F1[e],
+                                                   &exp_F2[e],
+                                                   &exp_H[e]);
     }
 
     // Compute the sources
@@ -395,8 +391,10 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     for (int e=0; e < _num_groups; e++) {
       src_flat[e] = _reduced_sources[start_scalar_idx+e];
       for (int i=0; i<3; i++) {
-        src_flat[e] += _reduced_sources_xyz[start_linear_idx+3*e+i] * center_x2[i];
-        src_linear[e] += _reduced_sources_xyz[start_linear_idx+3*e+i] * direction[i];
+        src_flat[e] += _reduced_sources_xyz[start_linear_idx+3*e+i] *
+                       center_x2[i];
+        src_linear[e] += _reduced_sources_xyz[start_linear_idx+3*e+i] *
+                         direction[i];
       }
     }
 
@@ -474,7 +472,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
 
     /* Compute attenuation and tally flux */
     for (int p=0; p < num_polar_2; p++) {
-      FP_PRECISION track_weight = _quad->getWeightInline(azim_index, p);
+      FP_PRECISION wgt = _quad->getWeightInline(azim_index, p);
 #pragma omp simd
       for (int e=0; e < _num_groups; e++) {
         FP_PRECISION tau = sigma_t[e] * length;
@@ -486,10 +484,10 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
               * src_linear[p*_num_groups+e] * exp_F2[p*_num_groups+e];
 
         // Increment the fsr scalar flux and scalar flux moments
-        fsr_flux[4*e] += track_weight * delta_psi;
-        fsr_flux[4*e+1] += track_weight * (exp_H[p*_num_groups+e] * direction[0] +
+        fsr_flux[4*e] += wgt * delta_psi;
+        fsr_flux[4*e+1] += wgt * (exp_H[p*_num_groups+e] * direction[0] +
               delta_psi * position[0]);
-        fsr_flux[4*e+2] += track_weight * (exp_H[p*_num_groups+e] * direction[1] +
+        fsr_flux[4*e+2] += wgt * (exp_H[p*_num_groups+e] * direction[1] +
               delta_psi * position[1]);
         //FIXME Only so that compiler doesn't complain about a gap in access
         fsr_flux[4*e+3] = 0;

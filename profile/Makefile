@@ -29,7 +29,7 @@ CMFD_PRECISION ?= single
 #case = models/homogeneous/homogeneous.cpp
 #case = models/non-uniform-lattice/non-uniform-lattice.cpp
 #case ?= models/run_time_standard/run_time_standard.cpp
-case = models/assembly_5/load-assembly.cpp
+case = models/assembly_6/load-assembly.cpp
 
 source = \
 Cell.cpp \

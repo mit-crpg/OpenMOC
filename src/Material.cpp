@@ -9,8 +9,8 @@ static int auto_id = DEFAULT_INIT_ID;
  *          OpenMOC input files. The method makes use of a static Material
  *          ID which is incremented each time the method is called to enable
  *          unique generation of monotonically increasing IDs. The method's
- *          first ID begins at 10000. Hence, user-defined material IDs greater
- *          than or equal to 10000 is prohibited.
+ *          first ID begins at 1,000,000. Hence, user-defined material IDs greater
+ *          than or equal to 1,000,000 is prohibited.
  */
 int material_id() {
   int id = auto_id;

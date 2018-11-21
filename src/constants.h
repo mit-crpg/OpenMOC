@@ -12,13 +12,13 @@
 #define FLT_EPSILON 1.0E-12
 
 /** Threshold to determine if a float is equal to infinity */
-#define FLT_INFINITY 1.0E308
+#define FLT_INFINITY 1.0E300
 
 /* The single line width permissible for timer / memory logger reports */
 #define REPORT_WIDTH 53
 
 /** The minimum auto ID used for Surfaces, Cells, Materials and Universes */
-#define DEFAULT_INIT_ID 100000
+#define DEFAULT_INIT_ID 1000000
 
 /** The value of 4pi: \f$ 4\pi \f$ */
 #define FOUR_PI 12.566370614359172
