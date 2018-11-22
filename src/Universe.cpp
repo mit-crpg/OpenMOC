@@ -67,7 +67,7 @@ Universe::Universe(const int id, const char* name) {
 
   _uid = _n;
   _n++;
-  
+
   /* Add the ID to the used set */
   used_ids.insert(_id);
 
@@ -704,7 +704,7 @@ void Universe::calculateBoundaries() {
   * reachable x-coordinate in the Universe and store it in _min_x_bound
   */
   _min_x_bound = BOUNDARY_NONE;
-  
+
   /* Check if the universe contains a cell with an x-min boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
     std::map<int, Halfspace*> surfs = c_iter->second->getSurfaces();
@@ -826,7 +826,7 @@ void Universe::calculateBoundaries() {
   /* Calculate the maximum reachable y-coordinate in the geometry and store it
    * in _max_y */
   double max_y = -std::numeric_limits<double>::infinity();
-  
+
   /* Calculate the boundary condition at the maximum
   * reachable y-coordinate in the Universe and store it in _max_y_bound
   */
@@ -841,7 +841,7 @@ void Universe::calculateBoundaries() {
     for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
       surf = s_iter->second->_surface;
       halfspace = s_iter->second->_halfspace;
-      
+
       if (surf->getSurfaceType() == YPLANE && halfspace == -1 &&
         surf->getBoundaryType() != BOUNDARY_NONE) {
         if(surf->getMaxY(halfspace) < cell_max_y) {
@@ -914,7 +914,7 @@ void Universe::calculateBoundaries() {
   /* Calculate the boundary condition at the maximum
   * reachable z-coordinate in the Universe and store it in _max_z_bound */
   _max_z_bound = BOUNDARY_NONE;
-  
+
   /* Check if the universe contains a cell with an y-max boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
     std::map<int, Halfspace*>surfs = c_iter->second->getSurfaces();
@@ -924,7 +924,7 @@ void Universe::calculateBoundaries() {
     for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
       surf = s_iter->second->_surface;
       halfspace = s_iter->second->_halfspace;
-      
+
       if (surf->getSurfaceType() == ZPLANE && halfspace == -1 &&
           surf->getBoundaryType() != BOUNDARY_NONE) {
         if(surf->getMaxZ(halfspace) < cell_max_z) {
@@ -950,6 +950,7 @@ void Universe::calculateBoundaries() {
 
   _boundaries_inspected = true;
 }
+
 
 /**
   * @brief  sets _boundaries_not_updated to true so boundaries will be
@@ -977,7 +978,7 @@ Lattice::Lattice(const int id, const char* name): Universe(id, name) {
   _width_x = 0;
   _width_y = 0;
   _width_z = 0;
-  
+
   _non_uniform = false;
 }
 
@@ -1447,6 +1448,7 @@ void Lattice::setAccumulateZ(std::vector<double> accumulatez) {
   _accumulate_z = accumulatez;
 }
 
+
 /**
  * @brief Sets the array of Universe pointers filling each Lattice cell.
  * @details This is a helper method for SWIG to allow users to assign Universes
@@ -1591,7 +1593,7 @@ void Lattice::subdivideCells(double max_radius) {
   for (iter = universes.begin(); iter != universes.end(); ++iter) {
     log_printf(DEBUG, "univ_ID: %d, radius: %f, max_radius: %f", 
                iter->first, unique_radius[iter->first], max_radius);
-    
+
     /* If the  local universe equivalent radius is smaller than max_radius 
        parameter, over-ride it*/
     iter->second->subdivideCells(std::min(unique_radius[iter->first], 
@@ -1709,8 +1711,8 @@ Cell* Lattice::findCell(LocalCoords* coords) {
   double next_z = coords->getZ()
                   - (getMinZ() + _widths_z[lat_z]/2. + _accumulate_z[lat_z]);
 
-  /* Check for 2D problem */
-  if (_width_z == std::numeric_limits<double>::infinity())
+  /* Check for 2D problem or 2D lattice */
+  if (_width_z > FLT_INFINITY)
     next_z = coords->getZ();
 
   /* Create a new LocalCoords object for the next level Universe */
@@ -1863,7 +1865,7 @@ int Lattice::getLatY(Point* point) {
     log_printf(ERROR, "Trying to get lattice y index for point(y = %f) that is "
                "outside lattice bounds. dist_to_bottom = %f is not within "
              "[0.0, %f]", point->getY(), dist_to_bottom, _accumulate_y[_num_y]);
-  
+
   return lat_y;
 }
 
@@ -1921,8 +1923,8 @@ std::string Lattice::toString() {
          << ", # cells along x = " << _num_x
          << ", # cells along y = " << _num_y
          << ", # cells along z = " << _num_z;
-  
-  if(_non_uniform) {
+
+  if (_non_uniform) {
     string << "This lattice is non-uniform.\nx widths: ";
     for(int i=0; i<_num_x; i++)
       string << _widths_x[i] << "  ";
@@ -2239,11 +2241,11 @@ void Lattice::setWidths(std::vector<double> widths_x,
 
 /**
  * @brief Set _widths_x, _widths_y, _widths_z for uniform case, compute 
- *        accumulate variavles.
+ *        accumulate variables.
  */
 void Lattice::computeSizes(){
-  if(_non_uniform) {
-    if(_widths_x.size() != _num_x || _widths_y.size() != _num_y ||
+  if (_non_uniform) {
+    if (_widths_x.size() != _num_x || _widths_y.size() != _num_y ||
         _widths_z.size() != _num_z)
       log_printf(ERROR,"The sizes of non-uniform mesh widths are not consistent"
                  " with the sizes of filling Universes into Lattice");
@@ -2254,17 +2256,17 @@ void Lattice::computeSizes(){
     _widths_z.resize(_num_z, _width_z);
   }
 
-  
+  /* Compute the accumulated lengths along each axis */
   _accumulate_x.resize(_num_x+1,0.0);
   _accumulate_y.resize(_num_y+1,0.0);
   _accumulate_z.resize(_num_z+1,0.0);
-  
+
   for(int i=0; i<_num_x; i++)
     _accumulate_x[i+1] = _accumulate_x[i] + _widths_x[i];
-  
+
   for(int i=0; i<_num_y; i++)
     _accumulate_y[i+1] = _accumulate_y[i] + _widths_y[i];  
-  
+
   for(int i=0; i<_num_z; i++)
     _accumulate_z[i+1] = _accumulate_z[i] + _widths_z[i];  
 }
@@ -2289,7 +2291,7 @@ void Lattice::printLatticeSizes() {
   for(i=0; i<_num_z; i++)
     printf("i=%d, %f; ",i, _widths_z[i]);
   printf("\n");
-  
+
   printf("accumulates_XYZ:\n");
   for(i=0; i<_num_x+1; i++)
     printf("i=%d, %f; ",i, _accumulate_x[i]);

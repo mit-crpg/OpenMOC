@@ -708,7 +708,7 @@ void TrackGenerator::checkBoundaryConditions() {
  *          Points, azimuthal angle, and azimuthal angle quadrature weight.
  */
 void TrackGenerator::generateTracks() {
-    
+
   /* Start recording track generation time */
   _timer->startTimer();
 
@@ -782,7 +782,7 @@ void TrackGenerator::generateTracks() {
     log_printf(ERROR, "Unable to allocate memory needed to generate "
                "Tracks. Backtrace:\n%s", e.what());
   }
-  
+
   /* Stop recording track generation time and print */
 #ifdef MPIx
   if (_geometry->isDomainDecomposed())

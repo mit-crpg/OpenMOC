@@ -1779,7 +1779,7 @@ void Geometry::subdivideCells() {
 void Geometry::initializeFlatSourceRegions() {
 
   log_printf(NORMAL, "Initializing flat source regions...");
-    
+
   /* Subdivide Cells into sectors and rings */
   subdivideCells();
 
@@ -2501,7 +2501,6 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
 
   /* Re-order FSR IDs so they are sequential in the axial direction */
   reorderFSRIDs();
-
   log_printf(NORMAL, "Finished initializing 3D FSRs");
 }
 
@@ -2822,9 +2821,9 @@ std::string Geometry::toString() {
  *          Surfaces, Cell, Universes and Lattices contained by the Geometry.
  */
 void Geometry::printString() {
-  log_printf(RESULT, toString().c_str());
+  log_printf(RESULT, "%s", toString().c_str());
 }
-  
+
 
 /**
  * @brief Prints FSR layout to file
@@ -4140,7 +4139,7 @@ void Geometry::loadFromFile(std::string filename, bool non_uniform_lattice,
         ret = twiddleRead(&widths_y[0], sizeof(double), num_y, in);
         ret = twiddleRead(&widths_z[0], sizeof(double), num_z, in);
       }
-     
+
       /* Create lattice */
       Lattice* new_lattice = new Lattice(id, name);
       all_universes[key] = new_lattice;
@@ -4153,7 +4152,7 @@ void Geometry::loadFromFile(std::string filename, bool non_uniform_lattice,
       }
       else
         new_lattice->setWidth(width_x, width_y, width_z);
-      
+
       new_lattice->setNonUniform(non_uniform);
       new_lattice->setOffset(offset[0], offset[1], offset[2]);
 

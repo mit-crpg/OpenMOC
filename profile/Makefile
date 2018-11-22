@@ -2,13 +2,13 @@
 # User Options
 #===============================================================================
 
-COMPILER    	 ?= mpi
-OPENMP      	 ?= yes
-OPTIMIZE    	 ?= yes
-DEBUG       	 ?= no
-PROFILE     	 ?= no
-PRECISION   	 ?= double
-CMFD_PRECISION ?= double
+COMPILER       ?= mpi
+OPENMP         ?= yes
+OPTIMIZE       ?= yes
+DEBUG          ?= no
+PROFILE        ?= no
+PRECISION      ?= single
+CMFD_PRECISION ?= single
 
 #===============================================================================
 # Source Code List
@@ -27,7 +27,9 @@ CMFD_PRECISION ?= double
 #case = models/simple-lattice/simple-lattice-3d.cpp
 #case = models/homogeneous/homogeneous.cpp
 #case = models/non-uniform-lattice/non-uniform-lattice.cpp
-case ?= models/run_time_standard/run_time_standard.cpp
+#case ?= models/run_time_standard/run_time_standard.cpp
+case ?= models/assembly_5/load-assembly.cpp
+#case ?= models/core_2/load-core.cpp
 
 source = \
 Cell.cpp \
@@ -182,10 +184,10 @@ CFLAGS += -DVEC_ALIGNMENT=16
 # Optimization Flags
 ifeq ($(OPTIMIZE),yes)
 ifeq ($(COMPILER),gnu)
-  CFLAGS += -O3 -ffast-math -fpic
+  CFLAGS += -O3 -ffast-math -fpic -march=native
 endif
 ifeq ($(COMPILER),mpi)
-  CFLAGS += -O3 -ffast-math -fpic
+  CFLAGS += -O3 -ffast-math -fpic -march=native
 endif
 ifeq ($(COMPILER),intel)
   CFLAGS += -O3 -xhost -fast -ansi-alias -no-prec-div -ipo
