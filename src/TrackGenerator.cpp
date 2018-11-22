@@ -18,7 +18,7 @@ TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
   _contains_2D_tracks = false;
   _contains_2D_segments = false;
   _quadrature = NULL;
-  _z_coord = 0.0;
+  _z_coord = 0;
   _segment_formation = EXPLICIT_2D;
   _max_optical_length = std::numeric_limits<FP_PRECISION>::max();
   _max_num_segments = 0;
@@ -413,6 +413,28 @@ void TrackGenerator::setNumThreads(int num_threads) {
   omp_set_num_threads(_num_threads);
   if (_geometry != NULL)
     _geometry->reserveKeyStrings(num_threads);
+
+  /* Print CPU assignments, useful for NUMA where by-socket is the preferred
+   * CPU grouping */
+  std::vector<int> cpus;
+  cpus.reserve(num_threads);
+#pragma omp parallel for schedule(static,1)
+  for (int i=0; i<num_threads; i++)
+    cpus.push_back(sched_getcpu());
+  std::stringstream str_cpus;
+  for (int i=0; i<cpus.size(); i++)
+      str_cpus << cpus.at(i) << " ";
+
+  /* Get rank of process */
+  int rank = 0;
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed())
+    MPI_Comm_rank(_MPI_cart, &rank);
+#endif
+
+  if (num_threads > 1)
+    log_printf(NODAL, "CPUs on rank %d process: %s", rank, 
+               str_cpus.str().c_str());
 }
 
 

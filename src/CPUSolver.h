@@ -122,9 +122,8 @@ public:
   void computeFSRFissionRates(double* fission_rates, long num_FSRs);
   void printInputParamsSummary();
 
-  void tallyScalarFlux(segment* curr_segment, int azim_index,
-                               int polar_index, float* track_flux,
-                               FP_PRECISION* fsr_flux);
+  virtual void tallyScalarFlux(segment* curr_segment, int azim_index,
+                               int polar_index, float* track_flux);
 
   void tallyCurrent(segment* curr_segment, int azim_index,
                             int polar_index, float* track_flux,

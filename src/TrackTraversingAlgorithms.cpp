@@ -794,29 +794,6 @@ TransportSweep::TransportSweep(CPUSolver* cpu_solver)
   TrackGenerator* track_generator = cpu_solver->getTrackGenerator();
   _geometry = _track_generator->getGeometry();
 
-  /* Determine size of temporary storage for FSR fluxes */
-  int num_threads = omp_get_max_threads();
-  int num_groups = _geometry->getNumEnergyGroups();
-  int size;
-  if (_ls_solver != NULL)
-    size = 4 * num_groups;
-  else
-    size = num_groups;
-
-  /* Pad the buffer to prevent false sharing */
-  size += 8;
-
-  /* Allocate temporary storage of FSR fluxes */
-  _thread_fsr_fluxes = new FP_PRECISION*[num_threads];
-  for (int i=0; i < num_threads; i++)
-    _thread_fsr_fluxes[i] = new FP_PRECISION[size];
-
-  /* Allocate scratch pad for each thread */
-  int scratch_pad_size = 5 * num_groups + 8;
-  _thread_scratch_pads = new FP_PRECISION*[num_threads];
-  for (int i=0; i < num_threads; i++)
-    _thread_scratch_pads[i] = new FP_PRECISION[scratch_pad_size];
-
 }
 
 
@@ -824,13 +801,6 @@ TransportSweep::TransportSweep(CPUSolver* cpu_solver)
  * @brief Destructor for the TransportSweep.
  */
 TransportSweep::~TransportSweep() {
-  int num_threads = omp_get_max_threads();
-  for (int i=0; i < num_threads; i++) {
-    delete [] _thread_fsr_fluxes[i];
-    delete [] _thread_scratch_pads[i];
-  }
-  delete [] _thread_fsr_fluxes;
-  delete [] _thread_scratch_pads;
 }
 
 
@@ -863,8 +833,6 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
 
   /* Get the temporary FSR flux */
   int tid = omp_get_thread_num();
-  FP_PRECISION* thread_fsr_flux = _thread_fsr_fluxes[tid];
-  FP_PRECISION* thread_scratch_pad = _thread_scratch_pads[tid];
 
   /* Extract Track information */
   long track_id = track->getUid();
@@ -915,11 +883,10 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     /* Apply MOC equations */
     if (_ls_solver == NULL)
       _cpu_solver->tallyScalarFlux(curr_segment, azim_index, polar_index,
-                                   track_flux, thread_fsr_flux);
+                                   track_flux);
     else
       _ls_solver->tallyLSScalarFlux(curr_segment, azim_index, polar_index,
-                                    track_flux, thread_fsr_flux,
-                                    thread_scratch_pad, direction);
+                                    track_flux, direction);
 
     /* Tally the current for CMFD */
     _cpu_solver->tallyCurrent(curr_segment, azim_index, polar_index,
@@ -948,11 +915,10 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     /* Apply MOC equations */
     if (_ls_solver == NULL)
       _cpu_solver->tallyScalarFlux(curr_segment, azim_index, polar_index,
-                                   track_flux, thread_fsr_flux);
+                                   track_flux);
     else
       _ls_solver->tallyLSScalarFlux(curr_segment, azim_index, polar_index,
-                                    track_flux, thread_fsr_flux,
-                                    thread_scratch_pad, direction);
+                                    track_flux, direction);
 
 
     /* Tally the current for CMFD */

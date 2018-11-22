@@ -342,15 +342,11 @@ void CPULSSolver::computeFSRSources(int iteration) {
  * @param azim_index azimuthal angle index for this 3D Track
  * @param polar_index polar angle index for this 3D Track
  * @param track_flux a pointer to the Track's angular flux
- * @param fsr_flux a pointer to the temporary FSR flux buffer
- * @param scratch_pad a pointer to an empty array of size 4 * _num_groups
  * @param direction the segment's direction
  */
 void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
                                     int polar_index,
                                     float* track_flux,
-                                    FP_PRECISION* fsr_flux,
-                                    FP_PRECISION* scratch_pad,
                                     FP_PRECISION direction[3]) {
 
   long fsr_id = curr_segment->_region_id;
@@ -362,8 +358,11 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   long start_scalar_idx = fsr_id * _num_groups;
   long start_linear_idx = start_scalar_idx * 3;
 
-  /* Set the FSR scalar flux buffer to zero */
-  memset(fsr_flux, 0.0, _num_groups * 4 * sizeof(FP_PRECISION));
+  /* Allocate a temporary flux buffer on the stack (free) and initialize it */
+  FP_PRECISION fsr_flux[4 * _num_groups] = {0.0};
+
+  /* Allocate a scratch_pad for exponentials and sources */
+  FP_PRECISION scratch_pad[5 * _num_groups];
 
   if (_solve_3D) {
 

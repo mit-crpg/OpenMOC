@@ -77,8 +77,7 @@ public:
   void checkLimitXS(int iteration);
 
   void tallyLSScalarFlux(segment* curr_segment, int azim_index, int polar_index,
-                         float* track_flux, FP_PRECISION* fsr_flux,
-                         FP_PRECISION* scratch_pad, FP_PRECISION direction[3]);
+                         float* track_flux, FP_PRECISION direction[3]);
 
   FP_PRECISION getFluxByCoords(LocalCoords* coords, int group);
   void initializeLinearSourceConstants();
