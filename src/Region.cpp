@@ -282,7 +282,7 @@ double Region::getMinZ() {
   else if(_region_type == UNION)
     min_z = +std::numeric_limits<double>::infinity();
   else if(_region_type == COMPLEMENT) {
-    log_printf(WARNING, "getMinZ() is not implemented for complement regions,"
+    log_printf(DEBUG, "getMinZ() is not implemented for complement regions,"
                " min z of region complemented returned.");
     min_z = -std::numeric_limits<double>::infinity();
   }
@@ -313,7 +313,7 @@ double Region::getMaxZ() {
   else if(_region_type == UNION)
     max_z = -std::numeric_limits<double>::infinity();
   else if(_region_type == COMPLEMENT) {
-    log_printf(WARNING, "getMaxZ() is not implemented for complement regions,"
+    log_printf(DEBUG, "getMaxZ() is not implemented for complement regions,"
                " max z of region complemented returned.");
     max_z = +std::numeric_limits<double>::infinity();
   }

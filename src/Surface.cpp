@@ -496,7 +496,7 @@ std::string Plane::toString() {
   string << "Surface ID = " << _id
          << ", name = " << _name
          << ", type = PLANE "
-         << ", A = " << _A << ", B = " << _B << ", C = " << _C << ", D = " << _D;;
+         << ", A = " << _A << ", B = " << _B << ", C = " << _C << ", D = " << _D;
 
   return string.str();
 }

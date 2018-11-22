@@ -1622,10 +1622,19 @@ void Solver::printTimerReport() {
   }
 #endif
 
+  int num_ranks = 1;
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed()) {
+    MPI_Comm MPI_cart = _geometry->getMPICart();
+    MPI_Comm_size(MPI_cart, &num_ranks);
+  }
+#endif
+
   long num_integrations = 2 * _fluxes_per_track * total_num_segments *
       _num_iterations;
-  double time_per_integration = (transport_sweep / num_integrations);
-  msg_string = "Integration time per segment integration";
+  double time_per_integration = (transport_sweep / num_integrations * 
+                                 (omp_get_max_threads() * num_ranks));
+  msg_string = "Integration time per segment-group by thread";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_integration);
 

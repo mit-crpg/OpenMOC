@@ -127,7 +127,7 @@ protected:
 
   /** Private class methods */
   virtual void initializeTracks();
-  virtual void initializeTrackReflections();
+  void initializeTrackReflections();
   virtual void segmentize();
   virtual void setContainsSegments(bool contains_segments);
   virtual void allocateTemporarySegments();
@@ -153,7 +153,7 @@ public:
   void countSegments();
   bool getPeriodic();
   Track** get2DTracksArray();
-  virtual Track** getTracksArray();
+  Track** getTracksArray();
   Track** get2DTracks();
   FP_PRECISION getMaxOpticalLength();
   int getMaxNumSegments();
@@ -179,7 +179,7 @@ public:
   void setNumThreads(int num_threads);
   void setNumAzim(int num_azim);
   void setDesiredAzimSpacing(double spacing);
-  virtual void setGeometry(Geometry* geometry);
+  void setGeometry(Geometry* geometry);
   void setZCoord(double z_coord);
   void setQuadrature(Quadrature* quadrature);
   void setMaxOpticalLength(FP_PRECISION tau);
@@ -198,7 +198,7 @@ public:
   void dumpSegmentsToFile();
   bool readSegmentsFromFile();
   void initializeTrackFileDirectory();
-  virtual void initializeTracksArray();
+  void initializeTracksArray();
   virtual void checkBoundaryConditions();
 };
 

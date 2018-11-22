@@ -1283,7 +1283,7 @@ void Cell::sectorize(std::vector<Cell*>& subcells) {
   /* A container for each of the bounding planes for the sector Cells */
   std::vector<Plane*> planes;
 
-  log_printf(DEBUG, "Sectorizing Cell %d with %d sectors",_id, _num_sectors);
+  log_printf(DEBUG, "Sectorizing Cell %d with %d sectors", _id, _num_sectors);
 
   /* Create each of the bounding planes for the sector Cells */
   for (int i=0; i < _num_sectors; i++) {
@@ -1316,7 +1316,7 @@ void Cell::sectorize(std::vector<Cell*>& subcells) {
     if (_num_sectors != 2) {
       /* Add new bounding planar Surfaces to the clone */
       sector->addSurface(+1, planes.at(i));
-      
+
       if (i+1 < _num_sectors)
         sector->addSurface(-1, planes.at(i+1));
       else
@@ -1631,7 +1631,7 @@ std::string Cell::toString() {
   std::map<int, Halfspace*> _surfaces = getSurfaces();
   string << ", Surfaces: ";
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    string <<  std::showpos << "\nhalfspace = " << iter->second->_halfspace 
+    string << std::showpos << "\nhalfspace = " << iter->second->_halfspace 
            << ", " << iter->second->_surface->toString();
 
   return string.str();
