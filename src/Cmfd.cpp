@@ -1118,7 +1118,8 @@ void Cmfd::constructMatrices(int moc_iteration) {
         /* Scattering gain from all groups */
         for (int g = 0; g < _num_cmfd_groups; g++) {
           value = - material->getSigmaSByGroup(g+1, e+1) * volume;
-          _A->incrementValue(i, g, i, e, value);
+          //if (std::abs(value) > FLT_EPSILON)
+            _A->incrementValue(i, g, i, e, value);
         }
 
         /* Streaming to neighboring cells */
@@ -1167,7 +1168,8 @@ void Cmfd::constructMatrices(int moc_iteration) {
         for (int g = 0; g < _num_cmfd_groups; g++) {
           value = material->getChiByGroup(e+1)
               * material->getNuSigmaFByGroup(g+1) * volume;
-          _M->incrementValue(i, g, i, e, value);
+          //if (std::abs(value) > FLT_EPSILON)
+            _M->incrementValue(i, g, i, e, value);
         }
       }
     }
@@ -1224,9 +1226,11 @@ void Cmfd::updateMOCFlux() {
 
           /* Update flux moments if they were set */
           if (_linear_source) {
-            _flux_moments[(*iter)*3*_num_moc_groups + h*3] *= update_ratio;
-            _flux_moments[(*iter)*3*_num_moc_groups + h*3 + 1] *= update_ratio;
-            _flux_moments[(*iter)*3*_num_moc_groups + h*3 + 2] *= update_ratio;
+            _flux_moments[(*iter)*3*_num_moc_groups + h] *= update_ratio;
+            _flux_moments[(*iter)*3*_num_moc_groups + 1*_num_moc_groups + h]
+                 *= update_ratio;
+            _flux_moments[(*iter)*3*_num_moc_groups + 2*_num_moc_groups + h] 
+                 *= update_ratio;
           }
 
           log_printf(DEBUG, "Updating flux in FSR: %d, cell: %d, MOC group: "
@@ -3444,7 +3448,7 @@ void Cmfd::initializeLattice(Point* offset) {
   
   if(fabs(_width_x - _accumulate_x[_num_x]) > FLT_EPSILON ||
      fabs(_width_y - _accumulate_y[_num_y]) > FLT_EPSILON ||
-     fabs(_width_z - _accumulate_z[_num_z]) > FLT_EPSILON)
+     (_num_z > 1 && fabs(_width_z - _accumulate_z[_num_z]) > FLT_EPSILON))
     log_printf(ERROR, "The sum of non-uniform mesh widths are not consistent "
       "with geometry dimensions. width_x = %20.17E, width_y = %20.17E, " 
       "width_z = %20.17E, sum_x = %20.17E, sum_y = %20.17E, sum_z = %20.17E, "

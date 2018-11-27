@@ -15,7 +15,7 @@ ExpEvaluator::ExpEvaluator() {
   _sin_theta_no_offset = 0.0;
   _inverse_sin_theta_no_offset = 0.0;
   _linear_source = false;
-  _num_exp_terms = 3;
+  _num_exp_terms = 2;
   _azim_index = 0;
   _polar_index = 0;
   _num_polar_terms = 0;
@@ -96,7 +96,7 @@ void ExpEvaluator::useIntrinsic() {
  */
 void ExpEvaluator::useLinearSource() {
   _linear_source = true;
-  _num_exp_terms = 9;
+  _num_exp_terms = 6;
 }
 
 
@@ -226,7 +226,7 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
   int num_array_values = _max_optical_length * sqrt(1. / (8. * _exp_precision));
 
   /* Adjust for quadratic interpolation */
-  num_array_values /= 4;
+  //num_array_values /= 4;
 
   if (num_array_values < MIN_EXP_INTERP_POINTS)
     num_array_values = MIN_EXP_INTERP_POINTS;
@@ -296,7 +296,7 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
       
       _exp_table[index] = exp_const_1;
       _exp_table[index+1] = exp_const_2;
-      _exp_table[index+2] = exp_const_3;
+      //_exp_table[index+2] = exp_const_3;
 
       if (_linear_source) {
 
@@ -316,7 +316,7 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
         
         _exp_table[index+3] = exp_const_1;
         _exp_table[index+4] = exp_const_2;
-        _exp_table[index+5] = exp_const_3;
+        //_exp_table[index+5] = exp_const_3;
 
         /* Compute H */
         if (tau_a < 0.01) {
@@ -334,7 +334,7 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
         }
         _exp_table[index+6] = exp_const_1;
         _exp_table[index+7] = exp_const_2;
-        _exp_table[index+8] = exp_const_3;
+        //_exp_table[index+8] = exp_const_3;
       }
     }
   }

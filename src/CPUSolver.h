@@ -126,16 +126,15 @@ public:
   void computeFSRFissionRates(double* fission_rates, long num_FSRs);
   virtual void printInputParamsSummary();
 
-  virtual void tallyScalarFlux(segment* curr_segment, int azim_index,
-                               int polar_index, float* track_flux);
+  void tallyScalarFlux(segment* curr_segment, int azim_index, int polar_index,
+                       FP_PRECISION* fsr_flux, float* track_flux);
 
-  virtual void tallyCurrent(segment* curr_segment, int azim_index,
-                            int polar_index, float* track_flux,
-                            bool fwd);
+  void accumulateScalarFluxContribution(long fsr_id, FP_PRECISION* fsr_flux);
+  void tallyCurrent(segment* curr_segment, int azim_index, int polar_index,
+                    float* track_flux, bool fwd);
 
-  virtual void transferBoundaryFlux(Track* track, int azim_index,
-                                    int polar_index, bool direction,
-                                    float* track_flux);
+  void transferBoundaryFlux(Track* track, int azim_index, int polar_index,
+                            bool direction, float* track_flux);
 
   virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
 

@@ -3816,7 +3816,7 @@ void Geometry::loadFromFile(std::string filename, bool non_uniform_lattice,
   ret = twiddleRead(&num_materials, sizeof(int), 1, in);
   for (int i=0; i < num_materials; i++) {
 
-    /* Get key, value pair and general surface information */
+    /* Get key, value pair and cross section information */
     int key, id;
     int length;
     char* str;

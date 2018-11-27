@@ -251,9 +251,12 @@ void CPUSolver::initializeFluxArrays() {
     log_printf(NORMAL, "Max boundary angular flux storage per domain = %6.2f "
                "MB", max_size_mb);
 
-    _boundary_flux = new float[size];
+    _boundary_flux = new float[size]();
+    //int aligned_size = 2 * _tot_num_tracks * _num_groups_aligned;
+    //_boundary_flux = (FP_PRECISION*) aligned_alloc(VEC_ALIGNMENT, aligned_size*sizeof(FP_PRECISION));
+
     _start_flux = new float[size];
-    memset(_boundary_flux, 0., size * sizeof(float));
+    //memset(_boundary_flux, 0., aligned_size * sizeof(float));
     memset(_start_flux, 0., size * sizeof(float));
 
     /* Allocate memory for boundary leakage if necessary. CMFD is not set in
@@ -284,9 +287,11 @@ void CPUSolver::initializeFluxArrays() {
                max_size_mb);
 
     /* Allocate scalar fluxes */
-    _scalar_flux = new FP_PRECISION[size];
+    _scalar_flux = new FP_PRECISION[size]();
+    //aligned_size = _num_FSRs * _num_groups_aligned;
+    //_scalar_flux = (FP_PRECISION*) aligned_alloc(VEC_ALIGNMENT, aligned_size*sizeof(FP_PRECISION));
     _old_scalar_flux = new FP_PRECISION[size];
-    memset(_scalar_flux, 0., size * sizeof(FP_PRECISION));
+    //memset(_scalar_flux, 0., aligned_size * sizeof(FP_PRECISION));
     memset(_old_scalar_flux, 0., size * sizeof(FP_PRECISION));
 
     /* Allocate stabilizing flux vector if necessary */
@@ -324,8 +329,11 @@ void CPUSolver::initializeSourceArrays() {
   long size = _num_FSRs * _num_groups;
 
   /* Allocate memory for all source arrays */
-  _reduced_sources = new FP_PRECISION[size];
+  _reduced_sources = new FP_PRECISION[size]();
   _fixed_sources = new FP_PRECISION[size];
+  //int aligned_size = _num_FSRs * _num_groups_aligned;
+  //_reduced_sources = (FP_PRECISION*) aligned_alloc(VEC_ALIGNMENT, aligned_size*sizeof(FP_PRECISION));
+  //memset(_reduced_sources, 0., aligned_size * sizeof(FP_PRECISION));
 
   long max_size = size;
 #ifdef MPIX
@@ -1358,9 +1366,13 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
 
 #pragma omp parallel for schedule(guided)
   for (long r=0; r < _num_FSRs; r++) {
+    // Check if fissionable
+    //Material* mat = _geometry->findFSRMaterial(r);
+    //if (mat->isFissionable() ){
     for (int e=0; e < _num_groups; e++)
       _scalar_flux(r,e) = value;
   }
+ //}
 }
 
 
@@ -1837,6 +1849,7 @@ void CPUSolver::transportSweep() {
  */
 void CPUSolver::tallyScalarFlux(segment* curr_segment,
                                 int azim_index, int polar_index,
+                                FP_PRECISION* __restrict__ fsr_flux,
                                 float* track_flux) {
 
   long fsr_id = curr_segment->_region_id;
@@ -1846,14 +1859,11 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   /* The change in angular flux along this Track segment in the FSR */
   ExpEvaluator* exp_evaluator = _exp_evaluators[azim_index][polar_index];
 
-  /* Allocate a temporary flux buffer on the stack (free) and initialize it */
-  FP_PRECISION fsr_flux[_num_groups] = {0.0};
-
   if (_solve_3D) {
 
     FP_PRECISION length_2D = exp_evaluator->convertDistance3Dto2D(length);
 
-#pragma omp simd
+#pragma omp simd aligned(sigma_t, fsr_flux)
     for (int e=0; e < _num_groups; e++) {
 
       FP_PRECISION tau = sigma_t[e] * length_2D;
@@ -1878,7 +1888,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
       FP_PRECISION track_weight = _quad->getWeightInline(azim_index, p);
 
       /* Loop over energy groups */
-#pragma omp simd
+#pragma omp simd aligned(sigma_t, fsr_flux)
       for (int e=0; e < _num_groups; e++) {
 
         FP_PRECISION tau = sigma_t[e] * length;
@@ -1893,13 +1903,30 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
       }
     }
   }
+}
 
-  /* Atomically increment the FSR scalar flux from the temporary array */
+
+/**
+ * @brief Move the track(s)' contributions to the scalar flux from the buffer
+ * to the global scalar flux array.
+ * @param fsr_id the id of the fsr
+ * @param fsr_flux the buffer containing the track(s)' contributions
+ */
+void CPUSolver::accumulateScalarFluxContribution(long fsr_id,
+                                         FP_PRECISION* __restrict__ fsr_flux) {
+
+  // Atomically increment the FSR scalar flux from the temporary array
   omp_set_lock(&_FSR_locks[fsr_id]);
-#pragma omp simd
-    for (int e=0; e < _num_groups; e++)
-      _scalar_flux(fsr_id,e) += fsr_flux[e];
+
+  // Add to global scalar flux vector
+#pragma omp simd aligned(fsr_flux)
+  for (int e=0; e < _num_groups; e++)
+    _scalar_flux(fsr_id,e) += fsr_flux[e];
+
   omp_unset_lock(&_FSR_locks[fsr_id]);
+
+  /* Reset buffers */
+  memset(fsr_flux, 0., _num_groups * sizeof(FP_PRECISION));
 }
 
 
@@ -1907,7 +1934,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
  * @brief Tallies the current contribution from this segment across the
  *        the appropriate CMFD mesh cell surface.
  * @param curr_segment a pointer to the Track segment of interest
- * @param azim_index the azimuthal index for this segmenbt
+ * @param azim_index the azimuthal index for this segment
  * @param polar_index the polar index for this segmenbt
  * @param track_flux a pointer to the Track's angular flux
  * @param fwd boolean indicating direction of integration along segment
@@ -1964,14 +1991,12 @@ void CPUSolver::transferBoundaryFlux(Track* track,
   /* Determine if flux should be transferred */
   if (bc_out == REFLECTIVE || bc_out == PERIODIC) {
     float* track_out_flux = &_start_flux(track_out_id, 0, start_out);
-    for (int pe=0; pe < _fluxes_per_track; pe++)
-      track_out_flux[pe] = track_flux[pe];
+    memcpy(track_out_flux, track_flux, _fluxes_per_track * sizeof(float));
   }
   if (bc_in == VACUUM) {
     long track_id = track->getUid();
     float* track_in_flux = &_start_flux(track_id, !direction, 0);
-    for (int pe=0; pe < _fluxes_per_track; pe++)
-      track_in_flux[pe] = 0.0;
+    memset(track_in_flux, 0.0, _fluxes_per_track * sizeof(float));
   }
 
   /* Tally leakage if applicable */

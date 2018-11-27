@@ -121,7 +121,7 @@ public:
  * @return the index on the exponential interpolation grid
  */
 inline int ExpEvaluator::getExponentialIndex(FP_PRECISION tau) {
-  return floor(tau * _inverse_exp_table_spacing);
+  return int(tau * _inverse_exp_table_spacing);
 }
 
 
@@ -194,8 +194,8 @@ inline FP_PRECISION ExpEvaluator::computeExponentialF1(int index,
   int full_index = (index * _num_polar_terms + polar_offset) * _num_exp_terms;
 
   //if (_interpolate) {
-    return _exp_table[full_index] + _exp_table[full_index + 1] * dt +
-        _exp_table[full_index + 2] * dt2;
+    return _exp_table[full_index] + _exp_table[full_index + 1] * dt;
+        //_exp_table[full_index + 2] * dt2;
   //}
   //else {
   //  int polar_index = _polar_index + polar_offset;
@@ -234,8 +234,8 @@ inline FP_PRECISION ExpEvaluator::computeExponentialF2(int index,
   int full_index = (index * _num_polar_terms + polar_offset) * _num_exp_terms;
 
   if (_interpolate)
-    return _exp_table[full_index + 3] + _exp_table[full_index + 4] * dt +
-        _exp_table[full_index + 5] * dt2;
+    return _exp_table[full_index + 3] + _exp_table[full_index + 4] * dt; //+
+        //_exp_table[full_index + 5] * dt2;
   else {
 
     int polar_index = _polar_index + polar_offset;
@@ -319,12 +319,12 @@ inline void ExpEvaluator::retrieveExponentialComponents(FP_PRECISION tau,
     FP_PRECISION dt2 = dt * dt;
     int full_index = (exp_index * _num_polar_terms + polar_offset)
       * _num_exp_terms;
-    *exp_F1 = _exp_table[full_index] + _exp_table[full_index + 1] * dt +
-        _exp_table[full_index + 2] * dt2;
-    *exp_F2 = _exp_table[full_index + 3] + _exp_table[full_index + 4] * dt +
-        _exp_table[full_index + 5] * dt2;
-    *exp_H = _exp_table[full_index + 6] + _exp_table[full_index + 7] * dt +
-        _exp_table[full_index + 8] * dt2;
+    *exp_F1 = _exp_table[full_index] + _exp_table[full_index + 1] * dt;
+        //_exp_table[full_index + 2] * dt2;
+    *exp_F2 = _exp_table[full_index + 2] + _exp_table[full_index + 3] * dt;
+        //_exp_table[full_index + 5] * dt2;
+    *exp_H = _exp_table[full_index + 4] + _exp_table[full_index + 5] * dt;
+        //_exp_table[full_index + 8] * dt2;
   //}
   //else {
   //  int polar_index = _polar_index + polar_offset;

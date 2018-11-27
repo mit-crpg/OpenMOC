@@ -584,8 +584,8 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
       for (int p = 0; p < _num_polar/2; p++) {
         for (int e=0; e < _num_moc_groups; e++) {
 
-        /* Get the CMFD group */
-        cmfd_group = getCmfdGroup(e);
+          /* Get the CMFD group */
+          cmfd_group = getCmfdGroup(e);
 
           currents[cmfd_group] += track_flux[pe]
               * _quadrature->getWeightInline(azim_index, p);
