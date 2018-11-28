@@ -510,6 +510,12 @@ void CPULSSolver::accumulateLinearFluxContribution(long fsr_id,
   }
 
   omp_unset_lock(&_FSR_locks[fsr_id]);
+
+  /* Reset buffers to 0 */
+  memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
+  memset(fsr_flux_x, 0.0, _num_groups * sizeof(FP_PRECISION));
+  memset(fsr_flux_y, 0.0, _num_groups * sizeof(FP_PRECISION));
+  memset(fsr_flux_z, 0.0, _num_groups * sizeof(FP_PRECISION));
 }
 
 

@@ -93,7 +93,7 @@ non-uniform-lattice/non-uniform-lattice.cpp \
 # Sets Flags
 #===============================================================================
 
-CFLAGS = -std=gnu++0x
+CFLAGS = -std=gnu++0x -fprofile-generate
 
 # Regular gcc Compiler
 ifeq ($(COMPILER),gnu)
@@ -160,10 +160,10 @@ ifeq ($(PRECISION),double)
 endif
 
 ifeq ($(CMFD_PRECISION),single)
-  CFLAGS += -DCMFD_PRECISION=float
+  CFLAGS += -DCMFD_PRECISION=float -DLINALG_TOL=1E-7
 endif
 ifeq ($(CMFD_PRECISION),double)
-  CFLAGS += -DCMFD_PRECISION=double
+  CFLAGS += -DCMFD_PRECISION=double -DLINALG_TOL=1E-15
 endif
 
 # Vector Flags

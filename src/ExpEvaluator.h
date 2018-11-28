@@ -233,9 +233,9 @@ inline FP_PRECISION ExpEvaluator::computeExponentialF2(int index,
   /* Calculate full index */
   int full_index = (index * _num_polar_terms + polar_offset) * _num_exp_terms;
 
-  if (_interpolate)
-    return _exp_table[full_index + 3] + _exp_table[full_index + 4] * dt; //+
-        //_exp_table[full_index + 5] * dt2;
+  if (_interpolate)  //FIXME Indexing is quadratic
+    return _exp_table[full_index + 3] + _exp_table[full_index + 4] * dt +
+        _exp_table[full_index + 5] * dt2;
   else {
 
     int polar_index = _polar_index + polar_offset;
@@ -275,7 +275,7 @@ inline FP_PRECISION ExpEvaluator::computeExponentialH(int index,
   /* Calculate full index */
   int full_index = (index * _num_polar_terms + polar_offset) * _num_exp_terms;
 
-  if (_interpolate)
+  if (_interpolate)  //FIXME Indexing is quadratic
     return _exp_table[full_index + 6] + _exp_table[full_index + 7] * dt +
         _exp_table[full_index + 8] * dt2;
   else {
@@ -314,9 +314,11 @@ inline void ExpEvaluator::retrieveExponentialComponents(FP_PRECISION tau,
                                                         FP_PRECISION* exp_H) {
   //if (_interpolate) {
 
+    __builtin_assume_aligned(_exp_table, VEC_ALIGNMENT);
+
     int exp_index = getExponentialIndex(tau);
     FP_PRECISION dt = getDifference(exp_index, tau);
-    FP_PRECISION dt2 = dt * dt;
+    //FP_PRECISION dt2 = dt * dt;
     int full_index = (exp_index * _num_polar_terms + polar_offset)
       * _num_exp_terms;
     *exp_F1 = _exp_table[full_index] + _exp_table[full_index + 1] * dt;

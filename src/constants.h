@@ -71,7 +71,7 @@
 #define MIN_LINALG_POWER_ITERATIONS 25
 #define MAX_LINALG_POWER_ITERATIONS 25000
 
-#define MIN_LINALG_TOLERANCE double(1E-15)
+#define MIN_LINALG_TOLERANCE LINALG_TOL
 
 /** The maximum number of iterations allowed for a linear solve in linalg.cpp */
 #define MIN_LINEAR_SOLVE_ITERATIONS 25

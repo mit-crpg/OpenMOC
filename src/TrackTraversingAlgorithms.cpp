@@ -878,10 +878,14 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
 #ifndef NGROUPS
   int _num_groups = _track_generator->getGeometry()->getNumEnergyGroups();
 #endif
-  FP_PRECISION fsr_flux[_num_groups] = {0.0};
-  FP_PRECISION fsr_flux_x[_num_groups] = {0.0};
-  FP_PRECISION fsr_flux_y[_num_groups] = {0.0};
-  FP_PRECISION fsr_flux_z[_num_groups] = {0.0};
+  FP_PRECISION fsr_flux[_num_groups] __attribute__
+       ((aligned (VEC_ALIGNMENT))) = {0.0};
+  FP_PRECISION fsr_flux_x[_num_groups] __attribute__
+       ((aligned (VEC_ALIGNMENT))) = {0.0};
+  FP_PRECISION fsr_flux_y[_num_groups] __attribute__
+       ((aligned (VEC_ALIGNMENT))) = {0.0};
+  FP_PRECISION fsr_flux_z[_num_groups] __attribute__
+       ((aligned (VEC_ALIGNMENT))) = {0.0};
 
   /* Loop over each Track segment in forward direction */
   for (int s=0; s < num_segments; s++) {
@@ -899,7 +903,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     else
       _ls_solver->tallyLSScalarFlux(curr_segment, azim_index, polar_index,
                                     fsr_flux, fsr_flux_x, fsr_flux_y, 
-                                    fsr_flux_z,track_flux, direction);
+                                    fsr_flux_z, track_flux, direction);
 
     /* Accumulate contribution of segments to scalar flux before changing fsr */
     if (s < num_segments - 1 && fsr_id != (&segments[s+1])->_region_id) {
@@ -942,10 +946,10 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     else
       _ls_solver->tallyLSScalarFlux(curr_segment, azim_index, polar_index,
                                     fsr_flux, fsr_flux_x, fsr_flux_y, 
-                                    fsr_flux_z,track_flux, direction);
+                                    fsr_flux_z, track_flux, direction);
 
     /* Accumulate contribution of segments to scalar flux before changing fsr */
-    if (((s > 0) && (fsr_id != (&segments[s-1])->_region_id)) || (s == 0)) {
+    if (s > 0 && fsr_id != (&segments[s-1])->_region_id) {
       if (_ls_solver == NULL)
         _cpu_solver->accumulateScalarFluxContribution(fsr_id, fsr_flux);
       else
@@ -957,6 +961,14 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     _cpu_solver->tallyCurrent(curr_segment, azim_index, polar_index,
                               track_flux, false);
   }
+
+  /* Tally contribution for last segment */
+  long fsr_id = (&segments[0])->_region_id;
+  if (_ls_solver == NULL)
+    _cpu_solver->accumulateScalarFluxContribution(fsr_id, fsr_flux);
+  else
+    _ls_solver->accumulateLinearFluxContribution(fsr_id, fsr_flux, fsr_flux_x,
+                                                 fsr_flux_y, fsr_flux_z);
 
   /* Transfer boundary angular flux to outgoing Track */
   for (int i=0; i <= max_track_index; i++) {
