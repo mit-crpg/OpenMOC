@@ -878,13 +878,17 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
 #ifndef NGROUPS
   int _num_groups = _track_generator->getGeometry()->getNumEnergyGroups();
 #endif
-  FP_PRECISION fsr_flux[_num_groups] __attribute__
+  int num_polar = 1;
+  if (track_3D == NULL)
+    num_polar = _track_generator->getQuadrature()->getNumPolarAngles();
+
+  FP_PRECISION fsr_flux[_num_groups * num_polar] __attribute__
        ((aligned (VEC_ALIGNMENT))) = {0.0};
-  FP_PRECISION fsr_flux_x[_num_groups] __attribute__
+  FP_PRECISION fsr_flux_x[_num_groups * num_polar] __attribute__
        ((aligned (VEC_ALIGNMENT))) = {0.0};
-  FP_PRECISION fsr_flux_y[_num_groups] __attribute__
+  FP_PRECISION fsr_flux_y[_num_groups * num_polar] __attribute__
        ((aligned (VEC_ALIGNMENT))) = {0.0};
-  FP_PRECISION fsr_flux_z[_num_groups] __attribute__
+  FP_PRECISION fsr_flux_z[_num_groups * num_polar] __attribute__
        ((aligned (VEC_ALIGNMENT))) = {0.0};
 
   /* Loop over each Track segment in forward direction */

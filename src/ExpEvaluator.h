@@ -309,9 +309,13 @@ inline FP_PRECISION ExpEvaluator::computeExponentialH(int index,
  */
 inline void ExpEvaluator::retrieveExponentialComponents(FP_PRECISION tau,
                                                         int polar_offset,
-                                                        FP_PRECISION* exp_F1,
-                                                        FP_PRECISION* exp_F2,
-                                                        FP_PRECISION* exp_H) {
+                                                        FP_PRECISION* __restrict__ exp_F1,
+                                                        FP_PRECISION* __restrict__ exp_F2,
+                                                        FP_PRECISION* __restrict__ exp_H) {
+
+  __builtin_assume_aligned(exp_F1, VEC_ALIGNMENT);
+  __builtin_assume_aligned(exp_F2, VEC_ALIGNMENT);
+  __builtin_assume_aligned(exp_H, VEC_ALIGNMENT);
   //if (_interpolate) {
 
     __builtin_assume_aligned(_exp_table, VEC_ALIGNMENT);

@@ -1881,26 +1881,46 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   }
   else {
 
-    int _num_polar_2 = _num_polar/2;
+    int num_polar_2 = _num_polar/2;
 
-    /* Loop over polar angles */
-    for (int p=0; p < _num_polar_2; p++) {
-      FP_PRECISION track_weight = _quad->getWeightInline(azim_index, p);
+    /* Compute tau in advance to simplify attenation loop */
+    FP_PRECISION tau[_num_groups * num_polar_2] 
+                 __attribute__ ((aligned(VEC_ALIGNMENT)));
 
-      /* Loop over energy groups */
-#pragma omp simd aligned(sigma_t, fsr_flux)
-      for (int e=0; e < _num_groups; e++) {
+#pragma omp simd aligned(tau)
+    for (int pe=0; pe < num_polar_2 * _num_groups; pe++)
+      tau[pe] = sigma_t[pe % _num_groups] * length;
 
-        FP_PRECISION tau = sigma_t[e] * length;
-        /* Compute the exponential */
-        FP_PRECISION exponential = exp_evaluator->computeExponential(tau, p);
+    /* Compute weights in advance to simplify attenation loop */
+    FP_PRECISION wgt[_num_groups * num_polar_2] 
+                 __attribute__ ((aligned(VEC_ALIGNMENT)));
 
-        /* Compute attenuation and tally to scalar flux buffer */
-        FP_PRECISION delta_psi = (tau * track_flux[p*_num_groups+e] -
-                length * _reduced_sources(fsr_id,e)) * exponential;
-        track_flux[p*_num_groups+e] -= delta_psi;
-        fsr_flux[e] += delta_psi * track_weight;
-      }
+#pragma omp simd aligned(wgt)
+    for (int pe=0; pe < num_polar_2 * _num_groups; pe++)
+      wgt[pe] = _quad->getWeightInline(azim_index, int(pe/_num_groups));
+
+    /* Loop over polar angles and energy groups */
+    FP_PRECISION delta_psi[_num_groups * num_polar_2] 
+                 __attribute__ ((aligned(VEC_ALIGNMENT)));
+
+#pragma omp simd aligned(sigma_t, delta_psi)
+    for (int pe=0; pe < num_polar_2 * _num_groups; pe++) {
+
+      /* Compute the exponential */
+      FP_PRECISION exponential = exp_evaluator->computeExponential(tau[pe], int(pe/_num_groups));
+
+      /* Compute attenuation */
+      delta_psi[pe] = (tau[pe] * track_flux[pe] - length *
+                      _reduced_sources(fsr_id, pe%_num_groups)) * exponential;
+      track_flux[pe] -= delta_psi[pe];
+      delta_psi[pe] *= wgt[pe];
+    }
+
+    /* Tally to scalar flux buffer */
+    for (int p=0; p < num_polar_2; p++) {
+#pragma omp simd aligned(fsr_flux)
+      for (int e=0; e < _num_groups; e++)
+        fsr_flux[e] += delta_psi[p*_num_groups + e];
     }
   }
 }

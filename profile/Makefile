@@ -7,7 +7,7 @@ OPENMP      	 ?= yes
 OPTIMIZE    	 ?= yes
 DEBUG       	 ?= no
 PROFILE     	 ?= no
-INFO           ?= no
+INFO           ?= yes
 PRECISION   	 ?= single
 CMFD_PRECISION ?= single
 
@@ -29,7 +29,7 @@ CMFD_PRECISION ?= single
 #case = models/homogeneous/homogeneous.cpp
 #case = models/non-uniform-lattice/non-uniform-lattice.cpp
 #case ?= models/run_time_standard/run_time_standard.cpp
-case = models/assembly_1/load-assembly.cpp
+case = models/assembly_d1/load-assembly.cpp
 #case = models/core_1/load-core.cpp
 
 source = \
@@ -93,7 +93,7 @@ non-uniform-lattice/non-uniform-lattice.cpp \
 # Sets Flags
 #===============================================================================
 
-CFLAGS = -std=gnu++0x -fprofile-generate
+CFLAGS = -std=gnu++0x #-fprofile-generate
 
 # Regular gcc Compiler
 ifeq ($(COMPILER),gnu)
@@ -188,7 +188,7 @@ ifeq ($(COMPILER),clang)
   CFLAGS += -O3 -ffast-math -fvectorize -fpic
 endif
   # Set the number of groups and dimension (3D) at compile time
-  #CFLAGS += -DNGROUPS=70
+  CFLAGS += -DNGROUPS=70
 endif
 
 # Optimization report flags
