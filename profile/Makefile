@@ -7,7 +7,7 @@ OPENMP      	 ?= yes
 OPTIMIZE    	 ?= yes
 DEBUG       	 ?= no
 PROFILE     	 ?= no
-INFO           ?= yes
+INFO           ?= no
 PRECISION   	 ?= single
 CMFD_PRECISION ?= single
 
@@ -29,7 +29,7 @@ CMFD_PRECISION ?= single
 #case = models/homogeneous/homogeneous.cpp
 #case = models/non-uniform-lattice/non-uniform-lattice.cpp
 #case ?= models/run_time_standard/run_time_standard.cpp
-case = models/assembly_d1/load-assembly.cpp
+case = models/assembly_1/load-assembly.cpp
 #case = models/core_1/load-core.cpp
 
 source = \
@@ -99,7 +99,6 @@ CFLAGS = -std=gnu++0x #-fprofile-generate
 ifeq ($(COMPILER),gnu)
   CC = gcc
   CFLAGS += -DGNU
-  #CFLAGS += -march=native
   LDFLAGS += -lm
   LDFLAGS += -lstdc++
 endif
@@ -108,7 +107,6 @@ endif
 ifeq ($(COMPILER),mpi)
   CC = mpicc
   CFLAGS += -DMPIx
-  #CFLAGS += -march=native
   LDFLAGS += -lm
   LDFLAGS += -lstdc++
 endif

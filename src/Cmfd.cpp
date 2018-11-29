@@ -1118,7 +1118,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
         /* Scattering gain from all groups */
         for (int g = 0; g < _num_cmfd_groups; g++) {
           value = - material->getSigmaSByGroup(g+1, e+1) * volume;
-          //if (std::abs(value) > FLT_EPSILON)
+          if (std::abs(value) > FLT_EPSILON)
             _A->incrementValue(i, g, i, e, value);
         }
 
@@ -1168,7 +1168,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
         for (int g = 0; g < _num_cmfd_groups; g++) {
           value = material->getChiByGroup(e+1)
               * material->getNuSigmaFByGroup(g+1) * volume;
-          //if (std::abs(value) > FLT_EPSILON)
+          if (std::abs(value) > FLT_EPSILON)
             _M->incrementValue(i, g, i, e, value);
         }
       }
@@ -3132,8 +3132,9 @@ void Cmfd::initialize() {
                    _local_num_zn * 2; 
     // A matrix is duplicated as list of list and CSR form (allocated before
     // each transport iteration's CMFD solve)
-    int num_non_zero_coeffs = 7 * std::min(10, _num_cmfd_groups); 
-    // 10 is estimated number of non-zero scatters per group for 70g structure
+
+    int num_non_zero_coeffs = 6 + std::min(20, _num_cmfd_groups); 
+    // 20 is estimated number of non-zero scatters per group for 70g structure
     double size = (double) (num_rows) * num_non_zero_coeffs *
                   sizeof(CMFD_PRECISION) / (double) 1e6;
     log_printf(NORMAL, "CMFD A matrix est. storage per domain = %6.2f MB", 

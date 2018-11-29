@@ -252,12 +252,7 @@ void CPUSolver::initializeFluxArrays() {
                "MB", max_size_mb);
 
     _boundary_flux = new float[size]();
-    //int aligned_size = 2 * _tot_num_tracks * _num_groups_aligned;
-    //_boundary_flux = (FP_PRECISION*) aligned_alloc(VEC_ALIGNMENT, aligned_size*sizeof(FP_PRECISION));
-
-    _start_flux = new float[size];
-    //memset(_boundary_flux, 0., aligned_size * sizeof(float));
-    memset(_start_flux, 0., size * sizeof(float));
+    _start_flux = new float[size]();
 
     /* Allocate memory for boundary leakage if necessary. CMFD is not set in
        solver at this point, so the value of _cmfd is always NULL as initial
@@ -288,11 +283,7 @@ void CPUSolver::initializeFluxArrays() {
 
     /* Allocate scalar fluxes */
     _scalar_flux = new FP_PRECISION[size]();
-    //aligned_size = _num_FSRs * _num_groups_aligned;
-    //_scalar_flux = (FP_PRECISION*) aligned_alloc(VEC_ALIGNMENT, aligned_size*sizeof(FP_PRECISION));
-    _old_scalar_flux = new FP_PRECISION[size];
-    //memset(_scalar_flux, 0., aligned_size * sizeof(FP_PRECISION));
-    memset(_old_scalar_flux, 0., size * sizeof(FP_PRECISION));
+    _old_scalar_flux = new FP_PRECISION[size]();
 
     /* Allocate stabilizing flux vector if necessary */
     if (_stabilize_transport) {
@@ -330,10 +321,7 @@ void CPUSolver::initializeSourceArrays() {
 
   /* Allocate memory for all source arrays */
   _reduced_sources = new FP_PRECISION[size]();
-  _fixed_sources = new FP_PRECISION[size];
-  //int aligned_size = _num_FSRs * _num_groups_aligned;
-  //_reduced_sources = (FP_PRECISION*) aligned_alloc(VEC_ALIGNMENT, aligned_size*sizeof(FP_PRECISION));
-  //memset(_reduced_sources, 0., aligned_size * sizeof(FP_PRECISION));
+  _fixed_sources = new FP_PRECISION[size]();
 
   long max_size = size;
 #ifdef MPIX
@@ -345,9 +333,6 @@ void CPUSolver::initializeSourceArrays() {
         / (double) (1e6);
   log_printf(NORMAL, "Max source storage per domain = %6.2f MB",
              max_size_mb);
-
-  /* Initialize fixed sources to zero */
-  memset(_fixed_sources, 0.0, sizeof(FP_PRECISION) * size);
 
   /* Populate fixed source array with any user-defined sources */
   initializeFixedSources();
@@ -1907,7 +1892,8 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
     for (int pe=0; pe < num_polar_2 * _num_groups; pe++) {
 
       /* Compute the exponential */
-      FP_PRECISION exponential = exp_evaluator->computeExponential(tau[pe], int(pe/_num_groups));
+      FP_PRECISION exponential = exp_evaluator->computeExponential(tau[pe],
+                                                int(pe/_num_groups));
 
       /* Compute attenuation */
       delta_psi[pe] = (tau[pe] * track_flux[pe] - length *
@@ -1917,6 +1903,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
     }
 
     /* Tally to scalar flux buffer */
+    //TODO Change loop to accept 'pe' indexing, and keep vectorized
     for (int p=0; p < num_polar_2; p++) {
 #pragma omp simd aligned(fsr_flux)
       for (int e=0; e < _num_groups; e++)
@@ -1927,10 +1914,10 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
 
 
 /**
- * @brief Move the track(s)' contributions to the scalar flux from the buffer
+ * @brief Move the segment(s)' contributions to the scalar flux from the buffer
  * to the global scalar flux array.
  * @param fsr_id the id of the fsr
- * @param fsr_flux the buffer containing the track(s)' contributions
+ * @param fsr_flux the buffer containing the segment(s)' contributions
  */
 void CPUSolver::accumulateScalarFluxContribution(long fsr_id,
                                          FP_PRECISION* __restrict__ fsr_flux) {

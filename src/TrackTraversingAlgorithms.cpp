@@ -880,7 +880,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
 #endif
   int num_polar = 1;
   if (track_3D == NULL)
-    num_polar = _track_generator->getQuadrature()->getNumPolarAngles();
+    num_polar = _track_generator->getQuadrature()->getNumPolarAngles() / 2;
 
   FP_PRECISION fsr_flux[_num_groups * num_polar] __attribute__
        ((aligned (VEC_ALIGNMENT))) = {0.0};

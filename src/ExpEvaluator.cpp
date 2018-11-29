@@ -15,7 +15,7 @@ ExpEvaluator::ExpEvaluator() {
   _sin_theta_no_offset = 0.0;
   _inverse_sin_theta_no_offset = 0.0;
   _linear_source = false;
-  _num_exp_terms = 2;
+  _num_exp_terms = 3;
   _azim_index = 0;
   _polar_index = 0;
   _num_polar_terms = 0;
@@ -96,7 +96,7 @@ void ExpEvaluator::useIntrinsic() {
  */
 void ExpEvaluator::useLinearSource() {
   _linear_source = true;
-  _num_exp_terms = 6;
+  _num_exp_terms = 9;
 }
 
 
@@ -226,7 +226,8 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
   int num_array_values = _max_optical_length * sqrt(1. / (8. * _exp_precision));
 
   /* Adjust for quadratic interpolation */
-  //num_array_values /= 4;
+  num_array_values /= 4;
+  //FIXME This division by four doesn't have solid theoretical grounds
 
   if (num_array_values < MIN_EXP_INTERP_POINTS)
     num_array_values = MIN_EXP_INTERP_POINTS;
@@ -255,7 +256,6 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
 
   /* Allocate array for the table */
   _table_size = num_array_values * _num_exp_terms * _num_polar_terms;
-  //_exp_table = new FP_PRECISION[_table_size];
   _exp_table = (FP_PRECISION*) aligned_alloc(VEC_ALIGNMENT, 
                _table_size*sizeof(FP_PRECISION));
 
@@ -280,63 +280,63 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
 
       FP_PRECISION exp_const_1;
       FP_PRECISION exp_const_2;
-      //FP_PRECISION exp_const_3;
+      FP_PRECISION exp_const_3;
 
       /* Compute F1 */
       if (tau_a < 0.01) {
         exp_const_1 = inv_sin_theta;
         exp_const_2 = -0.5 * inv_sin_theta * inv_sin_theta;
-        //exp_const_3 = inv_sin_theta * inv_sin_theta_2 / 6;
-        exp_const_1 += exp_const_2 * tau_a;// + exp_const_3 * tau_a_2;
+        exp_const_3 = inv_sin_theta * inv_sin_theta_2 / 6;
+        exp_const_1 += exp_const_2 * tau_a + exp_const_3 * tau_a_2;
       }
       else {
         exp_const_1 = (1.0 - exponential) / tau_a;
         exp_const_2 = (exponential * (1.0 + tau_m) - 1) / (tau_a * tau_a);
-        //exp_const_3 = 0.5 / (tau_a * tau_a * tau_a) *
-        //    (2.0 - exponential * (tau_m * tau_m + 2.0 * tau_m + 2.0));
+        exp_const_3 = 0.5 / (tau_a * tau_a * tau_a) *
+            (2.0 - exponential * (tau_m * tau_m + 2.0 * tau_m + 2.0));
       }
       
       _exp_table[index] = exp_const_1;
       _exp_table[index+1] = exp_const_2;
-      //_exp_table[index+2] = exp_const_3;
+      _exp_table[index+2] = exp_const_3;
 
       if (_linear_source) {
 
         /* Compute F2 */
         if (tau_a < 0.01) {
           exp_const_2 = inv_sin_theta_2 * inv_sin_theta / 6;
-          //exp_const_3 = -inv_sin_theta_2 * inv_sin_theta_2 / 12;
-          exp_const_1 = exp_const_2 * tau_a;// + exp_const_3 * tau_a_2;
+          exp_const_3 = -inv_sin_theta_2 * inv_sin_theta_2 / 12;
+          exp_const_1 = exp_const_2 * tau_a + exp_const_3 * tau_a_2;
         }
         else {
           exp_const_1 = (tau_m - 2.0 + exponential * (2.0 + tau_m)) / tau_a_2;
           exp_const_2 = -(tau_m - 4.0 + exponential * (tau_m * tau_m + 3 * tau_m
               + 4.0)) / (tau_a_2 * tau_a);
-          //exp_const_3 = 0.5 * (2.0 * tau_m - 12.0 + exponential * (12.0 +
-          //    tau_m * (10.0 + tau_m * (4.0 + tau_m)))) / (tau_a_2 * tau_a_2);
+          exp_const_3 = 0.5 * (2.0 * tau_m - 12.0 + exponential * (12.0 +
+              tau_m * (10.0 + tau_m * (4.0 + tau_m)))) / (tau_a_2 * tau_a_2);
         }
         
-        _exp_table[index+2] = exp_const_1;
-        _exp_table[index+3] = exp_const_2;
-        //_exp_table[index+5] = exp_const_3;
+        _exp_table[index+3] = exp_const_1;
+        _exp_table[index+4] = exp_const_2;
+        _exp_table[index+5] = exp_const_3;
 
         /* Compute H */
         if (tau_a < 0.01) {
           exp_const_1 = 0.5 * inv_sin_theta;
           exp_const_2 = -1.0 * inv_sin_theta_2 / 3.0;
-          //exp_const_3 = inv_sin_theta_2 * inv_sin_theta / 8.0;
-          exp_const_1 += exp_const_2 * tau_a;// + exp_const_3 * tau_a_2;
+          exp_const_3 = inv_sin_theta_2 * inv_sin_theta / 8.0;
+          exp_const_1 += exp_const_2 * tau_a + exp_const_3 * tau_a_2;
         }
         else {
           exp_const_1 = (1.0 - exponential * (1 + tau_m)) / (tau_a * tau_m);
           exp_const_2 = (exponential * (tau_m * (tau_m + 2.0) + 2.0) - 2.0) 
               / (tau_m * tau_a_2);
-          //exp_const_3 = 0.5 * (6.0 - exponential * (6.0 + tau_m * (6.0 + tau_m
-          //    * (3 + tau_m)))) / (tau_m * tau_a_2 * tau_a);
+          exp_const_3 = 0.5 * (6.0 - exponential * (6.0 + tau_m * (6.0 + tau_m
+              * (3 + tau_m)))) / (tau_m * tau_a_2 * tau_a);
         }
-        _exp_table[index+4] = exp_const_1;
-        _exp_table[index+5] = exp_const_2;
-        //_exp_table[index+8] = exp_const_3;
+        _exp_table[index+6] = exp_const_1;
+        _exp_table[index+7] = exp_const_2;
+        _exp_table[index+8] = exp_const_3;
       }
     }
   }

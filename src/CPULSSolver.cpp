@@ -341,6 +341,10 @@ void CPULSSolver::computeFSRSources(int iteration) {
  * @param curr_segment a pointer to the Track segment of interest
  * @param azim_index azimuthal angle index for this 3D Track
  * @param polar_index polar angle index for this 3D Track
+ * @param fsr_flux buffer to store segment contribution to region scalar flux
+ * @param fsr_flux_x buffer to store contribution to scalar flux x moment
+ * @param fsr_flux_y buffer to store contribution to scalar y moment
+ * @param fsr_flux_z buffer to store contribution to scalar z moment
  * @param track_flux a pointer to the Track's angular flux
  * @param direction the segment's direction
  */
@@ -384,8 +388,11 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     }
 
     // Compute the sources
-    FP_PRECISION src_flat[_num_groups] __attribute__ ((aligned(VEC_ALIGNMENT)));
-    FP_PRECISION src_linear[_num_groups] __attribute__ ((aligned(VEC_ALIGNMENT)));
+    FP_PRECISION src_flat[_num_groups] 
+                 __attribute__ ((aligned(VEC_ALIGNMENT)));
+    FP_PRECISION src_linear[_num_groups] 
+                 __attribute__ ((aligned(VEC_ALIGNMENT)));
+
 #pragma omp simd aligned(src_flat, src_linear)
     for (int e=0; e < _num_groups; e++) {
       src_flat[e] = _reduced_sources(fsr_id, e);
@@ -402,9 +409,9 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
 
       // Compute the change in flux across the segment
       exp_H[e] *= length * track_flux[e] * tau[e] * wgt;
-      FP_PRECISION delta_psi = (tau[e] * track_flux[e] - length_2D * src_flat[e]) *
-          exp_F1[e] - src_linear[e] * length_2D * length_2D *
-          exp_F2[e];
+      FP_PRECISION delta_psi = (tau[e] * track_flux[e] - length_2D * src_flat[e])
+           * exp_F1[e] - src_linear[e] * length_2D * length_2D *
+            exp_F2[e];
       track_flux[e] -= delta_psi;
       delta_psi *= wgt;
 
@@ -505,6 +512,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     }
 
     /* Increment the fsr scalar flux and scalar flux moments buffers */
+    //TODO Change loop to accept 'pe' indexing, and keep vectorized
     for (int p=0; p < num_polar_2; p++) {
 
 #pragma omp simd aligned(fsr_flux, fsr_flux_x, fsr_flux_y)
@@ -524,6 +532,15 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
 }
 
 
+/**
+ * @brief Moves from buffer to global arrays the contributions of one or
+ * several segments.
+ * @param fsr_id region index
+ * @param fsr_flux buffer storing contribution to region scalar flux
+ * @param fsr_flux_x buffer storing contribution to scalar flux x moment
+ * @param fsr_flux_y buffer storing contribution to scalar y moment
+ * @param fsr_flux_z buffer storing contribution to scalar z moment
+ */
 void CPULSSolver::accumulateLinearFluxContribution(long fsr_id,
                                        FP_PRECISION* __restrict__ fsr_flux,
                                        FP_PRECISION* __restrict__ fsr_flux_x,

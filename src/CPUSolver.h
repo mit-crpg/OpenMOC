@@ -21,7 +21,6 @@
 #undef track_flux
 #ifdef NGROUPS
 #define _num_groups (NGROUPS)
-//#define _solve_3D (true)
 #endif
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
