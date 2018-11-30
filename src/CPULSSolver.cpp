@@ -75,13 +75,10 @@ void CPULSSolver::initializeFluxArrays() {
     log_printf(NORMAL, "Max linear flux storage per domain = %6.2f MB",
                max_size_mb);
 
-    _scalar_flux_xyz = new FP_PRECISION[size];
-    memset(_scalar_flux_xyz, 0., size * sizeof(FP_PRECISION));
+    _scalar_flux_xyz = new FP_PRECISION[size]();
     
-    if (_stabilize_transport && _stabilize_moments) {
-      _stabilizing_flux_xyz = new FP_PRECISION[size];
-      memset(_stabilizing_flux_xyz, 0., size * sizeof(FP_PRECISION));
-    }
+    if (_stabilize_transport && _stabilize_moments)
+      _stabilizing_flux_xyz = new FP_PRECISION[size]();
   }
   catch (std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the scalar flux moments");
@@ -342,9 +339,9 @@ void CPULSSolver::computeFSRSources(int iteration) {
  * @param azim_index azimuthal angle index for this 3D Track
  * @param polar_index polar angle index for this 3D Track
  * @param fsr_flux buffer to store segment contribution to region scalar flux
- * @param fsr_flux_x buffer to store contribution to scalar flux x moment
- * @param fsr_flux_y buffer to store contribution to scalar y moment
- * @param fsr_flux_z buffer to store contribution to scalar z moment
+ * @param fsr_flux_x buffer to store contribution to the x scalar flux moment
+ * @param fsr_flux_y buffer to store contribution to the y scalar flux moment
+ * @param fsr_flux_z buffer to store contribution to the z scalar flux moment
  * @param track_flux a pointer to the Track's angular flux
  * @param direction the segment's direction
  */
@@ -365,10 +362,10 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
 
   if (_solve_3D) {
 
-    /* Compute the segment midpoint */
+    /* Compute the segment midpoint (with factor 2 for LS) */
     FP_PRECISION center_x2[3];
     for (int i=0; i<3; i++)
-      center_x2[i] = 2 * (position[i] + 0.5 * length * direction[i]);
+      center_x2[i] = 2 * position[i] + length * direction[i];
 
     FP_PRECISION wgt = _quad->getWeightInline(azim_index, polar_index);
     FP_PRECISION length_2D = exp_evaluator->convertDistance3Dto2D(length);
@@ -426,10 +423,10 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
 
     int num_polar_2 = _num_polar / 2;
 
-    /* Compute the segment midpoint */
+    /* Compute the segment midpoint (with factor 2 for LS) */
     FP_PRECISION center[2];
     for (int i=0; i<2; i++)
-      center[i] = 2 * (position[i] + 0.5 * length * direction[i]);
+      center[i] = 2 * position[i] + length * direction[i];
 
     /* Compute tau in advance to simplify attenation loop */
     FP_PRECISION tau[_num_groups * num_polar_2] 
@@ -454,7 +451,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
                                                    &exp_F2[pe],
                                                    &exp_H[pe]);
 
-    /* Compute flat part of source */
+    /* Compute flat part of the source */
     FP_PRECISION src_flat[_num_groups] 
                  __attribute__ ((aligned(VEC_ALIGNMENT)));
 
@@ -465,50 +462,36 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
         src_flat[e] += _reduced_sources_xyz(fsr_id, e, i) * center[i];
     }
 
-    /* Compute sinus of theta for the linear source */
-    FP_PRECISION sin_the[num_polar_2 * _num_groups] 
-                 __attribute__ ((aligned(VEC_ALIGNMENT)));
-
-#pragma omp simd aligned(sin_the)
-    for (int pe=0; pe < num_polar_2 * _num_groups; pe++) {
-      sin_the[pe] = _quad->getSinThetaInline(azim_index, int(pe/_num_groups));
-    }
-
-    /* Compute linear part of source */
+    /* Compute linear part of the source */
     FP_PRECISION src_linear[num_polar_2 * _num_groups] 
                  __attribute__ ((aligned(VEC_ALIGNMENT)));
 
-#pragma omp simd aligned(src_linear, sin_the)
+#pragma omp simd aligned(src_linear)
     for (int pe=0; pe < num_polar_2 * _num_groups; pe++) {
-      src_linear[pe] = direction[0] * sin_the[pe] *
+      FP_PRECISION sin_the = _quad->getSinThetaInline(azim_index, 
+                                                      int(pe/_num_groups));
+      src_linear[pe] = direction[0] * sin_the *
             _reduced_sources_xyz(fsr_id, pe % _num_groups, 0);
-      src_linear[pe] += direction[1] * sin_the[pe] *
+      src_linear[pe] += direction[1] * sin_the *
             _reduced_sources_xyz(fsr_id, pe % _num_groups, 1);
     }
-
-    /* Compute weights in advance to simplify attenation loop */
-    FP_PRECISION wgt[_num_groups * num_polar_2] 
-                 __attribute__ ((aligned(VEC_ALIGNMENT)));
-
-#pragma omp simd aligned(wgt)
-    for (int pe=0; pe < num_polar_2 * _num_groups; pe++)
-      wgt[pe] = _quad->getWeightInline(azim_index, int(pe/_num_groups));
 
     /* Compute attenuation of track angular flux */
     FP_PRECISION delta_psi[_num_groups * num_polar_2] 
                  __attribute__ ((aligned(VEC_ALIGNMENT)));
 
-#pragma omp simd aligned(tau, wgt, src_flat, src_linear, delta_psi, exp_F1, exp_F2, exp_H)
+#pragma omp simd aligned(tau, src_flat, src_linear, delta_psi, exp_F1, exp_F2, exp_H)
     for (int pe=0; pe < num_polar_2 * _num_groups; pe++) {
 
-      exp_H[pe] *=  wgt[pe] * tau[pe] * length * track_flux[pe];
+      FP_PRECISION wgt = _quad->getWeightInline(azim_index, int(pe/_num_groups));
+      exp_H[pe] *=  wgt * tau[pe] * length * track_flux[pe];
 
       // Compute the change in flux across the segment
       delta_psi[pe] = (tau[pe] * track_flux[pe] - length
             * src_flat[pe % _num_groups]) * exp_F1[pe] - length * length 
             * src_linear[pe] * exp_F2[pe];
       track_flux[pe] -= delta_psi[pe];
-      delta_psi[pe] *= wgt[pe];
+      delta_psi[pe] *= wgt;
     }
 
     /* Increment the fsr scalar flux and scalar flux moments buffers */
@@ -527,19 +510,20 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     }
   }
 
+  /* Advance starting position for the next segment on this track */
   for (int i=0; i < 3; i++)
     position[i] += direction[i] * length;
 }
 
 
 /**
- * @brief Moves from buffer to global arrays the contributions of one or
- * several segments.
+ * @brief Move from buffers to global arrays the contributions of one (or
+ * several for per-stack solving) segments.
  * @param fsr_id region index
- * @param fsr_flux buffer storing contribution to region scalar flux
- * @param fsr_flux_x buffer storing contribution to scalar flux x moment
- * @param fsr_flux_y buffer storing contribution to scalar y moment
- * @param fsr_flux_z buffer storing contribution to scalar z moment
+ * @param fsr_flux buffer storing contribution to the region's scalar flux
+ * @param fsr_flux_x buffer storing contribution to the scalar flux's x moment
+ * @param fsr_flux_y buffer storing contribution to the scalar flux's y moment
+ * @param fsr_flux_z buffer storing contribution to the scalar flux's z moment
  */
 void CPULSSolver::accumulateLinearFluxContribution(long fsr_id,
                                        FP_PRECISION* __restrict__ fsr_flux,
@@ -563,10 +547,10 @@ void CPULSSolver::accumulateLinearFluxContribution(long fsr_id,
   omp_unset_lock(&_FSR_locks[fsr_id]);
 
   /* Reset buffers to 0 */
-  memset(fsr_flux, 0.0, _num_groups * sizeof(FP_PRECISION));
-  memset(fsr_flux_x, 0.0, _num_groups * sizeof(FP_PRECISION));
-  memset(fsr_flux_y, 0.0, _num_groups * sizeof(FP_PRECISION));
-  memset(fsr_flux_z, 0.0, _num_groups * sizeof(FP_PRECISION));
+  memset(fsr_flux, 0, _num_groups * sizeof(FP_PRECISION));
+  memset(fsr_flux_x, 0, _num_groups * sizeof(FP_PRECISION));
+  memset(fsr_flux_y, 0, _num_groups * sizeof(FP_PRECISION));
+  memset(fsr_flux_z, 0, _num_groups * sizeof(FP_PRECISION));
 }
 
 

@@ -3451,7 +3451,7 @@ void Cmfd::initializeLattice(Point* offset) {
 
   if(fabs(_width_x - _accumulate_x[_num_x]) > FLT_EPSILON ||
      fabs(_width_y - _accumulate_y[_num_y]) > FLT_EPSILON ||
-     (_num_z > 1 && fabs(_width_z - _accumulate_z[_num_z]) > FLT_EPSILON))
+     (!is_2D && fabs(_width_z - _accumulate_z[_num_z]) > FLT_EPSILON))
     log_printf(ERROR, "The sum of non-uniform mesh widths are not consistent "
       "with geometry dimensions. width_x = %20.17E, width_y = %20.17E, " 
       "width_z = %20.17E, sum_x = %20.17E, sum_y = %20.17E, sum_z = %20.17E, "

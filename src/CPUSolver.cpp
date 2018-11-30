@@ -1831,6 +1831,7 @@ void CPUSolver::transportSweep() {
  * @param curr_segment a pointer to the Track segment of interest
  * @param azim_index azimuthal angle index for this segment
  * @param polar_index polar angle index for this segment
+ * @param fsr_flux buffer to store the contribution to the region's scalar flux
  * @param track_flux a pointer to the Track's angular flux
  */
 void CPUSolver::tallyScalarFlux(segment* curr_segment,
@@ -1841,8 +1842,6 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   long fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
-
-  /* The change in angular flux along this Track segment in the FSR */
   ExpEvaluator* exp_evaluator = _exp_evaluators[azim_index][polar_index];
 
   if (_solve_3D) {
@@ -1867,9 +1866,9 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   }
   else {
 
-    int num_polar_2 = _num_polar/2;
+    int num_polar_2 = _num_polar / 2;
 
-    /* Compute tau in advance to simplify attenation loop */
+    /* Compute tau in advance to simplify attenuation loop */
     FP_PRECISION tau[_num_groups * num_polar_2] 
                  __attribute__ ((aligned(VEC_ALIGNMENT)));
 
@@ -1877,30 +1876,25 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
     for (int pe=0; pe < num_polar_2 * _num_groups; pe++)
       tau[pe] = sigma_t[pe % _num_groups] * length;
 
-    /* Compute weights in advance to simplify attenation loop */
-    FP_PRECISION wgt[_num_groups * num_polar_2] 
-                 __attribute__ ((aligned(VEC_ALIGNMENT)));
-
-#pragma omp simd aligned(wgt)
-    for (int pe=0; pe < num_polar_2 * _num_groups; pe++)
-      wgt[pe] = _quad->getWeightInline(azim_index, int(pe/_num_groups));
-
-    /* Loop over polar angles and energy groups */
     FP_PRECISION delta_psi[_num_groups * num_polar_2] 
                  __attribute__ ((aligned(VEC_ALIGNMENT)));
 
-#pragma omp simd aligned(sigma_t, delta_psi)
+    /* Loop over polar angles and energy groups */
+#pragma omp simd aligned(tau, delta_psi)
     for (int pe=0; pe < num_polar_2 * _num_groups; pe++) {
+
+      FP_PRECISION wgt = _quad->getWeightInline(azim_index,
+                                                int(pe/_num_groups));
 
       /* Compute the exponential */
       FP_PRECISION exponential = exp_evaluator->computeExponential(tau[pe],
                                                 int(pe/_num_groups));
 
-      /* Compute attenuation */
+      /* Compute attenuation of the track angular flux */
       delta_psi[pe] = (tau[pe] * track_flux[pe] - length *
                       _reduced_sources(fsr_id, pe%_num_groups)) * exponential;
       track_flux[pe] -= delta_psi[pe];
-      delta_psi[pe] *= wgt[pe];
+      delta_psi[pe] *= wgt;
     }
 
     /* Tally to scalar flux buffer */
@@ -1918,7 +1912,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
  * @brief Move the segment(s)' contributions to the scalar flux from the buffer
  * to the global scalar flux array.
  * @param fsr_id the id of the fsr
- * @param fsr_flux the buffer containing the segment(s)' contributions
+ * @param fsr_flux the buffer containing the segment(s)' contribution
  */
 void CPUSolver::accumulateScalarFluxContribution(long fsr_id,
                                          FP_PRECISION* __restrict__ fsr_flux) {
@@ -1934,7 +1928,7 @@ void CPUSolver::accumulateScalarFluxContribution(long fsr_id,
   omp_unset_lock(&_FSR_locks[fsr_id]);
 
   /* Reset buffers */
-  memset(fsr_flux, 0., _num_groups * sizeof(FP_PRECISION));
+  memset(fsr_flux, 0, _num_groups * sizeof(FP_PRECISION));
 }
 
 
@@ -1961,7 +1955,7 @@ void CPUSolver::tallyCurrent(segment* curr_segment, int azim_index,
  * @brief Updates the boundary flux for a Track given boundary conditions.
  * @details For reflective boundary conditions, the outgoing boundary flux
  *          for the Track is given to the reflecting Track. For vacuum
- *          boundary conditions, the outgoing flux tallied as leakage.
+ *          boundary conditions, the outgoing flux is tallied as leakage.
  * @param track a pointer to the Track of interest
  * @param azim_index azimuthal angle index for this segment
  * @param polar_index polar angle index for this segment
