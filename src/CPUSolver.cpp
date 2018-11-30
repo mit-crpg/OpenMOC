@@ -143,13 +143,14 @@ void CPUSolver::setNumThreads(int num_threads) {
                "be at least MPI_THREAD_SERIALIZED.");
 #endif
 
-  if (_track_generator != NULL)
+  if (_track_generator != NULL && num_threads > 1)
     if ((_track_generator->getSegmentFormation() == OTF_STACKS ||
        _track_generator->getSegmentFormation() == OTF_TRACKS) &&
        _track_generator->getNumThreads() != num_threads)
-      log_printf(WARNING, "The number of threads used in track generation "
-               "should match the number of threads used in the solver for OTF "
-               "ray-tracing methods, as threaded buffers are shared.");
+      log_printf(WARNING, "The number of threads used in track generation (%d)"
+                 "should match the number of threads used in the solver (%d) "
+                 "for OTF ray-tracing methods, as threaded buffers are shared.",
+                 _track_generator->getNumThreads(), num_threads);
 
   /* Set the number of threads for OpenMP */
   _num_threads = num_threads;
@@ -584,7 +585,7 @@ void CPUSolver::setupMPIBuffers() {
           int neighbor = neighbor_connections.at(domains[d]);
 
           long slot;
-#pragma omp critical
+#pragma omp atomic capture
           {
             slot = num_tracks[neighbor];
             num_tracks[neighbor]++;

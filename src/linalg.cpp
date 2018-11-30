@@ -967,7 +967,7 @@ bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 
     // Check for going off the rails
     if (residual > 1e3 * min_residual && min_residual > 1e-10) {
-      log_printf(NORMAL, "WARNING: inner linear solve divergent.");
+      log_printf(WARNING, "Inner linear solve divergent.");
       log_printf(NORMAL, "Residual = %6.4e, Min Res = %6.4e", residual, min_residual);
       return false;
     }

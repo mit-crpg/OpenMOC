@@ -104,11 +104,11 @@ protected:
   void boundaryFluxChecker();
 #endif
   virtual void flattenFSRFluxes(FP_PRECISION value);
-  virtual void flattenFSRFluxesChiSpectrum();
+  void flattenFSRFluxesChiSpectrum();
   void storeFSRFluxes();
   virtual double normalizeFluxes();
   virtual void computeFSRSources(int iteration);
-  virtual void transportSweep();
+  void transportSweep();
   virtual void computeStabilizingFlux();
   virtual void stabilizeFlux();
   virtual void addSourceToScalarFlux();
@@ -121,21 +121,22 @@ public:
 
   int getNumThreads();
   void setNumThreads(int num_threads);
-  virtual void setFixedSourceByFSR(long fsr_id, int group, FP_PRECISION source);
+  void setFixedSourceByFSR(long fsr_id, int group, FP_PRECISION source);
   void computeFSRFissionRates(double* fission_rates, long num_FSRs);
-  virtual void printInputParamsSummary();
+  void printInputParamsSummary();
 
   void tallyScalarFlux(segment* curr_segment, int azim_index, int polar_index,
                        FP_PRECISION* fsr_flux, float* track_flux);
 
   void accumulateScalarFluxContribution(long fsr_id, FP_PRECISION* fsr_flux);
+
   void tallyCurrent(segment* curr_segment, int azim_index, int polar_index,
                     float* track_flux, bool fwd);
 
   void transferBoundaryFlux(Track* track, int azim_index, int polar_index,
                             bool direction, float* track_flux);
 
-  virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
+  void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
 
   void initializeFixedSources();
 

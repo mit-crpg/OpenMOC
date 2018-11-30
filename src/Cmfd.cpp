@@ -771,8 +771,9 @@ CMFD_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
  *         (\f$ \tilde{D} \f$)
  */
 void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
-    int group, int moc_iteration, CMFD_PRECISION& dif_surf, 
-    CMFD_PRECISION& dif_surf_corr) {
+                                          int group, int moc_iteration,
+                                          CMFD_PRECISION& dif_surf, 
+                                          CMFD_PRECISION& dif_surf_corr) {
 
   FP_PRECISION current, current_out, current_in;
   CMFD_PRECISION flux_next;
@@ -2361,6 +2362,7 @@ void Cmfd::useAxialInterpolation(int interpolate) {
   if(interpolate==1 || interpolate==2)
     log_printf(NORMAL, "WARNING: Axial interpolation CMFD prolongation may only"
                " be effective when all the FSRs are axially homogeneous");
+  //FIXME Use a log level that prints the warning once for all nodes, without NORMAL
   _use_axial_interpolation = interpolate;
 }
 
@@ -2520,39 +2522,39 @@ void Cmfd::generateKNearestStencils() {
   std::vector<long>::iterator fsr_iter;
   Point* centroid;
   long fsr_id;
-  
+
   if (_centroid_update_on){
     /* Number of cells in stencil */
     int num_cells_in_stencil = 9;
-  
+
     /* Loop over mesh cells */
     for (int i = 0; i < _local_num_xn*_local_num_yn*_local_num_zn; i++) {
-  
+
       int global_ind = getGlobalCMFDCell(i);
-  
+
       /* Loop over FRSs in mesh cell */
       for (fsr_iter = _cell_fsrs.at(i).begin();
           fsr_iter != _cell_fsrs.at(i).end(); ++fsr_iter) {
-  
+
         fsr_id = *fsr_iter;
-  
+
         /* Get centroid */
         centroid = _geometry->getFSRCentroid(fsr_id);
-  
+
         /* Create new stencil */
         _k_nearest_stencils[fsr_id] =
           std::vector< std::pair<int, double> >();
-  
+
         /* Get distance to all cells that touch current cell */
         for (int j=0; j < num_cells_in_stencil; j++)
           _k_nearest_stencils[fsr_id]
             .push_back(std::make_pair<int, double>
                       (int(j), getDistanceToCentroid(centroid, global_ind, j)));
-  
+
         /* Sort the distances */
         std::sort(_k_nearest_stencils[fsr_id].begin(),
                   _k_nearest_stencils[fsr_id].end(), stencilCompare);
-  
+
         /* Remove ghost cells that are outside the geometry boundaries */
         stencil_iter = _k_nearest_stencils[fsr_id].begin();
         while (stencil_iter != _k_nearest_stencils[fsr_id].end()) {
@@ -2567,7 +2569,7 @@ void Cmfd::generateKNearestStencils() {
           (std::min(_k_nearest, int(_k_nearest_stencils[fsr_id].size())));
       }
     }
-  
+
     /* Precompute (1.0 - cell distance / total distance) of each FSR centroid to
     * its k-nearest CMFD cells */
     double total_distance;
@@ -2598,7 +2600,7 @@ void Cmfd::generateKNearestStencils() {
     for (long r=0; r < _num_FSRs; r++) {
       _axial_interpolants.at(r) = new double[3]();
     }
-    
+
     /* Loop over mesh cells */
     for (int i = 0; i < _local_num_xn*_local_num_yn*_local_num_zn; i++) {
 
@@ -2606,16 +2608,16 @@ void Cmfd::generateKNearestStencils() {
       int z_start = 0;
       if(_domain_communicator != NULL)
         z_start = _accumulate_lmz[_domain_communicator->_domain_idx_z];
-      
+
       /* Calculate the CMFD cell z-coordinate */
       int z_ind = i / (_local_num_xn * _local_num_yn);
-      
+
       /* The heights of neighboring three CMFD meshes for quadratic fit */
       double h0, h1, h2; 
-      
+
       /* The z coordinate of the mesh center of the middle-CMFD cell  */
       double z_cmfd;
-      
+
       if(z_ind == 0) {
         h0 = _cell_widths_z[z_start + z_ind];
         h1 = _cell_widths_z[z_start + z_ind + 1];
@@ -2634,7 +2636,7 @@ void Cmfd::generateKNearestStencils() {
         h2 = _cell_widths_z[z_start + z_ind + 1];
         z_cmfd = _accumulate_z[z_start + z_ind] + h1/2. + _lattice->getMinZ();
       }
-    
+
       /* Start and end relative z-coordinate of an FSR */
       double zs, ze;
 
@@ -2647,7 +2649,7 @@ void Cmfd::generateKNearestStencils() {
         fsr_id = *fsr_iter;
         Point* centroid = _geometry->getFSRCentroid(fsr_id);
         Point* feature_point = _geometry->getFSRPoint(fsr_id);
-        
+
         double zc = (centroid->getZ() - z_cmfd) / h1;
         zs = (feature_point->getZ() - z_cmfd) / h1;
         ze = 2*zc - zs;
@@ -2658,19 +2660,19 @@ void Cmfd::generateKNearestStencils() {
           _axial_interpolants.at(fsr_id)[0] = (h1*(h1+h1*zc*4.0+h2*zc*8.0-
             h1*(zc*zc)*1.6E1-h1*(zs*zs)*4.0+h1*zc*zs*8.0)*(-1.0/4.0))
                                               /((h0+h1)*(h0+h1+h2));
-          
-  
+
+
           _axial_interpolants.at(fsr_id)[1] = (h1+h2-h1*zc*2.0)/(h1+h2)+(h1*(h1+
           h1*zc*4.0+h2*zc*8.0-h1*(zc*zc)*1.6E1-h1*(zs*zs)*4.0+h1*zc*zs*8.0)*
           (1.0/4.0))/(h2*(h0+h1))-((h1*h1)*(h1+h1*zc*4.0+h2*zc*8.0-h1*(zc*zc)*
           1.6E1-h1*(zs*zs)*4.0+h1*zc*zs*8.0)*(1.0/4.0))/(h2*(h1+h2)*(h0+h1+h2));
-          
-  
+
+
           _axial_interpolants.at(fsr_id)[2] = (h1*(-h1+h0*zc*8.0+h1*zc*4.0+
             h1*(zc*zc)*1.6E1+h1*(zs*zs)*4.0-h1*zc*zs*8.0)*(1.0/4.0))
                                               /((h1+h2)*(h0+h1+h2));
-          
-          
+
+
           log_printf(DEBUG, "CMFD-ID: %d, FSR-ID: %ld, c0= %10.6f, c1= %10.6f,"
                      " c2= %10.6f", i, fsr_id, _axial_interpolants.at(fsr_id)[0],
                      _axial_interpolants.at(fsr_id)[1],
@@ -2682,19 +2684,19 @@ void Cmfd::generateKNearestStencils() {
         else if(_use_axial_interpolation == 2) {
           _axial_interpolants.at(fsr_id)[0] = -(h1*(h1+h1*zc*4.0+h2*zc*8.0-h1*
           (zc*zc)*1.2E1))/((h0*4.0+h1*4.0)*(h0+h1+h2));
-            
-          
+
+
           _axial_interpolants.at(fsr_id)[1] = (-zc*(h0*(h1*h1)*1.2E1+(h0*h0)*h1*
           8.0-h1*(h2*h2)*8.0-(h1*h1)*h2*1.2E1)+h0*(h1*h1)*9.0+(h0*h0)*h1*4.0+h0*
           (h2*h2)*4.0+(h0*h0)*h2*4.0+h1*(h2*h2)*4.0+(h1*h1)*h2*9.0+(h1*h1*h1)*6.0
           -(zc*zc)*(h0*(h1*h1)*1.2E1+(h1*h1)*h2*1.2E1+(h1*h1*h1)*2.4E1)+h0*h1*h2
           *1.2E1)/((h1+h2)*(h0*4.0+h1*4.0)*(h0+h1+h2));
-            
-            
+
+
          _axial_interpolants.at(fsr_id)[2] = (h1*(-h1+h0*zc*8.0+h1*zc*4.0+h1*
          (zc*zc)*1.2E1))/((h1*4.0+h2*4.0)*(h0+h1+h2));
-         
-         
+
+
          log_printf(DEBUG, "CMFD-ID: %d, FSR-ID: %ld, c0= %10.6f, c1= %10.6f,"
                     " c2= %10.6f", i, fsr_id, _axial_interpolants.at(fsr_id)[0],
                     _axial_interpolants.at(fsr_id)[1],
@@ -2937,7 +2939,7 @@ double Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
   bool found = false;
   double centroid_x = centroid->getX();
   double centroid_y = centroid->getY();
-  
+
   /* The center of geometry is not always at (0,0,0), then relative coordinates
      should be used. */
   double dx = centroid_x - _lattice->getMinX();
@@ -3333,7 +3335,7 @@ void Cmfd::initialize() {
       int y_end = y_start + _local_num_yn;
       int z_start = _accumulate_lmz[_domain_communicator->_domain_idx_z];
       int z_end = z_start + _local_num_zn;
-      
+
       _boundary_index_map.resize(NUM_FACES);
 
       /* Map connecting cells on x-surfaces */
@@ -3416,11 +3418,11 @@ void Cmfd::initializeLattice(Point* offset) {
     _cell_width_x = _width_x / _num_x;
     _cell_width_y = _width_y / _num_y;
     _cell_width_z = _width_z / _num_z;
-    
+
     /* 2D case, set the axial width 1.0 */
     if(_width_z == std::numeric_limits<double>::infinity())
       _cell_width_z = 1.0;
-    
+
     _cell_widths_x.resize(_num_x,_cell_width_x);
     _cell_widths_y.resize(_num_y,_cell_width_y);
     _cell_widths_z.resize(_num_z,_cell_width_z);
@@ -3437,16 +3439,16 @@ void Cmfd::initializeLattice(Point* offset) {
   _accumulate_x.resize(_num_x+1,0.0);
   _accumulate_y.resize(_num_y+1,0.0);
   _accumulate_z.resize(_num_z+1,0.0);
-  
+
   for(int i=0; i<_num_x; i++)
     _accumulate_x[i+1] = _accumulate_x[i] + _cell_widths_x[i];
-    
+
   for(int i=0; i<_num_y; i++)
     _accumulate_y[i+1] = _accumulate_y[i] + _cell_widths_y[i];  
-    
+
   for(int i=0; i<_num_z; i++)
     _accumulate_z[i+1] = _accumulate_z[i] + _cell_widths_z[i];
-  
+
   if(fabs(_width_x - _accumulate_x[_num_x]) > FLT_EPSILON ||
      fabs(_width_y - _accumulate_y[_num_y]) > FLT_EPSILON ||
      (_num_z > 1 && fabs(_width_z - _accumulate_z[_num_z]) > FLT_EPSILON))
@@ -3469,19 +3471,19 @@ void Cmfd::initializeLattice(Point* offset) {
   _lattice->setNumX(_num_x);
   _lattice->setNumY(_num_y);
   _lattice->setNumZ(_num_z);
-  
-  if(_non_uniform)
+
+  if (_non_uniform)
     _lattice->setWidths(_cell_widths_x, _cell_widths_y, _cell_widths_z);
   else {
-    if(is_2D)
+    if (is_2D)
       _lattice->setWidth(_cell_width_x, _cell_width_y, 
                          std::numeric_limits<double>::infinity());
     else
       _lattice->setWidth(_cell_width_x, _cell_width_y, _cell_width_z);
   }
-  
+
   _lattice->setOffset(offset->getX(), offset->getY(), offset->getZ());
-  
+
   _lattice->computeSizes();
 }
 
@@ -3652,11 +3654,11 @@ void Cmfd::copyCurrentsToBackup() {
 CMFD_PRECISION Cmfd::getSurfaceWidth(int surface, int global_ind) {
 
   CMFD_PRECISION width;
-  
+
   int ix = global_ind % _num_x;
   int iy = (global_ind % (_num_x * _num_y)) / _num_x;
   int iz = global_ind / (_num_x * _num_y);
-  
+
   if (surface == SURFACE_X_MIN || surface == SURFACE_X_MAX)
     return _cell_widths_y[iy] * _cell_widths_z[iz];
   else if (surface == SURFACE_Y_MIN || surface == SURFACE_Y_MAX)
@@ -3676,7 +3678,7 @@ CMFD_PRECISION Cmfd::getPerpendicularSurfaceWidth(int surface, int global_ind) {
   int ix = global_ind % _num_x;
   int iy = (global_ind % (_num_x * _num_y)) / _num_x;
   int iz = global_ind / (_num_x * _num_y);
-  
+
   if (surface == SURFACE_X_MIN || surface == SURFACE_X_MAX)
     return _cell_widths_x[ix];
   else if (surface == SURFACE_Y_MIN || surface == SURFACE_Y_MAX)
@@ -4969,14 +4971,14 @@ void Cmfd::recordNetCurrents() {
  * @param widths A vector of 3 vectors for the x y z sizes of non-uniform meshes
  */
 void Cmfd::setWidths(std::vector< std::vector<double> > widths) {
-  
+
   if(widths.size() == 3) 
     _cell_widths_z = widths[2];
   else if(widths.size() == 2)
     _cell_widths_z.push_back(1.0);
   else  
     log_printf(ERROR, "widths must have dimension 2 or 3");
-  
+
   _non_uniform = true;
   _cell_widths_x = widths[0];
   _cell_widths_y = widths[1];
