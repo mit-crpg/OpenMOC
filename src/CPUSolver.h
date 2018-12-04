@@ -22,6 +22,9 @@
 #ifdef NGROUPS
 #define _num_groups (NGROUPS)
 #endif
+#ifdef THREED
+#define _solve_3D (true)
+#endif
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
  *  group for either the forward or reverse direction for a given Track */

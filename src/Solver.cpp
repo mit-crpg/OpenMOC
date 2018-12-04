@@ -255,10 +255,10 @@ FP_PRECISION Solver::getMaxOpticalLength() {
  * @return true if using double precision float point arithmetic
  */
 bool Solver::isUsingDoublePrecision() {
-#ifdef DOUBLE
-  return true;
-#else
+#ifdef SINGLE
   return false;
+#else
+  return true;
 #endif
 }
 
@@ -1294,7 +1294,6 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
     flattenFSRFluxes(1.0);
   else
     flattenFSRFluxesChiSpectrum();
-  zeroTrackFluxes();
 
   /* Start the timer to record the total time to converge the flux */
   _timer->startTimer();
@@ -1396,7 +1395,6 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     flattenFSRFluxesChiSpectrum();
   normalizeFluxes();
   storeFSRFluxes();
-  //zeroTrackFluxes();
 
   /* Load initial FSR fluxes from file if requested */
   if (_load_initial_FSR_fluxes) {

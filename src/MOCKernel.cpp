@@ -410,11 +410,12 @@ void TransportKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
     float* track_flux = _cpu_solver->getBoundaryFlux(curr_track_id,
                                                      _direction);
 
-    FP_PRECISION fsr_flux[_num_groups];
+    FP_PRECISION fsr_flux[_num_groups] = {0.0};
 
     /* Apply MOC equations */
     _cpu_solver->tallyScalarFlux(&curr_segment, _azim_index, _polar_index,
                                  fsr_flux, track_flux);
+    _cpu_solver->accumulateScalarFluxContribution(fsr_id, fsr_flux);
     _cpu_solver->tallyCurrent(&curr_segment, _azim_index, _polar_index,
                                      track_flux, true);
 

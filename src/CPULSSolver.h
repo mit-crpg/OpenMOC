@@ -77,10 +77,7 @@ public:
                                     FP_PRECISION* fsr_flux_z,
                                     float* track_flux,
                                     FP_PRECISION direction[3]);
-  void accumulateLinearFluxContribution(long fsr_id, FP_PRECISION* fsr_flux,
-                                        FP_PRECISION* fsr_flux_x,
-                                        FP_PRECISION* fsr_flux_y,
-                                        FP_PRECISION* fsr_flux_z);
+  void accumulateLinearFluxContribution(long fsr_id, FP_PRECISION* fsr_flux);
   void addSourceToScalarFlux();
   
   /* Transport stabilization routines */
@@ -92,7 +89,6 @@ public:
   void initializeLinearSourceConstants();
   double* getLinearExpansionCoeffsBuffer();
   FP_PRECISION* getSourceConstantsBuffer();
-
 };
 
 

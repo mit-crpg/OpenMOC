@@ -1228,7 +1228,7 @@ void Cmfd::updateMOCFlux() {
           /* Update flux moments if they were set */
           if (_linear_source) {
             _flux_moments[(*iter)*3*_num_moc_groups + h] *= update_ratio;
-            _flux_moments[(*iter)*3*_num_moc_groups + 1*_num_moc_groups + h]
+            _flux_moments[(*iter)*3*_num_moc_groups + _num_moc_groups + h]
                  *= update_ratio;
             _flux_moments[(*iter)*3*_num_moc_groups + 2*_num_moc_groups + h] 
                  *= update_ratio;

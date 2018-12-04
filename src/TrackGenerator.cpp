@@ -418,7 +418,7 @@ void TrackGenerator::setNumThreads(int num_threads) {
    * CPU grouping */
   std::vector<int> cpus;
   cpus.reserve(num_threads);
-#pragma omp parallel for schedule(static,1)
+#pragma omp parallel for schedule(static)
   for (int i=0; i<num_threads; i++)
     cpus.push_back(sched_getcpu());
   std::stringstream str_cpus;
