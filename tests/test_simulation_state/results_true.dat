@@ -7177,7 +7177,7 @@ FSR sources: 4.849906E-01
          INF
 convergence threshold:	0.0000100000
 exponential:	linear interpolation
-floating point:	single
+floating point:	double
 keff:	1.3163539694
 solver type:	<HDF5 dataset "solver type": shape (), type "|O">
 track spacing [cm]:	0
@@ -14361,7 +14361,7 @@ FSR sources: 4.849906E-01
          INF
 convergence threshold:	0.0000100000
 exponential:	linear interpolation
-floating point:	single
+floating point:	double
 keff:	1.3163539694
 solver type:	CPUSolver
 track spacing [cm]:	0.1200000000

@@ -1434,10 +1434,8 @@ double CPUSolver::normalizeFluxes() {
     /* Get the communicator */
     MPI_Comm comm = _geometry->getMPICart();
 
-    /* Determine the floating point precision */
-    double reduced_fission;
-
     /* Reduce fission rates */
+    double reduced_fission;
     MPI_Allreduce(&tot_fission_source, &reduced_fission, 1, MPI_DOUBLE,
                   MPI_SUM, comm);
     tot_fission_source = reduced_fission;
