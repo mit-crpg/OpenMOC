@@ -18,7 +18,7 @@
 #define REPORT_WIDTH 53
 
 /** The minimum auto ID used for Surfaces, Cells, Materials and Universes */
-#define DEFAULT_INIT_ID 100000
+#define DEFAULT_INIT_ID 1000000
 
 /** The value of 4pi: \f$ 4\pi \f$ */
 #define FOUR_PI 12.566370614359172
@@ -71,7 +71,7 @@
 #define MIN_LINALG_POWER_ITERATIONS 25
 #define MAX_LINALG_POWER_ITERATIONS 25000
 
-#define MIN_LINALG_TOLERANCE double(1E-15)
+#define MIN_LINALG_TOLERANCE LINALG_TOL
 
 /** The maximum number of iterations allowed for a linear solve in linalg.cpp */
 #define MIN_LINEAR_SOLVE_ITERATIONS 25

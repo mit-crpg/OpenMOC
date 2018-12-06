@@ -19,11 +19,11 @@
 
 
 /** Indexing macro for the scalar flux in each FSR and energy group */
-#define _scalar_flux_xyz(r,e,x) (_scalar_flux_xyz[(r)*_num_groups*3 + (e)*3 + (x)])
+#define _scalar_flux_xyz(r,e,x) (_scalar_flux_xyz[(r)*_num_groups*3 + (x)*_num_groups + (e)])
 
 /** Indexing macro for the total source divided by the total cross-section
  *  (\f$ \frac{Q}{\Sigma_t} \f$) in each FSR and energy group */
-#define _reduced_sources_xyz(r,e,x) (_reduced_sources_xyz[(r)*_num_groups*3 + (e)*3 + (x)])
+#define _reduced_sources_xyz(r,e,x) (_reduced_sources_xyz[(r)*_num_groups*3 + (x)*_num_groups + (e)])
 
 /** Indexing macro for the stabilizing scalar flux moments in each FSR and
  *  energy group */
@@ -69,15 +69,21 @@ public:
   void flattenFSRFluxes(FP_PRECISION value);
   double normalizeFluxes();
   void computeFSRSources(int iteration);
+  void tallyLSScalarFlux(segment* curr_segment, int azim_index,
+                                    int polar_index,
+                                    FP_PRECISION* fsr_flux,
+                                    FP_PRECISION* fsr_flux_x,
+                                    FP_PRECISION* fsr_flux_y,
+                                    FP_PRECISION* fsr_flux_z,
+                                    float* track_flux,
+                                    FP_PRECISION direction[3]);
+  void accumulateLinearFluxContribution(long fsr_id, FP_PRECISION* fsr_flux);
   void addSourceToScalarFlux();
   
   /* Transport stabilization routines */
   void computeStabilizingFlux();
   void stabilizeFlux();
   void checkLimitXS(int iteration);
-
-  void tallyLSScalarFlux(segment* curr_segment, int azim_index, int polar_index,
-                         float* track_flux, FP_PRECISION direction[3]);
 
   FP_PRECISION getFluxByCoords(LocalCoords* coords, int group);
   void initializeLinearSourceConstants();

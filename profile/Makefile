@@ -7,6 +7,7 @@ OPENMP         ?= yes
 OPTIMIZE       ?= yes
 DEBUG          ?= no
 PROFILE        ?= no
+INFO           ?= no
 PRECISION      ?= single
 CMFD_PRECISION ?= single
 
@@ -98,16 +99,14 @@ CFLAGS = -std=gnu++0x
 ifeq ($(COMPILER),gnu)
   CC = gcc
   CFLAGS += -DGNU
-  #CFLAGS += -march=native
   LDFLAGS += -lm
   LDFLAGS += -lstdc++
 endif
 
-# Regular gcc Compiler
+# MPI wrapped compiler
 ifeq ($(COMPILER),mpi)
   CC = mpicc
   CFLAGS += -DMPIx
-  #CFLAGS += -march=native
   LDFLAGS += -lm
   LDFLAGS += -lstdc++
 endif
@@ -139,19 +138,16 @@ endif
 ifeq ($(DEBUG),yes)
   CFLAGS += -O0
   CFLAGS += -g
-  ifeq ($(COMPILER),intel)
-  CFLAGS += -vec-report
-  endif
-  ifeq ($(OPENMP),yes)
-  CFLAGS += -openmp-report
-  endif
 endif
 
 # Profiling Flags
 ifeq ($(PROFILE),yes)
+  # pprof flags
   CFLAGS += -pg
   CFLAGS += -O0
   CFLAGS += -fno-omit-frame-pointer
+  # gprof and vtune flags
+  #CFLAGS += -g
 endif
 
 # Precision Flags
@@ -161,62 +157,77 @@ ifeq ($(PRECISION),single)
 endif
 ifeq ($(PRECISION),double)
   CFLAGS += -DFP_PRECISION=double
-#  CFLAGS += -DDOUBLE
 endif
 
-ifeq ($(NEW_PRECISION),single)
-  CFLAGS += -DNEW_PRECISION=float
-endif
-ifeq ($(NEW_PRECISION),double)
-  CFLAGS += -DNEW_PRECISION=double
-endif
 ifeq ($(CMFD_PRECISION),single)
-  CFLAGS += -DCMFD_PRECISION=float
+  CFLAGS += -DCMFD_PRECISION=float -DLINALG_TOL=1E-7
 endif
 ifeq ($(CMFD_PRECISION),double)
-  CFLAGS += -DCMFD_PRECISION=double
+  CFLAGS += -DCMFD_PRECISION=double -DLINALG_TOL=1E-15
 endif
 
 # Vector Flags
 CFLAGS += -DVEC_LENGTH=8
-CFLAGS += -DVEC_ALIGNMENT=16
+CFLAGS += -DVEC_ALIGNMENT=32
 
 # Optimization Flags
 ifeq ($(OPTIMIZE),yes)
-ifeq ($(COMPILER),gnu)
-  CFLAGS += -O3 -ffast-math -fpic -march=native
+  ifeq ($(COMPILER),gnu)
+    CFLAGS += -O3 -ffast-math -fpic -march=native
+  endif
+  ifeq ($(COMPILER),mpi)
+    CFLAGS += -O3 -ffast-math -fpic -march=native
+  endif
+  ifeq ($(COMPILER),intel)
+    CFLAGS += -O3 -xhost -fast -ansi-alias -no-prec-div -ipo
+  endif
+  ifeq ($(COMPILER),bluegene)
+    CFLAGS += -O3 -ffast-math -fpic
+  endif
+  ifeq ($(COMPILER),clang)
+    CFLAGS += -O3 -ffast-math -fvectorize -fpic
 endif
-ifeq ($(COMPILER),mpi)
-  CFLAGS += -O3 -ffast-math -fpic -march=native
-endif
-ifeq ($(COMPILER),intel)
-  CFLAGS += -O3 -xhost -fast -ansi-alias -no-prec-div -ipo
-endif
-ifeq ($(COMPILER),bluegene)
-  CFLAGS += -O3 -ffast-math -fpic
-endif
-ifeq ($(COMPILER),clang)
-  CFLAGS += -O3 -ffast-math -fvectorize -fpic
-endif
+  # Set the number of groups at compile time
+  #CFLAGS += -DNGROUPS=70
+  # Set the source to linear source at compile time
+  #CFLAGS += -DLINEARSOURCE
+  # Set the dimension to 3D at compile time
+  #CLFAGS += -DTHREED
 endif
 
-# OpenMP
+# Optimization report flags
+ifeq ($(INFO),yes)
+  ifeq ($(COMPILER),intel)
+    CFLAGS += -qopt-report n=5 -qopt-report-phase=all
+  endif
+  ifeq ($(COMPILER),gnu)
+    CFLAGS += -fopt-info-all
+  endif
+  ifeq ($(COMPILER),mpi)
+    CFLAGS += -fopt-info-all
+  endif
+  ifeq ($(OPENMP),yes)
+    CFLAGS += -openmp-report
+  endif
+endif
+
+# OpenMP flags
 ifeq ($(OPENMP),yes)
-ifeq ($(COMPILER), gnu)
-  CFLAGS += -fopenmp
-endif
-ifeq ($(COMPILER), mpi)
-  CFLAGS += -fopenmp
-endif
-ifeq ($(COMPILER), bluegene)
-  CFLAGS += -fopenmp
-endif
-ifeq ($(COMPILER), intel)
-  CFLAGS += -openmp
-endif
-ifeq ($(COMPILER), clang)
-  CFLAGS += -fopenmp
-endif
+  ifeq ($(COMPILER), gnu)
+    CFLAGS += -fopenmp
+  endif
+  ifeq ($(COMPILER), mpi)
+    CFLAGS += -fopenmp
+  endif
+  ifeq ($(COMPILER), bluegene)
+    CFLAGS += -fopenmp
+  endif
+  ifeq ($(COMPILER), intel)
+    CFLAGS += -openmp
+  endif
+  ifeq ($(COMPILER), clang)
+    CFLAGS += -fopenmp
+  endif
   CFLAGS += -DOPENMP
 endif
 

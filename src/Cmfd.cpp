@@ -789,7 +789,7 @@ void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
   CMFD_PRECISION delta_next = 0.0;
   if(global_cmfd_cell_next != -1) 
     delta_next = getPerpendicularSurfaceWidth(surface, global_cmfd_cell_next);
-    
+
   int sense = getSense(surface);
 
   /* Correct the diffusion coefficient with Larsen's effective diffusion
@@ -1119,7 +1119,8 @@ void Cmfd::constructMatrices(int moc_iteration) {
         /* Scattering gain from all groups */
         for (int g = 0; g < _num_cmfd_groups; g++) {
           value = - material->getSigmaSByGroup(g+1, e+1) * volume;
-          _A->incrementValue(i, g, i, e, value);
+          if (std::abs(value) > FLT_EPSILON)
+            _A->incrementValue(i, g, i, e, value);
         }
 
         /* Streaming to neighboring cells */
@@ -1130,9 +1131,9 @@ void Cmfd::constructMatrices(int moc_iteration) {
 
           /* Set transport term on diagonal.
           dif_surf and dif_surf_corr are modified via reference */
-           getSurfaceDiffusionCoefficient(i, s, e, moc_iteration, dif_surf, 
+          getSurfaceDiffusionCoefficient(i, s, e, moc_iteration, dif_surf, 
                                           dif_surf_corr);
-           
+
           /* Record the corrected diffusion coefficient */
           _old_dif_surf_corr->setValue(i, s*_num_cmfd_groups+e, dif_surf_corr);
           _old_dif_surf_valid = true;
@@ -1168,7 +1169,8 @@ void Cmfd::constructMatrices(int moc_iteration) {
         for (int g = 0; g < _num_cmfd_groups; g++) {
           value = material->getChiByGroup(e+1)
               * material->getNuSigmaFByGroup(g+1) * volume;
-          _M->incrementValue(i, g, i, e, value);
+          if (std::abs(value) > FLT_EPSILON)
+            _M->incrementValue(i, g, i, e, value);
         }
       }
     }
@@ -1225,9 +1227,11 @@ void Cmfd::updateMOCFlux() {
 
           /* Update flux moments if they were set */
           if (_linear_source) {
-            _flux_moments[(*iter)*3*_num_moc_groups + h*3] *= update_ratio;
-            _flux_moments[(*iter)*3*_num_moc_groups + h*3 + 1] *= update_ratio;
-            _flux_moments[(*iter)*3*_num_moc_groups + h*3 + 2] *= update_ratio;
+            _flux_moments[(*iter)*3*_num_moc_groups + h] *= update_ratio;
+            _flux_moments[(*iter)*3*_num_moc_groups + _num_moc_groups + h]
+                 *= update_ratio;
+            _flux_moments[(*iter)*3*_num_moc_groups + 2*_num_moc_groups + h] 
+                 *= update_ratio;
           }
 
           log_printf(DEBUG, "Updating flux in FSR: %d, cell: %d, MOC group: "
@@ -1458,6 +1462,11 @@ void Cmfd::initializeMaterials() {
     delete [] _materials;
   }
 
+  /* Compute and log size in memory of Material array */
+  double size = (double) (_num_cmfd_groups + 4) * _num_cmfd_groups *
+              _local_num_xn * _local_num_yn * _local_num_zn * 
+              sizeof(FP_PRECISION) / (double) 1e6;
+  log_printf(NORMAL, "CMFD material storage per domain = %6.2f MB", size);
 
   try {
     _materials = new Material*[_local_num_xn*_local_num_yn*_local_num_zn];
@@ -3120,6 +3129,19 @@ void Cmfd::initialize() {
       omp_init_lock(&_cell_locks[r]);
     omp_init_lock(&_edge_corner_lock);
 
+    /* Compute and log size in memory of CMFD matrices */
+    int num_rows = _num_cmfd_groups * _local_num_xn * _local_num_yn *
+                   _local_num_zn * 2; 
+    // A matrix is duplicated as list of list and CSR form (allocated before
+    // each transport iteration's CMFD solve)
+
+    int num_non_zero_coeffs = 6 + std::min(20, _num_cmfd_groups); 
+    // 20 is estimated number of non-zero scatters per group for 70g structure
+    double size = (double) (num_rows) * num_non_zero_coeffs *
+                  sizeof(CMFD_PRECISION) / (double) 1e6;
+    log_printf(NORMAL, "CMFD A matrix est. storage per domain = %6.2f MB", 
+               size);
+
     /* Allocate memory for matrix and vector objects */
     _M = new Matrix(_cell_locks, _local_num_xn, _local_num_yn, _local_num_zn,
                     ncg);
@@ -3429,7 +3451,7 @@ void Cmfd::initializeLattice(Point* offset) {
 
   if(fabs(_width_x - _accumulate_x[_num_x]) > FLT_EPSILON ||
      fabs(_width_y - _accumulate_y[_num_y]) > FLT_EPSILON ||
-     fabs(_width_z - _accumulate_z[_num_z]) > FLT_EPSILON)
+     (!is_2D && fabs(_width_z - _accumulate_z[_num_z]) > FLT_EPSILON))
     log_printf(ERROR, "The sum of non-uniform mesh widths are not consistent "
       "with geometry dimensions. width_x = %20.17E, width_y = %20.17E, " 
       "width_z = %20.17E, sum_x = %20.17E, sum_y = %20.17E, sum_z = %20.17E, "

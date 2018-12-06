@@ -111,6 +111,7 @@ public:
   int getNumPolarAngles() const;
   int getNumAzimAngles() const;
   double getSinTheta(int azim, int polar);
+  double getSinThetaInline(int azim, int polar);
   double getTheta(int azim, int polar);
   double getPhi(int azim);
   double getAzimWeight(int azim);
@@ -144,6 +145,22 @@ public:
 
   std::string toString();
 };
+
+
+/**
+ * @brief Returns the \f$ sin(\theta)\f$ value for a particular polar angle.
+ * @param azim index of the azimthal angle of interest
+ * @param polar index of the polar angle of interest
+ * @return the value of \f$ \sin(\theta) \f$ for this azimuthal and polar angle
+ * @details azim must be between 0 and _num_azim / 2 
+ */
+inline double Quadrature::getSinThetaInline(int azim, int polar) {
+
+  if (azim >= _num_azim/2)
+    azim = _num_azim - azim - 1;
+
+  return _sin_thetas[azim][polar];
+}
 
 
 

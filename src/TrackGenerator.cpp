@@ -398,7 +398,7 @@ void TrackGenerator::setNumThreads(int num_threads) {
                , num_threads);
 
 #ifdef MPIx
-  /* Check the MPI library has enough thread support */
+  /* Check that the MPI library has enough thread support */
   int provided;
   MPI_Query_thread(&provided);
   if (num_threads > 1 && provided < MPI_THREAD_SERIALIZED)
@@ -418,7 +418,7 @@ void TrackGenerator::setNumThreads(int num_threads) {
    * CPU grouping */
   std::vector<int> cpus;
   cpus.reserve(num_threads);
-#pragma omp parallel for schedule(static,1)
+#pragma omp parallel for schedule(static)
   for (int i=0; i<num_threads; i++)
     cpus.push_back(sched_getcpu());
   std::stringstream str_cpus;
@@ -429,7 +429,7 @@ void TrackGenerator::setNumThreads(int num_threads) {
   int rank = 0;
 #ifdef MPIx
   if (_geometry->isDomainDecomposed())
-    MPI_Comm_rank(_MPI_cart, &rank);
+    MPI_Comm_rank(_geometry->getMPICart(), &rank);
 #endif
 
   if (num_threads > 1)

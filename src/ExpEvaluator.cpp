@@ -214,8 +214,11 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
   _inverse_sin_theta_no_offset = 1.0 / _sin_theta_no_offset;
 
   /* If no exponential table is needed, return */
-  if (!_interpolate)
+  if (!_interpolate) {
+    log_printf(ERROR, "Intrinsic exponential is commented out in source code" 
+               " for optimization purposes");
     return;
+  }
 
   log_printf(DEBUG, "Initializing exponential interpolation table...");
 
@@ -224,6 +227,7 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
 
   /* Adjust for quadratic interpolation */
   num_array_values /= 4;
+  //FIXME This division by four doesn't have solid theoretical grounds
 
   if (num_array_values < MIN_EXP_INTERP_POINTS)
     num_array_values = MIN_EXP_INTERP_POINTS;
@@ -252,7 +256,8 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
 
   /* Allocate array for the table */
   _table_size = num_array_values * _num_exp_terms * _num_polar_terms;
-  _exp_table = new FP_PRECISION[_table_size];
+  _exp_table = (FP_PRECISION*) aligned_alloc(VEC_ALIGNMENT, 
+               _table_size*sizeof(FP_PRECISION));
 
   /* Create exponential linear interpolation table */
   for (int i=0; i < num_array_values; i++) {

@@ -255,10 +255,10 @@ FP_PRECISION Solver::getMaxOpticalLength() {
  * @return true if using double precision float point arithmetic
  */
 bool Solver::isUsingDoublePrecision() {
-#ifdef DOUBLE
-  return true;
-#else
+#ifdef SINGLE
   return false;
+#else
+  return true;
 #endif
 }
 
@@ -724,10 +724,12 @@ void Solver::initializeFSRs() {
   _num_groups = _geometry->getNumEnergyGroups();
   _num_materials = _geometry->getNumMaterials();
 
-  if (_solve_3D)
+  if (_solve_3D) {
     _fluxes_per_track = _num_groups;
-  else
+  }
+  else {
     _fluxes_per_track = _num_groups * _num_polar/2;
+  }
 
   /* Allocate scratch memory */
   for (int i=0; i < _groupwise_scratch.size(); i++)
@@ -1292,7 +1294,6 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
     flattenFSRFluxes(1.0);
   else
     flattenFSRFluxesChiSpectrum();
-  zeroTrackFluxes();
 
   /* Start the timer to record the total time to converge the flux */
   _timer->startTimer();
@@ -1394,7 +1395,6 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     flattenFSRFluxesChiSpectrum();
   normalizeFluxes();
   storeFSRFluxes();
-  zeroTrackFluxes();
 
   /* Load initial FSR fluxes from file if requested */
   if (_load_initial_FSR_fluxes) {
@@ -1455,7 +1455,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     if (i > 0 && _stabilize_transport) {
       computeStabilizingFlux();
     }
-    
+
     /* Perform the source iteration */
     computeFSRSources(i);
     _timer->startTimer();
@@ -1463,13 +1463,13 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     _timer->stopTimer();
     _timer->recordSplit("Transport Sweep");
     addSourceToScalarFlux();
-    
+
     /* Solve CMFD diffusion problem and update MOC flux */
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
       _k_eff = _cmfd->computeKeff(i);
     else
       computeKeff();
-    
+
     /* Apply the flux adjustment if transport stabilization is on */
     if (i > 0 && _stabilize_transport) {
       stabilizeFlux();
@@ -1632,8 +1632,10 @@ void Solver::printTimerReport() {
 
   long num_integrations = 2 * _fluxes_per_track * total_num_segments *
       _num_iterations;
-  double time_per_integration = (transport_sweep / num_integrations * 
-                                 (omp_get_max_threads() * num_ranks));
+  double time_per_integration = ((transport_sweep - transfer_time - idle_time) /
+                                 num_integrations * (omp_get_max_threads() *
+                                 num_ranks));
+
   msg_string = "Integration time per segment-group by thread";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_integration);

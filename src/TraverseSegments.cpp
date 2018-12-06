@@ -224,7 +224,7 @@ void TraverseSegments::loopOverTracksByStackOTF(MOCKernel* kernel) {
   Track3D* current_stack = _track_generator_3D->getTemporary3DTracks(tid);
 
   /* Loop over flattened 2D tracks */
-#pragma omp for schedule(guided)
+#pragma omp for schedule(dynamic)
   for (int ext_id=0; ext_id < num_2D_tracks; ext_id++) {
 
     /* Extract indices of 3D tracks associated with the flattened track */

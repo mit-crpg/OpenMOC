@@ -252,10 +252,8 @@ void CPUSolver::initializeFluxArrays() {
     log_printf(NORMAL, "Max boundary angular flux storage per domain = %6.2f "
                "MB", max_size_mb);
 
-    _boundary_flux = new float[size];
-    _start_flux = new float[size];
-    memset(_boundary_flux, 0., size * sizeof(float));
-    memset(_start_flux, 0., size * sizeof(float));
+    _boundary_flux = new float[size]();
+    _start_flux = new float[size]();
 
     /* Allocate memory for boundary leakage if necessary. CMFD is not set in
        solver at this point, so the value of _cmfd is always NULL as initial
@@ -285,10 +283,8 @@ void CPUSolver::initializeFluxArrays() {
                max_size_mb);
 
     /* Allocate scalar fluxes */
-    _scalar_flux = new FP_PRECISION[size];
-    _old_scalar_flux = new FP_PRECISION[size];
-    memset(_scalar_flux, 0., size * sizeof(FP_PRECISION));
-    memset(_old_scalar_flux, 0., size * sizeof(FP_PRECISION));
+    _scalar_flux = new FP_PRECISION[size]();
+    _old_scalar_flux = new FP_PRECISION[size]();
 
     /* Allocate stabilizing flux vector if necessary */
     if (_stabilize_transport) {
@@ -325,8 +321,8 @@ void CPUSolver::initializeSourceArrays() {
   long size = _num_FSRs * _num_groups;
 
   /* Allocate memory for all source arrays */
-  _reduced_sources = new FP_PRECISION[size];
-  _fixed_sources = new FP_PRECISION[size];
+  _reduced_sources = new FP_PRECISION[size]();
+  _fixed_sources = new FP_PRECISION[size]();
 
   long max_size = size;
 #ifdef MPIX
@@ -338,9 +334,6 @@ void CPUSolver::initializeSourceArrays() {
         / (double) (1e6);
   log_printf(NORMAL, "Max source storage per domain = %6.2f MB",
              max_size_mb);
-
-  /* Initialize fixed sources to zero */
-  memset(_fixed_sources, 0.0, sizeof(FP_PRECISION) * size);
 
   /* Populate fixed source array with any user-defined sources */
   initializeFixedSources();
@@ -1359,9 +1352,13 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
 
 #pragma omp parallel for schedule(guided)
   for (long r=0; r < _num_FSRs; r++) {
+    // Check if fissionable
+    //Material* mat = _geometry->findFSRMaterial(r);
+    //if (mat->isFissionable() ){
     for (int e=0; e < _num_groups; e++)
       _scalar_flux(r,e) = value;
   }
+ //}
 }
 
 
@@ -1437,10 +1434,8 @@ double CPUSolver::normalizeFluxes() {
     /* Get the communicator */
     MPI_Comm comm = _geometry->getMPICart();
 
-    /* Determine the floating point precision */
-    double reduced_fission;
-
     /* Reduce fission rates */
+    double reduced_fission;
     MPI_Allreduce(&tot_fission_source, &reduced_fission, 1, MPI_DOUBLE,
                   MPI_SUM, comm);
     tot_fission_source = reduced_fission;
@@ -1834,26 +1829,24 @@ void CPUSolver::transportSweep() {
  * @param curr_segment a pointer to the Track segment of interest
  * @param azim_index azimuthal angle index for this segment
  * @param polar_index polar angle index for this segment
+ * @param fsr_flux buffer to store the contribution to the region's scalar flux
  * @param track_flux a pointer to the Track's angular flux
  */
 void CPUSolver::tallyScalarFlux(segment* curr_segment,
                                 int azim_index, int polar_index,
+                                FP_PRECISION* __restrict__ fsr_flux,
                                 float* track_flux) {
 
   long fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
-
-  /* The change in angular flux along this Track segment in the FSR */
   ExpEvaluator* exp_evaluator = _exp_evaluators[azim_index][polar_index];
-
-  /* Allocate a temporary flux buffer on the stack (free) and initialize it */
-  FP_PRECISION fsr_flux[_num_groups] = {0.0};
 
   if (_solve_3D) {
 
     FP_PRECISION length_2D = exp_evaluator->convertDistance3Dto2D(length);
 
+#pragma omp simd aligned(sigma_t, fsr_flux)
     for (int e=0; e < _num_groups; e++) {
 
       FP_PRECISION tau = sigma_t[e] * length_2D;
@@ -1861,46 +1854,79 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
       /* Compute the exponential */
       FP_PRECISION exponential = exp_evaluator->computeExponential(tau, 0);
 
-      /* Attenuate and tally the flux */
+      /* Compute attenuation and tally the contribution to the scalar flux */
       FP_PRECISION delta_psi = (tau * track_flux[e] - length_2D *
               _reduced_sources(fsr_id, e)) * exponential;
+      track_flux[e] -= delta_psi;
       fsr_flux[e] += delta_psi * _quad->getWeightInline(azim_index,
                                                         polar_index);
-      track_flux[e] -= delta_psi;
     }
   }
   else {
 
-    int pe = 0;
+    int num_polar_2 = _num_polar / 2;
 
-    /* Loop over energy groups */
-    for (int e=0; e < _num_groups; e++) {
+    /* Compute tau in advance to simplify attenuation loop */
+    FP_PRECISION tau[_num_groups * num_polar_2] 
+                 __attribute__ ((aligned(VEC_ALIGNMENT)));
 
-      FP_PRECISION tau = sigma_t[e] * length;
+#pragma omp simd aligned(tau)
+    for (int pe=0; pe < num_polar_2 * _num_groups; pe++)
+      tau[pe] = sigma_t[pe % _num_groups] * length;
 
-      /* Loop over polar angles */
-      for (int p=0; p < _num_polar/2; p++) {
+    FP_PRECISION delta_psi[_num_groups * num_polar_2] 
+                 __attribute__ ((aligned(VEC_ALIGNMENT)));
 
-        /* Compute the exponential */
-        FP_PRECISION exponential = exp_evaluator->computeExponential(tau, p);
+    /* Loop over polar angles and energy groups */
+#pragma omp simd aligned(tau, delta_psi)
+    for (int pe=0; pe < num_polar_2 * _num_groups; pe++) {
 
-        /* Attenuate and tally the flux */
-        FP_PRECISION delta_psi = (tau * track_flux[pe] -
-                length * _reduced_sources(fsr_id,e)) * exponential;
-        fsr_flux[e] += delta_psi * _quad->getWeightInline(azim_index, p);
-        track_flux[pe] -= delta_psi;
-        pe++;
-      }
+      FP_PRECISION wgt = _quad->getWeightInline(azim_index,
+                                                int(pe/_num_groups));
+
+      /* Compute the exponential */
+      FP_PRECISION exponential = exp_evaluator->computeExponential(tau[pe],
+                                                int(pe/_num_groups));
+
+      /* Compute attenuation of the track angular flux */
+      delta_psi[pe] = (tau[pe] * track_flux[pe] - length *
+                      _reduced_sources(fsr_id, pe%_num_groups)) * exponential;
+      track_flux[pe] -= delta_psi[pe];
+      delta_psi[pe] *= wgt;
+    }
+
+    /* Tally to scalar flux buffer */
+    //TODO Change loop to accept 'pe' indexing, and keep vectorized
+    for (int p=0; p < num_polar_2; p++) {
+#pragma omp simd aligned(fsr_flux)
+      for (int e=0; e < _num_groups; e++)
+        fsr_flux[e] += delta_psi[p*_num_groups + e];
     }
   }
+}
 
-  /* Atomically increment the FSR scalar flux from the temporary array */
+
+/**
+ * @brief Move the segment(s)' contributions to the scalar flux from the buffer
+ * to the global scalar flux array.
+ * @param fsr_id the id of the fsr
+ * @param fsr_flux the buffer containing the segment(s)' contribution
+ */
+void CPUSolver::accumulateScalarFluxContribution(long fsr_id,
+                                         FP_PRECISION* __restrict__ fsr_flux) {
+
+  // Atomically increment the FSR scalar flux from the temporary array
   omp_set_lock(&_FSR_locks[fsr_id]);
-  {
-    for (int e=0; e < _num_groups; e++)
-      _scalar_flux(fsr_id,e) += fsr_flux[e];
-  }
+
+  // Add to global scalar flux vector
+#pragma omp simd aligned(fsr_flux)
+  for (int e=0; e < _num_groups; e++)
+    _scalar_flux(fsr_id,e) += fsr_flux[e];
+
   omp_unset_lock(&_FSR_locks[fsr_id]);
+
+  /* Reset buffers */
+  memset(fsr_flux, 0, _num_groups * sizeof(FP_PRECISION));
 }
 
 
@@ -1908,7 +1934,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
  * @brief Tallies the current contribution from this segment across the
  *        the appropriate CMFD mesh cell surface.
  * @param curr_segment a pointer to the Track segment of interest
- * @param azim_index the azimuthal index for this segmenbt
+ * @param azim_index the azimuthal index for this segment
  * @param polar_index the polar index for this segmenbt
  * @param track_flux a pointer to the Track's angular flux
  * @param fwd boolean indicating direction of integration along segment
@@ -1927,7 +1953,7 @@ void CPUSolver::tallyCurrent(segment* curr_segment, int azim_index,
  * @brief Updates the boundary flux for a Track given boundary conditions.
  * @details For reflective boundary conditions, the outgoing boundary flux
  *          for the Track is given to the reflecting Track. For vacuum
- *          boundary conditions, the outgoing flux tallied as leakage.
+ *          boundary conditions, the outgoing flux is tallied as leakage.
  * @param track a pointer to the Track of interest
  * @param azim_index azimuthal angle index for this segment
  * @param polar_index polar angle index for this segment
@@ -1965,14 +1991,12 @@ void CPUSolver::transferBoundaryFlux(Track* track,
   /* Determine if flux should be transferred */
   if (bc_out == REFLECTIVE || bc_out == PERIODIC) {
     float* track_out_flux = &_start_flux(track_out_id, 0, start_out);
-    for (int pe=0; pe < _fluxes_per_track; pe++)
-      track_out_flux[pe] = track_flux[pe];
+    memcpy(track_out_flux, track_flux, _fluxes_per_track * sizeof(float));
   }
   if (bc_in == VACUUM) {
     long track_id = track->getUid();
     float* track_in_flux = &_start_flux(track_id, !direction, 0);
-    for (int pe=0; pe < _fluxes_per_track; pe++)
-      track_in_flux[pe] = 0.0;
+    memset(track_in_flux, 0.0, _fluxes_per_track * sizeof(float));
   }
 
   /* Tally leakage if applicable */

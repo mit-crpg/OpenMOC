@@ -446,7 +446,9 @@ LinearExpansionGenerator::LinearExpansionGenerator(CPULSSolver* solver)
   _FSR_volumes = track_generator->getFSRVolumesBuffer();
   _FSR_locks = track_generator->getFSRLocks();
   _quadrature = track_generator->getQuadrature();
+#ifndef NGROUPS
   _num_groups = track_generator->getGeometry()->getNumEnergyGroups();
+#endif
 
   /* Determine the number of linear coefficients */
   _num_flat = 0;
@@ -872,6 +874,21 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     tracks_array = _track_generator_3D->getTemporaryTracksArray(tid);
   }
 
+  /* Allocate a temporary flux buffer on the stack (free) and initialize it */
+#ifndef NGROUPS
+  int _num_groups = _track_generator->getGeometry()->getNumEnergyGroups();
+#endif
+  int num_polar = 1;
+  if (track_3D == NULL)
+    num_polar = _track_generator->getQuadrature()->getNumPolarAngles() / 2;
+
+  int num_groups_aligned = (_num_groups / VEC_ALIGNMENT + 1) * VEC_ALIGNMENT;
+  FP_PRECISION fsr_flux[4 * num_groups_aligned * num_polar] __attribute__
+       ((aligned (VEC_ALIGNMENT))) = {0.0};
+  FP_PRECISION* fsr_flux_x = &fsr_flux[num_groups_aligned];
+  FP_PRECISION* fsr_flux_y = &fsr_flux[2*num_groups_aligned];
+  FP_PRECISION* fsr_flux_z = &fsr_flux[3*num_groups_aligned];
+
   /* Loop over each Track segment in forward direction */
   for (int s=0; s < num_segments; s++) {
 
@@ -879,14 +896,28 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     segment* curr_segment = &segments[s];
     long curr_track_id = track_id + curr_segment->_track_idx;
     track_flux = _cpu_solver->getBoundaryFlux(curr_track_id, true);
+    long fsr_id = curr_segment->_region_id;
 
     /* Apply MOC equations */
+#ifndef LINEARSOURCE
     if (_ls_solver == NULL)
       _cpu_solver->tallyScalarFlux(curr_segment, azim_index, polar_index,
-                                   track_flux);
+                                   fsr_flux, track_flux);
     else
+#endif
       _ls_solver->tallyLSScalarFlux(curr_segment, azim_index, polar_index,
-                                    track_flux, direction);
+                                    fsr_flux, fsr_flux_x, fsr_flux_y, 
+                                    fsr_flux_z, track_flux, direction);
+
+    /* Accumulate contribution of segments to scalar flux before changing fsr */
+    if (s < num_segments - 1 && fsr_id != (&segments[s+1])->_region_id) {
+#ifndef LINEARSOURCE
+      if (_ls_solver == NULL)
+        _cpu_solver->accumulateScalarFluxContribution(fsr_id, fsr_flux);
+      else
+#endif
+        _ls_solver->accumulateLinearFluxContribution(fsr_id, fsr_flux);
+    }
 
     /* Tally the current for CMFD */
     _cpu_solver->tallyCurrent(curr_segment, azim_index, polar_index,
@@ -911,20 +942,42 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     segment* curr_segment = &segments[s];
     long curr_track_id = track_id + curr_segment->_track_idx;
     track_flux = _cpu_solver->getBoundaryFlux(curr_track_id, false);
+    long fsr_id = curr_segment->_region_id;
 
     /* Apply MOC equations */
+#ifndef LINEARSOURCE
     if (_ls_solver == NULL)
       _cpu_solver->tallyScalarFlux(curr_segment, azim_index, polar_index,
-                                   track_flux);
+                                   fsr_flux, track_flux);
     else
+#endif
       _ls_solver->tallyLSScalarFlux(curr_segment, azim_index, polar_index,
-                                    track_flux, direction);
+                                    fsr_flux, fsr_flux_x, fsr_flux_y, 
+                                    fsr_flux_z, track_flux, direction);
 
+    /* Accumulate contribution of segments to scalar flux before changing fsr */
+    if (s > 0 && fsr_id != (&segments[s-1])->_region_id) {
+#ifndef LINEARSOURCE
+      if (_ls_solver == NULL)
+        _cpu_solver->accumulateScalarFluxContribution(fsr_id, fsr_flux);
+      else
+#endif
+        _ls_solver->accumulateLinearFluxContribution(fsr_id, fsr_flux);
+    }
 
     /* Tally the current for CMFD */
     _cpu_solver->tallyCurrent(curr_segment, azim_index, polar_index,
                               track_flux, false);
   }
+
+  /* Tally contribution for last segment */
+  long fsr_id = (&segments[0])->_region_id;
+#ifndef LINEARSOURCE
+  if (_ls_solver == NULL)
+    _cpu_solver->accumulateScalarFluxContribution(fsr_id, fsr_flux);
+  else
+#endif
+    _ls_solver->accumulateLinearFluxContribution(fsr_id, fsr_flux);
 
   /* Transfer boundary angular flux to outgoing Track */
   for (int i=0; i <= max_track_index; i++) {

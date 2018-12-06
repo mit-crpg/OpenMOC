@@ -1,4 +1,5 @@
 #include "Region.h"
+#include <cmath>
 
 /**
  * @brief Constructor sets a few pointers to NULL
