@@ -66,6 +66,7 @@ protected:
 
   /* Buffer to send track angular fluxes and associated information */
   std::vector<float*> _send_buffers;
+  std::vector<int> _send_buffers_index;
 
   /* Buffer to receive track angular fluxes and associated information */
   std::vector<float*> _receive_buffers;
@@ -75,6 +76,9 @@ protected:
 
   /* Vector of vectors containing the connecting track id and direction */
   std::vector<std::vector<long> > _track_connections;
+
+  /* Vector of vectors containing the connecting domains */
+  std::vector<std::vector<int> > _domain_connections;
 
   /* Rank of domains neighboring local domain */
   std::vector<int> _neighbor_domains;

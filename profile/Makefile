@@ -194,6 +194,8 @@ ifeq ($(OPTIMIZE),yes)
   #CFLAGS += -DLINEARSOURCE
   # Set the dimension to 3D at compile time
   #CFLAGS += -DTHREED
+  # Only vacuum boundary conditions, avoid double store of track fluxes
+  CFLAGS += -DONLYVACUUMBC
 endif
 
 # Optimization report flags
