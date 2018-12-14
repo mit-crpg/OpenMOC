@@ -16,6 +16,7 @@
 #include <math.h>
 #include <omp.h>
 #include <stdlib.h>
+#include <unordered_map>
 #endif
 
 #undef track_flux
@@ -66,6 +67,8 @@ protected:
 
   /* Buffer to send track angular fluxes and associated information */
   std::vector<float*> _send_buffers;
+
+  /* Index into send_buffers for pre-filling (ONLYVACUUMBC mode) */
   std::vector<int> _send_buffers_index;
 
   /* Buffer to receive track angular fluxes and associated information */
@@ -73,6 +76,14 @@ protected:
 
   /* Vector of vectors containing boundary track ids and direction */
   std::vector<std::vector<long> > _boundary_tracks;
+
+#ifdef ONLYVACUUMBC
+  /* Vector of the vacuum boundary track ids and direction */
+  std::vector<long> _tracks_from_vacuum;
+
+  /* Vector of vectors containing if a track flux has been sent by pre-fill */
+  std::vector<std::vector<bool> > _track_flux_sent;
+#endif
 
   /* Vector of vectors containing the connecting track id and direction */
   std::vector<std::vector<long> > _track_connections;
@@ -82,6 +93,9 @@ protected:
 
   /* Rank of domains neighboring local domain */
   std::vector<int> _neighbor_domains;
+
+  /* Index of neighboring domains in _neighbor_domains */
+  std::unordered_map<int, int> _neighbor_connections;
 
   /* Array to check whether MPI communications are finished */
   MPI_Request* _MPI_requests;
@@ -107,6 +121,9 @@ protected:
   void transferAllInterfaceFluxes();
   void printCycle(long track_start, int domain_start, int length);
   void boundaryFluxChecker();
+#endif
+#ifdef ONLYVACUUMBC
+  void resetBoundaryFluxes();
 #endif
   virtual void flattenFSRFluxes(FP_PRECISION value);
   void flattenFSRFluxesChiSpectrum();

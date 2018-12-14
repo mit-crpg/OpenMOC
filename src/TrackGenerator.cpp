@@ -469,6 +469,7 @@ void TrackGenerator::setNumThreads(int num_threads) {
       cpus.push_back(sched_getcpu());
     }
   }
+  sort(cpus.begin(), cpus.end());
 
   std::stringstream str_cpus;
   for (int i=0; i<cpus.size(); i++)

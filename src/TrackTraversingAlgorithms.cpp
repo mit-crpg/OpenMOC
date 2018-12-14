@@ -925,8 +925,8 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
                               track_flux, true);
   }
 
-  /* Transfer boundary angular flux to outgoing Track */
 #ifndef ONLYVACUUMBC
+  /* Transfer boundary angular flux to outgoing Track */
   for (int i=0; i <= max_track_index; i++) {
     track_flux = _cpu_solver->getBoundaryFlux(track_id+i, true);
     _cpu_solver->transferBoundaryFlux(tracks_array[i], azim_index, polar_index,
@@ -982,8 +982,8 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
 #endif
     _ls_solver->accumulateLinearFluxContribution(fsr_id, fsr_flux);
 
-  /* Transfer boundary angular flux to outgoing Track */
 #ifndef ONLYVACUUMBC
+  /* Transfer boundary angular flux to outgoing Track */
   for (int i=0; i <= max_track_index; i++) {
     track_flux = _cpu_solver->getBoundaryFlux(track_id+i, false);
     _cpu_solver->transferBoundaryFlux(tracks_array[i], azim_index, polar_index,
