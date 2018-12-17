@@ -925,6 +925,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
                               track_flux, true);
   }
 
+// Cant reset before transferring
 #ifndef ONLYVACUUMBC
   /* Transfer boundary angular flux to outgoing Track */
   for (int i=0; i <= max_track_index; i++) {

@@ -247,6 +247,7 @@ public:
   bool isDomainDecomposed();
   bool isRootDomain();
   void getDomainIndexes(int* indexes);
+  void getDomainStructure(int* structure);
 
   /* Assign root universe to geometry */
   void setRootUniverse(Universe* root_universe);

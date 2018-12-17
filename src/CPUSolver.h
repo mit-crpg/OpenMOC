@@ -65,6 +65,9 @@ protected:
   /* Message size when communicating track angular fluxes at interfaces */
   int _track_message_size;
 
+  /* Number of track fluxes to place in buffer */
+  int _max_buffer_fill;
+
   /* Buffer to send track angular fluxes and associated information */
   std::vector<float*> _send_buffers;
 
@@ -76,6 +79,9 @@ protected:
 
   /* Vector of vectors containing boundary track ids and direction */
   std::vector<std::vector<long> > _boundary_tracks;
+
+  /* Vector to know how long of a send buffer to send to another domain */
+  std::vector<int> _buffer_size;
 
 #ifdef ONLYVACUUMBC
   /* Vector of the vacuum boundary track ids and direction */

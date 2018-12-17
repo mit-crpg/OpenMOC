@@ -1224,6 +1224,15 @@ void TrackGenerator::segmentize() {
                "%5.2f. Z-boundaries are assumed to be infinite in 2D "
                "TrackGenerators.", min_z, max_z);
 
+#ifdef MPIx
+  /* Check that the geometry is not domain decomposed in Z */
+  int domains_xyz[3];
+  _geometry->getDomainStructure(domains_xyz);
+  if (domains_xyz[2] > 1)
+    log_printf(ERROR, "A geometry with an axial domain domain decomposition "
+               "has been supplied to a 2D ray tracer.");
+#endif
+
     Cmfd* cmfd = _geometry->getCmfd();
     if (cmfd != NULL) {
 
