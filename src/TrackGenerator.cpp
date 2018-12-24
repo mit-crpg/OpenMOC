@@ -245,7 +245,7 @@ Track** TrackGenerator::get2DTracks() {
 
 
 /**
- * @breif Calculates and returns the maximum optcial length for any segment
+ * @brief Calculates and returns the maximum optcial length for any segment
  *        in the Geomtry.
  * @details The _max_optical_length value is recomputed, updated, and returned.
  *          This value determines the when segments must be split during ray
@@ -418,9 +418,15 @@ void TrackGenerator::setNumThreads(int num_threads) {
    * CPU grouping */
   std::vector<int> cpus;
   cpus.reserve(num_threads);
+
 #pragma omp parallel for schedule(static)
-  for (int i=0; i<num_threads; i++)
-    cpus.push_back(sched_getcpu());
+  for (int i=0; i<num_threads; i++) {
+#pragma omp critical
+    {
+      cpus.push_back(sched_getcpu());
+    }
+  }
+
   std::stringstream str_cpus;
   for (int i=0; i<cpus.size(); i++)
       str_cpus << cpus.at(i) << " ";
@@ -1583,7 +1589,7 @@ void TrackGenerator::setMaxOpticalLength(FP_PRECISION tau) {
 
 
 /**
- * @breif Sets the maximum number of segments per Track
+ * @brief Sets the maximum number of segments per Track
  * @param max_num_segments the maximum number of segments per Track
  */
 void TrackGenerator::setMaxNumSegments(int max_num_segments) {

@@ -28,7 +28,7 @@ TraverseSegments::~TraverseSegments() {
 
 
 /**
- * @breif Loops over Tracks, applying the provided kernel to all segments and
+ * @brief Loops over Tracks, applying the provided kernel to all segments and
  *        the functionality described in onTrack(...) to all Tracks.
  * @details The segment formation method imported from the TrackGenerator
  *          during construction is used to redirect to the appropriate looping

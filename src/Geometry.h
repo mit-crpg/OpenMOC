@@ -162,26 +162,26 @@ private:
 
   /* A boolean to know whether geometry is domain decomposed or not */
   bool _domain_decomposed;
-  
+
   /* A boolean to know whether FSRs were counted */
   bool _domain_FSRs_counted;
-  
+
   /* Number of domains in the X, Y and Z directions */
   int _num_domains_x;
   int _num_domains_y;
   int _num_domains_z;
-  
+
   /* Index of the domain in the whole geometry in the X, Y and Z directions */
   int _domain_index_x;
   int _domain_index_y;
   int _domain_index_z;
-  
+
   /* Lattice object of size 1 that contains the local domain */
   Lattice* _domain_bounds;
-  
+
   /* Number of FSRs in each domain */
   std::vector<long> _num_domain_FSRs;
-  
+
 #ifdef MPIx
   /* MPI communicator, used to transfer information across domain for both 
    * ray-tracing and solving the MOC equations */
@@ -196,14 +196,14 @@ private:
 
   /* Wether to read bites backwards or forward (for BGQ) */
   bool _twiddle;
-  
+
   /* Whether the geometry was loaded from a .geo file or created in the input 
    * file. This matters for memory de-allocation purposes. */
   bool _loaded_from_file;
 
   /* Function to find the cell containing the coordinates */
   Cell* findFirstCell(LocalCoords* coords, double azim, double polar=M_PI_2);
-  
+
   /* Function to find the next cell, starting at some coordinate with a given
    * angle */
   Cell* findNextCell(LocalCoords* coords, double azim, double polar=M_PI_2);
@@ -254,7 +254,7 @@ public:
 
   /* Assign root universe to geometry */
   void setRootUniverse(Universe* root_universe);
-  
+
   /* Set up domain decomposition */
 #ifdef MPIx
   void setDomainDecomposition(int nx, int ny, int nz, MPI_Comm comm);

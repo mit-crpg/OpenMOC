@@ -66,7 +66,7 @@ typedef enum {
   /** A message sandwiched between two lines of characters */
   TITLE,
 
-  /** A message for to warn the user */
+  /** A message to warn the user */
   WARNING,
 
   /** A message to warn of critical program conditions */

@@ -137,7 +137,7 @@ public:
   double* getRotationMatrix();
   double* getTranslation();
   void retrieveRotation(double* rotations, int num_axes,
-			std::string units="degrees");
+                        std::string units="degrees");
   void retrieveTranslation(double* translations, int num_axes);
   int getNumRings();
   int getNumSectors();

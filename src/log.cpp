@@ -99,6 +99,7 @@ static omp_lock_t log_error_lock;
  *          is reported and program execution is terminated.
  */
 void initialize_logger() {
+
   /* Initialize OpenMP mutex lock for ERROR messages with exceptions */
   omp_init_lock(&log_error_lock);
 }
@@ -179,7 +180,7 @@ void set_header_character(char c) {
 
 /**
  * @brief Returns the character used to format HEADER type log messages.
- * @return the character used for HEADER type log messages
+ * @return the character used for HEADER log messages
  */
 char get_header_character() {
   return header_char;

@@ -905,7 +905,7 @@ std::string Quadrature::toString() {
 
 
 /**
- * @breif Returns the type of Quadrature created.
+ * @brief Returns the type of Quadrature created.
  * @return The quadrature type
  */
 quadratureType Quadrature::getQuadratureType() {

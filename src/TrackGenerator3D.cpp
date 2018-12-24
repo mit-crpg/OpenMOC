@@ -2325,7 +2325,7 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
 
 
 /**
- * @breif Updates stack indexes to reflect those from the given Track ID
+ * @brief Updates stack indexes to reflect those from the given Track ID
  * @param id The 3D Track ID
  * @param tsi The stack indexes to be updated
  */

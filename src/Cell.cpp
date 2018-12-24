@@ -105,7 +105,7 @@ Cell::~Cell() {
   if (_region != NULL)
     delete _region;
   /* Materials are deleted separately from cells, since multiple cells
-      can share a same material */
+      can share the same material */
   /* Universes are also deleted separately, since Universes can have been
      defined in your input scripts, rather than loaded from a Geometry file */
 }
@@ -130,7 +130,7 @@ int Cell::getId() const {
 
 
 /**
- * @brief Return the user-defined name of the Cell
+ * @brief Return the user-defined name of the Cell.
  * @return the Cell name
  */
 char* Cell::getName() const {
@@ -967,7 +967,7 @@ void Cell::setNumRings(int num_rings) {
   if (num_rings < 0)
     log_printf(ERROR, "Unable to give %d rings to Cell %d since this is "
                "a negative number", num_rings, _id);
-  
+
   if (num_rings == 1)
     _num_rings = 0;
   else
@@ -1069,9 +1069,9 @@ void Cell::removeSurface(Surface* surface) {
 
 
  /**
-  * @brief Insert a logical node (intersection or union) into the cell region
+  * @brief Insert a logical node (intersection or union) into the cell region.
   * @details This method creates a node in a tree of regions. The leaves, or the
-  *          nodes at the very bottom of the tree, are haflspaces. The region
+  *          nodes at the very bottom of the tree, are halfspaces. The region
              is defined by that tree.
   * @param region_type the logical operation
   */
