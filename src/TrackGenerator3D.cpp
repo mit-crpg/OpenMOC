@@ -877,7 +877,7 @@ void TrackGenerator3D::initializeTracks() {
 
 
 /**
- * @brief Initializes 2D Track chains array
+ * @brief Initializes 2D Track chains array.
  * @details This method creates an array of 2D Tracks ordered by azimuthal
  *          angle, x index, and link index.
  */
@@ -964,7 +964,7 @@ void TrackGenerator3D::getCycleTrackData(TrackChainIndexes* tcis,
 
 /**
  * @brief Compute the starting coordinates of a 3D chain track, and the link 
-          number of the 2D track where its start point reside on
+          number of the 2D track where its start point reside on.
  * @param tci the track chain index of a chain track
  * @param track_3D the chain track
  * @return the link number of the 2D track where the track_3D start point 
@@ -1058,7 +1058,7 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
 
 /**
  * @brief A 3D Track is decomposed by intersections with x and y boundaries of 
- *        z-stacks
+ *        z-stacks.
  * @details A 3D Track which initially neglects intersections with x and y
  *          boundaries is split into multiple tracks by finding those
  *          x and y intersections. If create_arrays is True, the number of 
@@ -1146,7 +1146,7 @@ void TrackGenerator3D::set3DTrackData(TrackChainIndexes* tci,
       break;
 
     /* If the Z boundary or last link or the desired link has been reached,
-     * exit. tci->_link appoints the desired track*/
+     * exit. tci->_link appoints the desired track */
     if (dl_z < dl_xy || track_2D->getXYIndex() >= _num_y[tci->_azim] ||
         tci->_link == link - first_link)
       end_of_chain = true;
@@ -1350,7 +1350,7 @@ void TrackGenerator3D::retrieveSingle3DTrackCoords(double coords[6],
 
 
 /**
- * @brief allocates memory for 3D Tracks
+ * @brief Allocates memory for 3D Tracks.
  * @details Before calling this function, the number of tracks per z-stack
  *          should be known and initialized in the _tracks_per_stack 3D array
  */
@@ -1359,6 +1359,7 @@ void TrackGenerator3D::create3DTracksArrays() {
   long num_tracks = 0;
   long tracks_per_azim = 0;
 
+  /* Count number of tracks : total, per azimuthal and polar angle */
   for (int a=0; a < _num_azim/2; a++) {
     tracks_per_azim = 0;
     for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
@@ -1374,6 +1375,7 @@ void TrackGenerator3D::create3DTracksArrays() {
 
   log_printf(NORMAL, "Total number of Tracks = %ld", num_tracks);
 
+  /* Allocate tracks arrays if using explicit ray tracing */
   if (_segment_formation == EXPLICIT_3D) {
     _tracks_3D = new Track3D***[_num_azim/2];
     for (int a=0; a < _num_azim/2; a++) {
@@ -1398,7 +1400,7 @@ void TrackGenerator3D::create3DTracksArrays() {
 
 
 /**
- * @brief Returns the 3D Track ID based on its indexes
+ * @brief Returns the 3D Track ID based on its indexes.
  * @param tsi The indexes of the Track of interest (azimuthal, xy track, polar,
  *        and z stack)
  */
@@ -1408,7 +1410,7 @@ long TrackGenerator3D::get3DTrackID(TrackStackIndexes* tsi) {
 
 
 /**
- * @brief Allocates a new Quadrature with the default Quadrature
+ * @brief Allocates a new Quadrature with the default Quadrature.
  * @details The default quadrature for 3D calculations is equal weight
  */
 void TrackGenerator3D::initializeDefaultQuadrature() {
@@ -1424,7 +1426,7 @@ void TrackGenerator3D::initializeDefaultQuadrature() {
 
 
 /**
- * @brief Returns the filename for writing tracking data
+ * @brief Returns the filename for writing tracking data.
  */
 std::string TrackGenerator3D::getTestFilename(std::string directory) {
 
@@ -1482,7 +1484,7 @@ std::string TrackGenerator3D::getTestFilename(std::string directory) {
 
 
 /**
- * @brief Updates whether the TrackGenerator contains segments
+ * @brief Updates whether the TrackGenerator contains segments.
  * @param contains_segments whether the TrackGenerator contains segments
  */
 void TrackGenerator3D::setContainsSegments(bool contains_segments) {
@@ -1495,7 +1497,7 @@ void TrackGenerator3D::setContainsSegments(bool contains_segments) {
 
 /**
  * @brief Checks the boundary conditions for all 3D surfaces for inconsistent
- *        periodic boundary conditions
+ *        periodic boundary conditions.
  */
 void TrackGenerator3D::checkBoundaryConditions() {
 
@@ -1525,13 +1527,13 @@ void TrackGenerator3D::checkBoundaryConditions() {
 
 
 /**
- * @brief Allocates memory for temporary segment storage if necessary
+ * @brief Allocates memory for temporary segment storage if necessary.
  * @details New memory is only allocated if _max_num_segments exceeds
  *          _num_seg_matrix_columns (the maximum when the segments were allocated)
  */
 void TrackGenerator3D::allocateTemporarySegments() {
 
-  /* Check if a risize is unnecessary */
+  /* Check if a resize is unnecessary */
   if (_max_num_segments <= _num_seg_matrix_columns)
     return;
 
@@ -1569,7 +1571,7 @@ void TrackGenerator3D::allocateTemporarySegments() {
 
 
 /**
- * @brief Allocates memory for temporary Track storage if necessary
+ * @brief Allocates memory for temporary Track storage if necessary.
  */
 void TrackGenerator3D::allocateTemporaryTracks() {
 
@@ -1603,7 +1605,7 @@ void TrackGenerator3D::allocateTemporaryTracks() {
 
 
 /**
- * @brief Resets the TrackGenerator to not contain tracks or segments
+ * @brief Resets the TrackGenerator to not contain tracks or segments.
  */
 void TrackGenerator3D::resetStatus() {
   TrackGenerator::resetStatus();
@@ -1639,7 +1641,7 @@ bool TrackGenerator3D::containsSegments() {
 
 /**
  * @brief Updates the provided Track with the correct information based on the
- *        Track indexes
+ *        Track indexes.
  * @param track The 3D Track whose information is updated
  * @param tsi The indexes of the 3D Track
  */
@@ -1705,7 +1707,7 @@ Track3D**** TrackGenerator3D::get3DTracks() {
 
 
 /**
- * @brief Converts TrackStackIndexes to TrackChainIndexes
+ * @brief Converts TrackStackIndexes to TrackChainIndexes.
  * @param tsi The TrackStackIndexes of the 3D Track
  * @param tci The TrackChainIndexes of the 3D Track to be updated
  */
@@ -1722,7 +1724,7 @@ void TrackGenerator3D::convertTSItoTCI(TrackStackIndexes* tsi,
 
 
 /**
- * @brief Converts TrackChainIndexes to TrackStackIndexes
+ * @brief Converts TrackChainIndexes to TrackStackIndexes.
  * @param tci The TrackChainIndexes of the 3D Track
  * @param tsi The TrackStackIndexes of the 3D Track to be updated
  */
@@ -1739,7 +1741,7 @@ void TrackGenerator3D::convertTCItoTSI(TrackChainIndexes* tci,
 
 
 /**
- * @brief Returns the index into the chain based on chain indexes
+ * @brief Returns the index into the chain based on chain indexes.
  * @param tci The chain indexes
  * @return the index into the 3D z-stack
  */
@@ -1750,7 +1752,7 @@ int TrackGenerator3D::getLinkIndex(TrackChainIndexes* tci) {
 
 
 /**
- * @brief Updates the index into the 3D chain based on chain and stack indexes
+ * @brief Updates the index into the 3D chain based on chain and stack indexes.
  * @param tci The chain indexes to be updated
  * @param tsi The stack indexes
  */
@@ -1764,7 +1766,7 @@ void TrackGenerator3D::setLinkIndex(TrackChainIndexes* tci,
 
 
 /**
- * @brief Calculates the number of Tracks in the l-z traversal
+ * @brief Calculates the number of Tracks in the l-z traversal.
  * @param tci The chain indexes
  * @return the number of Tracks in the l-z traversal
  */
@@ -1804,7 +1806,7 @@ int TrackGenerator3D::getNum3DTrackChainLinks(TrackChainIndexes* tci) {
 
 
 /**
- * @brief Fills the provided 3D Track with its linking information
+ * @brief Fills the provided 3D Track with its linking information.
  * @param tsi The stack indexes
  * @param tci The chain indexes
  * @param tci outgoing A boolean indicating the direction of the Track
@@ -2325,7 +2327,7 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
 
 
 /**
- * @brief Updates stack indexes to reflect those from the given Track ID
+ * @brief Updates stack indexes to reflect those from the given Track ID.
  * @param id The 3D Track ID
  * @param tsi The stack indexes to be updated
  */
@@ -2379,21 +2381,21 @@ void TrackGenerator3D::writeExtrudedFSRInfo(FILE* out) {
         _geometry->getExtrudedFSRKeysMap();
     std::string* extruded_fsr_key_list = extruded_FSR_keys_map.keys();
     ExtrudedFSR** extruded_fsr_list = extruded_FSR_keys_map.values();
-    
+
     /* Write number of extruded FSRs */
     int num_extruded_FSRs = extruded_FSR_keys_map.size();
     fwrite(&num_extruded_FSRs, sizeof(int), 1, out);
 
     /* Write extruded FSR data */
     for (int i=0; i < num_extruded_FSRs; i++) {
-      
+
       std::string key = extruded_fsr_key_list[i];
       int string_length = key.length() + 1;
       fwrite(&string_length, sizeof(int), 1, out);
       fwrite(key.c_str(), sizeof(char)*string_length, 1, out);
 
       ExtrudedFSR* extruded_fsr = extruded_fsr_list[i];
-      
+
       int extruded_fsr_id = extruded_fsr->_fsr_id;
       fwrite(&extruded_fsr_id, sizeof(int), 1, out);
  
@@ -2403,13 +2405,13 @@ void TrackGenerator3D::writeExtrudedFSRInfo(FILE* out) {
       fwrite(&x, sizeof(double), 1, out);
       fwrite(&y, sizeof(double), 1, out);
       fwrite(&z, sizeof(double), 1, out);
-      
+
       int num_fsrs = extruded_fsr->_num_fsrs;
       fwrite(&num_fsrs, sizeof(int), 1, out);
-     
+
       double init_mesh_val = extruded_fsr->_mesh[0];
       fwrite(&init_mesh_val, sizeof(double), 1, out);
-      
+
       for (int j=0; j < num_fsrs; j++) {
         long fsr_id = extruded_fsr->_fsr_ids[j];
         fwrite(&fsr_id, sizeof(long), 1, out);
@@ -2417,7 +2419,7 @@ void TrackGenerator3D::writeExtrudedFSRInfo(FILE* out) {
         fwrite(&mesh_val, sizeof(double), 1, out);
       }
     }
-    
+
     /* Delete extruded FSR key and value lists */
     delete [] extruded_fsr_key_list;
     delete [] extruded_fsr_list;
@@ -2441,7 +2443,7 @@ void TrackGenerator3D::writeExtrudedFSRInfo(FILE* out) {
  * @param in file to read from
  */
 void TrackGenerator3D::readExtrudedFSRInfo(FILE* in) {
-  
+
   /* Module to read track info */
   ReadSegments read_segments(this);
   read_segments.setInputFile(in);
@@ -2451,7 +2453,7 @@ void TrackGenerator3D::readExtrudedFSRInfo(FILE* in) {
         _geometry->getExtrudedFSRKeysMap();
     int num_extruded_FSRs;
     int ret = _geometry->twiddleRead(&num_extruded_FSRs, sizeof(int), 1, in);
-    
+
     /* Resize for the number of extruded FSRs */
     std::vector<ExtrudedFSR*>& extruded_FSR_lookup = 
         _geometry->getExtrudedFSRLookup();
@@ -2460,7 +2462,7 @@ void TrackGenerator3D::readExtrudedFSRInfo(FILE* in) {
 
     /* Write extruded FSR data */
     for (int i=0; i < num_extruded_FSRs; i++) {
-      
+
       /* Read the extruded FSR key */
       int string_length;
       ret = _geometry->twiddleRead(&string_length, sizeof(int), 1, in);
@@ -2472,7 +2474,7 @@ void TrackGenerator3D::readExtrudedFSRInfo(FILE* in) {
       /* Create new extruded FSR and add to map */
       ExtrudedFSR* extruded_fsr = new ExtrudedFSR;
       extruded_FSR_keys_map.insert(key, extruded_fsr);
-      
+
       /* Read ID */
       int extruded_fsr_id;
       ret = _geometry->twiddleRead(&extruded_fsr_id, sizeof(int), 1, in);

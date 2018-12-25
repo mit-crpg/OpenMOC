@@ -5,19 +5,19 @@
  * @author Samuel Shaner, MIT, Course 22 (shaner@mit.edu)
  */
 
-#ifndef VECTOR_H_
-#define VECTOR_H_
+#ifndef SRC_VECTOR_H_
+#define SRC_VECTOR_H_
 
 
 #ifdef __cplusplus
 #include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <map>
 #include <vector>
 #include <string>
 #include <iostream>
 #include <sstream>
-#include <stdlib.h>
-#include <stdio.h>
 #include <iomanip>
 #include "log.h"
 #include "pairwise_sum.h"
@@ -25,9 +25,7 @@
 
 
 class Vector {
-
-private:
-
+ private:
   /** A list of lists representing the vector */
   CMFD_PRECISION* _array;
   int _num_rows;
@@ -44,9 +42,9 @@ private:
   void setNumZ(int num_z);
   void setNumGroups(int num_groups);
 
-public:
-  Vector(omp_lock_t* cell_locks, int num_x=1, int num_y=1, int num_z=1,
-         int num_groups=1);
+ public:
+  Vector(omp_lock_t* cell_locks, int num_x = 1, int num_y = 1, int num_z = 1,
+         int num_groups = 1);
   virtual ~Vector();
 
   /* Worker functions */
@@ -71,8 +69,9 @@ public:
 
   /* Setter functions */
   void setValue(int cell, int group, CMFD_PRECISION val);
-  void setValues(int cell, int group_start, int group_end, CMFD_PRECISION* vals);
+  void setValues(int cell, int group_start, int group_end,
+                 CMFD_PRECISION* vals);
   void setAll(CMFD_PRECISION val);
 };
 
-#endif /* VECTOR_H_ */
+#endif  // SRC_VECTOR_H_

@@ -14,8 +14,8 @@ static std::set<int> used_ids;
  *          OpenMOC input files. The method makes use of a static Cell
  *          ID which is incremented each time the method is called to enable
  *          unique generation of monotonically increasing IDs. The method's
- *          first ID begins at 10000. Hence, user-defined Cell IDs greater
- *          than or equal to 10000 are prohibited.
+ *          first ID begins at 1,000,000. Hence, user-defined Cell IDs greater
+ *          than or equal to 1,000,000 are prohibited.
  */
 int cell_id() {
   int id = auto_id;
@@ -29,7 +29,7 @@ int cell_id() {
 
 
 /**
- * @brief Resets the auto-generated unique Cell ID counter to 10000.
+ * @brief Resets the auto-generated unique Cell ID counter to 1,000,000.
  */
 void reset_cell_id() {
   auto_id = DEFAULT_INIT_ID;

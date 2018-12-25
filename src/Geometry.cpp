@@ -2615,8 +2615,7 @@ void Geometry::initializeFSRVectors() {
 
   /* Fill vectors key and material ID information */
   #pragma omp parallel for
-  for (long i=0; i < num_FSRs; i++)
-  {
+  for (long i=0; i < num_FSRs; i++) {
     std::string key = key_list[i];
     fsr_data* fsr = value_list[i];
     long fsr_id = fsr->_fsr_id;

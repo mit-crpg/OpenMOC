@@ -410,7 +410,7 @@ void VectorizedSolver::computeFSRSources(int iteration) {
 
 /**
  * @brief Add the source term contribution in the transport equation to
- *        the FSR scalar flux
+ *        the FSR scalar flux.
  */
 void VectorizedSolver::addSourceToScalarFlux() {
 

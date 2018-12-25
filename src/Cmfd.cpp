@@ -1200,9 +1200,14 @@ void Cmfd::updateMOCFlux() {
         if (update_ratio < 0.05)
           update_ratio = 0.05;
 
-        if (_convergence_data != NULL)
-          if (std::abs(log(update_ratio)) > std::abs(log(_convergence_data->pf)))
-            _convergence_data->pf = update_ratio;
+        if (_convergence_data != NULL) {
+#pragma omp critical
+          {
+            if (std::abs(log(update_ratio)) > 
+                std::abs(log(_convergence_data->pf)))
+              _convergence_data->pf = update_ratio;
+          }
+        }
 
         for (int h = _group_indices[e]; h < _group_indices[e + 1]; h++) {
 
