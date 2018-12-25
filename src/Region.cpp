@@ -2,7 +2,7 @@
 #include <cmath>
 
 /**
- * @brief Constructor sets a few pointers to NULL
+ * @brief Constructor sets a few pointers to NULL.
  */
 Region::Region() {
   _parent_region = NULL;
@@ -81,11 +81,13 @@ std::vector<Region*> Region::getNodes() {
  * @returns a vector of the Region's nodes
  */
 std::vector<Region*> Region::getAllNodes() {
+
   std::vector<Region*> all_nodes;
   std::vector<Region*> nodes;
   std::vector<Region*>::iterator iter;
   std::vector<Region*>::iterator sub_iter;
-   /* Recursively collect all nodes from this Regions nodes */
+
+  /* Recursively collect all nodes from this Regions nodes */
   for (iter = _nodes.begin(); iter != _nodes.end(); iter++) {
     all_nodes.push_back(*iter);
     nodes = (*iter)->getAllNodes();
@@ -109,6 +111,7 @@ std::map<int, Halfspace*> Region::getAllSurfaces() {
   std::map<int, Halfspace*> all_surfaces;
   std::map<int, Halfspace*> node_surfaces;
   std::vector<Region*>::iterator iter;
+
   /* Recursively collect all Halfspaces from this Region's nodes */
   for (iter = _nodes.begin(); iter != _nodes.end(); iter++) {
     node_surfaces = (*iter)->getAllSurfaces();
@@ -128,7 +131,7 @@ regionType Region::getRegionType() {
 
 
 /**
- * @brief Save the parent of the current node/Region.
+ * @brief Set the parent of the current node/Region.
  * @param parent the node/Region that contains the current node/Region
  */
 void Region::setParentRegion(Region* parent) {
@@ -778,7 +781,7 @@ Surface* Halfspace::getSurface() {
 
 /**
  * @brief Return the side of the Surface for this Halfspace.
- * @param the side of the surface for this Halfspace (+1 or -1)
+ * @return the side of the surface for this Halfspace (+1 or -1)
  */
 int Halfspace::getHalfspace() {
   return _halfspace;
@@ -787,7 +790,6 @@ int Halfspace::getHalfspace() {
 
 /**
  * @brief Changes the side of the surface for this Halfspace.
- * @param the side of the surface for this Halfspace (+1 or -1)
  */
 void Halfspace::reverseHalfspace() {
   _halfspace *= -1;
@@ -963,7 +965,7 @@ double Halfspace::minSurfaceDist(LocalCoords* coords) {
 
 /**
  * @brief Constructor creates an Intersection of the Intersection of
- *        two XPlane and two YPlane objects.
+ *        two XPlane and two YPlane (and two ZPlane in 3D) objects.
  * @details This is a special subclass of the Intersection which
  *          represents the interior of a rectangular prism aligned
  *          with th z-axis.
@@ -971,6 +973,8 @@ double Halfspace::minSurfaceDist(LocalCoords* coords) {
  * @param width_y the width of the prism along the y-axis (in cm)
  * @param origin_x the center of the prism along the x-axis (in cm)
  * @param origin_y the center of the prism along the y-axis (in cm)
+ * @param width_z the width of the prism along the z-axis (in cm)
+ * @param origin_z the center of the prism along the z-axis (in cm)
  * @returns a pointer to an Intersection object
  */
 RectangularPrism::RectangularPrism(double width_x, double width_y,
@@ -978,7 +982,7 @@ RectangularPrism::RectangularPrism(double width_x, double width_y,
                                    double width_z, double origin_z):
   Intersection() {
 
-  /* Instantiate the XPlane and YPlane objects bounding the prism */
+  /* Instantiate the XPlane, YPlane and ZPlane objects bounding the prism */
   XPlane* min_x = new XPlane(origin_x-width_x/2.);
   XPlane* max_x = new XPlane(origin_x+width_x/2.);
   YPlane* min_y = new YPlane(origin_y-width_y/2.);
@@ -1007,7 +1011,7 @@ RectangularPrism::RectangularPrism(double width_x, double width_y,
 
 /**
  * @brief Sets the boundary condition type (ie., VACUUM, REFLECTIVE, etc)
- *        to assign to each of the XPlanes and YPlanes bounding the prism.
+ *        to assign to each of the planes bounding the prism.
  * @param boundary_type the boundary condition type for this Prism
  */
 void RectangularPrism::setBoundaryType(boundaryType boundary_type) {
@@ -1015,7 +1019,7 @@ void RectangularPrism::setBoundaryType(boundaryType boundary_type) {
   std::map<int, Halfspace*> all_surfaces = getAllSurfaces();
   std::map<int, Halfspace*>::iterator iter;
 
-  /* Assign the boundary to each of the bounding XPlanes and YPlanes */
+  /* Assign the boundary to each of the bounding XPlanes, YPlanes and ZPlanes */
   for (iter = all_surfaces.begin(); iter != all_surfaces.end(); iter++)
     iter->second->getSurface()->setBoundaryType(boundary_type);
 }

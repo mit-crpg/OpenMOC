@@ -1,6 +1,6 @@
 /**
  * @file ParallelHashMap.h
- * @brief A thread-safe hash map supporting insertion and lookup operations
+ * @brief A thread-safe hash map supporting insertion and lookup operations.
  * @details The parallel hash map is built on top of a fixed-sized hash map
  *    object and features OpenMP concurrency structures. The underlying
  *    fixed-sized hash map handles collisions with chaining.
@@ -20,7 +20,7 @@
 
 /**
  * @class FixedHashMap ParallelHashMap.h "src/ParallelHashMap.h"
- * @brief A fixed-size hash map supporting insertion and lookup operations
+ * @brief A fixed-size hash map supporting insertion and lookup operations.
  * @details The FixedHashMap class supports insertion and lookup operations
  *    but not deletion as deletion is not needed in the OpenMOC application.
  *    This hash table uses chaining for collisions and does not incorporate
@@ -62,7 +62,7 @@ class FixedHashMap {
 
 /**
  * @class ParallelHashMap ParallelHashMap.h "src/ParallelHashMap.h"
- * @brief A thread-safe hash map supporting insertion and lookup operations
+ * @brief A thread-safe hash map supporting insertion and lookup operations.
  * @details The ParallelHashMap class is built on top of the FixedHashMap
  *    class, supporting insertion and lookup operations but not deletion as
  *    deletion is not needed in the OpenMOC application. This hash table uses
@@ -82,8 +82,8 @@ class ParallelHashMap {
     volatile long pad_L3;
     volatile long pad_L4;
     volatile long pad_L5;
+    volatile long pad_L6;
     volatile long pad_L7;
-    volatile long pad_L8;
     FixedHashMap<K,V> volatile* value;
     volatile long pad_R1;
     volatile long pad_R2;
@@ -175,7 +175,7 @@ FixedHashMap<K,V>::~FixedHashMap() {
 
 
 /**
- * @brief Determine whether the fixed-size table contains a given key
+ * @brief Determine whether the fixed-size table contains a given key.
  * @details The linked list in the bucket associated with the key is searched
  *       to determine whether the key is present.
  * @param key key to be searched
@@ -224,8 +224,8 @@ V& FixedHashMap<K,V>::at(K& key) {
   }
 
   /* after the bucket has been completely searched without finding the key,
-     throw an exception */
-  throw std::out_of_range("Key not present in map");
+     print an error message */
+  log_printf(ERROR, "Key not present in map");
 }
 
 
@@ -306,7 +306,7 @@ long FixedHashMap<K,V>::insert_and_get_count(K key, V value) {
 
 
 /**
- * @brief Returns the number of key/value pairs in the fixed-size table
+ * @brief Returns the number of key/value pairs in the fixed-size table.
  * @return number of key/value pairs in the map
  */
 template <class K, class V>
@@ -316,7 +316,7 @@ size_t FixedHashMap<K,V>::size() {
 
 
 /**
- * @brief Returns the number of buckets in the fixed-size table
+ * @brief Returns the number of buckets in the fixed-size table.
  * @return number of buckets in the map
  */
 template <class K, class V>
@@ -326,7 +326,7 @@ size_t FixedHashMap<K,V>::bucket_count() {
 
 
 /**
- * @brief Returns an array of the keys in the fixed-size table
+ * @brief Returns an array of the keys in the fixed-size table.
  * @details All buckets are scanned in order to form a list of all keys
  *      present in the table and then the list is returned. WARNING: The user
  *      is responsible for freeing the allocated memory once the array is no
@@ -355,7 +355,7 @@ K* FixedHashMap<K,V>::keys() {
 
 
 /**
- * @brief Returns an array of the values in the fixed-size table
+ * @brief Returns an array of the values in the fixed-size table.
  * @details All buckets are scanned in order to form a list of all values
  *      present in the table and then the list is returned. WARNING: The user
  *      is responsible for freeing the allocated memory once the array is no
@@ -409,7 +409,7 @@ void FixedHashMap<K,V>::clear() {
 
 
 /**
- * @brief Prints the contents of each bucket to the screen
+ * @brief Prints the contents of each bucket to the screen.
  * @details All buckets are scanned and the contents of the buckets are
  *      printed, which are pointers to linked lists. If the pointer is NULL
  *      suggesting that the linked list is empty, NULL is printed to the
@@ -465,7 +465,7 @@ ParallelHashMap<K,V>::~ParallelHashMap() {
 
 
 /**
- * @brief Determine whether the parallel hash map contains a given key
+ * @brief Determine whether the parallel hash map contains a given key.
  * @details First the thread accessing the table announces its presence and
  *      which table it is reading. Then the linked list in the bucket
  *      associated with the key is searched without setting any locks
@@ -716,7 +716,7 @@ void ParallelHashMap<K,V>::resize() {
 
 
 /**
- * @brief Returns the number of key/value pairs in the underlying table
+ * @brief Returns the number of key/value pairs in the underlying table.
  * @return number of key/value pairs in the map
  */
 template <class K, class V>
@@ -726,7 +726,7 @@ size_t ParallelHashMap<K,V>::size() {
 
 
 /**
- * @brief Returns the number of buckets in the underlying table
+ * @brief Returns the number of buckets in the underlying table.
  * @return number of buckets in the map
  */
 template <class K, class V>
@@ -736,7 +736,7 @@ size_t ParallelHashMap<K,V>::bucket_count() {
 
 
 /**
- * @brief Returns the number of locks in the parallel hash map
+ * @brief Returns the number of locks in the parallel hash map.
  * @return number of locks in the map
  */
 template <class K, class V>
@@ -746,7 +746,7 @@ size_t ParallelHashMap<K,V>::num_locks() {
 
 
 /**
- * @brief Returns an array of the keys in the underlying table
+ * @brief Returns an array of the keys in the underlying table.
  * @details All buckets are scanned in order to form a list of all keys
  *      present in the table and then the list is returned. Threads
  *      announce their presence to ensure table memory is not freed
@@ -781,7 +781,7 @@ K* ParallelHashMap<K,V>::keys() {
 
 
 /**
- * @brief Returns an array of the values in the underlying table
+ * @brief Returns an array of the values in the underlying table.
  * @details All buckets are scanned in order to form a list of all values
  *      present in the table and then the list is returned. Threads
  *      announce their presence to ensure table memory is not freed
@@ -816,7 +816,7 @@ V* ParallelHashMap<K,V>::values() {
 
 
 /**
- * @brief Prevents the parallel hash map from further resizing
+ * @brief Prevents the parallel hash map from further resizing.
  */
 template <class K, class V>
 void ParallelHashMap<K,V>::setFixedSize() {
@@ -844,7 +844,7 @@ void ParallelHashMap<K,V>::clear() {
 
 
 /**
- * @brief Prints the contents of each bucket to the screen
+ * @brief Prints the contents of each bucket to the screen.
  * @details All buckets are scanned and the contents of the buckets are
  *      printed, which are pointers to linked lists. If the pointer is NULL
  *      suggesting that the linked list is empty, NULL is printed to the

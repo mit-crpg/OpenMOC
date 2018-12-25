@@ -3,10 +3,12 @@
 
 
 /**
- * @brief Constructor for the TrackGenerator assigns default values.
+ * @brief Constructor for the TrackGenerator3D assigns default values.
  * @param geometry a pointer to a Geometry object
  * @param num_azim number of azimuthal angles in \f$ [0, 2\pi] \f$
- * @param spacing track spacing (cm)
+ * @param num_polar number of polar angles in \f$ [0, \pi] \f$
+ * @param azim_spacing track azimuthal spacing (cm)
+ * @param z_spacing track axial spacing (cm)
  */
 TrackGenerator3D::TrackGenerator3D(Geometry* geometry, int num_azim,
                                    int num_polar, double azim_spacing,
@@ -113,8 +115,8 @@ TrackGenerator3D::~TrackGenerator3D() {
 
 
 /**
- * @brief Return the number of polar angles in \f$ [0, \pi] \f$
- * @return the number of polar angles in \f$ \pi \f$
+ * @brief Return the number of polar angles in \f$ [0, \pi] \f$.
+ * @return the number of polar angles in \f$ [0, \pi] \f$
  */
 int TrackGenerator3D::getNumPolar() {
   return _num_polar;
@@ -200,10 +202,10 @@ long TrackGenerator3D::getNum3DSegments() {
 
 /**
  * @brief Returns the spacing between tracks in the axial direction for the
- *        requested azimuthal angle index and polar angle index
+ *        requested azimuthal angle index and polar angle index.
  * @param azim the requested azimuthal angle index
  * @param polar the requested polar angle index
- * @return the requested axial spacing
+ * @return the effective axial spacing
  */
 double TrackGenerator3D::getZSpacing(int azim, int polar) {
   return _dz_eff[azim][polar];
@@ -211,7 +213,7 @@ double TrackGenerator3D::getZSpacing(int azim, int polar) {
 
 
 /**
- * @brief Returns the maximum number of tracks in a single stack
+ * @brief Returns the maximum number of tracks in a single stack.
  * @return the maximum number of tracks
  */
 int TrackGenerator3D::getMaxNumTracksPerStack() {
@@ -220,13 +222,13 @@ int TrackGenerator3D::getMaxNumTracksPerStack() {
 
 
 /**
- * @brief Returns the number of rows in the temporary segment storage matrix
+ * @brief Returns the number of rows in the temporary segment storage matrix.
  * @details For on-the-fly computation, a matrix of temporary segments is
  *          allocated for each thread. This matrix is indexed by the z-stack
  *          index (row) and the segment number (column). For ray tracing by
  *          individual Tracks the number of rows is always one since temporary
  *          segments only need to be stored for one Track at a time.
- * @return _num_seg_matrix_rows the number of rows in the temporary segment storage matrix
+ * @return the number of rows in the temporary segment storage matrix
  */
 int TrackGenerator3D::getNumRows() {
   _num_seg_matrix_rows = 1;
@@ -235,14 +237,13 @@ int TrackGenerator3D::getNumRows() {
 
 
 /**
- * @brief Returns the number of columns in the temporary segment storage matrix
+ * @brief Returns the number of columns in the temporary segment storage matrix.
  * @details For on-the-fly computation, a matrix of temporary segments is
  *          allocated for each thread. This matrix is indexed by the z-stack
  *          index (row) and the segment number (column). The number of columns
  *          is equal to the maximum number of segments per Track at the time of
  *          allocation.
- * @return _num_seg_matrix_columns the number of columns in the temporary segment storage
- *         matrix
+ * @return the number of columns in the temporary segment storage matrix
  */
 int TrackGenerator3D::getNumColumns() {
   return _num_seg_matrix_columns;
@@ -305,7 +306,7 @@ bool TrackGenerator3D::containsTemporaryTracks() {
 
 
 /**
- * @brief Returns a 3D array of the number of 3D Tracks in each z-stack
+ * @brief Returns a 3D array of the number of 3D Tracks in each z-stack.
  * @details A 3D array is returned indexed first by azimuthal angle, second by
  *          2D track number, and third by polar angle. This array describes
  *          the number of tracks in each z-stack.
@@ -318,7 +319,7 @@ int*** TrackGenerator3D::getTracksPerStack() {
 
 /**
  * @brief Returns the number of 3D Tracks in the z-direction for a given
- *        azimuthal angle index and polar angle index
+ *        azimuthal angle index and polar angle index.
  * @param azim the azimuthal angle index
  * @param polar the polar angle index
  * @return the number of 3D Tracks in the z-direction of the Geometry
@@ -330,7 +331,7 @@ int TrackGenerator3D::getNumZ(int azim, int polar) {
 
 /**
  * @brief Returns the number of 3D Tracks in the radial direction for a given
- *        azimuthal angle index and polar angle index
+ *        azimuthal angle index and polar angle index.
  * @param azim the azimuthal angle index
  * @param polar the polar angle index
  * @return the number of 3D Tracks in the radial direction of the Geometry
@@ -374,7 +375,7 @@ void TrackGenerator3D::setDesiredZSpacing(double spacing) {
 
 
 /**
- * @brief sets the type of segmentation used for segment formation
+ * @brief Set the type of segmentation used for segment formation.
  * @param segmentation_type a segmentationType defining the type of
  *        segmentation to be used in segment formation. Options are:
  *          - EXPLICIT_3D: explicit 2D/3D segment formation
@@ -450,9 +451,9 @@ void TrackGenerator3D::setSegmentationZones(std::vector<double> zones) {
 
 
 /**
- * @brief Sets a global z-mesh to use during axial on-the-fly ray tracing
+ * @brief Sets a global z-mesh to use during axial on-the-fly ray tracing.
  * @details In axial on-the-fly ray tracing, normally each extruded FSR
- *          contians a z-mesh. During on-the-fly segmentation when a new
+ *          contains a z-mesh. During on-the-fly segmentation when a new
  *          extruded FSR is entered, a binary search must be conducted to
  *          determine the axial cell. Alternatively, this function can be
  *          called which creates a global z-mesh from the geometry so that
@@ -466,17 +467,16 @@ void TrackGenerator3D::useGlobalZMesh() {
 
 
 /**
- * @brief Provides the global z-mesh and size if available
+ * @brief Provides the global z-mesh and size if available.
  * @details For some cases, a global z-mesh is generated for the Geometry. If
- *          so, a pointer to the assocaited mesh (array) is updated as well as
+ *          so, a pointer to the associated mesh (array) is updated as well as
  *          the number of FSRs in the mesh. If no global z-mesh has been
  *          generated, a null pointer is given to z_mesh and the number of FSRs
  *          is assigned to be zero.
  * @param z_mesh The global z-mesh to be updated
  * @param num_fsrs The number of FSRs in the z-mesh
  */
-void TrackGenerator3D::retrieveGlobalZMesh(double*& z_mesh,
-                                           int& num_fsrs) {
+void TrackGenerator3D::retrieveGlobalZMesh(double*& z_mesh, int& num_fsrs) {
   if (_contains_global_z_mesh) {
     z_mesh = &_global_z_mesh[0];
     num_fsrs = _global_z_mesh.size() - 1;

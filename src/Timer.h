@@ -77,7 +77,7 @@ public:
   }
 
   /**
-   * @brief Destructor
+   * @brief Destructor.
    */
   virtual ~Timer() { }
 

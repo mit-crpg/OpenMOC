@@ -66,7 +66,7 @@ TrackGenerator::~TrackGenerator() {
 
 
 /**
- * @brief Return the number of tracks for each azimuthal angle
+ * @brief Return the number of tracks for each azimuthal angle.
  * @return the number of tracks for each azimuthal angle
  */
 long* TrackGenerator::getTracksPerAzim() {
@@ -75,7 +75,7 @@ long* TrackGenerator::getTracksPerAzim() {
 
 
 /**
- * @brief Return the number of azimuthal angles in \f$ [0, 2\pi] \f$
+ * @brief Return the number of azimuthal angles in \f$ [0, 2\pi] \f$.
  * @return the number of azimuthal angles in \f$ 2\pi \f$
  */
 int TrackGenerator::getNumAzim() {
@@ -85,7 +85,7 @@ int TrackGenerator::getNumAzim() {
 
 /**
  * @brief Return the track azimuthal spacing (cm).
- * @ditails This will return the user-specified track spacing and NOT the
+ * @details This will return the user-specified track spacing and NOT the
  *          effective track spacing which is computed and used to generate
  *          cyclic tracks.
  * @return the track azimuthal spacing (cm)
@@ -138,7 +138,7 @@ void TrackGenerator::initializeFSRVolumesBuffer() {
 
 
 /**
- * @brief Return the array used to store the FSR volumes
+ * @brief Return the array used to store the FSR volumes.
  * @return _FSR_volumes the FSR volumes array indexed by FSR ID
  */
 FP_PRECISION* TrackGenerator::getFSRVolumesBuffer() {
@@ -245,13 +245,12 @@ Track** TrackGenerator::get2DTracks() {
 
 
 /**
- * @brief Calculates and returns the maximum optcial length for any segment
- *        in the Geomtry.
+ * @brief Calculates and returns the maximum optical length for any segment
+ *        in the Geometry.
  * @details The _max_optical_length value is recomputed, updated, and returned.
- *          This value determines the when segments must be split during ray
+ *          This value determines when segments must be split during ray
  *          tracing.
- * @return _max_optical_length the maximum optical length of any segment in the
- *         Geometry
+ * @return the maximum optical length of any segment in the Geometry
  */
 FP_PRECISION TrackGenerator::getMaxOpticalLength() {
   MaxOpticalLength update_max_optical_length(this);
@@ -261,10 +260,10 @@ FP_PRECISION TrackGenerator::getMaxOpticalLength() {
 
 
 /**
- * @brief Returns the maximum number of segments along a single track
+ * @brief Returns the maximum number of segments along a single track.
  * @details The TrackGenerator::countSegments routine must be called before
  *          this function will return a correct value
- * @return the maximum number of segments
+ * @return the maximum number of segments on a single track
  */
 int TrackGenerator::getMaxNumSegments() {
   return _max_num_segments;
@@ -282,7 +281,7 @@ int TrackGenerator::getNumThreads() {
 
 /**
  * @brief Returns the number of 2D Tracks in the x-direction for a given
- *        azimuthal angle index
+ *        azimuthal angle index.
  * @param azim the azimuthal angle index
  * @return the number of 2D Tracks in the x-direction of the Geometry
  */
@@ -293,7 +292,7 @@ int TrackGenerator::getNumX(int azim) {
 
 /**
  * @brief Returns the number of 2D Tracks in the y-direction for a given
- *        azimuthal angle index
+ *        azimuthal angle index.
  * @param azim the azimuthal angle index
  * @return the number of 2D Tracks in the y-direction of the Geometry
  */
@@ -303,10 +302,10 @@ int TrackGenerator::getNumY(int azim) {
 
 
 /**
- * @brief FSR volumes are coppied to an array input by the user
- * @param out_volumes The array to which FSR volumes are coppied
+ * @brief FSR volumes are copied to an array input by the user.
+ * @param out_volumes The array to which FSR volumes are copied
  * @param num_fsrs The number of FSR volumes to copy. The first num_fsrs
- *        volumes stored in the FSR volumes array are coppied.
+ *        volumes stored in the FSR volumes array are copied.
  */
 void TrackGenerator::exportFSRVolumes(double* out_volumes, int num_fsrs) {
 
@@ -369,7 +368,7 @@ FP_PRECISION TrackGenerator::getFSRVolume(long fsr_id) {
 
 
 /**
- * @brief Returns the z-coord of the radial plane used in 2D calcualtions
+ * @brief Returns the z-coord of the radial plane used in 2D calculations.
  * @return the z-coord of the 2D calculation
  */
 double TrackGenerator::getZCoord() {
@@ -378,7 +377,7 @@ double TrackGenerator::getZCoord() {
 
 
 /**
- * @brief Returns the Quadrature object
+ * @brief Returns the Quadrature object.
  * @return the Quadrature object
  */
 Quadrature* TrackGenerator::getQuadrature() {
@@ -494,7 +493,7 @@ void TrackGenerator::setGeometry(Geometry* geometry) {
 
 
 /**
- * @brief Sets the z-coord of the raidal plane used in 2D calculations
+ * @brief Sets the z-coord of the radial plane used in 2D calculations.
  * @param z_coord the z-coord of the radial plane
  */
 void TrackGenerator::setZCoord(double z_coord) {
@@ -503,7 +502,7 @@ void TrackGenerator::setZCoord(double z_coord) {
 
 
 /**
- * @brief sets the Quadrature used for integrating the MOC equations
+ * @brief Sets the Quadrature used for integrating the MOC equations.
  * @param quadrature a pointer to the Quadrature object used in calculation
  */
 void TrackGenerator::setQuadrature(Quadrature* quadrature) {
@@ -525,8 +524,8 @@ bool TrackGenerator::containsTracks() {
 /**
  * @brief Returns whether or not the TrackGenerator contains segments
  *        for its current number of azimuthal angles, track spacing and
- *        geometry for it's current segmentation type.
- * @return true if the TrackGenerator conatains segments; false otherwise
+ *        geometry for its current segmentation type.
+ * @return true if the TrackGenerator contains segments; false otherwise
  */
 bool TrackGenerator::containsSegments() {
   return _contains_2D_segments;
@@ -691,7 +690,7 @@ void TrackGenerator::retrieve2DSegmentCoords(double* coords, long num_segments) 
 
 /**
  * @brief Checks the boundary conditions for all 2D surfaces for inconsistent
- *        periodic boundary conditions
+ *        periodic boundary conditions.
  */
 void TrackGenerator::checkBoundaryConditions() {
 
@@ -826,8 +825,8 @@ void TrackGenerator::generateTracks() {
 
 
 /**
- * @brief Allocates a new Quadrature with the default Quadrature
- * @details The defualt quadrature for 2D calculations is the TY quadrature
+ * @brief Allocates a new Quadrature with the default Quadrature.
+ * @details The default quadrature for 2D calculations is the TY quadrature
  */
 void TrackGenerator::initializeDefaultQuadrature() {
 
@@ -842,9 +841,9 @@ void TrackGenerator::initializeDefaultQuadrature() {
 
 
 /**
- * @brief calcualtes the least common multiple of two numbers a and b
+ * @brief Calculates the least common multiple of two numbers a and b
  * @param first number a
- * @param second nuber b (order does not matter)
+ * @param second number b (order does not matter)
  * @return the least common multiple of a and b
  */
 double TrackGenerator::leastCommonMultiple(double a, double b) {
@@ -877,7 +876,7 @@ double TrackGenerator::leastCommonMultiple(double a, double b) {
 
 
 /**
- * @brief Returns the type of ray tracing used for segment formation
+ * @brief Returns the type of ray tracing used for segment formation.
  * @return the segmentation type
  */
 segmentationType TrackGenerator::getSegmentFormation() {
@@ -1023,7 +1022,7 @@ void TrackGenerator::initializeTracks() {
 
 
 /**
- * @brief Initializes 2D Track reflections
+ * @brief Initializes 2D Track reflections.
  * @details This method computes the connecting Tracks for all 2D Tracks in
  *          the TrackGenerator analytically, handling both reflective and
  *          periodic boundaries.
@@ -1222,7 +1221,7 @@ void TrackGenerator::initializeTrackFileDirectory() {
 
 
 /**
- * @brief Returns the filename for writing tracking data
+ * @brief Returns the filename for writing tracking data.
  */
 std::string TrackGenerator::getTestFilename(std::string directory) {
 
@@ -1246,7 +1245,7 @@ std::string TrackGenerator::getTestFilename(std::string directory) {
 
 
 /**
- * @brief Updates whether the TrackGenerator contains segments
+ * @brief Updates whether the TrackGenerator contains segments.
  * @param contains_segments whether the TrackGenerator contains segments
  */
 void TrackGenerator::setContainsSegments(bool contains_segments) {
@@ -1289,7 +1288,7 @@ void TrackGenerator::dumpSegmentsToFile() {
   dump_segments.setOutputFile(out);
   if (_segment_formation == EXPLICIT_2D || _segment_formation == EXPLICIT_3D)
     dump_segments.execute();
-  
+
   /* Get FSR vector maps */
   ParallelHashMap<std::string, fsr_data*>& FSR_keys_map =
       _geometry->getFSRKeysMap();
@@ -1396,7 +1395,8 @@ bool TrackGenerator::readSegmentsFromFile() {
   /* Import Geometry metadata from the Track file */
   ret = _geometry->twiddleRead(&string_length, sizeof(int), 1, in);
   char* geometry_to_string = new char[string_length];
-  ret = _geometry->twiddleRead(geometry_to_string, sizeof(char)*string_length, 1, in);
+  ret = _geometry->twiddleRead(geometry_to_string, sizeof(char)*string_length,
+                               1, in);
 
   /* Check if our Geometry is exactly the same as the Geometry in the
    * Track file for this number of azimuthal angles and track spacing */
@@ -1580,7 +1580,7 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
 
 /**
  * @brief Sets the max optical path length of 3D segments for use in
- *        on-the-fly computation
+ *        on-the-fly computation.
  * @param tau maximum optical path length
  */
 void TrackGenerator::setMaxOpticalLength(FP_PRECISION tau) {
@@ -1589,7 +1589,7 @@ void TrackGenerator::setMaxOpticalLength(FP_PRECISION tau) {
 
 
 /**
- * @brief Sets the maximum number of segments per Track
+ * @brief Sets the maximum number of segments per Track.
  * @param max_num_segments the maximum number of segments per Track
  */
 void TrackGenerator::setMaxNumSegments(int max_num_segments) {
@@ -1599,7 +1599,7 @@ void TrackGenerator::setMaxNumSegments(int max_num_segments) {
 
 /**
  * @brief Retrieves the max optical path length of 3D segments for use in
- *        on-the-fly computation
+ *        on-the-fly computation.
  * @return maximum optical path length
  */
 FP_PRECISION TrackGenerator::retrieveMaxOpticalLength() {
@@ -1608,7 +1608,7 @@ FP_PRECISION TrackGenerator::retrieveMaxOpticalLength() {
 
 
 /**
- * @brief Counts the number of segments for each Track in the Geomtery
+ * @brief Counts the number of segments for each Track in the Geometry.
  * @details All segments are subject to the max optical path length to
  *          determine the number of segments for each track as well as the
  *          maximum number of segments per Track in the Geometry. For
@@ -1620,7 +1620,7 @@ void TrackGenerator::countSegments() {
   std::string msg = "Counting segments";
   Progress progress(_num_2D_tracks, msg);
 
-  /* Count the number of segments on each track and update the maximium */
+  /* Count the number of segments on each track and update the maximum */
   SegmentCounter counter(this);
   counter.execute();
 
@@ -1631,7 +1631,7 @@ void TrackGenerator::countSegments() {
 
 
 /**
- * @brief Creates a Track array by increasing uid
+ * @brief Creates a Track array by increasing uid.
  * @details An array is created which indexes Tracks by increasing uid.
  *          Parallel groups are also initialized -- groups of Tracks that can
  *          be computed in parallel without the potential of overwriting
@@ -1664,7 +1664,7 @@ void TrackGenerator::initializeTracksArray() {
 
 
 /**
- * @brief returns whether periodic boundaries are present in Track generation
+ * @brief Returns whether periodic boundaries are present in Track generation.
  * @return a boolean value - true if periodic; false otherwise
  */
 bool TrackGenerator::getPeriodic() {
@@ -1673,9 +1673,9 @@ bool TrackGenerator::getPeriodic() {
 
 
 /**
- * @brief Sets a flag to record all segment information in the tracking file
- * @param A boolean value to determine whether or not to record segment
- *        information in the tracking file: true to record, false not to record
+ * @brief Sets a flag to record all segment information in the tracking file.
+ * @param dump_segments whether or not to record segment information in the 
+ *        tracking file: true to record, false not to record
  */
 void TrackGenerator::setDumpSegments(bool dump_segments) {
   _dump_segments = dump_segments;
@@ -1683,7 +1683,7 @@ void TrackGenerator::setDumpSegments(bool dump_segments) {
 
 
 /**
- * @brief Resets the TrackGenerator to not contain tracks or segments
+ * @brief Resets the TrackGenerator to not contain tracks or segments.
  */
 void TrackGenerator::resetStatus() {
   _contains_2D_tracks = false;
@@ -1694,7 +1694,7 @@ void TrackGenerator::resetStatus() {
 
 
 /**
- * @brief Allocates memory for temporary segment storage if necessary
+ * @brief Allocates memory for temporary segment storage if necessary.
  * @details Temporary segments are not allocated for 2D calculations
  */
 void TrackGenerator::allocateTemporarySegments() {}
@@ -1702,7 +1702,7 @@ void TrackGenerator::allocateTemporarySegments() {}
 
 /**
  * @brief Get the id of a 2D Track based on its azimuthal angle and index in the
- *        azimuthal stack
+ *        azimuthal stack.
  * @param a azimuthal angle of the Track
  * @param x index in azimuthal stack
  * @return Track unique id

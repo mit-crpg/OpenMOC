@@ -2749,30 +2749,29 @@ void Geometry::computeFissionability(Universe* univ) {
  * @return a NumPy array or list of the domain IDs
  */
 std::vector<long> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
-                        std::vector<double> dim2,
-                        double offset,
-                        const char* plane,
-                        const char* domain_type) {
+                                                 std::vector<double> dim2,
+                                                 double offset,
+                                                 const char* plane,
+                                                 const char* domain_type) {
 
   /* Instantiate a vector to hold the domain IDs */
   std::vector<long> domains(dim1.size() * dim2.size());
 
   /* Extract the source region IDs */
-#pragma omp parallel for
+//#pragma omp parallel for
   for (int i=0; i < dim1.size(); i++) {
-
-    Cell* cell;
-    LocalCoords* point;
-
     for (int j=0; j < dim2.size(); j++) {
+
+      Cell* cell;
+      LocalCoords* point;
 
       /* Find the Cell containing this point */
       if (strcmp(plane, "xy") == 0)
-        point = new LocalCoords(dim1[i], dim2[j], offset, true);
+        point = new LocalCoords(dim1[i], dim2[j], offset, false);
       else if (strcmp(plane, "xz") == 0)
-        point = new LocalCoords(dim1[i], offset, dim2[j], true);
+        point = new LocalCoords(dim1[i], offset, dim2[j], false);
       else if (strcmp(plane, "yz") == 0)
-        point = new LocalCoords(offset, dim1[i], dim2[j], true); 
+        point = new LocalCoords(offset, dim1[i], dim2[j], false); 
       else
         log_printf(ERROR, "Unable to extract spatial data for "
                           "unsupported plane %s", plane);
@@ -2792,11 +2791,10 @@ std::vector<long> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
         else
           log_printf(ERROR, "Unable to extract spatial data for "
                             "unsupported domain type %s", domain_type);
+
       }
 
       /* Deallocate memory for LocalCoords */
-      point = point->getHighestLevel();
-      point->prune();
       delete point;
     }
   }

@@ -539,9 +539,11 @@ void log_printf(logLevel level, const char* format, ...) {
 #ifdef MPIx
         if (_MPI_present) {
           printf("%s", "[  ERROR  ] ");
-          printf("%s", msg_string.c_str());
+          printf("%s", &msg_string[0]);
           fflush(stdout);
           MPI_Finalize();
+          MPI_Abort(_MPI_comm, 0);
+          //FIXME Not best communicator to abort, but better than not returning.
         }
 #endif
         throw std::logic_error(msg_string.c_str());

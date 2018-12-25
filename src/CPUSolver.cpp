@@ -411,7 +411,7 @@ void CPUSolver::copyBoundaryFluxes() {
 //FIXME: make suitable for 2D
 void CPUSolver::tallyStartingCurrents() {
 
-#pragma omp parallel for schedule(guided)
+#pragma omp parallel for schedule(static)
   for (long t=0; t < _tot_num_tracks; t++) {
 
     /* Get 3D Track data */
@@ -1470,7 +1470,7 @@ void CPUSolver::computeFSRSources(int iteration) {
   long num_negative_sources = 0;
 
   /* For all FSRs, find the source */
-#pragma omp parallel for schedule(guided)
+#pragma omp parallel for schedule(static)
   for (long r=0; r < _num_FSRs; r++) {
 
     int tid = omp_get_thread_num();
@@ -1583,7 +1583,8 @@ double CPUSolver::computeResidual(residualType res_type) {
     FP_PRECISION* nu_sigma_f;
     Material* material;
 
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for private(new_fission_source, old_fission_source,\
+     material, nu_sigma_f) schedule(static)
     for (long r=0; r < _num_FSRs; r++) {
       new_fission_source = 0.;
       old_fission_source = 0.;
@@ -1613,7 +1614,8 @@ double CPUSolver::computeResidual(residualType res_type) {
     FP_PRECISION* nu_sigma_f;
     Material* material;
 
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for private(new_total_source, old_total_source,\
+     material, nu_sigma_f) schedule(static)
     for (long r=0; r < _num_FSRs; r++) {
       new_total_source = 0.;
       old_total_source = 0.;
