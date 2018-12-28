@@ -817,10 +817,8 @@ void TrackGenerator::generateTracks() {
 #endif
   _timer->stopTimer();
   _timer->recordSplit("Track Generation Time");
-  double gen_time = _timer->getSplit("Track Generation Time");
-  std::string msg_string = "Total Track Generation & Segmentation Time";
-  msg_string.resize(53, '.');
-  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), gen_time);
+
+  printTimerReport(true);
 }
 
 
@@ -1716,4 +1714,22 @@ int TrackGenerator::get2DTrackID(int a, int x) {
 
   uid += x;
   return uid;
+}
+
+
+/**
+ * @brief Print the track generation timer report.
+ * @param mpi_reduce whether to reduce timer across MPI processes (only once!)
+ */
+void TrackGenerator::printTimerReport(bool mpi_reduce) {
+
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed() && mpi_reduce)
+    _timer->reduceTimer(_geometry->getMPICart());
+#endif
+
+  double gen_time = _timer->getSplit("Track Generation Time");
+  std::string msg_string = "Total Track Generation & Segmentation Time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), gen_time);
 }

@@ -1175,6 +1175,10 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
 
+  /* Start the timers to record the total solve and initialization times */
+  _timer->startTimer();
+  _timer->startTimer();
+
   /* Initialize keff to 1 for FSR source calcualtions */
   _k_eff = 1.;
 
@@ -1200,8 +1204,9 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   /* Compute the sum of fixed, total and scattering sources */
   computeFSRSources(0);
 
-  /* Start the timer to record the total time to converge the flux */
-  _timer->startTimer();
+  /* Stop timer for solver initialization */
+  _timer->stopTimer();
+  _timer->recordSplit("Solver initialization");
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
@@ -1362,6 +1367,10 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   clearTimerSplits();
   _num_iterations = 0;
 
+  /* Start the timers to record the total solve and initialization times */
+  _timer->startTimer();
+  _timer->startTimer();
+
   /* Clear convergence data from a previous simulation run */
   double previous_residual = 1.0;
   double residual = 0.;
@@ -1421,18 +1430,15 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 #ifdef BGQ
   printBGQMemory();
 #endif
-  
+
   /* Perform initial spectrum calculation if requested */
   if (_calculate_initial_spectrum)
     calculateInitialSpectrum(_initial_spectrum_thresh);
 
-  /* Start the timer to record the total time to converge the source */
-  _timer->startTimer();
 #ifdef MPIx
   if (_geometry->isDomainDecomposed())
     MPI_Barrier(_geometry->getMPICart());
 #endif
-  log_printf(NORMAL, "Computing the eigenvalue...");
 
   /* Create object to track convergence data if requested */
   ConvergenceData* convergence_data = NULL;
@@ -1445,6 +1451,12 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
                "  #FX1 #FXN  MAX P.F.");
     }
   }
+
+  /* Stop timer for solver initialization */
+  _timer->stopTimer();
+  _timer->recordSplit("Solver initialization");
+
+  log_printf(NORMAL, "Computing the eigenvalue...");
 
   /* Record the starting eigenvalue guess */
   double k_prev = _k_eff;
@@ -1564,42 +1576,54 @@ void Solver::printTimerReport() {
 
   log_printf(TITLE, "TIMING REPORT");
 
+  /* Print track generation time */
+  _track_generator->printTimerReport(false);
+
   /* Get the total runtime */
   double tot_time = _timer->getSplit("Total time");
   msg_string = "Total time to solution";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), tot_time);
 
-  /* Time per iteration */
-  double time_per_iter = tot_time / _num_iterations;
-  msg_string = "Solution time per iteration";
+  /* Solver initialization */
+  double initialization = _timer->getSplit("Solver initialization");
+  msg_string = "  Solver initialization";
   msg_string.resize(53, '.');
-  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_iter);
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), initialization);
 
+  /* Transport sweep */
   double transport_sweep = _timer->getSplit("Transport Sweep");
-  msg_string = "Transport Sweep";
+  msg_string = "  Transport Sweep";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), transport_sweep);
 
+  /* Boundary track angular fluxes transfer */
   double transfer_time = _timer->getSplit("Total transfer time");
-  msg_string = "Angular Flux Transfer";
+  msg_string = "    Angular Flux Transfer";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), transfer_time);
 
+  /* Boundary track angular fluxes packing into buffers */
   double pack_time = _timer->getSplit("Packing time");
-  msg_string = "Angular Flux Packing Time";
+  msg_string = "      Angular Flux Packing Time";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), pack_time);
 
+  /* Communication of track angular fluxes */
   double comm_time = _timer->getSplit("Communication time");
-  msg_string = "Angular Flux Communication Time";
+  msg_string = "      Angular Flux Communication Time";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), comm_time);
 
+  /* Idle time between transport sweep and angular fluxes transfer */
   double idle_time = _timer->getSplit("Idle time");
-  msg_string = "Total Idle Time Between Sweeps";
+  msg_string = "    Total Idle Time Between Sweeps";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), idle_time);
+
+  /* CMFD acceleration time */
+  if (_cmfd != NULL)
+    _cmfd->printTimerReport();
 
   /* Time per segment */
   long num_segments = 0;
@@ -1637,13 +1661,11 @@ void Solver::printTimerReport() {
                                  num_integrations * (omp_get_max_threads() *
                                  num_ranks));
 
-  msg_string = "Integration time per segment-group by thread";
+  msg_string = "Integration time by segment-group-thread (w/o idle)";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_integration);
 
-  if (_cmfd != NULL)
-    _cmfd->printTimerReport();
-
+  /* Print footer with number of tracks, segments and fsrs */
   set_separator_character('-');
   log_printf(SEPARATOR, "-");
 
@@ -2078,10 +2100,14 @@ void Solver::printInputParamsSummary() {
     log_printf(NORMAL, "CMFD acceleration: ON");
     log_printf(NORMAL, "CMFD Mesh: %d x %d x %d", _cmfd->getNumX(),
                _cmfd->getNumY(), _cmfd->getNumZ());
-    log_printf(NORMAL, "CMFD Group Structure:");
-    log_printf(NORMAL, "\t MOC Group \t CMFD Group");
-    for (int g=0; g < _cmfd->getNumMOCGroups(); g++)
-      log_printf(NORMAL, "\t %d \t\t %d", g+1, _cmfd->getCmfdGroup(g)+1);
+    if (_num_groups != _cmfd->getNumMOCGroups()) {
+      log_printf(NORMAL, "CMFD Group Structure:");
+      log_printf(NORMAL, "\t MOC Group \t CMFD Group");
+      for (int g=0; g < _cmfd->getNumMOCGroups(); g++)
+        log_printf(NORMAL, "\t %d \t\t %d", g+1, _cmfd->getCmfdGroup(g)+1);
+    }
+    else
+      log_printf(NORMAL, "CMFD and MOC group structures match");
   }
   else {
     log_printf(NORMAL, "CMFD acceleration: OFF");

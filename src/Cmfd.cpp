@@ -514,8 +514,8 @@ void Cmfd::collapseXS() {
     FP_PRECISION* scat;
 
     /* Allocate arrays for tallies on the stack */
-    double scat_tally[_num_cmfd_groups] = {0.0};
-    double chi_tally[_num_cmfd_groups] = {0.0};
+    double scat_tally[_num_cmfd_groups];
+    double chi_tally[_num_cmfd_groups];
 
     /* Pointers to material objects */
     Material* fsr_material;
@@ -3822,25 +3822,25 @@ void Cmfd::printTimerReport() {
 
   /* Get the total CMFD time */
   double tot_time = _timer->getSplit("Total CMFD time");
-  msg_string = "Total CMFD computation time";
+  msg_string = "  Total CMFD computation time";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), tot_time);
 
   /* Get the total XS collapse time */
   double xs_collapse_time = _timer->getSplit("Total collapse time");
-  msg_string = "  XS collapse time";
+  msg_string = "    XS collapse time";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), xs_collapse_time);
 
   /* Get the MPI communication time */
   double comm_time = _timer->getSplit("CMFD MPI communication time");
-  msg_string = "  MPI communication time";
+  msg_string = "    MPI communication time";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), comm_time);
 
   /* Get the total solver time */
   double solver_time = _timer->getSplit("Total solver time");
-  msg_string = "  Total CMFD solver time";
+  msg_string = "    Total CMFD solver time";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), solver_time);
 }
@@ -4302,28 +4302,7 @@ void Cmfd::ghostCellExchange() {
   }
 
   // Block for communication round to complete
-  bool round_complete = false;
-  while (!round_complete) {
-
-    round_complete = true;
-    int flag;
-    MPI_Status send_stat;
-    MPI_Status recv_stat;
-
-    for (int coord=0; coord < 3; coord++) {
-      for (int d=0; d<2; d++) {
-        int surf = coord + 3*d;
-
-        MPI_Test(&requests[2*surf], &flag, &send_stat);
-        if (flag == 0)
-          round_complete = false;
-
-        MPI_Test(&requests[2*surf+1], &flag, &recv_stat);
-        if (flag == 0)
-          round_complete = false;
-      }
-    }
-  }
+  MPI_Waitall(12, requests, MPI_STATUSES_IGNORE);
 }
 
 
