@@ -29,7 +29,7 @@ ExpEvaluator::ExpEvaluator() {
  */
 ExpEvaluator::~ExpEvaluator() {
   if (_exp_table != NULL)
-    delete [] _exp_table;
+    free(_exp_table);
 }
 
 

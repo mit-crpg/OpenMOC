@@ -147,6 +147,9 @@ Cmfd::~Cmfd() {
   if (_full_surface_currents != NULL)
     delete _full_surface_currents;
 
+  if (_old_dif_surf_corr != NULL)
+    delete _old_dif_surf_corr;
+
   if (_volumes != NULL)
     delete _volumes;
 
@@ -220,6 +223,7 @@ Cmfd::~Cmfd() {
 
       delete [] _domain_communicator->num_connections;
       delete [] _domain_communicator->indexes;
+      delete [] _domain_communicator->domains;
       delete [] _domain_communicator->fluxes;
       delete [] _domain_communicator->coupling_coeffs;
       delete _domain_communicator;
