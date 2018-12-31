@@ -2766,11 +2766,11 @@ std::vector<long> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
 
       /* Find the Cell containing this point */
       if (strcmp(plane, "xy") == 0)
-        point = new LocalCoords(dim1[i], dim2[j], offset, false);
+        point = new LocalCoords(dim1[i], dim2[j], offset, true);
       else if (strcmp(plane, "xz") == 0)
-        point = new LocalCoords(dim1[i], offset, dim2[j], false);
+        point = new LocalCoords(dim1[i], offset, dim2[j], true);
       else if (strcmp(plane, "yz") == 0)
-        point = new LocalCoords(offset, dim1[i], dim2[j], false); 
+        point = new LocalCoords(offset, dim1[i], dim2[j], true); 
       else
         log_printf(ERROR, "Unable to extract spatial data for "
                           "unsupported plane %s", plane);
@@ -2794,6 +2794,7 @@ std::vector<long> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
       }
 
       /* Deallocate memory for LocalCoords */
+      point = point->getHighestLevel();
       delete point;
     }
   }
