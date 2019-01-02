@@ -103,7 +103,7 @@ class ComplexRegionBoundsTestHarness(TestHarness):
     def _generate_tracks(self):
         pass
         
-    def _creat_solver(self):
+    def _create_solver(self):
         pass
 
     def _get_results(self, num_iters=False, keff=False, fluxes=False,
