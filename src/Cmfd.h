@@ -246,7 +246,7 @@ private:
   double _relaxation_factor;
 
   /** Map storing the k-nearest stencil for each fsr */
-  std::map<int, std::vector< std::pair<int, double> > >
+  std::map<long, std::vector< std::pair<int, double> > >
     _k_nearest_stencils;
 
   /** OpenMP mutual exclusion locks for atomic CMFD cell operations */
@@ -360,9 +360,9 @@ private:
   int getCellNext(int cell_id, int surface_id, bool global=true,
                   bool neighbor=false);
   int getCellByStencil(int cell_id, int stencil_id);
-  CMFD_PRECISION getFluxRatio(int cell_id, int group, int fsr);
-  CMFD_PRECISION getUpdateRatio(int cell_id, int moc_group, int fsr);
-  double getDistanceToCentroid(Point* centroid, int cell_id,
+  CMFD_PRECISION getFluxRatio(int cell_id, int group, long fsr);
+  CMFD_PRECISION getUpdateRatio(int cell_id, int moc_group, long fsr);
+  double getDistanceToCentroid(Point* centroid, int cell_id, int local_cell_id,
                                      int stencil_index);
   void getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
         int group, int moc_iteration, CMFD_PRECISION& dif_surf,

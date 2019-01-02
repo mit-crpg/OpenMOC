@@ -177,7 +177,7 @@ Cmfd::~Cmfd() {
   _cell_fsrs.clear();
 
   /* Clear the _k_nearest_stencils map of vectors */
-  std::map<int, std::vector< std::pair<int, double> > >::iterator iter2;
+  std::map<long, std::vector< std::pair<int, double> > >::iterator iter2;
   for (iter2 = _k_nearest_stencils.begin(); iter2 != _k_nearest_stencils.end();
        ++iter2)
     iter2->second.clear();
@@ -2549,7 +2549,8 @@ void Cmfd::generateKNearestStencils() {
         for (int j=0; j < num_cells_in_stencil; j++)
           _k_nearest_stencils[fsr_id]
             .push_back(std::make_pair<int, double>
-                      (int(j), getDistanceToCentroid(centroid, global_ind, j)));
+                      (int(j), getDistanceToCentroid(centroid, global_ind, i, 
+                                                     j)));
 
         /* Sort the distances */
         std::sort(_k_nearest_stencils[fsr_id].begin(),
@@ -2558,8 +2559,8 @@ void Cmfd::generateKNearestStencils() {
         /* Remove ghost cells that are outside the geometry boundaries */
         stencil_iter = _k_nearest_stencils[fsr_id].begin();
         while (stencil_iter != _k_nearest_stencils[fsr_id].end()) {
-          if (stencil_iter->second == std::numeric_limits<double>::max())
-            stencil_iter = _k_nearest_stencils[fsr_id].erase(stencil_iter++);
+          if (stencil_iter->second > FLT_INFINITY)
+            stencil_iter = _k_nearest_stencils[fsr_id].erase(stencil_iter);
           else
             ++stencil_iter;
         }
@@ -2805,7 +2806,7 @@ int Cmfd::getCellByStencil(int cell_id, int stencil_id) {
  * @param fsr The fsr being updated.
  * @return the ratio used to update the FSR flux.
  */
-CMFD_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
+CMFD_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, long fsr) {
 
   CMFD_PRECISION ratio = 0.0;
   std::vector< std::pair<int, double> >::iterator iter;
@@ -2849,7 +2850,7 @@ CMFD_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, int fsr) {
  * @param fsr The fsr being updated.
  * @return the ratio of CMFD fluxes
  */
-CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
+CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, long fsr) {
 
   double* interpolants;
   double ratio = 1.0;
@@ -2925,16 +2926,19 @@ CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, int fsr) {
  *          given and the stencil indexed cell lies outside the geometry, the
  *          maximum allowable double value is returned.
  * @param centroid The numerical centroid an FSR in the cell.
- * @param cell_id The CMFD cell containing the FSR.
+ * @param cell_id The global CMFD cell containing the FSR.
+ * @param local_cell_id The local CMFD id of the cell containing the fsr
  * @param stencil_index The index of the cell in the stencil that we want to
  *        get the distance from.
  * @return the distance from the CMFD cell centroid to the FSR centroid.
  */
 double Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
-                                   int stencil_index) {
+                                   int local_cell_id, int stencil_index) {
 
   int x = (cell_id % (_num_x * _num_y)) % _num_x;
   int y = (cell_id % (_num_x * _num_y)) / _num_x;
+  int xl = (local_cell_id % (_local_num_x * _local_num_y)) % _local_num_x;
+  int yl = (local_cell_id % (_local_num_x * _local_num_y)) / _local_num_x;
   double dist_x, dist_y;
   bool found = false;
   double centroid_x = centroid->getX();
@@ -2946,28 +2950,28 @@ double Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
   double dy = centroid_y - _lattice->getMinY();
 
   /* LOWER LEFT CORNER */
-  if (x > 0 && y > 0 && stencil_index == 0) {
+  if (xl > 0 && yl > 0 && stencil_index == 0) {
     dist_x = pow(dx - (_accumulate_x[x-1]+_cell_widths_x[x-1]/2), 2.0);
     dist_y = pow(dy - (_accumulate_y[y-1]+_cell_widths_y[y-1]/2), 2.0);
     found = true;
   }
 
   /* BOTTOM SIDE */
-  else if (y > 0 && stencil_index == 1) {
+  else if (yl > 0 && stencil_index == 1) {
     dist_x = pow(dx - (_accumulate_x[x  ]+_cell_widths_x[x  ]/2), 2.0);
     dist_y = pow(dy - (_accumulate_y[y-1]+_cell_widths_y[y-1]/2), 2.0);
     found = true;
   }
 
   /* LOWER RIGHT CORNER */
-  else if (x < _num_x - 1 && y > 0 && stencil_index == 2) {
+  else if (xl < _local_num_x - 1 && yl > 0 && stencil_index == 2) {
     dist_x = pow(dx - (_accumulate_x[x+1]+_cell_widths_x[x+1]/2), 2.0);
     dist_y = pow(dy - (_accumulate_y[y-1]+_cell_widths_y[y-1]/2), 2.0);
     found = true;
   }
 
   /* LEFT SIDE */
-  else if (x > 0 && stencil_index == 3) {
+  else if (xl > 0 && stencil_index == 3) {
     dist_x = pow(dx - (_accumulate_x[x-1]+_cell_widths_x[x-1]/2), 2.0);
     dist_y = pow(dy - (_accumulate_y[y  ]+_cell_widths_y[y  ]/2), 2.0);
     found = true;
@@ -2981,28 +2985,28 @@ double Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
   }
 
   /* RIGHT SIDE */
-  else if (x < _num_x - 1 && stencil_index == 5) {
+  else if (xl < _local_num_x - 1 && stencil_index == 5) {
     dist_x = pow(dx - (_accumulate_x[x+1]+_cell_widths_x[x+1]/2 ), 2.0);
     dist_y = pow(dy - (_accumulate_y[y  ]+_cell_widths_y[y  ]/2 ), 2.0);
     found = true;
   }
 
   /* UPPER LEFT CORNER */
-  else if (x > 0 && y < _num_y - 1 && stencil_index == 6) {
+  else if (xl > 0 && yl < _local_num_y - 1 && stencil_index == 6) {
     dist_x = pow(dx - (_accumulate_x[x-1]+_cell_widths_x[x-1]/2), 2.0);
     dist_y = pow(dy - (_accumulate_y[y+1]+_cell_widths_y[y+1]/2), 2.0);
     found = true;
   }
 
   /* TOP SIDE */
-  else if (y < _num_y - 1 && stencil_index == 7) {
+  else if (yl < _local_num_y - 1 && stencil_index == 7) {
     dist_x = pow(dx - (_accumulate_x[x  ]+_cell_widths_x[x  ]/2), 2.0);
     dist_y = pow(dy - (_accumulate_y[y+1]+_cell_widths_y[y+1]/2), 2.0);
     found = true;
   }
 
   /* UPPER RIGHT CORNER */
-  else if (x < _num_x - 1 && y < _num_y - 1 && stencil_index == 8) {
+  else if (xl < _local_num_x - 1 && yl < _local_num_y - 1 && stencil_index == 8) {
     dist_x = pow(dx - (_accumulate_x[x+1]+_cell_widths_x[x+1]/2), 2.0);
     dist_y = pow(dy - (_accumulate_y[y+1]+_cell_widths_y[y+1]/2), 2.0);
     found = true;
@@ -4914,7 +4918,7 @@ void Cmfd::recordNetCurrents() {
       int direction[3];
       convertSurfaceToDirection(s, direction);
 
-      /* Copute the next CMFD cell from the cell indexes and direction */
+      /* Compute the next CMFD cell from the cell indexes and direction */
       int cmfd_cell_next = 0;
       int cell_next_ind[3];
       for (int d=0; d < 3; d++)
