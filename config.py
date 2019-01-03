@@ -87,7 +87,7 @@ class configuration:
 
     # The vector alignment used in the VectorizedSolver class when allocating
     # aligned data structures using MM_MALLOC and MM_FREE
-    vector_alignment = 16
+    vector_alignment = 32
 
     # List of C/C++/CUDA distutils.extension objects which are created based
     # on which flags are specified at compile time.

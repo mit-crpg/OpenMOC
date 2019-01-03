@@ -47,6 +47,8 @@ void Progress::incrementCounter() {
 
   int curr_count;
   bool found_interval = false;
+
+  /* Increment counter, check if next interval is reached */
   #pragma omp critical
   {
     curr_count = _counter++;

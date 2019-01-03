@@ -19,7 +19,7 @@ MOCKernel::MOCKernel(TrackGenerator* track_generator, int row_num) {
 
 /**
  * @brief Constructor for the VolumeKernel assigns default values, calls
- *        the MOCKernel constructor, and pulls refernces to FSR locks and FSR
+ *        the MOCKernel constructor, and pulls references to FSR locks and FSR
  *        volumes from the provided TrackGenerator.
  * @param track_generator the TrackGenerator used to pull relevant tracking
  *        data from
@@ -64,7 +64,7 @@ SegmentationKernel::SegmentationKernel(TrackGenerator* track_generator,
 
 /**
  * @brief Constructor for the CounterKernel assigns default values and calls
- *        the MOCKernel constructor
+ *        the MOCKernel constructor.
  * @param track_generator the TrackGenerator used to pull relevant tracking
  *        data from
  * @param row_num the row index into the temporary segments matrix
@@ -74,7 +74,7 @@ CounterKernel::CounterKernel(TrackGenerator* track_generator, int row_num) :
 
 
 /**
- * @brief Prepares an MOCKernel for a new Track
+ * @brief Prepares an MOCKernel for a new Track.
  * @details Resets the segment count
  * @param track The new Track the MOCKernel prepares to handle
  */
@@ -84,7 +84,7 @@ void MOCKernel::newTrack(Track* track) {
 
 
 /**
- * @brief Prepares a VolumeKernel for a new Track
+ * @brief Prepares a VolumeKernel for a new Track.
  * @details Resets the segment count and updates the weight for the new Track
  * @param track The new Track the MOCKernel prepares to handle
  */
@@ -130,7 +130,7 @@ int MOCKernel::getCount() {
  * @brief Resets the maximum optcal path length for a segment.
  * @details MOC kernels ensure that there are no segments with an optical path
  *          length greater than the maximum optical path length by splitting
- *          then when they get too large.
+ *          them when they get too large.
  * @param the maximum optical path length for a segment
  */
 void MOCKernel::setMaxOpticalLength(FP_PRECISION max_tau) {
@@ -145,7 +145,7 @@ void MOCKernel::setMaxOpticalLength(FP_PRECISION max_tau) {
  *          id, referring to the array of FSR volumes.
  * @param length segment length
  * @param mat Material associated with the segment
- * @param id the FSR ID of the FSR associated with the segment
+ * @param fsr_id the FSR ID of the FSR associated with the segment
  */
 void VolumeKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
                            int track_idx, int cmfd_surface_fwd,
@@ -180,7 +180,7 @@ void VolumeKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
 
 
 /**
- * @brief Increments the counter for the number of segments on the track
+ * @brief Increments the counter for the number of segments on the track.
  * @details The CounterKernel execute function counts the number of segments
  *          in a track by incrementing the counter variable upon execution. Due
  *          to restrictions on maximum optical path length, the counter may be
@@ -188,7 +188,7 @@ void VolumeKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
  *          segment into segments of allowed optical path length.
  * @param length segment length
  * @param mat Material associated with the segment
- * @param id the FSR ID of the FSR associated with the segment
+ * @param fsr_id the FSR ID of the FSR associated with the segment
  */
 void CounterKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
                             int track_idx, int cmfd_surface_fwd,
@@ -214,7 +214,7 @@ void CounterKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
 
 
 /**
- * @brief Writes segment information to the segmentation data array
+ * @brief Writes segment information to the segmentation data array.
  * @details The SegmentationKernel execute function writes segment information
  *          to the segmentation data referenced by _segments. Due to
  *          restrictions on maximum optical path length, the counter may be
@@ -222,7 +222,17 @@ void CounterKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
  *          segment into segments of allowed optical path length.
  * @param length segment length
  * @param mat Material associated with the segment
- * @param id the FSR ID of the FSR associated with the segment
+ * @param fsr_id the FSR ID of the FSR associated with the segment
+ * @param track_idx the track index in stack
+ * @param cmfd_surface_fwd CMFD surface at the end of the segment in the forward 
+ *        direction
+ * @param cmfd_surface_bwd CMFD surface at the end of the segment in the 
+ *        backward direction
+ * @param x_start x coordinate of the start of the segment
+ * @param y_start y coordinate of the start of the segment
+ * @param z_start z coordinate of the start of the sement
+ * @param phi azimuthal angle of this segment
+ * @param theta polar angle of this segment
  */
 void SegmentationKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
                                 int track_idx, int cmfd_surface_fwd,
@@ -308,7 +318,7 @@ TransportKernel::~TransportKernel() {
 
 
 /**
- * @brief Sets a pointer to the CPUSolver to enable use of transport functions
+ * @brief Sets a pointer to the CPUSolver to enable use of transport functions.
  * @param cpu_solver pointer to the CPUSolver
  */
 void TransportKernel::setCPUSolver(CPUSolver* cpu_solver) {
@@ -317,9 +327,8 @@ void TransportKernel::setCPUSolver(CPUSolver* cpu_solver) {
 
 
 /**
- * @brief Sets the indexes of the current Track.
- * @param axim_index the Track's azimuthal index
- * @param polar_index the Track's polar index
+ * @brief Create a new track3D from an existing one.
+ * @param track track to create the new track from
  */
 //FIXME: delete?
 void TransportKernel::newTrack(Track* track) {

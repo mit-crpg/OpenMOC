@@ -1,10 +1,10 @@
 #include "Matrix.h"
 
 /**
- * @brief Constructor initializes Matrix as a list of lists
+ * @brief Constructor initializes Matrix as a vector of maps
  *        and sets the matrix dimensions.
- * @detail The matrix object uses a "lists of lists" structure (implemented as
- *         a map of lists) to allow for easy setting and incrementing of the
+ * @details The matrix object uses a "lists of lists" structure (implemented as
+ *         a vector of maps) to allow for easy setting and incrementing of the
  *         values in the object. When the matrix is needed to perform linear
  *         algebra operations, it is converted to compressed row storage (CSR)
  *         form. The matrix is ordered by cell (as opposed to by group) on the
@@ -71,8 +71,8 @@ Matrix::~Matrix() {
 
 /**
  * @brief Increment a value in the matrix.
- * @detail This method takes a cell and group of origin (cell/group from)
- *         and cell and group of destination (cell/group to) and floating
+ * @details This method takes a cell and group of origin (cell/group from)
+ *         and cell and group of destination (cell/group to) and a floating
  *         point value. The origin and destination are used to compute the
  *         row and column in the matrix. If a value exists for the row/column,
  *         the value is incremented by val; otherwise, it is set to val.
@@ -116,7 +116,7 @@ void Matrix::incrementValue(int cell_from, int group_from,
 
 /**
  * @brief Set a value in the matrix.
- * @detail This method takes a cell and group of origin (cell/group from)
+ * @details This method takes a cell and group of origin (cell/group from)
  *         and cell and group of destination (cell/group to) and floating
  *         point value. The origin and destination are used to compute the
  *         row and column in the matrix. The location specified by the
@@ -254,7 +254,7 @@ void Matrix::printString() {
 
 /**
  * @brief Get a value in the matrix.
- * @detail This method takes a cell and group of origin (cell/group from)
+ * @details This method takes a cell and group of origin (cell/group from)
  *         and cell and group of destination (cell/group to).
  *         The origin and destination are used to compute the
  *         row and column in the matrix. The value at the location specified

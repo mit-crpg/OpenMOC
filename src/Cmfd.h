@@ -90,11 +90,11 @@ private:
   /* A tally buffer for threads to tally temporary surface currents */
   CMFD_PRECISION** _temporary_currents;
 
-  /** Vector representing the flux for each cmfd cell and cmfd enegy group at
+  /** Vector representing the flux for each cmfd cell and cmfd energy group at
    * the end of a CMFD solve */
   Vector* _new_flux;
 
-  /** Vector representing the flux for each cmfd cell and cmfd enegy group at
+  /** Vector representing the flux for each cmfd cell and cmfd energy group at
    * the beginning of a CMFD solve */
   Vector* _old_flux;
 
@@ -191,20 +191,20 @@ private:
   double _cell_width_x;
   double _cell_width_y;
   double _cell_width_z;
-  
+
   /** Physical dimensions of non-uniform CMFD meshes (for whole geometry) */
   std::vector<double> _cell_widths_x;
   std::vector<double> _cell_widths_y;
   std::vector<double> _cell_widths_z;
-  
+
   /** Distance of each mesh from the left-lower-bottom most point */
   std::vector<double> _accumulate_x;
   std::vector<double> _accumulate_y;
   std::vector<double> _accumulate_z;
-  
+
   /** True if the cmfd meshes are non-uniform */
   bool _non_uniform;
-  
+
   /** Array of geometry boundaries */
   boundaryType* _boundaries;
 
@@ -272,22 +272,22 @@ private:
 
   /* Structure to contain information about the convergence of the CMFD */
   ConvergenceData* _convergence_data;
-  
+
   /* MPI communicator to transfer buffers, mainly currents at interfaces */
   DomainCommunicator* _domain_communicator;
-  
+
   /* Buffer to contain received data */
   CMFD_PRECISION* _inter_domain_data;
-  
+
   /* Buffer to contain sent data from domain */
   CMFD_PRECISION* _send_domain_data;
-  
+ 
   /* For each face (1st dimension of the array), will contain data received */
   CMFD_PRECISION** _domain_data_by_surface;
 
   /* For each face (1st dimension of the array), will contain data to send */
   CMFD_PRECISION** _send_data_by_surface;
-  
+
   /* Map of the indexes to each boundary in the tally arrays */
   std::vector<std::map<int, int> > _boundary_index_map;
 
@@ -299,34 +299,29 @@ private:
 
   /* The number of on-domain cells in the z-direction */
   int _local_num_z;
-  
+
   std::vector<int> _accumulate_lmx;
   std::vector<int> _accumulate_lmy;
   std::vector<int> _accumulate_lmz;
-  
-  //for substitution of _local_num_x, _local_num_y, _local_num_y, checking the 
-  //code is completely and fully changed to non-uniform version. Cuz 
-  //_local_num_x, _local_num_y, _local_num_y is used too much in the code.
-  int _local_num_xn, _local_num_yn, _local_num_zn;
 
   /* Size of _tally_memory array */
   long _total_tally_size;
-  
+
   /* 1D array that contains all tallies (diffusion, reaction and volume) */
   CMFD_PRECISION* _tally_memory;
-  
+
   /* 2D array that contains reaction rates in each cell and group */
   CMFD_PRECISION** _reaction_tally;
 
   /* 2D array that contains volume tallies of each cell */
   CMFD_PRECISION** _volume_tally;
-  
+
   /* 2D array that contains diffusion tallies for each cell and groups */
   CMFD_PRECISION** _diffusion_tally;
-  
+
   /* Boolean to check if tallies are allocated */
   bool _tallies_allocated;
-  
+
   /* Boolean to check if the domain communicator (for domain decomposed CMFD)
    * has been allocated */
   bool _domain_communicator_allocated;
@@ -463,7 +458,7 @@ public:
 #endif
   void setConvergenceData(ConvergenceData* convergence_data);
   void useAxialInterpolation(int interpolate);
-  
+
   /* Methods to try to fix stability issues */
   void useFluxLimiting(bool flux_limiting);
   void enforceBalanceOnDiagonal(int cmfd_cell, int group);
@@ -476,10 +471,10 @@ public:
   void setFSRSources(FP_PRECISION* sources);
   void setCellFSRs(std::vector< std::vector<long> >* cell_fsrs);
   void setFluxMoments(FP_PRECISION* flux_moments);
-  
+
   /* Set XYZ widths of non-uniform meshes */
   void setWidths(std::vector< std::vector<double> > widths);
-  
+
   /* For debug use */
   void printCmfdCellSizes();
 };
@@ -495,7 +490,7 @@ inline int Cmfd::getCmfdGroup(int group) {
 }
 
 
-/*
+/**
  * @brief Quickly finds a 3D CMFD surface given a cell, global coordinate, and
  *        2D CMFD surface. Intended for use in axial on-the-fly ray tracing.
  * @details If the coords is not on a surface, -1 is returned. If there is

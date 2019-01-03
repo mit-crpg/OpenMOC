@@ -10,8 +10,8 @@ static int auto_id = DEFAULT_INIT_ID;
  *          OpenMOC input files. The method makes use of a static surface
  *          ID which is incremented each time the method is called to enable
  *          unique generation of monotonically increasing IDs. The method's
- *          first ID begins at 10000. Hence, user-defined surface IDs greater
- *          than or equal to 10000 are prohibited.
+ *          first ID begins at 10,000. Hence, user-defined surface IDs greater
+ *          than or equal to 10,000 are prohibited.
  */
 int surface_id() {
   int id = auto_id;
@@ -21,7 +21,7 @@ int surface_id() {
 
 
 /**
- * @brief Resets the auto-generated unique Surface ID counter to 10000.
+ * @brief Resets the auto-generated unique Surface ID counter to 10,000.
  */
 void reset_surface_id() {
   auto_id = DEFAULT_INIT_ID;
@@ -111,7 +111,7 @@ int Surface::getId() const {
 
 
 /**
- * @brief Return the user-defined name of the Surface
+ * @brief Return the user-defined name of the Surface.
  * @return the Surface name
  */
 char* Surface::getName() const {
@@ -130,8 +130,8 @@ surfaceType Surface::getSurfaceType() {
 
 /**
  * @brief Returns the type of boundary conditions for this Surface (REFLECTIVE,
- *        VACUUM or BOUNDARY_NONE)
- * @return the type of boundary condition type for this Surface
+ *        VACUUM or BOUNDARY_NONE).
+ * @return the boundary condition type for this Surface
  */
 boundaryType Surface::getBoundaryType() {
   return _boundary_type;
@@ -140,7 +140,7 @@ boundaryType Surface::getBoundaryType() {
 
 /**
  * @brief Returns the minimum coordinate in the axis direction of the
- *        surface
+ *        surface.
  * @param axis The axis of interest (0 = x, 1 = y, 2 = z)
  * @param halfspace the halfspace to consider
  * @return the minimum coordinate in the axis direction
@@ -161,7 +161,7 @@ double Surface::getMin(int axis, int halfspace) {
 
 /**
  * @brief Returns the maximum coordinate in the axis direction of the
- *        surface
+ *        surface.
  * @param axis The axis of interest (0 = x, 1 = y, 2 = z)
  * @param halfspace the halfspace to consider
  * @return the maximum coordinate in the axis direction
@@ -181,7 +181,7 @@ double Surface::getMax(int axis, int halfspace) {
 
 
 /**
- * @brief Sets the name of the Surface
+ * @brief Sets the name of the Surface.
  * @param name the Surface name string
  */
 void Surface::setName(const char* name) {
@@ -223,7 +223,7 @@ void Surface::addNeighborCell(int halfspace, Cell* cell) {
   /* Get pointer to vector of neighbor Cells for this halfspace */
   std::vector<Cell*>* neighbors = _neighbors[halfspace];
 
-  /* Add the neighbor Cell if the collection does not already contain it*/
+  /* Add the neighbor Cell if the collection does not already contain it */
   if (std::find(neighbors->begin(), neighbors->end(), cell) == neighbors->end())
     neighbors->push_back(cell);
 
@@ -343,7 +343,7 @@ Plane::Plane(const double A, const double B,
 
 
 /**
- * @brief Returns the minimum x value of -INFINITY
+ * @brief Returns the minimum x value of -INFINITY.
  * @param halfspace the halfspace of the Surface to consider
  * @return the minimum x value of -INFINITY
  */
@@ -363,7 +363,7 @@ double Plane::getMaxX(int halfspace) {
 
 
 /**
- * @brief Returns the minimum y value of -INFINITY
+ * @brief Returns the minimum y value of -INFINITY.
  * @param halfspace the halfspace of the Surface to consider
  * @return the minimum y value of -INFINITY
  */
@@ -383,7 +383,7 @@ double Plane::getMaxY(int halfspace) {
 
 
 /**
- * @brief Returns the minimum z value of -INFINITY
+ * @brief Returns the minimum z value of -INFINITY.
  * @param halfspace the halfspace of the Surface to consider
  * @return the minimum z value of -INFINITY
  */
@@ -644,7 +644,7 @@ double YPlane::getMaxY(int halfspace) {
 
 
 /**
- * @brief Converts this yplane's attributes to a character array
+ * @brief Converts this YPlane's attributes to a character array.
  * @details The character array returned conatins the type of Plane (ie,
  *          YPLANE) and the A, B, and C coefficients in the quadratic
  *          Surface equation and the location of the Plane on the y-axis.
@@ -748,7 +748,7 @@ std::string ZPlane::toString() {
 
 
 /**
- * @brief constructor.
+ * @brief Constructor.
  * @param x the x-coordinte of the ZCylinder center
  * @param y the y-coordinate of the ZCylinder center
  * @param radius the radius of the ZCylinder
@@ -862,8 +862,8 @@ double ZCylinder::getMaxZ(int halfspace) {
 
 
 /**
- * @brief Finds the intersection Point with this zcylinder from a given Point and
- *        trajectory defined by an azim/polar angles (0, 1, or 2 points).
+ * @brief Finds the intersection Point with this zcylinder from a given Point
+ *        and trajectory defined by an azim/polar angles (0, 1, or 2 points).
  * @param point pointer to the Point of interest
  * @param azim the azimuthal angle defining the trajectory in radians
  * @param polar the polar angle defining the trajectory in radians
@@ -1092,7 +1092,7 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
 
 /**
  * @brief Converts this ZCylinder's attributes to a character array.
- * @details The character array returned conatins the type of Plane (ie,
+ * @details The character array returned contains the type of Plane (ie,
  *          ZCYLINDER) and the A, B, C, D and E coefficients in the
  *          quadratic Surface equation.
  * @return a character array of this ZCylinder's attributes

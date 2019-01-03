@@ -240,9 +240,9 @@ double Geometry::getMaxZ() {
 
 
 /**
- * @brief Returns the boundary conditions (REFLECTIVE or VACUUM) at the
- *        minimum x-coordinate in the Geometry.
- * @return the boundary conditions for the minimum x-coordinate in the Geometry
+ * @brief Returns the boundary conditions at the minimum x-coordinate in the 
+ *        Geometry / domain if the geometry is domain-decomposed.
+ * @return the boundary conditions for the minimum x-coordinate in the domain
  */
 boundaryType Geometry::getMinXBoundaryType() {
   if (_domain_decomposed && _domain_index_x > 0)
@@ -253,9 +253,9 @@ boundaryType Geometry::getMinXBoundaryType() {
 
 
 /**
- * @brief Returns the boundary conditions (REFLECTIVE or VACUUM) at the
- *        maximum x-coordinate in the Geometry.
- * @return the boundary conditions for the maximum z-coordinate in the Geometry
+ * @brief Returns the boundary conditions at the maximum x-coordinate in the 
+ *        Geometry / domain if the geometry is domain-decomposed.
+ * @return the boundary conditions for the maximum x-coordinate in the domain
  */
 boundaryType Geometry::getMaxXBoundaryType() {
   if (_domain_decomposed && _domain_index_x < _num_domains_x-1)
@@ -266,9 +266,9 @@ boundaryType Geometry::getMaxXBoundaryType() {
 
 
 /**
- * @brief Returns the boundary conditions (REFLECTIVE or VACUUM) at the
- *        minimum y-coordinate in the Geometry.
- * @return the boundary conditions for the minimum y-coordinate in the Geometry
+ * @brief Returns the boundary conditions at the minimum y-coordinate in the 
+ *        Geometry / domain if the geometry is domain-decomposed.
+ * @return the boundary conditions for the minimum y-coordinate in the domain
  */
 boundaryType Geometry::getMinYBoundaryType() {
   if (_domain_decomposed && _domain_index_y > 0)
@@ -279,9 +279,9 @@ boundaryType Geometry::getMinYBoundaryType() {
 
 
 /**
- * @brief Returns the boundary conditions (REFLECTIVE or VACUUM) at the
- *        maximum y-coordinate in the Geometry.
- * @return the boundary conditions for the maximum y-coordinate in the Geometry
+ * @brief Returns the boundary conditions at the maximum y-coordinate in the 
+ *        Geometry / domain if the geometry is domain-decomposed.
+ * @return the boundary conditions for the maximum y-coordinate in the domain
  */
 boundaryType Geometry::getMaxYBoundaryType() {
   if (_domain_decomposed && _domain_index_y < _num_domains_y-1)
@@ -292,9 +292,9 @@ boundaryType Geometry::getMaxYBoundaryType() {
 
 
 /**
- * @brief Returns the boundary conditions (REFLECTIVE or VACUUM) at the
- *        minimum z-coordinate in the Geometry.
- * @return the boundary conditions for the minimum z-coordinate in the Geometry
+ * @brief Returns the boundary conditions at the minimum z-coordinate in the 
+ *        Geometry / domain if the geometry is domain-decomposed.
+ * @return the boundary conditions for the minimum z-coordinate in the domain
  */
 boundaryType Geometry::getMinZBoundaryType() {
   if (_domain_decomposed && _domain_index_z > 0)
@@ -305,9 +305,9 @@ boundaryType Geometry::getMinZBoundaryType() {
 
 
 /**
- * @brief Returns the boundary conditions (REFLECTIVE or VACUUM) at the
- *        maximum z-coordinate in the Geometry.
- * @return the boundary conditions for the maximum z-coordinate in the Geometry
+ * @brief Returns the boundary conditions at the maximum z-coordinate in the 
+ *        Geometry / domain if the geometry is domain-decomposed.
+ * @return the boundary conditions for the maximum z-coordinate in the domain
  */
 boundaryType Geometry::getMaxZBoundaryType() {
   if (_domain_decomposed && _domain_index_z < _num_domains_z-1)
@@ -318,7 +318,7 @@ boundaryType Geometry::getMaxZBoundaryType() {
 
 
 /**
- * @brief Returns the number of flat source regions in the Geometry domain.
+ * @brief Returns the number of source regions in the Geometry domain.
  * @return number of FSRs
  */
 long Geometry::getNumFSRs() {
@@ -327,7 +327,7 @@ long Geometry::getNumFSRs() {
 
 
 /**
- * @brief Returns the number of flat source regions in the entire Geometry.
+ * @brief Returns the number of source regions in the entire Geometry.
  * @return number of FSRs
  */
 long Geometry::getNumTotalFSRs() {
@@ -416,6 +416,7 @@ std::map<int, Surface*> Geometry::getAllSurfaces() {
   std::map<int, Cell*>::iterator c_iter;
   std::map<int, Halfspace*>::iterator s_iter;
 
+  /* Gather all surfaces from all cells */
   if (_root_universe != NULL) {
     std::map<int, Cell*> all_cells = getAllCells();
 
@@ -445,6 +446,7 @@ std::map<int, Material*> Geometry::getAllMaterials() {
   Cell* cell;
   Material* material;
 
+  /* Gather all materials from all cells */
   if (_root_universe != NULL) {
     std::map<int, Cell*> all_cells = _root_universe->getAllCells();
     std::map<int, Cell*>::iterator iter;
@@ -466,7 +468,7 @@ std::map<int, Material*> Geometry::getAllMaterials() {
 
 
 /**
- * @brief Modify scattering and total cross sections to study MOC stability
+ * @brief Modify scattering and total cross sections to study MOC stability.
  */
 void Geometry::manipulateXS() {
 
@@ -482,12 +484,18 @@ void Geometry::manipulateXS() {
       int ng = mat->getNumEnergyGroups();
       for (int g=0; g < ng; g++) {
         double sigma_t = mat->getSigmaTByGroup(g+1);
+
+        /* Set all negative scatter cross sections to 0 */
         for (int gp=0; gp < ng; gp++)
           if (mat->getSigmaSByGroup(g+1, gp+1) < 0)
             mat->setSigmaSByGroup(0.0, g+1, gp+1);
+
+        /* Gather all non-negative scattering terms */
         double sigma_s = 0.0;
         for (int gp=0; gp < ng; gp++)
           sigma_s += mat->getSigmaSByGroup(g+1, gp+1);
+
+        /* Fudge */
         sigma_s *= 1.1;
         if (sigma_s > sigma_t)
           mat->setSigmaTByGroup(sigma_s, g+1);
@@ -539,7 +547,7 @@ std::map<int, Cell*> Geometry::getAllMaterialCells() {
 
 
 /**
- * @brief Return a std::map container of Universe IDs (keys) with Unierses
+ * @brief Return a std::map container of Universe IDs (keys) with Universes
  *        pointers (values).
  * @return a std::map of Universes indexed by Universe ID in the geometry
  */
@@ -573,7 +581,7 @@ Cmfd* Geometry::getCmfd() {
 
 
 /**
- * @breif Returns whether the Geometry is domain decomposed
+ * @brief Returns whether the Geometry is domain decomposed
  * @return If the domain is decomposed (true) or not (false)
  */
 bool Geometry::isDomainDecomposed() {
@@ -630,14 +638,29 @@ void Geometry::setNumDomainModules(int num_x, int num_y, int num_z) {
   _num_modules_z = num_z;
 }
 
+
+/**
+ * @brief Get the number of modular domains in the x-direction per MPI domain
+ * @return _num_modules_x number of modular domains in the x-direction in domain
+ */
 int Geometry::getNumXModules() {
   return _num_modules_x;
 }
 
+
+/**
+ * @brief Get the number of modular domains in the y-direction per MPI domain
+ * @return _num_modules_y number of modular domains in the y-direction in domain
+ */
 int Geometry::getNumYModules() {
   return _num_modules_y;
 }
 
+
+/**
+ * @brief Get the number of modular domains in the z-direction per MPI domain
+ * @return _num_modules_z number of modular domains in the z-direction in domain
+ */
 int Geometry::getNumZModules() {
   return _num_modules_z;
 }
@@ -727,7 +750,7 @@ MPI_Comm Geometry::getMPICart() {
 
 
 /**
- * @breif Returns the rank of the specified neighboring domain
+ * @brief Returns the rank of the specified neighboring domain.
  * @param offset_x The shift in the x-direction (number of domains)
  * @param offset_y The shift in the y-direction (number of domains)
  * @param offset_z The shift in the z-direction (number of domains)
@@ -819,7 +842,7 @@ void Geometry::setOverlaidMesh(double axial_mesh_height, int num_x, int num_y,
   offset.setY(min_y + (max_y - min_y)/2.0);
   offset.setZ(min_z + (max_z - min_z)/2.0);
   _overlaid_mesh->setOffset(offset.getX(), offset.getY(), offset.getZ());
-  
+
   _overlaid_mesh->computeSizes();
 
   log_printf(NORMAL, "Set global axial mesh of width %6.4f cm",
@@ -1210,7 +1233,7 @@ long Geometry::getFSRId(LocalCoords* coords, bool err_check) {
 
 
 /**
- * @brief Returns the rank of the domain containing the given coordinates
+ * @brief Returns the rank of the domain containing the given coordinates.
  * @param coords The coordinates used to search the domain rank
  * @return The rank of the domain containing the coordinates
  */
@@ -1276,7 +1299,7 @@ long Geometry::getGlobalFSRId(LocalCoords* coords, bool err_check) {
 
 
 /**
- * @brief Return the characteristic point for a given FSR ID
+ * @brief Return the characteristic point for a given FSR ID.
  * @param fsr_id the FSR ID
  * @return the FSR's characteristic point
  */
@@ -1297,7 +1320,7 @@ Point* Geometry::getFSRPoint(long fsr_id) {
 
 
 /**
- * @brief Return the centroid for a given FSR ID
+ * @brief Return the centroid for a given FSR ID.
  * @param fsr_id the FSR ID
  * @return the FSR's centroid
  */
@@ -1341,7 +1364,7 @@ void Geometry::countDomainFSRs() {
 
 
 /**
- * @brief Finds the local FSR ID and domain rank from a global FSR ID
+ * @brief Finds the local FSR ID and domain rank from a global FSR ID.
  * @param global_fsr_id The global unique identifier of an FSR
  * @param local_fsr_id The unique identifier of an FSR on its current domain
  * @param domain The rank of the domain containing the FSR
@@ -1378,9 +1401,9 @@ void Geometry::getLocalFSRId(long global_fsr_id, long &local_fsr_id,
 
 
 /**
- * @brief Returns the FSR centroid of a global FSR
+ * @brief Returns the FSR centroid of a global FSR.
  * @param global_fsr_id The global unique identifier of the FSR
- * @return A vector contianing the coordinates of the FSR centroid
+ * @return A vector containing the coordinates of the FSR centroid
  */
 std::vector<double> Geometry::getGlobalFSRCentroidData(long global_fsr_id) {
   double xyz[3];
@@ -1439,7 +1462,7 @@ int Geometry::getCmfdCell(long fsr_id) {
 
 /**
  * @brief reserves the FSR key strings
- * @param the number of threads
+ * @param num_threads the number of threads
  */
 void Geometry::reserveKeyStrings(int num_threads) {
   int string_size = 255;
@@ -1746,7 +1769,7 @@ ExtrudedFSR* Geometry::getExtrudedFSR(int extruded_fsr_id) {
 
 
 /**
- * @brief Subidivides all Cells in the Geometry into rings and angular sectors
+ * @brief Subdivides all Cells in the Geometry into rings and angular sectors
  *        aligned with the z-axis.
  * @details This method is called by the Geometry::initializeFlatSourceRegions()
  *          method but may also be called by the user in Python if needed:
@@ -2127,7 +2150,7 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
  * @brief This method performs ray tracing to create extruded track segments
  *        within each flat source region in the implicit 2D superposition plane
  *        of the Geometry by 2D ray tracing across input heights that encompass
- *        all radial geometric detail.
+ *        all radial geometric details.
  * @details This method starts at the beginning of an extruded track and finds
  *          successive intersection points with FSRs as the extruded track
  *          crosses radially through the Geometry at defined z-coords. The
@@ -2375,7 +2398,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
 
 
 /**
- * @brief Fixes the FSR map size so that the map is static and fast
+ * @brief Fixes the FSR map size so that the map is static and fast.
  */
 void Geometry::fixFSRMaps() {
   _FSR_keys_map.setFixedSize();
@@ -2385,7 +2408,7 @@ void Geometry::fixFSRMaps() {
 
 /**
  * @brief Rays are shot vertically through each ExtrudedFSR struct to calculate
- *        the axial mesh and initialize 3D FSRs
+ *        the axial mesh and initialize 3D FSRs.
  * @details From a 2D point within each FSR, a temporary 3D track is created
  *          starting at the bottom of the geometry and extending vertically to
  *          the top of the geometry. These tracks are segmented using the
@@ -2506,7 +2529,7 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
 
 
 /**
- * @brief Reorders FSRs so that they are contiguous in the axial direction
+ * @brief Reorders FSRs so that they are contiguous in the axial direction.
  */
 void Geometry::reorderFSRIDs() {
 
@@ -2569,8 +2592,8 @@ void Geometry::reorderFSRIDs() {
 
 
 /**
- * @brief Initialize key and material ID vectors for lookup by FSR ID
- * @detail This function initializes and sets reverse lookup vectors by FSR ID.
+ * @brief Initialize key and material ID vectors for lookup by FSR ID.
+ * @details This function initializes and sets reverse lookup vectors by FSR ID.
  *      This is called after the FSRs have all been identified and allocated
  *      during segmentation. This function must be called after
  *      Geometry::segmentize() has completed. It should not be called if tracks
@@ -2592,8 +2615,7 @@ void Geometry::initializeFSRVectors() {
 
   /* Fill vectors key and material ID information */
   #pragma omp parallel for
-  for (long i=0; i < num_FSRs; i++)
-  {
+  for (long i=0; i < num_FSRs; i++) {
     std::string key = key_list[i];
     fsr_data* fsr = value_list[i];
     long fsr_id = fsr->_fsr_id;
@@ -2726,21 +2748,21 @@ void Geometry::computeFissionability(Universe* univ) {
  * @return a NumPy array or list of the domain IDs
  */
 std::vector<long> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
-                        std::vector<double> dim2,
-                        double offset,
-                        const char* plane,
-                        const char* domain_type) {
-
-  Cell* cell;
-  LocalCoords* point;
+                                                 std::vector<double> dim2,
+                                                 double offset,
+                                                 const char* plane,
+                                                 const char* domain_type) {
 
   /* Instantiate a vector to hold the domain IDs */
   std::vector<long> domains(dim1.size() * dim2.size());
 
   /* Extract the source region IDs */
-//#pragma omp parallel for private(point, cell)
+//#pragma omp parallel for
   for (int i=0; i < dim1.size(); i++) {
     for (int j=0; j < dim2.size(); j++) {
+
+      Cell* cell;
+      LocalCoords* point;
 
       /* Find the Cell containing this point */
       if (strcmp(plane, "xy") == 0)
@@ -2768,11 +2790,11 @@ std::vector<long> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
         else
           log_printf(ERROR, "Unable to extract spatial data for "
                             "unsupported domain type %s", domain_type);
+
       }
 
       /* Deallocate memory for LocalCoords */
       point = point->getHighestLevel();
-      point->prune();
       delete point;
     }
   }
@@ -2827,20 +2849,20 @@ void Geometry::printString() {
 
 /**
  * @brief Prints FSR layout to file
- * @description This provides a way to get the functionality of the 
+ * @details This provides a way to get the functionality of the 
  *              plot_flat_source_regions Python function without Python
- * @brief plane The "xy", "xz", or "yz" plane in which to extract flat source
+ * @param plane The "xy", "xz", or "yz" plane in which to extract flat source
  *        regions
- * @brief gridsize The number of points to plot in each direction
- * @brief offset The offset of the plane in the third dimension
- * @brief bounds_x a two valued array for the plotted x-limits
- * @brief bounds_y a two valued array for the plotted y-limits
- * @brief bounds_z a two valued array for the plotted z-limits
+ * @param gridsize The number of points to plot in each direction
+ * @param offset The offset of the plane in the third dimension
+ * @param bounds_x a two valued array for the plotted x-limits
+ * @param bounds_y a two valued array for the plotted y-limits
+ * @param bounds_z a two valued array for the plotted z-limits
  */
 void Geometry::printFSRsToFile(const char* plane, int gridsize, double offset,
                                double* bounds_x, double* bounds_y, 
                                double* bounds_z) {
-  
+
   /* Get geometry min and max */
   double min_x = _root_universe->getMinX();
   double max_x = _root_universe->getMaxX();
@@ -2930,7 +2952,6 @@ void Geometry::printFSRsToFile(const char* plane, int gridsize, double offset,
   delete [] reduced_fsr_array;
 #endif
 
-
   /* Print to file */
   log_printf(NORMAL, "Printing FSRs to file");
   if (isRootDomain()) {
@@ -3009,7 +3030,7 @@ void Geometry::initializeCmfd() {
 
 
 /**
- * @brief This is a method that initializes the initial spectrum calculator
+ * @brief This is a method that initializes the initial spectrum calculator.
  */
 void Geometry::initializeSpectrumCalculator(Cmfd* spectrum_calculator) {
 
@@ -3074,7 +3095,7 @@ void Geometry::initializeSpectrumCalculator(Cmfd* spectrum_calculator) {
 
 
 /**
- * @brief Returns a pointer to the map that maps FSR keys to FSR IDs
+ * @brief Returns a pointer to the map that maps FSR keys to FSR IDs.
  * @return pointer to _FSR_keys_map map of FSR keys to FSR IDs
  */
 ParallelHashMap<std::string, fsr_data*>& Geometry::getFSRKeysMap() {
@@ -3083,7 +3104,7 @@ ParallelHashMap<std::string, fsr_data*>& Geometry::getFSRKeysMap() {
 
 
 /**
- * @brief Returns a pointer to the map that maps FSR keys to extruded FSRs
+ * @brief Returns a pointer to the map that maps FSR keys to extruded FSRs.
  * @return pointer to _FSR_keys_map map of FSR keys to extruded FSRs
  */
 ParallelHashMap<std::string, ExtrudedFSR*>& Geometry::getExtrudedFSRKeysMap() {
@@ -3092,7 +3113,7 @@ ParallelHashMap<std::string, ExtrudedFSR*>& Geometry::getExtrudedFSRKeysMap() {
 
 
 /**
- * @brief Returns the vector that maps FSR IDs to FSR key hashes
+ * @brief Returns the vector that maps FSR IDs to FSR key hashes.
  * @return _FSR_keys_map map of FSR keys to FSR IDs
  */
 std::vector<std::string>& Geometry::getFSRsToKeys() {
@@ -3101,7 +3122,7 @@ std::vector<std::string>& Geometry::getFSRsToKeys() {
 
 
 /**
- * @brief Returns the vector that maps FSR IDs to extruded FSRs
+ * @brief Returns the vector that maps FSR IDs to extruded FSRs.
  * @return _extruded_FSR_lookup map of FSR keys to extruded FSRs
  */
 std::vector<ExtrudedFSR*>& Geometry::getExtrudedFSRLookup() {
@@ -3110,7 +3131,7 @@ std::vector<ExtrudedFSR*>& Geometry::getExtrudedFSRLookup() {
 
 
 /**
- * @brief Return a vector indexed by flat source region IDs which contains
+ * @brief Returns a vector indexed by flat source region IDs which contains
  *        the corresponding Material IDs.
  * @return an integer vector of FSR-to-Material IDs indexed by FSR ID
  */
@@ -3140,7 +3161,7 @@ std::vector<int>& Geometry::getFSRsToCMFDCells() {
 
 
 /**
- * @brief Determins whether a point is within the bounding box of the domain.
+ * @brief Determines whether a point is within the bounding box of the domain.
  * @param coords a populated LocalCoords linked list
  * @return boolean indicating whether the coords is within the domain
  */
@@ -3159,7 +3180,7 @@ bool Geometry::withinBounds(LocalCoords* coords) {
 
 
 /**
- * @brief Determins whether a point is within the bounding box of the Geometry.
+ * @brief Determines whether a point is within the bounding box of the Geometry.
  * @param coords a populated LocalCoords linked list
  * @return boolean indicating whether the coords is within the geometry
  */
@@ -3176,7 +3197,6 @@ bool Geometry::withinGlobalBounds(LocalCoords* coords) {
   else
     return true;
 }
-
 
 
 /**
@@ -3199,7 +3219,7 @@ Cell* Geometry::findCellContainingFSR(long fsr_id) {
 
 
 /**
- * @brief Sets the centroid for an FSR
+ * @brief Sets the centroid for an FSR.
  * @details The _FSR_keys_map stores a hash of a std::string representing
  *          the Lattice/Cell/Universe hierarchy for a unique region
  *          and the associated FSR data. _centroid is a point that represents
@@ -3219,16 +3239,16 @@ void Geometry::setFSRCentroid(long fsr, Point* centroid) {
 }
 
 
-/*
+/**
  * @brief Returns a vector of z-coords defining a superposition of all axial
  *        boundaries in the Geometry.
- * @param include_overlaid_mesh whether to include an overlaid mesh in the
- *        set of unique z-coords
  * @details The Geometry is traversed to retrieve all Z-planes and implicit
  *          z-boundaries, such as lattice boundaries. The levels of all these
  *          z-boundaries are rounded and added to a set containing no
  *          duplicates, creating a mesh.
- * @reutrn a vector of z-coords
+ * @param include_overlaid_mesh whether to include an overlaid mesh in the
+ *        set of unique z-coords
+ * @return a vector of z-coords
  */
 std::vector<double> Geometry::getUniqueZHeights(bool include_overlaid_mesh) {
 
@@ -3404,7 +3424,7 @@ std::vector<double> Geometry::getUniqueZHeights(bool include_overlaid_mesh) {
 
 /**
  * @brief Returns a vector of z-coords defining potential unique radial planes
- *        in the Geometry
+ *        in the Geometry.
  * @details The Geometry is traversed to retrieve all Z-planes and implicit
  *          z-boundaries, such as lattice boundaries. The mid points of this
  *          mesh are then used to construct a vector of all potential unique
@@ -3428,7 +3448,7 @@ std::vector<double> Geometry::getUniqueZPlanes() {
 
 
 /**
- * @brief Prints all Geoemetry and Material details to a Geometry restart file
+ * @brief Prints all Geometry and Material details to a Geometry restart file.
  * @param filename The name of the file where the data is printed
  * @param non_uniform_lattice Whether the non-uniform lattice is used to create 
  *        geometry This is to make the code compatible with old version of .geo 
@@ -3597,8 +3617,8 @@ void Geometry::dumpToFile(std::string filename, bool non_uniform_lattice) {
     int id = cell->getId();
     char* name = cell->getName();
     cellType ct = cell->getType();
-    
-    /* Print key and general surface information */
+
+    /* Print key and general cell information */
     fwrite(&key, sizeof(int), 1, out);
     fwrite(&id, sizeof(int), 1, out);
     if (strcmp(name, "") == 0) {
@@ -3612,6 +3632,7 @@ void Geometry::dumpToFile(std::string filename, bool non_uniform_lattice) {
     }
     fwrite(&ct, sizeof(cellType), 1, out);
 
+    /* Print cell fill information */
     if (ct == MATERIAL) {
       Material* mat = cell->getFillMaterial();
       int mat_id = mat->getId();
@@ -3679,7 +3700,7 @@ void Geometry::dumpToFile(std::string filename, bool non_uniform_lattice) {
       fwrite(&num_subnodes, sizeof(int), 1, out);
 
       if (region_type == HALFSPACE) {
-        int surface_id = 
+        int surface_id =
              static_cast<Halfspace*>(*node_iter)->getSurface()->getId();
         int halfspace = static_cast<Halfspace*>(*node_iter)->getHalfspace();
         fwrite(&surface_id, sizeof(int), 1, out);
@@ -3696,14 +3717,14 @@ void Geometry::dumpToFile(std::string filename, bool non_uniform_lattice) {
   for (univ_iter = all_universes.begin();
        univ_iter != all_universes.end(); ++univ_iter) {
 
-    /* Get key, value pair and general cell information */
+    /* Get key, value pair and general universe information */
     int key = univ_iter->first;
     Universe* universe = univ_iter->second;
     int id = universe->getId();
     char* name = universe->getName();
     universeType ut = universe->getType();
-    
-    /* Print key and general surface information */
+
+    /* Print key and general universe information */
     fwrite(&key, sizeof(int), 1, out);
     fwrite(&id, sizeof(int), 1, out);
     if (strcmp(name, "") == 0) {
@@ -3778,10 +3799,10 @@ void Geometry::dumpToFile(std::string filename, bool non_uniform_lattice) {
 
 
 /**
- * @brief Loads all Geoemetry and Material details from a Geometry restart file
+ * @brief Loads all Geometry and Material details from a Geometry restart file
  * @param filename The name of the file from which the data is loaded
- * @param twiddle Whether the bytes are inverted (BGQ) or not
  * @param non_uniform_lattice Option whether the .geo file in non-uniform format
+ * @param twiddle Whether the bytes are inverted (BGQ) or not
  */
 void Geometry::loadFromFile(std::string filename, bool non_uniform_lattice,
                             bool twiddle) {

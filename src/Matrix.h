@@ -27,7 +27,7 @@ class Matrix {
 
 private:
 
-  /** A list of lists representing the matrix */
+  /** A vector of maps representing the matrix */
   std::vector< std::map<int, CMFD_PRECISION> > _LIL;
 
   /** The CSR matrix variables */

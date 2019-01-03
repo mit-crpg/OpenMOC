@@ -1,7 +1,7 @@
 #include "CPULSSolver.h"
 
 /**
- * @brief Constructor initializes array pointers for Tracks and Materials.
+ * @brief Constructor initializes array pointers for fluxes and sources.
  * @details The constructor retrieves the number of energy groups and FSRs
  *          and azimuthal angles from the Geometry and TrackGenerator if
  *          passed in as parameters by the user. The constructor initalizes
@@ -22,9 +22,9 @@ CPULSSolver::CPULSSolver(TrackGenerator* track_generator)
 
 
 /**
- * @brief Destructor deletes array for OpenMP mutual exclusion locks for
- *        FSR scalar flux updates, and calls Solver parent class destructor
- *        to deletes arrays for fluxes and sources.
+ * @brief Destructor deletes array for linear fluxes, sources and constants.
+ *        CPUSolver parent class destructor handles deletion of arrays for flat
+ *        fluxes and sources.
  */
 CPULSSolver::~CPULSSolver() {
 
@@ -33,7 +33,7 @@ CPULSSolver::~CPULSSolver() {
 
   if (_reduced_sources_xyz != NULL)
     delete [] _reduced_sources_xyz;
-  
+
   if (_stabilizing_flux_xyz != NULL)
     delete [] _stabilizing_flux_xyz;
 
@@ -46,9 +46,10 @@ CPULSSolver::~CPULSSolver() {
 
 
 /**
- * @brief Allocates memory for Track boundary angular and FSR scalar fluxes.
+ * @brief Allocates memory for boundary and scalar fluxes.
  * @details Deletes memory for old flux arrays if they were allocated
- *          for a previous simulation.
+ *          for a previous simulation. Calls the CPUSolver parent class
+ *          initializeFluxArrays for track anguar fluxes and flat scalar fluxes.
  */
 void CPULSSolver::initializeFluxArrays() {
   CPUSolver::initializeFluxArrays();
@@ -76,7 +77,7 @@ void CPULSSolver::initializeFluxArrays() {
                max_size_mb);
 
     _scalar_flux_xyz = new FP_PRECISION[size]();
-    
+
     if (_stabilize_transport && _stabilize_moments)
       _stabilizing_flux_xyz = new FP_PRECISION[size]();
   }
@@ -112,6 +113,7 @@ void CPULSSolver::initializeSourceArrays() {
         / (double) (1e6);
     log_printf(NORMAL, "Max linear source storage per domain = %6.2f MB",
                max_size_mb);
+
     /* Initialize source moments to zero */
     _reduced_sources_xyz = new FP_PRECISION[size]();
   }
@@ -122,10 +124,11 @@ void CPULSSolver::initializeSourceArrays() {
 
 
 /**
- * @brief Initializes the FSR volumes and Materials array.
- * @details This method allocates and initializes an array of OpenMP
- *          mutual exclusion locks for each FSR for use in the
- *          transport sweep algorithm.
+ * @brief Initializes the FSR constant linear source component, volumes and 
+ *        Materials array.
+ * @details This method calls parent class CPUSolver's initalizeFSRs to allocate
+ *          and initialize an array of OpenMP mutual exclusion locks for each 
+ *          FSR for use in the transport sweep algorithm.
  */
 void CPULSSolver::initializeFSRs() {
 
@@ -150,7 +153,7 @@ void CPULSSolver::initializeFSRs() {
 void CPULSSolver::flattenFSRFluxes(FP_PRECISION value) {
   CPUSolver::flattenFSRFluxes(value);
 
-#pragma omp parallel for schedule(guided)
+#pragma omp parallel for schedule(static)
   for (long r=0; r < _num_FSRs; r++) {
     for (int e=0; e < _num_groups; e++) {
       _scalar_flux_xyz(r,e,0) = 0.0;
@@ -171,7 +174,7 @@ double CPULSSolver::normalizeFluxes() {
   /* Normalize scalar fluxes in each FSR */
   double norm_factor = CPUSolver::normalizeFluxes();
 
-#pragma omp parallel for schedule(guided)
+#pragma omp parallel for schedule(static)
   for (long r=0; r < _num_FSRs; r++) {
     for (int e=0; e < _num_groups; e++) {
       _scalar_flux_xyz(r,e,0) *= norm_factor;
@@ -333,8 +336,8 @@ void CPULSSolver::computeFSRSources(int iteration) {
 /**
  * @brief Computes the contribution to the LSR scalar flux from a Track segment.
  * @details This method integrates the angular flux for a Track segment across
- *          energy groups and polar angles, and tallies it into the LSR
- *          scalar flux, and updates the Track's angular flux.
+ *          energy groups (and polar angles in 2D), and tallies it into the
+ *          scalar flux buffers, and updates the Track's angular flux.
  * @param curr_segment a pointer to the Track segment of interest
  * @param azim_index azimuthal angle index for this 3D Track
  * @param polar_index polar angle index for this 3D Track
@@ -516,7 +519,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
 
 /**
  * @brief Move from buffers to global arrays the contributions of one (or
- * several for per-stack solving) segments.
+ *        several for per-stack solving) segments.
  * @param fsr_id region index
  * @param fsr_flux buffer storing contribution to the region's scalar flux
  */
@@ -635,15 +638,15 @@ void CPULSSolver::computeStabilizingFlux() {
 
       /* Extract the scattering matrix */
       FP_PRECISION* scattering_matrix = _FSR_materials[r]->getSigmaS();
-    
+
       /* Extract total cross-sections */
       FP_PRECISION* sigma_t = _FSR_materials[r]->getSigmaT();
 
       for (int e=0; e < _num_groups; e++) {
-      
+
         /* Extract the in-scattering (diagonal) element */
         FP_PRECISION sigma_s = scattering_matrix[e*_num_groups+e];
-      
+
         /* For negative cross-sections, add the absolute value of the 
            in-scattering rate to the stabilizing flux */
         if (sigma_s < 0.0) {
@@ -664,10 +667,10 @@ void CPULSSolver::computeStabilizingFlux() {
       /* Look for largest absolute scattering ratio */
       FP_PRECISION max_ratio = 0.0;
       for (long r=0; r < _num_FSRs; r++) {
-        
+
         /* Extract the scattering value */
         FP_PRECISION scat = _FSR_materials[r]->getSigmaSByGroup(e+1, e+1);
-    
+
         /* Extract total cross-sections */
         FP_PRECISION total = _FSR_materials[r]->getSigmaTByGroup(e+1);
 
@@ -685,11 +688,11 @@ void CPULSSolver::computeStabilizingFlux() {
     }
   }
   else if (_stabilization_type == GLOBAL) {
-    
+
     /* Get the multiplicative factor */
     FP_PRECISION mult_factor = 1.0 / _stabilization_factor - 1.0;
-   
-    /* Apply the global muliplicative factor */ 
+
+    /* Apply the global multiplicative factor */ 
 #pragma omp parallel for
     for (long r=0; r < _num_FSRs; r++)
       for (int e=0; e < _num_groups; e++)
@@ -698,10 +701,10 @@ void CPULSSolver::computeStabilizingFlux() {
              * mult_factor;
   }
 }
-      
+
 
 /**
- * @brief Adjusts the scalar flux for transport stabilization
+ * @brief Adjusts the scalar flux for transport stabilization.
  */
 void CPULSSolver::stabilizeFlux() {
 
@@ -719,15 +722,15 @@ void CPULSSolver::stabilizeFlux() {
 
       /* Extract the scattering matrix */
       FP_PRECISION* scattering_matrix = _FSR_materials[r]->getSigmaS();
-    
+
       /* Extract total cross-sections */
       FP_PRECISION* sigma_t = _FSR_materials[r]->getSigmaT();
-    
+
       for (int e=0; e < _num_groups; e++) {
-      
+
         /* Extract the in-scattering (diagonal) element */
         FP_PRECISION sigma_s = scattering_matrix[e*_num_groups+e];
-      
+
         /* For negative cross-sections, add the stabilizing flux
            and divide by the diagonal matrix element used to form it so that
            no bias is introduced but the source iteration is stabilized */
@@ -750,10 +753,10 @@ void CPULSSolver::stabilizeFlux() {
       /* Look for largest absolute scattering ratio */
       FP_PRECISION max_ratio = 0.0;
       for (long r=0; r < _num_FSRs; r++) {
-        
+
         /* Extract the scattering value */
         FP_PRECISION scat = _FSR_materials[r]->getSigmaSByGroup(e+1, e+1);
-    
+
         /* Extract total cross-sections */
         FP_PRECISION total = _FSR_materials[r]->getSigmaTByGroup(e+1);
 
@@ -773,7 +776,7 @@ void CPULSSolver::stabilizeFlux() {
   }
   else if (_stabilization_type == GLOBAL) {
 
-    /* Apply the damping factor */    
+    /* Apply the damping factor */
 #pragma omp parallel for
     for (long r=0; r < _num_FSRs; r++) {
       for (int e=0; e < _num_groups; e++) {
@@ -788,7 +791,7 @@ void CPULSSolver::stabilizeFlux() {
 
 
 /**
- * @brief Checks to see if limited XS should be reset
+ * @brief Checks to see if limited XS should be reset.
  * @details For the linear source, the linear expansion coefficients should also
  *          be reset, to use the non-limited cross sections.
  * @param iteration The MOC iteration number
@@ -833,7 +836,6 @@ FP_PRECISION CPULSSolver::getFluxByCoords(LocalCoords* coords, int group) {
   double flux_y = 0.0;
   double flux_z = 0.0;
 
-
   if (_solve_3D) {
     flux_x = (x - xc) *
         (_FSR_lin_exp_matrix[fsr*6  ] * _scalar_flux_xyz(fsr, group, 0) +
@@ -863,7 +865,7 @@ FP_PRECISION CPULSSolver::getFluxByCoords(LocalCoords* coords, int group) {
 
 
 /**
- * @brief Initializes a Cmfd object for acceleratiion prior to source iteration.
+ * @brief Initializes a Cmfd object for acceleration prior to source iteration.
  * @details For the linear source solver, a pointer to the flux moments is 
  *          passed to the Cmfd object so that they can be updated as well in
  *          the prolongation phase.
