@@ -3831,7 +3831,7 @@ void Geometry::loadFromFile(std::string filename, bool non_uniform_lattice,
 
     /* Create Material */
     all_materials[key] = new Material(id, name);
-    if (name != "")
+    if (strcmp(name, "") != 0)
       delete [] name;
     Material* mat = all_materials[key];
     mat->setNumEnergyGroups(num_groups);
@@ -3936,7 +3936,7 @@ void Geometry::loadFromFile(std::string filename, bool non_uniform_lattice,
     else {
       log_printf(ERROR, "Unsupported surface type %s", name);
     }
-    if (name != "")
+    if (strcmp(name, "") != 0)
       delete [] name;
 
     /* Check that the key and ID match */
@@ -3977,7 +3977,7 @@ void Geometry::loadFromFile(std::string filename, bool non_uniform_lattice,
 
     /* Create the cell */
     all_cells[key] = new Cell(id, name);
-    if (name != "")
+    if (strcmp(name, "") != 0)
       delete [] name;
 
     /* Fill the cell */
@@ -4166,7 +4166,7 @@ void Geometry::loadFromFile(std::string filename, bool non_uniform_lattice,
         lattice_universes[key][j] = universe_id;
       }
     }
-    if (name != "")
+    if (strcmp(name, "") != 0)
       delete [] name;
 
     /* Check that the key and ID match */
