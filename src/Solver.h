@@ -36,7 +36,7 @@
 /** Indexing macro for the reference scalar flux in each FSR and energy group */
 #define reference_flux(r,e) (reference_flux[(r)*_num_groups + (e)])
 
-/** Indexing macro for the stabiilizing flux in each FSR and energy group */
+/** Indexing macro for the stabilizing flux in each FSR and energy group */
 #define _stabilizing_flux(r,e) (_stabilizing_flux[(r)*_num_groups + (e)])
 
 /** Indexing macro for the total source divided by the total cross-section
@@ -98,7 +98,7 @@ enum residualType {
 
 /**
  * @enum stabilizationType
- * @brief The type of stabilization to use on source iteration
+ * @brief The type of stabilization to use on source iteration.
  */
 enum stabilizationType {
 
@@ -194,27 +194,27 @@ protected:
 
   /** Boolean for whether to print verbose iteration reports */
   bool _verbose;
-  
+
   /** Boolean for whether to perform a spectrum calculation for the initial 
    *  flux guess */
   bool _calculate_initial_spectrum;
-  
+
   /** Convergence threshold for the initial spectrum calculation */
   double _initial_spectrum_thresh;
-  
+
   /** Boolean for whether to load initial FSR flux profile from file */
   bool _load_initial_FSR_fluxes;
-  
+
   /** Boolean for whether to calculate residuals from reference flux */
   bool _calculate_residuals_by_reference;
 
   /** File to load initial FSR fluxes from */
   std::string _initial_FSR_fluxes_file;
-  
+
   /** File to load reference FSR fluxes from */
   std::string _reference_file;
 
-  /** The log level for outputting cross-section inconsitencies */
+  /** The log level for outputting cross-section inconsistencies */
   logLevel _xs_log_level;
 
   /** Determines the type of track segmentation to use for 3D MOC */
@@ -244,10 +244,10 @@ protected:
 
   /** The old scalar flux for each energy group in each FSR */
   FP_PRECISION* _old_scalar_flux;
-  
+
   /** The reference scalar flux for each energy group in each FSR */
   FP_PRECISION* _reference_flux;
-  
+
   /** The stabilizing flux for each energy group in each FSR */
   FP_PRECISION* _stabilizing_flux;
 
@@ -284,7 +284,7 @@ protected:
 
   /** The factor applied to the source iteration stabilization */
   double _stabilization_factor;
-  
+
   /** The type of source iteration stabilization */
   stabilizationType _stabilization_type;
 

@@ -13,8 +13,8 @@ static std::set<int> used_ids;
  *          OpenMOC input files. The method makes use of a static Universe
  *          ID which is incremented each time the method is called to enable
  *          unique generation of monotonically increasing IDs. The method's
- *          first ID begins at 10000. Hence, user-defined Universe IDs greater
- *          than or equal to 10000 is prohibited.
+ *          first ID begins at 1,000,000. Hence, user-defined Universe IDs
+ *          greater than or equal to 1,000,000 is prohibited.
  */
 int universe_id() {
   int id = auto_id;
@@ -28,7 +28,7 @@ int universe_id() {
 
 
 /**
- * @brief Resets the auto-generated unique Universe ID counter to 10000.
+ * @brief Resets the auto-generated unique Universe ID counter to 1,000,000.
  */
 void reset_universe_id() {
   auto_id = DEFAULT_INIT_ID;
@@ -107,7 +107,7 @@ int Universe::getUid() const {
 
 
 /**
- * Return the user-specified ID for this Universe.
+ * @brief Return the user-specified ID for this Universe.
  * @return the user-specified Universe ID
  */
 int Universe::getId() const {
@@ -116,7 +116,7 @@ int Universe::getId() const {
 
 
 /**
- * @brief Return the user-defined name of the Universe
+ * @brief Return the user-defined name of the Universe.
  * @return the Universe name
  */
 char* Universe::getName() const {
@@ -131,6 +131,7 @@ char* Universe::getName() const {
 universeType Universe::getType() {
   return _type;
 }
+
 
 /**
  * @brief Return the number of Cells in this Universe.
@@ -221,7 +222,7 @@ double Universe::getMaxZ() {
 
 /**
  * @brief Returns the boundary conditions (VACUUM or REFLECTIVE) at the minimum
- *         reachable x-coordinate in the Universe.
+ *        reachable x-coordinate in the Universe.
  * @return the boundary conditions at the minimum reachable x-coordinate
  */
 boundaryType Universe::getMinXBoundaryType() {
@@ -235,7 +236,7 @@ boundaryType Universe::getMinXBoundaryType() {
 
 /**
  * @brief Returns the boundary conditions (VACUUM or REFLECTIVE) at the maximum
- *         reachable x-coordinate in the Universe.
+ *        reachable x-coordinate in the Universe.
  * @return the boundary conditions at the maximum reachable x-coordinate
  */
 boundaryType Universe::getMaxXBoundaryType() {
@@ -249,7 +250,7 @@ boundaryType Universe::getMaxXBoundaryType() {
 
 /**
  * @brief Returns the boundary conditions (VACUUM or REFLECTIVE) at the minimum
- *         reachable y-coordinate in the Universe.
+ *        reachable y-coordinate in the Universe.
  * @return the boundary conditions at the minimum reachable y-coordinate
  */
 boundaryType Universe::getMinYBoundaryType() {
@@ -263,7 +264,7 @@ boundaryType Universe::getMinYBoundaryType() {
 
 /**
  * @brief Returns the boundary conditions (VACUUM or REFLECTIVE) at the maximum
- *         reachable y-coordinate in the Universe.
+ *        reachable y-coordinate in the Universe.
  * @return the boundary conditions at the maximum reachable y-coordinate
  */
 boundaryType Universe::getMaxYBoundaryType() {
@@ -277,7 +278,7 @@ boundaryType Universe::getMaxYBoundaryType() {
 
 /**
  * @brief Returns the boundary conditions (VACUUM or REFLECTIVE) at the minimum
- *         reachable z-coordinate in the Universe.
+ *        reachable z-coordinate in the Universe.
  * @return the boundary conditions at the minimum reachable z-coordinate
  */
 boundaryType Universe::getMinZBoundaryType() {
@@ -291,7 +292,7 @@ boundaryType Universe::getMinZBoundaryType() {
 
 /**
  * @brief Returns the boundary conditions (VACUUM or REFLECTIVE) at the maximum
- *         reachable z-coordinate in the Universe.
+ *        reachable z-coordinate in the Universe.
  * @return the boundary conditions at the maximum reachable z-coordinate
  */
 boundaryType Universe::getMaxZBoundaryType() {
@@ -352,7 +353,7 @@ std::map<int, Cell*> Universe::getAllCells() {
 
 /**
  * @brief Returns the std::map of all IDs and Material pointers filling
-          this Universe.
+ *        this Universe.
  * @return std::map of Material IDs and pointers
  */
 std::map<int, Material*> Universe::getAllMaterials() {
@@ -379,7 +380,7 @@ std::map<int, Material*> Universe::getAllMaterials() {
 
 /**
  * @brief Returns the std::map of all nested Universe IDs and Universe pointers
-          filling this Universe.
+ *         filling this Universe.
  * @return std::map of Universe IDs and pointers
  */
 std::map<int, Universe*> Universe::getAllUniverses() {
@@ -416,7 +417,7 @@ bool Universe::isFissionable() {
 
 
 /**
- * @brief Sets the name of the Universe
+ * @brief Sets the name of the Universe.
  * @param name the Universe name string
  */
 void Universe::setName(const char* name) {
@@ -650,7 +651,7 @@ void Universe::printString() {
 
 
 /**
- * @brief Clones this Universe and copy cells map
+ * @brief Clones this Universe and copy cells map.
  * @return a pointer to the Universe clone
  */
 Universe* Universe::clone() {
@@ -686,9 +687,9 @@ Universe* Universe::clone() {
 
 
 /**
-  * @brief  Calculates the boundary locations and
-  *         conditions (VACUUM or REFLECTIVE) at the
-  *         maximum and minimum reachable coordinates in the Universe
+  * @brief  Calculates the boundary locations and conditions (VACUUM or
+  *         REFLECTIVE) at the maximum and minimum reachable coordinates in the
+  *         Universe.
   */
 void Universe::calculateBoundaries() {
 
@@ -700,9 +701,8 @@ void Universe::calculateBoundaries() {
   Surface* surf;
   int halfspace;
 
-  /* Calculate the boundary condition at the minimum
-  * reachable x-coordinate in the Universe and store it in _min_x_bound
-  */
+  /* Calculate the boundary condition at the minimum reachable x-coordinate in 
+   * the Universe and store it in _min_x_bound */
   _min_x_bound = BOUNDARY_NONE;
 
   /* Check if the universe contains a cell with an x-min boundary */
@@ -741,31 +741,30 @@ void Universe::calculateBoundaries() {
   /* Calculate the maximum reachable x-coordinate in the geometry and store it
    * in _max_x */
   double max_x = -std::numeric_limits<double>::infinity();
-  
-  /* Calculate the boundary condition at the maximum
-  * reachable x-coordinate in the Universe and store it in _max_x_bound
-  */
+
+  /* Calculate the boundary condition at the maximum reachable x-coordinate in 
+   * the Universe and store it in _max_x_bound */
   _max_x_bound = BOUNDARY_NONE;
 
   /* Check if the universe contains a cell with an x-max boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
     std::map<int, Halfspace*> surfs = c_iter->second->getSurfaces();
-    
+
     double cell_max_x = std::numeric_limits<double>::infinity();
     boundaryType cell_max_x_bound = BOUNDARY_NONE;
     for (s_iter = surfs.begin(); s_iter != surfs.end(); ++s_iter) {
       surf = s_iter->second->_surface;
       halfspace = s_iter->second->_halfspace;
-      
+
       if (surf->getSurfaceType() == XPLANE && halfspace == -1 &&
           surf->getBoundaryType() != BOUNDARY_NONE) {
-        if(surf->getMaxX(halfspace) < cell_max_x) {
+        if (surf->getMaxX(halfspace) < cell_max_x) {
           cell_max_x = surf->getMaxX(halfspace);
           cell_max_x_bound = surf->getBoundaryType();
         }
       }
     }
-    if(cell_max_x_bound != BOUNDARY_NONE && cell_max_x > max_x) {
+    if (cell_max_x_bound != BOUNDARY_NONE && cell_max_x > max_x) {
       max_x = cell_max_x;
       _max_x_bound = cell_max_x_bound;
     }
@@ -784,10 +783,9 @@ void Universe::calculateBoundaries() {
   /* Calculate the minimum reachable y-coordinate in the geometry and store it
    * in _min_y */
   double min_y = std::numeric_limits<double>::infinity();
-  
-  /* Calculate the boundary condition at the minimum
-  * reachable y-coordinate in the Universe and store it in _min_y_bound
-  */
+
+  /* Calculate the boundary condition at the minimum reachable y-coordinate in 
+   * the Universe and store it in _min_y_bound */
   _min_y_bound = BOUNDARY_NONE;
 
   /* Check if the universe contains a cell with an y-min boundary */
@@ -802,13 +800,13 @@ void Universe::calculateBoundaries() {
 
       if (surf->getSurfaceType() == YPLANE && halfspace == +1 &&
         surf->getBoundaryType() != BOUNDARY_NONE) {
-        if(surf->getMinY(halfspace) > cell_min_y) {
+        if (surf->getMinY(halfspace) > cell_min_y) {
           cell_min_y = surf->getMinY(halfspace);
           cell_min_y_bound = surf->getBoundaryType();
         }
       }
     }
-    if(cell_min_y_bound != BOUNDARY_NONE && cell_min_y < min_y) {
+    if (cell_min_y_bound != BOUNDARY_NONE && cell_min_y < min_y) {
       min_y = cell_min_y;
       _min_y_bound = cell_min_y_bound;
     }
@@ -827,9 +825,8 @@ void Universe::calculateBoundaries() {
    * in _max_y */
   double max_y = -std::numeric_limits<double>::infinity();
 
-  /* Calculate the boundary condition at the maximum
-  * reachable y-coordinate in the Universe and store it in _max_y_bound
-  */
+  /* Calculate the boundary condition at the maximum reachable y-coordinate in 
+   * the Universe and store it in _max_y_bound */
   _max_y_bound = BOUNDARY_NONE;
 
   /* Check if the universe contains a cell with an y-max boundary */
@@ -844,13 +841,13 @@ void Universe::calculateBoundaries() {
 
       if (surf->getSurfaceType() == YPLANE && halfspace == -1 &&
         surf->getBoundaryType() != BOUNDARY_NONE) {
-        if(surf->getMaxY(halfspace) < cell_max_y) {
+        if (surf->getMaxY(halfspace) < cell_max_y) {
           cell_max_y = surf->getMaxY(halfspace);
           cell_max_y_bound = surf->getBoundaryType();
         }
       }
     }
-    if(cell_max_y_bound != BOUNDARY_NONE && cell_max_y > max_y) {
+    if (cell_max_y_bound != BOUNDARY_NONE && cell_max_y > max_y) {
       max_y = cell_max_y;
       _max_y_bound = cell_max_y_bound;
     }
@@ -868,10 +865,9 @@ void Universe::calculateBoundaries() {
   /* Calculate the minimum reachable z-coordinate in the geometry and store it
    * in _min_z */
   double min_z = std::numeric_limits<double>::infinity();
-  
-  /* Calculate the boundary condition at the minimum
-  * reachable z-coordinate in the Universe and store it in _min_z_bound
-  */
+
+  /* Calculate the boundary condition at the minimum reachable z-coordinate in
+   * the Universe and store it in _min_z_bound */
   _min_z_bound = BOUNDARY_NONE;
 
   /* Check if the universe contains a cell with an z-min boundary */
@@ -886,13 +882,13 @@ void Universe::calculateBoundaries() {
 
       if (surf->getSurfaceType() == ZPLANE && halfspace == +1 &&
           surf->getBoundaryType() != BOUNDARY_NONE) {
-        if(surf->getMinZ(halfspace) > cell_min_z) {
+        if (surf->getMinZ(halfspace) > cell_min_z) {
           cell_min_z = surf->getMinZ(halfspace);
           cell_min_z_bound = surf->getBoundaryType();
         }
       }
     }
-    if(cell_min_z_bound != BOUNDARY_NONE && cell_min_z < min_z) {
+    if (cell_min_z_bound != BOUNDARY_NONE && cell_min_z < min_z) {
       min_z = cell_min_z;
       _min_z_bound = cell_min_z_bound;
     }
@@ -915,7 +911,7 @@ void Universe::calculateBoundaries() {
   * reachable z-coordinate in the Universe and store it in _max_z_bound */
   _max_z_bound = BOUNDARY_NONE;
 
-  /* Check if the universe contains a cell with an y-max boundary */
+  /* Check if the universe contains a cell with an z-max boundary */
   for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
     std::map<int, Halfspace*>surfs = c_iter->second->getSurfaces();
 
@@ -927,13 +923,13 @@ void Universe::calculateBoundaries() {
 
       if (surf->getSurfaceType() == ZPLANE && halfspace == -1 &&
           surf->getBoundaryType() != BOUNDARY_NONE) {
-        if(surf->getMaxZ(halfspace) < cell_max_z) {
+        if (surf->getMaxZ(halfspace) < cell_max_z) {
           cell_max_z = surf->getMaxZ(halfspace);
           cell_max_z_bound = surf->getBoundaryType();
         }
       }
     }
-    if(cell_max_z_bound != BOUNDARY_NONE && cell_max_z > max_z) {
+    if (cell_max_z_bound != BOUNDARY_NONE && cell_max_z > max_z) {
       max_z = cell_max_z;
       _max_z_bound = cell_max_z_bound;
     }
@@ -953,8 +949,8 @@ void Universe::calculateBoundaries() {
 
 
 /**
-  * @brief  sets _boundaries_not_updated to true so boundaries will be
-  *         recalculated if needed
+  * @brief Sets _boundaries_not_updated to true so boundaries will be
+  *        recalculated if needed.
   */
 void Universe::resetBoundaries() {
   _boundaries_inspected = false;
@@ -1037,7 +1033,7 @@ int Lattice::getNumX() const {
 
 
 /**
- * @brief Return the number of Lattice cells along the y-axis
+ * @brief Return the number of Lattice cells along the y-axis.
  * @return the number of Lattice cells along y
  */
 int Lattice::getNumY() const {
@@ -1046,7 +1042,7 @@ int Lattice::getNumY() const {
 
 
 /**
- * @brief Return the number of Lattice cells along the z-axis
+ * @brief Return the number of Lattice cells along the z-axis.
  * @return the number of Lattice cells along z
  */
 int Lattice::getNumZ() const {
@@ -1091,7 +1087,7 @@ bool Lattice::getNonUniform() const {
 
 
 /**
- * @brief Return the widths of non-uniform Lattice in x direction
+ * @brief Return the widths of non-uniform Lattice in x direction.
  * @return the widths of non-uniform Lattice in x direction
  */
 const std::vector<double>& Lattice::getWidthsX() const {
@@ -1100,7 +1096,7 @@ const std::vector<double>& Lattice::getWidthsX() const {
 
 
 /**
- * @brief Return the widths of non-uniform Lattice in y direction
+ * @brief Return the widths of non-uniform Lattice in y direction.
  * @return the widths of non-uniform Lattice in y direction
  */
 const std::vector<double>& Lattice::getWidthsY() const {
@@ -1109,7 +1105,7 @@ const std::vector<double>& Lattice::getWidthsY() const {
 
 
 /**
- * @brief Return the widths of non-uniform Lattice in z direction
+ * @brief Return the widths of non-uniform Lattice in z direction.
  * @return the widths of non-uniform Lattice in z direction
  */
 const std::vector<double>& Lattice::getWidthsZ() const {
@@ -1118,7 +1114,7 @@ const std::vector<double>& Lattice::getWidthsZ() const {
 
 
 /**
- * @brief Return the accumulate widths of non-uniform Lattice in x direction
+ * @brief Return the accumulate widths of non-uniform Lattice in x direction.
  * @return the accumulated widths of non-uniform Lattice in x direction
  */
 const std::vector<double>& Lattice::getAccumulateX() const {
@@ -1127,7 +1123,7 @@ const std::vector<double>& Lattice::getAccumulateX() const {
 
 
 /**
- * @brief Return the accumulate widths of non-uniform Lattice in y direction
+ * @brief Return the accumulate widths of non-uniform Lattice in y direction.
  * @return the accumulated widths of non-uniform Lattice in y direction
  */
 const std::vector<double>& Lattice::getAccumulateY() const {
@@ -1136,7 +1132,7 @@ const std::vector<double>& Lattice::getAccumulateY() const {
 
 
 /**
- * @brief Return the accumulate widths of non-uniform Lattice in z direction
+ * @brief Return the accumulate widths of non-uniform Lattice in z direction.
  * @return the accumulated widths of non-uniform Lattice in z direction
  */
 const std::vector<double>& Lattice::getAccumulateZ() const {
@@ -1219,8 +1215,8 @@ Universe* Lattice::getUniverse(int lat_x, int lat_y, int lat_z) const {
 
 
 /**
- * @brief Return a 2D vector of the Universes in the Lattice.
- * @return 2D vector of Universes
+ * @brief Return a 3D vector of the Universes in the Lattice.
+ * @return 3D vector of Universes
  */
 std::vector< std::vector< std::vector< std::pair<int, Universe*> > > >*
   Lattice::getUniverses() {
@@ -1265,11 +1261,11 @@ std::map<int, double> Lattice::getUniqueRadius
   std::map<int, double> unique_radius;
   std::map<int, Universe*>::iterator iter;
   Universe* universe;
-  
+
   /* Create and initialize the <universe ID, unique radius> map */
   for (iter = unique_universes.begin(); iter != unique_universes.end(); ++iter)
     unique_radius[iter->first] = 0.;
-  
+
   /* Get the maximum equivalent radius of each unique universe */
   for (int k = _universes.size()-1; k > -1; k--) {
     for (int j = _universes.at(k).size()-1; j > -1;  j--) {
@@ -1393,7 +1389,7 @@ void Lattice::setNonUniform(bool non_uniform) {
 
 
 /**
- * @brief Set the widths of non-uniform Lattice in x direction
+ * @brief Set the widths of non-uniform Lattice in x direction.
  * @param widthsx the widths of non-uniform Lattice in x direction
  */
 void Lattice::setWidthsX(std::vector<double> widthsx) {
@@ -1402,7 +1398,7 @@ void Lattice::setWidthsX(std::vector<double> widthsx) {
 
 
 /**
- * @brief Set the widths of non-uniform Lattice in y direction
+ * @brief Set the widths of non-uniform Lattice in y direction.
  * @param widthsy the widths of non-uniform Lattice in y direction
  */
 void Lattice::setWidthsY(std::vector<double> widthsy) {
@@ -1411,7 +1407,7 @@ void Lattice::setWidthsY(std::vector<double> widthsy) {
 
 
 /**
- * @brief Set the widths of non-uniform Lattice in z direction
+ * @brief Set the widths of non-uniform Lattice in z direction.
  * @param widthsz the widths of non-uniform Lattice in z direction
  */
 void Lattice::setWidthsZ(std::vector<double> widthsz) {
@@ -1420,8 +1416,8 @@ void Lattice::setWidthsZ(std::vector<double> widthsz) {
 
 
 /**
- * @brief Set the accumulate widths of non-uniform Lattice in x direction
- * @param accumulatex the accumulate widths of non-uniform Lattice in x 
+ * @brief Set the accumulate widths of non-uniform Lattice in x direction.
+ * @param accumulatex the accumulated widths of non-uniform Lattice in x
           direction
  */
 void Lattice::setAccumulateX(std::vector<double> accumulatex) {
@@ -1430,8 +1426,8 @@ void Lattice::setAccumulateX(std::vector<double> accumulatex) {
 
 
 /**
- * @brief Set the accumulate widths of non-uniform Lattice in y direction
- * @param accumulatey the accumulate widths of non-uniform Lattice in y 
+ * @brief Set the accumulate widths of non-uniform Lattice in y direction.
+ * @param accumulatey the accumulated widths of non-uniform Lattice in y
           direction
  */
 void Lattice::setAccumulateY(std::vector<double> accumulatey) {
@@ -1440,8 +1436,8 @@ void Lattice::setAccumulateY(std::vector<double> accumulatey) {
 
 
 /**
- * @brief Set the accumulate widths of non-uniform Lattice in z direction
- * @param accumulatez the accumulate widths of non-uniform Lattice in z 
+ * @brief Set the accumulate widths of non-uniform Lattice in z direction.
+ * @param accumulatez the accumulated widths of non-uniform Lattice in z
           direction
  */
 void Lattice::setAccumulateZ(std::vector<double> accumulatez) {
@@ -2126,9 +2122,10 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
  * @details The surface indices are defined in constants.h as they
  *          need to be consistent with the surface constant definitions
  *          used in Cmfd. The index returned takes into account
- *         the cell index and returns NUM_SURFACES*cell_index + surface_index.
- * @param cell the cell index that the point is in.
- * @param point a pointer to a point being evaluated.
+ *          the cell index and returns NUM_SURFACES*cell_index + surface_index.
+ * @param cell the cell index that the point is in
+ * @param z z coordinate of the point
+ * @param surface_2D 2D surface considered
  * @return the Lattice surface index.
  */
 int Lattice::getLatticeSurfaceOTF(int cell, double z, int surface_2D) {
@@ -2219,7 +2216,7 @@ int Lattice::getLatticeSurfaceOTF(int cell, double z, int surface_2D) {
 
 
 /**
- * @brief Set width of non-uniform meshes in x y z directions.
+ * @brief Set widths of non-uniform meshes in x y z directions.
  * @details An example of how this may be called from Python illustrated below:
  *
  * @code
@@ -2303,4 +2300,3 @@ void Lattice::printLatticeSizes() {
     printf("i=%d, %f; ",i, _accumulate_z[i]);
   printf("\n");
 }
-

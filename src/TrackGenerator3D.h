@@ -14,7 +14,7 @@
 
 /**
  * @struct TrackChainIndexes
- * @brief A Track chain represents a list of Tracks connected vai periodic BSs
+ * @brief A Track chain represents a list of Tracks connected via periodic BCs
  *        that extend in the l-z plane and this struct contains the azim, x, polar,
  *        lz, and link indexes of a Track.
  */
@@ -103,11 +103,11 @@ private:
     * z-stack (azim, xy, polar) */
   long*** _cum_tracks_per_stack;
 
-  /** An array of the Track UID for the first Track iin each z-stack
+  /** An array of the Track UID for the first Track in each z-stack
     * (azim, xy) */
   long** _cum_tracks_per_xy;
 
-  /** Ann array of the first Track's l-z index for each z-stack */
+  /** An array of the first Track's l-z index for each z-stack */
   int*** _first_lz_of_stack;
 
   /** The total number of Tracks for all azimuthal and polar angles */
@@ -176,7 +176,7 @@ private:
                       bool create_arrays, bool save_tracks);
   double getLStart(TrackChainIndexes* tci);
   int getFirst2DTrackLinkIndex(TrackChainIndexes* tci, Track3D* track_3D);
-  
+
   void writeExtrudedFSRInfo(FILE* out);
   void readExtrudedFSRInfo(FILE* in);
 

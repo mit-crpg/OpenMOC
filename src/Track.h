@@ -197,7 +197,7 @@ public:
 
 
 /**
- * @brief Return the Track's unique ID
+ * @brief Return the Track's unique ID.
  * @return the Track's unique ID
  */
 inline int Track::getUid() {
@@ -245,7 +245,7 @@ inline int Track::getNumSegments() {
 }
 
 /**
- * @brief Sets the number of segments in a track
+ * @brief Sets the number of segments in a track.
  * @details This function sets the number of segments in a track. It's purpose
  *          is to be used for 3D tracks with on-the-fly ray tracing where
  *          segments are not explicitly created, but there is a need to know

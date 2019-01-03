@@ -1,7 +1,7 @@
 #include "TraverseSegments.h"
 
 /**
- * @brief Constructor for the TravseSegments class assigns the TrackGenerator
+ * @brief Constructor for the TraverseSegments class assigns the TrackGenerator
  *        and pulls relevant information from it.
  */
 TraverseSegments::TraverseSegments(TrackGenerator* track_generator) {
@@ -21,14 +21,14 @@ TraverseSegments::TraverseSegments(TrackGenerator* track_generator) {
 
 
 /**
- * @brief Destructor for TraverseSegments
+ * @brief Destructor for TraverseSegments.
  */
 TraverseSegments::~TraverseSegments() {
 }
 
 
 /**
- * @breif Loops over Tracks, applying the provided kernel to all segments and
+ * @brief Loops over Tracks, applying the provided kernel to all segments and
  *        the functionality described in onTrack(...) to all Tracks.
  * @details The segment formation method imported from the TrackGenerator
  *          during construction is used to redirect to the appropriate looping
@@ -59,7 +59,7 @@ void TraverseSegments::loopOverTracks(MOCKernel* kernel) {
 
 
 /**
- * @brief Loops over all explicit 2D Tracks
+ * @brief Loops over all explicit 2D Tracks.
  * @details The onTrack(...) function is applied to all 2D Tracks and the
  *          specified kernel is applied to all segments. If NULL is provided
  *          for the kernel, only the onTrack(...) functionality is applied.
@@ -93,7 +93,7 @@ void TraverseSegments::loopOverTracks2D(MOCKernel* kernel) {
 
 
 /**
- * @brief Loops over all explicit 3D Tracks
+ * @brief Loops over all explicit 3D Tracks.
  * @details The onTrack(...) function is applied to all 3D Tracks and the
  *          specified kernel is applied to all segments. If NULL is provided
  *          for the kernel, only the onTrack(...) functionality is applied.
@@ -119,7 +119,7 @@ void TraverseSegments::loopOverTracksExplicit(MOCKernel* kernel) {
         /* Loop over tracks in the z-stack */
         for (int z=0; z < tracks_per_stack[a][i][p]; z++) {
 
-          /* Extract 3D track and initialize segments pointer */
+          /* Extract 3D track */
           Track* track_3D = &tracks_3D[a][i][p][z];
 
           /* Operate on segments if necessary */
@@ -143,7 +143,7 @@ void TraverseSegments::loopOverTracksExplicit(MOCKernel* kernel) {
 
 
 /**
- * @brief Loops over all 3D Tracks using axial on-the-fly ray tracking by Track
+ * @brief Loops over all 3D Tracks using axial on-the-fly ray tracing by Track.
  * @details The onTrack(...) function is applied to all 3D Tracks and the
  *          specified kernel is applied to all segments. If NULL is provided
  *          for the kernel, only the onTrack(...) functionality is applied.
@@ -204,8 +204,8 @@ void TraverseSegments::loopOverTracksByTrackOTF(MOCKernel* kernel) {
 
 
 /**
- * @brief Loops over all 3D Tracks using axial on-the-fly ray tracking by
- *        z-stack
+ * @brief Loops over all 3D Tracks using axial on-the-fly ray tracing by
+ *        z-stack.
  * @details The onTrack(...) function is applied to all 3D Tracks and the
  *          specified kernel is applied to all segments. If NULL is provided
  *          for the kernel, only the onTrack(...) functionality is applied.
@@ -263,7 +263,7 @@ void TraverseSegments::loopOverTracksByStackOTF(MOCKernel* kernel) {
 
 
 /**
- * @brief Loops over segments in a Track when segments are explicitly generated
+ * @brief Loops over segments in a Track when segments are explicitly generated.
  * @details All segments in the provided Track are looped over and the provided
  *          MOCKernel is applied to them.
  * @param track The Track whose segments will be traversed
@@ -331,7 +331,7 @@ void TraverseSegments::traceSegmentsOTF(Track* flattened_track, Point* start,
       break;
     }
   }
-  
+
   Geometry* geometry = _track_generator_3D->getGeometry();
   Cmfd* cmfd = geometry->getCmfd();
 
@@ -509,7 +509,7 @@ void TraverseSegments::traceSegmentsOTF(Track* flattened_track, Point* start,
  *        passes the computed segments to the provided kernel.
  * @details Segment lengths are computed on-the-fly using 2D segment lengths
  *          stored in a 2D Track object and 1D meshes from the extruded
- *          FSRs. Note: before calling this funciton with SegmentationKernels,
+ *          FSRs. Note: before calling this function with SegmentationKernels,
  *          the memory for the segments should be allocated and referenced by
  *          the kernel using the setSegments routine.
  * @param flattened_track the 2D track associated with the z-stack for which
@@ -528,7 +528,7 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
   int num_z_stack = tracks_per_stack[azim_index][track_index][polar_index];
   double z_spacing = _track_generator_3D->getZSpacing(azim_index, polar_index);
 
-  /* Get infromation for the first Track in the z-stack */
+  /* Get information for the first Track in the z-stack */
   TrackStackIndexes tsi;
   Track3D first;
   tsi._azim = azim_index;

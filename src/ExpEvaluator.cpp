@@ -34,8 +34,8 @@ ExpEvaluator::~ExpEvaluator() {
 
 
 /**
- * @brief Set the PolarQuad to use when computing exponentials.
- * @param polar_quad a PolarQuad object pointer
+ * @brief Set the Quadrature to use when computing exponentials.
+ * @param polar_quad a Quadrature object pointer
  */
 void ExpEvaluator::setQuadrature(Quadrature* quadrature) {
   _quadrature = quadrature;
@@ -173,6 +173,9 @@ FP_PRECISION* ExpEvaluator::getExpTable() {
 
 /**
  * @brief If using linear interpolation, builds the table for each polar angle.
+ * @param azim_index the azimuthal index to get the adjusted polar angle in 3D
+ * @param polar_index the polar angle index
+ * @param solve_3D whether the geometry is 3D or not
  */
 void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
 
@@ -295,7 +298,7 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
         exp_const_3 = 0.5 / (tau_a * tau_a * tau_a) *
             (2.0 - exponential * (tau_m * tau_m + 2.0 * tau_m + 2.0));
       }
-      
+
       _exp_table[index] = exp_const_1;
       _exp_table[index+1] = exp_const_2;
       _exp_table[index+2] = exp_const_3;
@@ -315,7 +318,7 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
           exp_const_3 = 0.5 * (2.0 * tau_m - 12.0 + exponential * (12.0 +
               tau_m * (10.0 + tau_m * (4.0 + tau_m)))) / (tau_a_2 * tau_a_2);
         }
-        
+
         _exp_table[index+3] = exp_const_1;
         _exp_table[index+4] = exp_const_2;
         _exp_table[index+5] = exp_const_3;

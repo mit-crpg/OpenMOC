@@ -2,20 +2,18 @@
 #include "RunTime.h"
 #endif
 
+
 /**
- * @brief Process the run time options
- */
-/**
- * @brief Process the run time options 
+ * @brief Process the run time options.
  * @param RP A reference of RuntimeParameters
  * @param argc number of run time command words
  * @param argv content of run time command words
  */
 int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]) {
-  
+
   int arg_index = 0;
   int print_usage = 0;
-  
+
   /* Parse the run time commands*/
   while (arg_index < argc) {
     if(strcmp(argv[arg_index], "-debug") == 0) {
@@ -359,7 +357,7 @@ int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]) {
       "-verbose_report          1                                          \\\n"
       "-time_report             1                                          \\\n"
     );
-    
+
     printf("\n");
     printf("General parameters\n");
     printf("-debug                  : (0) or 1, waits in while loop for GDB to"
@@ -376,7 +374,7 @@ int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]) {
            "                           1 - non-uniform lattice geometry\n"
           );
     printf("\n");
-    
+
     printf("Track generating parameters\n");
     printf("-azim_spacing           : (0.05)\n");
     printf("-num_azim               : (64)\n");
@@ -449,7 +447,7 @@ int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]) {
 
     printf("\n");
   }
-  
+
   if (print_usage) {
 #ifdef MPIx
     MPI_Finalize();

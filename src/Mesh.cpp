@@ -3,7 +3,7 @@
 #ifndef SWIG
 
 /**
- * @brief The Mesh constructor
+ * @brief The Mesh constructor.
  * @details If no lattice is given, a default lattice can be constructed with
  *          the Mesh::createLattice function.
  * @param solver The solver from which scalar fluxes and cross-sections are
@@ -19,8 +19,8 @@ Mesh::Mesh(Solver* solver, Lattice* lattice) {
 
 
 /**
- * @brief The Mesh destrcutor deletes its lattice if the lattice was allocated
- *        internally
+ * @brief The Mesh destructor deletes its lattice if the lattice was allocated
+ *        internally.
  */
 Mesh::~Mesh() {
   if (_lattice_allocated)
@@ -30,7 +30,7 @@ Mesh::~Mesh() {
 
 /**
  * @brief Creates an internal lattice over which to tally reaction rates with
- *        the user-input dimensions
+ *        the user-input dimensions.
  * @param num_x the number of mesh cells in the x-direction
  * @param num_y the number of mesh cells in the y-direction
  * @param num_z the number of mesh cells in the z-direction
@@ -210,9 +210,9 @@ Vector3D Mesh::getFormattedReactionRates(RxType rx) {
 
 
 /**
- * @brief Tallies reaction rates of the given type over the user defined 
- *        non-uniform lattice
- * @param widths_offsets The XYZ-direction widths and offset of a non-uniform 
+ * @brief Tallies reaction rates of the given type over the user defined
+ *        non-uniform lattice.
+ * @param widths_offsets The XYZ-direction widths and offset of a non-uniform
  *        Lattice. If the widths_offsets size is 3, the center-point of the
  *        geometry is used as the offset.
  * @param rx The type of reaction to tally
@@ -222,7 +222,7 @@ Vector3D Mesh::getFormattedReactionRates(RxType rx) {
 Vector3D Mesh::getFormattedReactionRates
                  (std::vector<std::vector<double> > widths_offsets, RxType rx) {
   Vector3D rx_rates;
-  
+
   /* Get the root universe */
   Geometry* geometry = _solver->getGeometry();
   Universe* root_universe = geometry->getRootUniverse();
@@ -230,18 +230,18 @@ Vector3D Mesh::getFormattedReactionRates
   /* Determine the center-point of the geometry */
   double offset_x = (root_universe->getMinX() + root_universe->getMaxX()) / 2;
   double offset_y = (root_universe->getMinY() + root_universe->getMaxY()) / 2;
-  double offset_z = (root_universe->getMinZ() + root_universe->getMaxZ()) / 2;  
-  
-  /* The Lattice defined by user for reaction rates output, it is likely to be 
-     smaller than the whole geometry*/
+  double offset_z = (root_universe->getMinZ() + root_universe->getMaxZ()) / 2;
+
+  /* The Lattice defined by user for reaction rates output, it is likely to be
+     smaller than the whole geometry */
   Lattice output_lattice;
-  
+
   output_lattice.setNumX(widths_offsets[0].size());
   output_lattice.setNumY(widths_offsets[1].size());
   output_lattice.setNumZ(widths_offsets[2].size());
   output_lattice.setWidths(widths_offsets[0], widths_offsets[1], 
                            widths_offsets[2]);
-  
+
   /* If no offset coordinates is provided, use the geometry center */
   if(widths_offsets.size() == 3) 
     output_lattice.setOffset(offset_x, offset_y, offset_z);
@@ -249,19 +249,19 @@ Vector3D Mesh::getFormattedReactionRates
     output_lattice.setOffset(widths_offsets[3][0], widths_offsets[3][1], 
                              widths_offsets[3][2]);
   output_lattice.computeSizes();
-  
-  /* The whole geometry Lattice based on the user defined one. This new lattice  
-     allows to make use of getFormattedReactionRates function because it's 
-     defined on whole geometry*/
+
+  /* The whole geometry Lattice based on the user defined one. This new lattice
+     allows to make use of getFormattedReactionRates function because it's
+     defined on the whole geometry */
   Lattice wrap_lattice;
-  
+
   std::vector<double> widths_x = widths_offsets[0];
   std::vector<double> widths_y = widths_offsets[1];
   std::vector<double> widths_z = widths_offsets[2];
-  
+
   /* 6 booleans to indicate the truncations in six surfaces */
   std::vector<bool> surface(6, false);
-  
+
   if(fabs(output_lattice.getMinX() - root_universe->getMinX()) > FLT_EPSILON) {
     widths_x.insert(widths_x.begin(),
                     fabs(output_lattice.getMinX() - root_universe->getMinX()));
@@ -286,35 +286,35 @@ Vector3D Mesh::getFormattedReactionRates
     surface[4]=true;
   }
   if(fabs(output_lattice.getMaxZ() - root_universe->getMaxZ()) > FLT_EPSILON) {
-    widths_z.push_back(fabs(output_lattice.getMaxZ() - root_universe->getMaxZ()));  
+    widths_z.push_back(fabs(output_lattice.getMaxZ() - root_universe->getMaxZ()));
     surface[5]=true;
   }
-  
+
   /* Set the whole geometry Lattice */
   wrap_lattice.setNumX(widths_x.size());
   wrap_lattice.setNumY(widths_y.size());
   wrap_lattice.setNumZ(widths_z.size());
   wrap_lattice.setWidths(widths_x, widths_y, widths_z);
-  wrap_lattice.setOffset(offset_x, offset_y, offset_z);                  
+  wrap_lattice.setOffset(offset_x, offset_y, offset_z);
   wrap_lattice.computeSizes();
-  
-  /* set the whole geometry Lattice to the Mesh*/
+
+  /* set the whole geometry Lattice to the Mesh */
   setLattice(&wrap_lattice);
-  
-  /* get reaction rates of the whole geometry Lattice*/
+
+  /* get reaction rates of the whole geometry Lattice */
   rx_rates = getFormattedReactionRates(rx);
-  
-  /* Truncate the reaction rates for user defined output_lattice*/
+
+  /* Truncate the reaction rates for user defined output_lattice */
   if(surface[0]) rx_rates.erase(rx_rates.begin());
   if(surface[3]) rx_rates.pop_back();
-  
+
   if(surface[1]) 
     for(int i=0; i<rx_rates.size(); i++)
       rx_rates[i].erase(rx_rates[i].begin());
   if(surface[4]) 
     for(int i=0; i<rx_rates.size(); i++)
       rx_rates[i].pop_back();
-  
+
   if(surface[2]) 
     for(int i=0; i<rx_rates.size(); i++)
       for(int j=0; j<rx_rates[i].size(); j++)
@@ -323,7 +323,7 @@ Vector3D Mesh::getFormattedReactionRates
     for(int i=0; i<rx_rates.size(); i++)
       for(int j=0; j<rx_rates[i].size(); j++)
         rx_rates[i][j].pop_back();
-  
+
   return rx_rates;
 }
 

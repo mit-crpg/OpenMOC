@@ -2,8 +2,9 @@
 #include <fstream>
 #include <fenv.h>
 
+
 /**
- * @brief Solves a generalized eigenvalue problem using the Power method.
+ * @brief Solves a generalized eigenvalue problem using a power iteration method
  * @details This function takes in a loss + streaming Matrix (A),
  *          a fission gain Matrix (M), a flux Vector (X), a tolerance used
  *          for both the power method and linear solve convergence (tol), and
@@ -16,6 +17,8 @@
  * @param X the flux Vector object
  * @param tol the power method and linear solve source convergence threshold
  * @param SOR_factor the successive over-relaxation factor
+ * @param convergence_data a summary of how to solver converged
+ * @param comm an MPI communicator for the domain-decomposed solver
  * @return k_eff the dominant eigenvalue
  */
 double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
@@ -116,7 +119,7 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
     new_source.scaleByValue(1.0 / k_eff);
 
     /* Compute the residual */
-    residual = computeRMSE(&new_source, &old_source, true, iter, comm);
+    residual = computeRMSE(&new_source, &old_source, true, comm);
     if (iter == 0) {
       initial_residual = residual;
       if (initial_residual < 1e-14)
@@ -150,7 +153,6 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
     log_printf(ERROR, "Eigenvalue solve failed to converge in %d iterations",
                iter);
 
-
   return k_eff;
 }
 
@@ -170,6 +172,8 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
  * @param B the source Vector object
  * @param tol the power method and linear solve source convergence threshold
  * @param SOR_factor the successive over-relaxation factor
+ * @param convergence_data a summary of how to solver converged
+ * @param comm an MPI communicator for the domain-decomposed solver
  */
 bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
                  double SOR_factor, ConvergenceData* convergence_data,
@@ -298,7 +302,7 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 
     // Compute the residual
     feclearexcept (FE_ALL_EXCEPT);
-    residual = computeRMSE(&new_source, &old_source, true, 1, comm);
+    residual = computeRMSE(&new_source, &old_source, true, comm);
     if (iter == 0) {
       if (convergence_data != NULL)
         convergence_data->linear_res_end = residual;
@@ -344,7 +348,7 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
   // Check if the maximum iterations were reached
   if (iter == MAX_LINEAR_SOLVE_ITERATIONS) {
     matrixMultiplication(M, X, &new_source);
-    double residual = computeRMSE(&new_source, &old_source, true, 1, comm);
+    double residual = computeRMSE(&new_source, &old_source, true, comm);
     log_printf(INFO, "Ratio = %3.2e, tol = %3.2e", residual / initial_residual,
                tol);
     log_printf(NORMAL, "Linear solve failed to converge in %d iterations with "
@@ -561,8 +565,9 @@ void matrixMultiplication(Matrix* A, Vector* X, Vector* B) {
  * @param X a Vector object
  * @param Y a second Vector object
  * @param integrated a boolean indicating whether to group-wise integrate.
+ * @param comm an MPI communicator to exchange residuals between domains
  */
-double computeRMSE(Vector* X, Vector* Y, bool integrated, int it,
+double computeRMSE(Vector* X, Vector* Y, bool integrated,
                    DomainCommunicator* comm) {
 
   /* Check for consistency of vector dimensions */
@@ -656,7 +661,7 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated, int it,
 
 /**
  * @brief Solves a linear system using Red-Black Gauss Seidel with
- *        successive over-relaxation.
+ *        successive over-relaxation. //DEPRECATED
  * @details This function takes in a loss + streaming Matrix (A),
  *          a fission gain Matrix (M), a flux Vector (X), a source Vector (B),
  *          a source convergence tolerance (tol) and a successive
@@ -669,6 +674,7 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated, int it,
  * @param B the source Vector object
  * @param tol the power method and linear solve source convergence threshold
  * @param SOR_factor the successive over-relaxation factor
+ * @param convergence_data a summary of how to solver converged
  */
 void oldLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
                  double SOR_factor, ConvergenceData* convergence_data) {
@@ -773,7 +779,7 @@ void oldLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
     matrixMultiplication(M, X, &new_source);
 
     /* Compute the residual */
-    residual = computeRMSE(&new_source, &old_source, true, 1);
+    residual = computeRMSE(&new_source, &old_source, true);
     if (iter == 0) {
       if (convergence_data != NULL)
         convergence_data->linear_res_end = residual;
@@ -954,7 +960,7 @@ bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
     matrixMultiplication(M, X, &new_source);
 
     // Compute the residual
-    residual = computeRMSE(&new_source, &old_source, true, 1, comm);
+    residual = computeRMSE(&new_source, &old_source, true, comm);
     if (iter == 0){
       initial_residual = residual;
       if (initial_residual < 1e-14)
@@ -976,7 +982,6 @@ bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
     if (residual / initial_residual < 0.1 || residual < tol)
       break;
   }
-
 
   /* Reset matrix A */
 #pragma omp parallel for
