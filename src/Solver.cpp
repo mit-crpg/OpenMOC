@@ -38,6 +38,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _solve_3D = false;
   _segment_formation = EXPLICIT_2D;
 
+  /* Initialize pointers to NULL */
   _tracks = NULL;
   _azim_spacings = NULL;
   _polar_spacings = NULL;
@@ -55,7 +56,6 @@ Solver::Solver(TrackGenerator* track_generator) {
 
   _regionwise_scratch = NULL;
 
-  /* Default polar quadrature */
   _fluxes_per_track = 0;
 
   if (track_generator != NULL)
@@ -66,6 +66,7 @@ Solver::Solver(TrackGenerator* track_generator) {
 
   _timer = new Timer();
 
+  /* Default settings */
   _correct_xs = false;
   _stabilize_transport = false;
   _verbose = false;
@@ -76,9 +77,9 @@ Solver::Solver(TrackGenerator* track_generator) {
 
   _xs_log_level = ERROR;
 
-  //FIXME
+  //FIXME OTF transport isnt implemented
   _OTF_transport = false;
-  //FIXME
+  //FIXME Parameters for xs modification, should be deleted
   _reset_iteration = -1;
   _limit_xs = false;
 }
@@ -106,10 +107,10 @@ Solver::~Solver() {
 
   if (_old_scalar_flux != NULL)
     delete [] _old_scalar_flux;
-  
+
   if (_reference_flux != NULL)
     delete [] _reference_flux;
-  
+
   if (_stabilizing_flux != NULL)
     delete [] _stabilizing_flux;
 
@@ -129,7 +130,7 @@ Solver::~Solver() {
     delete [] _groupwise_scratch.at(i);
   _groupwise_scratch.clear();
 
-  /** Delete exponential evaluators */
+  /* Delete exponential evaluators */
   if (_exp_evaluators != NULL){
     for (int a=0; a < _num_exp_evaluators_azim; a++) {
       for (int p=0; p < _num_exp_evaluators_polar; p++) {
@@ -555,7 +556,7 @@ void Solver::useExponentialIntrinsic() {
 
 
 /**
- * @brief   Directs OpenMOC to correct unphysical cross-sections
+ * @brief Directs OpenMOC to correct unphysical cross-sections.
  * @details If a material is found with greater total scattering cross-section
  *          than total cross-section, the total cross-section is set to the
  *          scattering cross-section.
@@ -566,8 +567,8 @@ void Solver::correctXS() {
 
 
 /**
- * @brief   Directs OpenMOC to use the diagonal stabilizing correction to
- *          the source iteration transport sweep
+ * @brief Directs OpenMOC to use the diagonal stabilizing correction to
+ *        the source iteration transport sweep.
  * @details The source iteration process which MOC uses can be unstable
  *          if negative cross-sections arise from transport correction. This
  *          instability causes issues in convergence. The stabilizing
@@ -599,7 +600,7 @@ void Solver::stabilizeTransport(double stabilization_factor,
   _stabilization_factor = stabilization_factor;
   _stabilization_type = stabilization_type;
 }
-  
+
 
 /**
  * @brief Instructs OpenMOC to perform an initial spectrum calculation
@@ -612,9 +613,9 @@ void Solver::setInitialSpectrumCalculation(double threshold) {
 
 
 /**
- * @brief   Determines which log level to set cross-section warnings
+ * @brief Determines which log level to set cross-section warnings
  * @details The default log level is ERROR
- * @param   log_level The log level for outputing cross-section inconsistencies
+ * @param log_level The log level for outputing cross-section inconsistencies
  */
 void Solver::setCheckXSLogLevel(logLevel log_level) {
   _xs_log_level = log_level;
@@ -736,7 +737,7 @@ void Solver::initializeFSRs() {
     delete [] _groupwise_scratch.at(i);
   if (_regionwise_scratch != NULL)
     delete [] _regionwise_scratch;
-  
+
   int num_threads = omp_get_max_threads();
   _groupwise_scratch.resize(num_threads);
   for (int i=0; i < num_threads; i++)
@@ -778,7 +779,7 @@ void Solver::countFissionableFSRs() {
 
 
 /**
- * @brief Checks to see if limited XS should be reset
+ * @brief Checks to see if limited XS should be reset.
  * @param iteration The MOC iteration number
  */
 void Solver::checkLimitXS(int iteration) {
@@ -819,7 +820,7 @@ void Solver::checkLimitXS(int iteration) {
 
 
 /**
- * @brief Instructs MOC to limit negative cross-sections for early iterations
+ * @brief Instructs MOC to limit negative cross-sections for early iterations.
  * @param material_ids The material IDs of the cross-sections to limit
  * @param reset_iteration The iteration to reset cross-sections to their 
  *        defaults
@@ -833,7 +834,7 @@ void Solver::setLimitingXSMaterials(std::vector<int> material_ids,
 
 
 /**
- * @brief Limits cross-sections so that there are no negative cross-sections
+ * @brief Limits cross-sections so that there are no negative cross-sections.
  * @details A copy of the original cross-section is saved
  */
 void Solver::limitXS() {
@@ -863,7 +864,7 @@ void Solver::limitXS() {
 
 /**
  * @brief All material cross-sections in the geometry are checked for
- *        consistency
+ *        consistency.
  * @details Each cross-section is checked to ensure that the total
  *          cross-section is greater than or equal to the scattering
  *          cross-section for each energy group and that all cross-sections
@@ -983,7 +984,7 @@ void Solver::initializeFixedSources() {
     }
   }
 
-  /** Fixed sources assigned by Material */
+  /* Fixed sources assigned by Material */
   for (mat_iter = _fix_src_material_map.begin();
        mat_iter != _fix_src_material_map.end(); ++mat_iter) {
 
@@ -1002,7 +1003,7 @@ void Solver::initializeFixedSources() {
 
 
 /**
- * @brief Initializes a Cmfd object for acceleratiion prior to source iteration.
+ * @brief Initializes a Cmfd object for acceleration prior to source iteration.
  * @details Instantiates a dummy Cmfd object if one was not assigned to
  *          the Solver by the user and initializes FSRs, materials, fluxes
  *          and the Mesh object. This method is for internal use only
@@ -1047,7 +1048,7 @@ void Solver::initializeCmfd() {
 
 
 /**
- * @brief Performs a spectrum calculation to update the scalar fluxes
+ * @brief Performs a spectrum calculation to update the scalar fluxes.
  * @details This function is meant to be used before transport sweeps in an
  *          eigenvalue calculation in order to gain a better initial guess
  *          on the flux shape. It is equivalent to performing a CMFD update
@@ -1059,15 +1060,15 @@ void Solver::calculateInitialSpectrum(double threshold) {
 
   log_printf(NORMAL, "Calculating initial spectrum with threshold %3.2e", 
              threshold);
-  
+
   /* Setup the spectrum calclator as a CMFD solver in MOC group structure */
-  Cmfd spectrum_calculator;  
+  Cmfd spectrum_calculator;
   std::vector<std::vector<int> > group_structure;
   group_structure.resize(_num_groups);
   for (int g=0; g < _num_groups; g++)
-    group_structure.at(g).push_back(g+1);    
+    group_structure.at(g).push_back(g+1);
   spectrum_calculator.setGroupStructure(group_structure);
-  
+
   /* Set CMFD settings for the spectrum calculator */
   spectrum_calculator.setSORRelaxationFactor(1.6);
   spectrum_calculator.useFluxLimiting(true);
@@ -1174,6 +1175,10 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
 
+  /* Start the timers to record the total solve and initialization times */
+  _timer->startTimer();
+  _timer->startTimer();
+
   /* Initialize keff to 1 for FSR source calcualtions */
   _k_eff = 1.;
 
@@ -1199,8 +1204,9 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   /* Compute the sum of fixed, total and scattering sources */
   computeFSRSources(0);
 
-  /* Start the timer to record the total time to converge the flux */
-  _timer->startTimer();
+  /* Stop timer for solver initialization */
+  _timer->stopTimer();
+  _timer->recordSplit("Solver initialization");
 
   /* Source iteration loop */
   for (int i=0; i < max_iters; i++) {
@@ -1257,8 +1263,8 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
  *          // Assign fixed sources
  *          // ...
  *
- *          // Find the flux distribution resulting from the fixed sources
- *          solver.computeFlux(max_iters=100, k_eff=0.981)
+ *          // Find the source distribution resulting from the fixed sources
+ *          solver.computeSource(max_iters=100, k_eff=0.981)
  * @endcode
  *
  * @param max_iters the maximum number of source iterations to allow
@@ -1361,6 +1367,10 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   clearTimerSplits();
   _num_iterations = 0;
 
+  /* Start the timers to record the total solve and initialization times */
+  _timer->startTimer();
+  _timer->startTimer();
+
   /* Clear convergence data from a previous simulation run */
   double previous_residual = 1.0;
   double residual = 0.;
@@ -1420,18 +1430,15 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 #ifdef BGQ
   printBGQMemory();
 #endif
-  
+
   /* Perform initial spectrum calculation if requested */
   if (_calculate_initial_spectrum)
     calculateInitialSpectrum(_initial_spectrum_thresh);
 
-  /* Start the timer to record the total time to converge the source */
-  _timer->startTimer();
 #ifdef MPIx
   if (_geometry->isDomainDecomposed())
     MPI_Barrier(_geometry->getMPICart());
 #endif
-  log_printf(NORMAL, "Computing the eigenvalue...");
 
   /* Create object to track convergence data if requested */
   ConvergenceData* convergence_data = NULL;
@@ -1444,7 +1451,13 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
                "  #FX1 #FXN  MAX P.F.");
     }
   }
-  
+
+  /* Stop timer for solver initialization */
+  _timer->stopTimer();
+  _timer->recordSplit("Solver initialization");
+
+  log_printf(NORMAL, "Computing the eigenvalue...");
+
   /* Record the starting eigenvalue guess */
   double k_prev = _k_eff;
 
@@ -1483,7 +1496,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     double dr = residual / previous_residual;
     int dk = 1e5 * (_k_eff - k_prev);
     k_prev = _k_eff;
-    
+
     /* Ouptut iteration report */
     if (_verbose && convergence_data != NULL) {
 
@@ -1563,42 +1576,54 @@ void Solver::printTimerReport() {
 
   log_printf(TITLE, "TIMING REPORT");
 
+  /* Print track generation time */
+  _track_generator->printTimerReport(false);
+
   /* Get the total runtime */
   double tot_time = _timer->getSplit("Total time");
   msg_string = "Total time to solution";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), tot_time);
 
-  /* Time per iteration */
-  double time_per_iter = tot_time / _num_iterations;
-  msg_string = "Solution time per iteration";
+  /* Solver initialization */
+  double initialization = _timer->getSplit("Solver initialization");
+  msg_string = "  Solver initialization";
   msg_string.resize(53, '.');
-  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_iter);
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), initialization);
 
+  /* Transport sweep */
   double transport_sweep = _timer->getSplit("Transport Sweep");
-  msg_string = "Transport Sweep";
+  msg_string = "  Transport Sweep";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), transport_sweep);
 
+  /* Boundary track angular fluxes transfer */
   double transfer_time = _timer->getSplit("Total transfer time");
-  msg_string = "Angular Flux Transfer";
+  msg_string = "    Angular Flux Transfer";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), transfer_time);
 
+  /* Boundary track angular fluxes packing into buffers */
   double pack_time = _timer->getSplit("Packing time");
-  msg_string = "Angular Flux Packing Time";
+  msg_string = "      Angular Flux Packing Time";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), pack_time);
 
+  /* Communication of track angular fluxes */
   double comm_time = _timer->getSplit("Communication time");
-  msg_string = "Angular Flux Communication Time";
+  msg_string = "      Angular Flux Communication Time";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), comm_time);
 
+  /* Idle time between transport sweep and angular fluxes transfer */
   double idle_time = _timer->getSplit("Idle time");
-  msg_string = "Total Idle Time Between Sweeps";
+  msg_string = "    Total Idle Time Between Sweeps";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), idle_time);
+
+  /* CMFD acceleration time */
+  if (_cmfd != NULL)
+    _cmfd->printTimerReport();
 
   /* Time per segment */
   long num_segments = 0;
@@ -1636,13 +1661,11 @@ void Solver::printTimerReport() {
                                  num_integrations * (omp_get_max_threads() *
                                  num_ranks));
 
-  msg_string = "Integration time per segment-group by thread";
+  msg_string = "Integration time by segment-group-thread (w/o idle)";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_integration);
 
-  if (_cmfd != NULL)
-    _cmfd->printTimerReport();
-
+  /* Print footer with number of tracks, segments and fsrs */
   set_separator_character('-');
   log_printf(SEPARATOR, "-");
 
@@ -1676,7 +1699,13 @@ void Solver::printTimerReport() {
 }
 
 
-//FIXME
+/**
+ * @brief Prints fission rates to a binary file.
+ * @param fname the name of the file to dump the fission rates to
+ * @param nx number of mesh cells in the x-direction
+ * @param ny number of mesh cells in the y-direction
+ * @param nz number of mesh cells in the z-direction
+ */
 void Solver::printFissionRates(std::string fname, int nx, int ny, int nz) {
 
   Universe* root_universe = _geometry->getRootUniverse();
@@ -1739,12 +1768,13 @@ void Solver::printFissionRates(std::string fname, int nx, int ny, int nz) {
 
 
 /**
- * @brief A function that returns the underlying array of scalar fluxes
+ * @brief A function that returns the array of scalar fluxes.
  * @return The scalar fluxes
  */
 FP_PRECISION* Solver::getFluxesArray() {
   return _scalar_flux;
 }
+
 
 /**
  * @brief Sets computation method of k-eff from fission, absorption, and leakage
@@ -1755,9 +1785,10 @@ void Solver::setKeffFromNeutronBalance() {
   _keff_from_fission_rates = false;
 }
 
+
 /**
- * @brief Sets residuals to be computed a error relative to a reference
- * @params fname The file containing the flux solution of the reference
+ * @brief Sets residuals to be computed a error relative to a reference.
+ * @param fname The file containing the flux solution of the reference
  */
 void Solver::setResidualByReference(std::string fname) {
   _calculate_residuals_by_reference = true;
@@ -1766,8 +1797,8 @@ void Solver::setResidualByReference(std::string fname) {
 
 
 /**
- * @brief Prints scalar fluxes to a binary file
- * @details The name of the file to dump the fluxes to
+ * @brief Prints scalar fluxes to a binary file.
+ * @param fname the name of the file to dump the fluxes to
  */
 void Solver::dumpFSRFluxes(std::string fname) {
 
@@ -1788,7 +1819,7 @@ void Solver::dumpFSRFluxes(std::string fname) {
       filename += "_" + str;
     }
   }
-  
+
   /* Write the FSR fluxes file */
   FILE* out;
   out = fopen(filename.c_str(), "w");
@@ -1798,7 +1829,7 @@ void Solver::dumpFSRFluxes(std::string fname) {
 
   /* Write number of energy groups */
   fwrite(&_num_groups, sizeof(int), 1, out);
-  
+
   /* Write number of energy groups */
   fwrite(&_num_FSRs, sizeof(long), 1, out);
 
@@ -1818,7 +1849,7 @@ void Solver::dumpFSRFluxes(std::string fname) {
 
 
 /**
- * @brief Loads the initial scalar flux distribution from a binary file
+ * @brief Load the initial scalar flux distribution from a binary file.
  * @param fname The file containing the scalar fluxes
  */
 void Solver::loadInitialFSRFluxes(std::string fname) {
@@ -1828,10 +1859,11 @@ void Solver::loadInitialFSRFluxes(std::string fname) {
 
 
 /**
- * @brief Load scalar fluxes from a binary file
+ * @brief Load scalar fluxes from a binary file.
  * @details The matching source regions between the current calculation and
  *          those in the loaded file are determined by comparing centroids
- * @param assign_k_eff Whether to set k-eff to that loaded in the binary file
+ * @param fname The file containing the scalar fluxes
+ * @param assign_k_eff Whether to set k-eff to the one loaded in the binary file
  * @param tolerance The width of the region in which to search for the matching
  *        centroid
  */
@@ -1850,7 +1882,7 @@ void Solver::loadFSRFluxes(std::string fname, bool assign_k_eff,
       filename += "_" + str;
     }
   }
-  
+
   /* Load the FSR fluxes file */
   FILE* in;
   in = fopen(filename.c_str(), "r");
@@ -1869,7 +1901,7 @@ void Solver::loadFSRFluxes(std::string fname, bool assign_k_eff,
   /* Read number of energy groups */
   int num_groups;
   ret = fread(&num_groups, sizeof(int), 1, in);
-  
+
   /* Read number of energy groups */
   long num_FSRs;
   ret = fread(&num_FSRs, sizeof(long), 1, in);
@@ -1934,7 +1966,7 @@ void Solver::loadFSRFluxes(std::string fname, bool assign_k_eff,
       hashed_lookup.insert(std::make_pair(index, std::vector<long>()));
     hashed_lookup[index].push_back(r);
   }
-  
+
   /* Generate centroids if they have not been generated yet */
   double max_centroid_error = 0.0;
   if (!_geometry->containsFSRCentroids()) 
@@ -1950,19 +1982,19 @@ void Solver::loadFSRFluxes(std::string fname, bool assign_k_eff,
     int cell_xyz[3];
     for (int i=0; i < 3; i++)
       cell_xyz[i] = centroid_xyz[i] / tolerance;
-    
+
     /* Look at all cell combinations */
     double min_dist = std::numeric_limits<double>::max();
     long load_fsr = -1;
     for (int dx=-1; dx <= 1; dx++) {
       for (int dy=-1; dy <= 1; dy++) {
         for (int dz=-1; dz <= 1; dz++) {
-          
+
           int new_cell_xyz[3];
           int d[3] = {dx, dy, dz};
           for (int i=0; i < 3; i++)
             new_cell_xyz[i] = cell_xyz[i] + d[i];
-          
+
           /* Make sure index is within origin min/max bounds */
           for (int i=0; i < 3; i++) {
             if (new_cell_xyz[i] > max_ind[i])
@@ -1991,7 +2023,7 @@ void Solver::loadFSRFluxes(std::string fname, bool assign_k_eff,
         }
       }
     }
-    
+
     /* Check against maximum centroid mismatch */
     if (min_dist > max_centroid_error)
       max_centroid_error = min_dist;
@@ -2023,7 +2055,7 @@ void Solver::loadFSRFluxes(std::string fname, bool assign_k_eff,
 
 
 /**
- * @brief A function that prints a summary of the input parameters
+ * @brief A function that prints a summary of the input parameters.
  */
 void Solver::printInputParamsSummary() {
 
@@ -2043,12 +2075,12 @@ void Solver::printInputParamsSummary() {
 
   /* Print source type */
   log_printf(NORMAL, "Source type = %s", _source_type.c_str());
-  
+
   /* Print MOC stabilization */
   if (_stabilize_transport) {
 
     std::string stabilization_str;
-    
+
     if (_stabilization_type == DIAGONAL)
       stabilization_str = "DIAGONAL";
     else if (_stabilization_type == YAMAMOTO)
@@ -2068,10 +2100,14 @@ void Solver::printInputParamsSummary() {
     log_printf(NORMAL, "CMFD acceleration: ON");
     log_printf(NORMAL, "CMFD Mesh: %d x %d x %d", _cmfd->getNumX(),
                _cmfd->getNumY(), _cmfd->getNumZ());
-    log_printf(NORMAL, "CMFD Group Structure:");
-    log_printf(NORMAL, "\t MOC Group \t CMFD Group");
-    for (int g=0; g < _cmfd->getNumMOCGroups(); g++)
-      log_printf(NORMAL, "\t %d \t\t %d", g+1, _cmfd->getCmfdGroup(g)+1);
+    if (_num_groups != _cmfd->getNumMOCGroups()) {
+      log_printf(NORMAL, "CMFD Group Structure:");
+      log_printf(NORMAL, "\t MOC Group \t CMFD Group");
+      for (int g=0; g < _cmfd->getNumMOCGroups(); g++)
+        log_printf(NORMAL, "\t %d \t\t %d", g+1, _cmfd->getCmfdGroup(g)+1);
+    }
+    else
+      log_printf(NORMAL, "CMFD and MOC group structures match");
   }
   else {
     log_printf(NORMAL, "CMFD acceleration: OFF");

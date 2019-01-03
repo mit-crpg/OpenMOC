@@ -3,14 +3,15 @@
 /**
  * @brief Constructor initializes Vector object as a floating point array
  *        and sets the vector dimensions.
- * @detail The vector is ordered by cell (as opposed to by group) on the
- *         outside to be consistent with the Matrix object. Locks are used to
- *         make the vector object thread-safe against concurrent writes the
- *          same value. One lock locks out multiple rows of
- *         the vector at a time representing multiple groups in the same cell.
+ * @details The vector is ordered by cell (as opposed to by group) on the
+ *          outside to be consistent with the Matrix object. Locks are used to
+ *          make the vector object thread-safe against concurrent writes the
+ *          same value. One lock locks out multiple rows of the vector at a
+ *          time representing multiple groups in the same cell.
  * @param cell_locks OpenMP locks for atomic cell operations.
  * @param num_x The number of cells in the x direction.
  * @param num_y The number of cells in the y direction.
+ * @param num_z The number of cells in the z direction.
  * @param num_groups The number of energy groups in each cell.
  */
 Vector::Vector(omp_lock_t* cell_locks, int num_x, int num_y, int num_z,
@@ -48,10 +49,10 @@ Vector::~Vector() {
 
 /**
  * @brief Increment a value in the vector.
- * @detail This method takes a cell and group and floating
- *         point value. The cell and group are used to compute the
- *         row in the vector. If a value exists for the row,
- *         the value is incremented by val; otherwise, it is set to val.
+ * @details This method takes a cell and group and floating
+ *          point value. The cell and group are used to compute the
+ *          row in the vector. If a value exists for the row,
+ *          the value is incremented by val; otherwise, it is set to val.
  * @param cell The cell location.
  * @param group The group location.
  * @param val The value used to increment the row location.
@@ -78,10 +79,10 @@ void Vector::incrementValue(int cell, int group, CMFD_PRECISION val) {
 
 /**
  * @brief Increment values in the vector.
- * @detail This method takes a cell, first group, last group, and floating
- *         point value. The cell and groups are used to compute the
- *         rows in the vector. If values exist for the rows,
- *         the values are incremented by vals; otherwise, they are set.
+ * @details This method takes a cell, first group, last group, and floating
+ *          point value. The cell and groups are used to compute the
+ *          rows in the vector. If values exist for the rows,
+ *          the values are incremented by vals; otherwise, they are set.
  * @param cell The cell location.
  * @param group_first The first group location to increment.
  * @param group_last The last group location to increment.
@@ -116,6 +117,10 @@ void Vector::incrementValues(int cell, int group_first, int group_last,
 }
 
 
+/**
+ * @brief Fill vector with a value.
+ * @param val value to use to fill
+ */
 void Vector::setAll(CMFD_PRECISION val) {
   std::fill_n(_array, _num_rows, val);
 }
@@ -123,10 +128,10 @@ void Vector::setAll(CMFD_PRECISION val) {
 
 /**
  * @brief Set a value in the vector.
- * @detail This method takes a cell and group and floating
- *         point value. The cell and group are used to compute the
- *         row and column in the vector. The location of the corresponding
- *         row is set to val.
+ * @details This method takes a cell and group and floating
+ *          point value. The cell and group are used to compute the
+ *          row and column in the vector. The location of the corresponding
+ *          row is set to val.
  * @param cell The cell location.
  * @param group The group location.
  * @param val The value used to set the row location.
@@ -153,10 +158,10 @@ void Vector::setValue(int cell, int group, CMFD_PRECISION val) {
 
 /**
  * @brief Set values in the vector.
- * @detail This method takes a cell, first group, last group, and floating
- *         point value. The cell and groups are used to compute the
- *         rows in the vector. If a values exist for the rows,
- *         the values are overwritten.
+ * @details This method takes a cell, first group, last group, and floating
+ *          point value. The cell and groups are used to compute the
+ *          rows in the vector. If a value exist for the rows,
+ *          the values are overwritten.
  * @param cell The cell location.
  * @param group_first The first group location to set.
  * @param group_last The last group location to set.
@@ -243,7 +248,7 @@ void Vector::copyTo(Vector* vector) {
 
 
 /**
- * @brief Get a value at location described by a given cell and group index
+ * @brief Get a value at location described by a given cell and group index.
  * @param cell The cell location index.
  * @param group The group location index.
  */

@@ -28,7 +28,7 @@ Quadrature::~Quadrature() {
 
 
 /**
- * @brief Deletes all arrays indexed by polar angle
+ * @brief Deletes all arrays indexed by polar angle.
  */
 void Quadrature::deletePolarArrays() {
 
@@ -70,7 +70,7 @@ void Quadrature::deletePolarArrays() {
 
 
 /**
- * @brief Deletes all arrays allocated by the Quadrature
+ * @brief Deletes all arrays allocated by the Quadrature.
  */
 void Quadrature::deleteAllArrays() {
 
@@ -249,7 +249,7 @@ double Quadrature::getPolarWeight(int azim, int polar) {
 
 /**
  * @brief Returns the total weight for Tracks with the given azimuthal and
- *        polar indexes
+ *        polar indexes.
  * @details Angular weights are multiplied by Track spacings
  * @param azim index of the azimuthal angle of interest
  * @param polar index of the polar angle of interest
@@ -389,7 +389,7 @@ double* Quadrature::getAzimSpacings() {
 /**
  * @brief Returns the adjusted azimuthal spacing at the requested azimuthal
  *        angle index.
- * @details The aziumthal spacing depends on the azimuthal angle. This function
+ * @details The azimuthal spacing depends on the azimuthal angle. This function
  *          returns the azimuthal spacing used at the desired azimuthal angle
  *          index.
  * @param azim the requested azimuthal angle index
@@ -403,7 +403,7 @@ double Quadrature::getAzimSpacing(int azim) {
 
 
 /**
- * @brief Returns a 2D array of adjusted polar spacings
+ * @brief Returns a 2D array of adjusted polar spacings.
  * @details An array of polar spacings after adjustment is returned,
  *          indexed first by azimuthal angle and then by polar angle
  * @return the 2D array of polar spacings
@@ -415,7 +415,7 @@ double** Quadrature::getPolarSpacings() {
 
 /**
  * @brief Returns the adjusted polar spacing at the requested azimuthal
- *        angle index and polar angle index
+ *        angle index and polar angle index.
  * @details The polar spacing depends on the azimuthal angle and the polar
  *          angle. This function returns the azimuthal spacing used at the
  *          desired azimuthal angle and polar angle indexes.
@@ -643,10 +643,10 @@ void Quadrature::setAzimSpacing(double spacing, int azim) {
 
 
 /**
- * @brief Sets the polar spacing for the given indexes
+ * @brief Sets the polar spacing for the given indexes.
  * @param spacing the spacing in the polar direction to be set
  * @param azim the azimuthal index corresponding to the angle
- * @param azim the polar index corresponding to the angle
+ * @param polar the polar index corresponding to the angle
  */
 void Quadrature::setPolarSpacing(double spacing, int azim, int polar) {
 
@@ -702,7 +702,7 @@ void Quadrature::setAzimWeight(double weight, int azim) {
  * @brief Sets the polar weight for the given indexes.
  * @param weight the weight of the polar angle
  * @param azim the azimuthal index corresponding to the angle
- * @param azim the polar index corresponding to the angle
+ * @param polar the polar index corresponding to the angle
  */
 void Quadrature::setPolarWeight(double weight, int azim, int polar) {
 
@@ -751,12 +751,13 @@ void Quadrature::initialize() {
                "angles. Set the number of azimuthal angles before "
                "initialization.");
 
-  if (_phis == NULL)
+  if (_phis == NULL) {
     _phis = new double[_num_azim/2];
 
-  /* Compute a desired azimuthal angles */
-  for (int a = 0; a < _num_azim/2; a++)
-    _phis[a] = 2.0 * M_PI / _num_azim * (0.5 + a);
+    /* Compute a desired set of azimuthal angles */
+    for (int a = 0; a < _num_azim/2; a++)
+      _phis[a] = 2.0 * M_PI / _num_azim * (0.5 + a);
+  }
 }
 
 
@@ -905,7 +906,7 @@ std::string Quadrature::toString() {
 
 
 /**
- * @breif Returns the type of Quadrature created.
+ * @brief Returns the type of Quadrature created.
  * @return The quadrature type
  */
 quadratureType Quadrature::getQuadratureType() {
@@ -1197,10 +1198,10 @@ void GLPolarQuad::precomputeWeights(bool solve_3D) {
 
 
 /**
- * @brief    the Legendre polynomial of degree n evaluated at x
- * @param    n an integer >=0: the order of the polynomial
- * @param    x in (-1,1), the point at which to evaluate the polynomial
- * @return   the value of the Legendre polynomial of degree n at x
+ * @brief the Legendre polynomial of degree n evaluated at x.
+ * @param n an integer >=0: the order of the polynomial
+ * @param x in (-1,1), the point at which to evaluate the polynomial
+ * @return the value of the Legendre polynomial of degree n at x
  */
 double GLPolarQuad::legendrePolynomial(int n, double x) {
   if (n == 0)
@@ -1219,10 +1220,10 @@ double GLPolarQuad::legendrePolynomial(int n, double x) {
 
 
 /**
- * @brief    the first logarithmic derivative of a Legendre polynomial
- * @param    m the order of the polynomial
- * @param    x point at which to evaluate the logarithmic derivative
- * @return   the value of the logarithmic derivative at x
+ * @brief The first logarithmic derivative of a Legendre polynomial.
+ * @param m the order of the polynomial
+ * @param x point at which to evaluate the logarithmic derivative
+ * @return the value of the logarithmic derivative at x
  */
 double GLPolarQuad::logDerivLegendre(int n, double x) {
   double num = n * x - n * legendrePolynomial(n-1,x) / legendrePolynomial(n,x);
@@ -1232,10 +1233,10 @@ double GLPolarQuad::logDerivLegendre(int n, double x) {
 
 
 /**
- * @brief    the second logarithmic derivative of a Legendre polynomial
- * @param    m the order of the polynomial
- * @param    x point at which to evaluate the logarithmic derivative
- * @return   the value of the logarithmic derivative at x
+ * @brief The second logarithmic derivative of a Legendre polynomial.
+ * @param m the order of the polynomial
+ * @param x point at which to evaluate the logarithmic derivative
+ * @return the value of the logarithmic derivative at x
  */
 double GLPolarQuad::secondLogDerivLegendre(int n, double x) {
   double num =
@@ -1246,17 +1247,17 @@ double GLPolarQuad::secondLogDerivLegendre(int n, double x) {
 
 
 /**
- * @brief    finds the roots of Legendre polynomial of order n
- * @detail   guesses for positive roots are set at logarithmic intervals.
- *           Positive roots are found simultaneously using an
- *           Alberth-Householder-n method. Each guess is successively nudged
- *           towards a true root. Only the positive roots are calculated
- * @param    n the order of the polynomial
- * @return   a list of the roots of the polynomial
+ * @brief Finds the roots of Legendre polynomial of order n.
+ * @details Guesses for positive roots are set at logarithmic intervals.
+ *          Positive roots are found simultaneously using an
+ *          Alberth-Householder-n method. Each guess is successively nudged
+ *          towards a true root. Only the positive roots are calculated
+ * @param n the order of the polynomial
+ * @return a list of the roots of the polynomial
  */
 std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
 
-  /* put these somewhere else */
+  /* desired precision on roots */
   double E1 = 1e-8;
   double E2 = 1e-8;
 
@@ -1361,10 +1362,10 @@ std::vector <double> GLPolarQuad::getLegendreRoots(int n) {
 
 
 /**
- * @brief    calculates the weights to be used in Gauss-Legendre Quadrature
- * @param    roots a vector containing the roots of the Legendre polynomial
- * @param    n the order of the Legendre Polynomial
- * @return   a vector of weights matched by index to the vector of roots
+ * @brief Calculates the weights to be used in Gauss-Legendre Quadrature.
+ * @param roots a vector containing the roots of the Legendre polynomial
+ * @param n the order of the Legendre Polynomial
+ * @return a vector of weights matched by index to the vector of roots
  */
 std::vector<double> GLPolarQuad::getGLWeights(std::vector <double> roots,
                                                int n) {
@@ -1381,10 +1382,10 @@ std::vector<double> GLPolarQuad::getGLWeights(std::vector <double> roots,
 
 
 /**
- * @brief    calculates the weights to be used in Gauss-Legendre Quadrature
- * @param    root the root of the Legendre polynomial
- * @param    n the order of the Legendre Polynomial
- * @return   a vector of weights matched by index to the vector of roots
+ * @brief Calculates the weights to be used in Gauss-Legendre Quadrature.
+ * @param root the root of the Legendre polynomial
+ * @param n the order of the Legendre Polynomial
+ * @return a vector of weights matched by index to the vector of roots
  */
 double GLPolarQuad::getSingleWeight(double root, int n) {
   double weight =
@@ -1396,10 +1397,10 @@ double GLPolarQuad::getSingleWeight(double root, int n) {
 
 
 /**
- * @brief    calculates the weights to be used in numerical integration
- * @details  assumes the function will be integrated over (-1, 1)
- * @details  azim the azimuthal angle index
- * @return   the vector of weights
+ * @brief Calculates the weights to be used in numerical integration.
+ * @details assumes the function will be integrated over (-1, 1)
+ * @details azim the azimuthal angle index
+ * @return the vector of weights
  */
 std::vector<double> GLPolarQuad::getCorrectedWeights(int azim) {
 
@@ -1449,7 +1450,7 @@ std::vector<double> GLPolarQuad::getCorrectedWeights(int azim) {
           A[k][j] = temp;
         }
 
-        // switch their corresponding indeces
+        // switch their corresponding indices
         long double temp_ind = index[i];
         index[i] = index[k];
         index[k] = temp_ind;

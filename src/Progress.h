@@ -1,6 +1,6 @@
 /**
  * @file Progress.h
- * @brief A progress object
+ * @brief An object to track progress
  * @date January 11, 2016
  * @author Samuel Shaner, MIT, Course 22 (shaner@mit.edu)
  */
@@ -34,7 +34,6 @@ class Progress {
 
 private:
 
-  /** A list of lists representing the vector */
   std::string _name;
   int _counter;
   int _num_iterations;

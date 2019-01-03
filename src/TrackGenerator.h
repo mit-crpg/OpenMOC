@@ -113,7 +113,7 @@ protected:
 
   /** A buffer holding the computed FSR volumes */
   FP_PRECISION* _FSR_volumes;
-  
+
   /** A timer to record timing data for track generation */
   Timer* _timer;
 
@@ -200,6 +200,7 @@ public:
   void initializeTrackFileDirectory();
   void initializeTracksArray();
   virtual void checkBoundaryConditions();
+  void printTimerReport(bool mpi_reduce);
 };
 
 

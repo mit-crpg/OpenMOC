@@ -20,7 +20,7 @@ int material_id() {
 
 
 /**
- * @brief Resets the auto-generated unique Material ID counter to 10000.
+ * @brief Resets the auto-generated unique Material ID counter to 1000,000.
  */
 void reset_material_id() {
   auto_id = DEFAULT_INIT_ID;
@@ -139,7 +139,7 @@ Material::~Material() {
 
 
 /**
- * @brief Return the Material's user-defined ID
+ * @brief Return the Material's user-defined ID.
  * @return the Material's user-defined ID
  */
 int Material::getId() const {
@@ -148,7 +148,7 @@ int Material::getId() const {
 
 
 /**
- * @brief Return the user-defined name of the Material
+ * @brief Return the user-defined name of the Material.
  * @return the Material name
  */
 char* Material::getName() const {
@@ -229,6 +229,7 @@ FP_PRECISION* Material::getSigmaA() {
                _id);
   }
 
+  /* If not initialized, compute _sigma_a the absorption cross section */
   if (_sigma_a == NULL) {
     _sigma_a = new FP_PRECISION[_num_groups];
     for (int g=0; g < _num_groups; g++) {
@@ -549,18 +550,25 @@ void Material::setNumEnergyGroups(const int num_groups) {
   }
 
   /* Allocate memory for data arrays */
-  _sigma_t = (FP_PRECISION*) aligned_alloc(VEC_ALIGNMENT, _num_groups*sizeof(FP_PRECISION));
+  try {
+    _sigma_t = (FP_PRECISION*) aligned_alloc(VEC_ALIGNMENT, 
+                                           _num_groups*sizeof(FP_PRECISION));
+  }
+  catch (...) {
+    _sigma_t = (FP_PRECISION*) MM_MALLOC(_num_groups*sizeof(FP_PRECISION),
+                                         VEC_ALIGNMENT);
+  }
   _sigma_f = new FP_PRECISION[_num_groups];
   _nu_sigma_f = new FP_PRECISION[_num_groups];
   _chi = new FP_PRECISION[_num_groups];
   _sigma_s = new FP_PRECISION[_num_groups*_num_groups];
 
   /* Assign the null vector to each data array */
-  memset(_sigma_t, 0.0, sizeof(FP_PRECISION) * _num_groups);
-  memset(_sigma_f, 0.0, sizeof(FP_PRECISION) * _num_groups);
-  memset(_nu_sigma_f, 0.0, sizeof(FP_PRECISION) * _num_groups);
-  memset(_chi, 0.0, sizeof(FP_PRECISION) * _num_groups);
-  memset(_sigma_s, 0.0, sizeof(FP_PRECISION) * _num_groups * _num_groups);
+  memset(_sigma_t, 0, sizeof(FP_PRECISION) * _num_groups);
+  memset(_sigma_f, 0, sizeof(FP_PRECISION) * _num_groups);
+  memset(_nu_sigma_f, 0, sizeof(FP_PRECISION) * _num_groups);
+  memset(_chi, 0, sizeof(FP_PRECISION) * _num_groups);
+  memset(_sigma_s, 0, sizeof(FP_PRECISION) * _num_groups * _num_groups);
 }
 
 
@@ -696,9 +704,10 @@ void Material::setSigmaS(double* xs, int num_groups_squared) {
  */
 void Material::setSigmaSByGroup(double xs, int origin, int destination) {
 
-  if (origin <= 0 || destination <= 0 || origin > _num_groups || destination > _num_groups)
-    log_printf(ERROR, "Unable to set sigma_s for group %d -> %d for Material %d "
-               "which contains %d energy groups",
+  if (origin <= 0 || destination <= 0 || origin > _num_groups || 
+      destination > _num_groups)
+    log_printf(ERROR, "Unable to set sigma_s for group %d -> %d for Material %d"
+               " which contains %d energy groups",
                origin, destination, _id, _num_groups);
 
   _sigma_s[_num_groups*(destination-1) + (origin-1)] = xs;
@@ -728,7 +737,8 @@ void Material::setSigmaF(double* xs, int num_groups) {
 
   if (_num_groups != num_groups)
     log_printf(ERROR, "Unable to set sigma_f with %d groups for Material "
-               "%d which contains %d energy groups", num_groups, _id, _num_groups);
+               "%d which contains %d energy groups", num_groups, _id,
+               _num_groups);
 
   for (int i=0; i < _num_groups; i++)
     _sigma_f[i] = xs[i];
@@ -963,8 +973,8 @@ void Material::alignData() {
   }
 
   size *= _num_vector_groups * VEC_LENGTH;
-  memset(new_fiss_matrix, 0.0, size);
-  memset(new_sigma_s, 0.0, size);
+  memset(new_fiss_matrix, 0, size);
+  memset(new_sigma_s, 0, size);
 
   /* Copy materials data from unaligned arrays into new aligned arrays */
   size = _num_groups * sizeof(FP_PRECISION);

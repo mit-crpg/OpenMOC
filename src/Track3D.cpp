@@ -1,7 +1,7 @@
 #include "Track3D.h"
 
 
-/*
+/**
  * @brief Constructor initializes an empty Track3D.
  */
 Track3D::Track3D() : Track() { }
@@ -9,7 +9,7 @@ Track3D::Track3D() : Track() { }
 
 
 /**
- * @brief Destructor clears the Track segments container.
+ * @brief Destructor.
  */
 Track3D::~Track3D() {
 }

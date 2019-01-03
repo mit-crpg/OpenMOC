@@ -79,7 +79,7 @@ public:
                                     FP_PRECISION direction[3]);
   void accumulateLinearFluxContribution(long fsr_id, FP_PRECISION* fsr_flux);
   void addSourceToScalarFlux();
-  
+
   /* Transport stabilization routines */
   void computeStabilizingFlux();
   void stabilizeFlux();
