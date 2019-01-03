@@ -40,7 +40,7 @@ class DumpAndLoadTestHarness(TestHarness):
             self.input_set.geometry.dumpToFile('log/dump3.geo', non_uniform_lattice=True)
         else:
             pass
-        
+
         # Initialize CMFD
         cmfd = openmoc.Cmfd()
         cmfd.setCMFDRelaxationFactor(0.7)
@@ -50,13 +50,13 @@ class DumpAndLoadTestHarness(TestHarness):
 
         # Add CMFD to the Geometry
         self.input_set.geometry.setCmfd(cmfd)
-        
+
 
     def _create_trackgenerator(self):
         """Instantiate a TrackGenerator."""
         geometry = self.input_set.geometry
         geometry.initializeFlatSourceRegions()
-        
+
         quad = openmoc.EqualWeightPolarQuad()
         quad.setNumPolarAngles(self.num_polar)
         self.track_generator = \
@@ -91,7 +91,7 @@ class DumpAndLoadTestHarness(TestHarness):
                 num_iters=num_iters, keff=keff, fluxes=fluxes,
                 num_fsrs=num_fsrs, num_tracks=num_tracks,
                 num_segments=num_segments, hash_output=hash_output)
-        
+
     def _execute_test(self):
         """Build geometry, ray trace, run calculation."""
         self._setup()
@@ -110,7 +110,7 @@ if __name__ == '__main__':
         results += harness2._get_results()
         results += harness3._get_results()
         harness1._write_results(results)
-        
+
         (harness1._opts, harness1._args) = harness1.parser.parse_args()
         if harness1._opts.update:
             harness1._overwrite_results()
@@ -118,4 +118,4 @@ if __name__ == '__main__':
             harness1._compare_results()
     finally:
         harness1._cleanup()
-                    
+

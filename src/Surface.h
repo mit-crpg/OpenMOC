@@ -106,7 +106,7 @@ public:
 
   /**
    * @brief Returns the minimum coordinate in the axis direction of the
-   *        space defined by halfspace and this surface 
+   *        space defined by halfspace and this surface.
    * @param axis The axis of interest (0 = x, 1 = y, 2 = z)
    * @param halfspace the halfspace to consider
    * @return the minimum coordinate in the axis direction
@@ -115,8 +115,8 @@ public:
 
 
   /**
- * @brief Returns the maximum coordinate in the axis direction of the
-   *      space defined by halfspace and this surface 
+   * @brief Returns the maximum coordinate in the axis direction of the
+   *        space defined by halfspace and this surface.
    * @param axis The axis of interest (0 = x, 1 = y, 2 = z)
    * @param halfspace the halfspace to consider
    * @return the maximum coordinate in the axis direction
@@ -173,7 +173,7 @@ public:
    * @brief Evaluate a Point using the Surface's potential equation.
    * @details This method returns the values \f$ f(x,y) \f$ for the potential
    *          function \f$f\f$ representing this Surface.
-   * @param point a pointer to the Soint of interest
+   * @param point a pointer to the Point of interest
    * @return the value of Point in the Plane's potential equation.
    */
   virtual double evaluate(const Point* point) const = 0;
@@ -386,7 +386,7 @@ public:
 
 /**
  * @brief Finds the minimum distance to a Surface.
- * @details Finds the miniumum distance to a Surface from a Point with a
+ * @details Finds the minimum distance to a Surface from a Point with a
  *          given trajectory defined by an azim/polar to this Surface. If the
  *          trajectory will not intersect the Surface, returns INFINITY.
  * @param point a pointer to the Point of interest

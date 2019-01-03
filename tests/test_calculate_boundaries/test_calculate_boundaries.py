@@ -24,14 +24,14 @@ class CalculateBoundariesTestHarness(TestHarness):
 
     def _generate_tracks(self):
         pass
-        
-    def _creat_solver(self):
+
+    def _create_solver(self):
         pass
 
     def _run_openmoc(self):
-                
+
         openmoc.set_log_level('NORMAL')
-        
+
         c1 = openmoc.Cell()
         c2 = openmoc.Cell()
 
@@ -41,11 +41,11 @@ class CalculateBoundariesTestHarness(TestHarness):
         s1.setBoundaryType(openmoc.VACUUM)
         s2.setBoundaryType(openmoc.PERIODIC)
         s3.setBoundaryType(openmoc.REFLECTIVE)
-        
+
         c1.addSurface(+1,s1)
         c2.addSurface(+1,s2)
         c2.addSurface(+1,s3)
-        
+
         u = openmoc.Universe()
         u.addCell(c1)
         u.addCell(c2)
@@ -62,7 +62,7 @@ class CalculateBoundariesTestHarness(TestHarness):
         py_printf('NORMAL', 'MinX: %f', u.getMinX())
         py_printf('NORMAL', 'MinXBoundaryType: %s', boundary)
         py_printf('SEPARATOR','')
-        
+
         c1 = openmoc.Cell()
         c2 = openmoc.Cell()
 
@@ -72,11 +72,11 @@ class CalculateBoundariesTestHarness(TestHarness):
         s1.setBoundaryType(openmoc.VACUUM)
         s2.setBoundaryType(openmoc.PERIODIC)
         s3.setBoundaryType(openmoc.REFLECTIVE)
-        
+
         c1.addSurface(+1,s1)
         c2.addSurface(+1,s2)
         c2.addSurface(+1,s3)
-        
+
         u = openmoc.Universe()
         u.addCell(c1)
         u.addCell(c2)
@@ -94,7 +94,7 @@ class CalculateBoundariesTestHarness(TestHarness):
         py_printf('NORMAL', 'MinYBoundaryType: %s', boundary)
         py_printf('SEPARATOR','')
 
-        
+
         c1 = openmoc.Cell()
         c2 = openmoc.Cell()
 
@@ -104,11 +104,11 @@ class CalculateBoundariesTestHarness(TestHarness):
         s1.setBoundaryType(openmoc.VACUUM)
         s2.setBoundaryType(openmoc.PERIODIC)
         s3.setBoundaryType(openmoc.REFLECTIVE)
-        
+
         c1.addSurface(+1,s1)
         c2.addSurface(+1,s2)
         c2.addSurface(+1,s3)
-        
+
         u = openmoc.Universe()
         u.addCell(c1)
         u.addCell(c2)
@@ -124,9 +124,9 @@ class CalculateBoundariesTestHarness(TestHarness):
 
         py_printf('NORMAL', 'MinZ: %f', u.getMinZ())
         py_printf('NORMAL', 'MinZBoundaryType: %s', boundary)
-        py_printf('SEPARATOR','')      
-        
-                
+        py_printf('SEPARATOR','')
+
+
         c1 = openmoc.Cell()
         c2 = openmoc.Cell()
 
@@ -136,11 +136,11 @@ class CalculateBoundariesTestHarness(TestHarness):
         s1.setBoundaryType(openmoc.VACUUM)
         s2.setBoundaryType(openmoc.PERIODIC)
         s3.setBoundaryType(openmoc.REFLECTIVE)
-        
+
         c1.addSurface(-1,s1)
         c2.addSurface(-1,s2)
         c2.addSurface(-1,s3)
-        
+
         u = openmoc.Universe()
         u.addCell(c1)
         u.addCell(c2)
@@ -167,11 +167,11 @@ class CalculateBoundariesTestHarness(TestHarness):
         s1.setBoundaryType(openmoc.VACUUM)
         s2.setBoundaryType(openmoc.PERIODIC)
         s3.setBoundaryType(openmoc.REFLECTIVE)
-        
+
         c1.addSurface(-1,s1)
         c2.addSurface(-1,s2)
         c2.addSurface(-1,s3)
-        
+
         u = openmoc.Universe()
         u.addCell(c1)
         u.addCell(c2)
@@ -188,7 +188,7 @@ class CalculateBoundariesTestHarness(TestHarness):
         py_printf('NORMAL', 'MaxY: %f', u.getMaxY())
         py_printf('NORMAL', 'MaxYBoundaryType: %s', boundary)
         py_printf('SEPARATOR','')   
-        
+
         c1 = openmoc.Cell()
         c2 = openmoc.Cell()
 
@@ -198,11 +198,11 @@ class CalculateBoundariesTestHarness(TestHarness):
         s1.setBoundaryType(openmoc.VACUUM)
         s2.setBoundaryType(openmoc.PERIODIC)
         s3.setBoundaryType(openmoc.REFLECTIVE)
-        
+
         c1.addSurface(-1,s1)
         c2.addSurface(-1,s2)
         c2.addSurface(-1,s3)
-        
+
         u = openmoc.Universe()
         u.addCell(c1)
         u.addCell(c2)
@@ -219,7 +219,7 @@ class CalculateBoundariesTestHarness(TestHarness):
         py_printf('NORMAL', 'MaxZ: %f', u.getMaxZ())
         py_printf('NORMAL', 'MaxZBoundaryType: %s', boundary)
         py_printf('SEPARATOR','')
-        
+
         sW = openmoc.XPlane(10)
         sE = openmoc.XPlane(20)
         sS = openmoc.YPlane(30)
@@ -232,14 +232,14 @@ class CalculateBoundariesTestHarness(TestHarness):
         sN.setBoundaryType(openmoc.REFLECTIVE)
         sB.setBoundaryType(openmoc.PERIODIC)
         sT.setBoundaryType(openmoc.REFLECTIVE)
-        
+
         sX_mid = openmoc.XPlane(15)
         sY_mid = openmoc.YPlane(35)
         sZ_mid = openmoc.ZPlane(55)
         sX_mid.setBoundaryType(openmoc.BOUNDARY_NONE)
         sY_mid.setBoundaryType(openmoc.BOUNDARY_NONE)
         sZ_mid.setBoundaryType(openmoc.BOUNDARY_NONE)
-        
+
         cell = openmoc.Cell()
         cell.addSurface(+1,sW)
         cell.addSurface(-1,sE)
@@ -247,14 +247,14 @@ class CalculateBoundariesTestHarness(TestHarness):
         cell.addSurface(-1,sN)
         cell.addSurface(+1,sB)
         cell.addSurface(-1,sT)
-        
+
         cell.addSurface(+1,sX_mid)
         cell.addSurface(-1,sX_mid)
         cell.addSurface(+1,sY_mid)
         cell.addSurface(-1,sY_mid)
         cell.addSurface(+1,sZ_mid)
         cell.addSurface(-1,sZ_mid)
-        
+
         univ = openmoc.Universe()
         univ.addCell(cell)
 
@@ -270,7 +270,7 @@ class CalculateBoundariesTestHarness(TestHarness):
         py_printf('NORMAL', 'MaxYBoundaryType: %s', univ.getMaxYBoundaryType())
         py_printf('NORMAL', 'MaxZ: %f', univ.getMaxZ())
         py_printf('NORMAL', 'MaxZBoundaryType: %s', univ.getMaxZBoundaryType())
-        
+
     def _get_results(self, num_iters=False, keff=False, fluxes=False,
                      num_fsrs=False, num_tracks=False, num_segments=False,
                      hash_output=False):
@@ -282,7 +282,7 @@ class CalculateBoundariesTestHarness(TestHarness):
         # Read the file into a list of strings for each line
         with open(logfilename[0], 'r') as myfile:
             lines = myfile.readlines()
-        
+
         # Concatenate all strings in the file into a single string
         # Exclude the first line which is the time and date
         outstr = ''.join(lines[1:])

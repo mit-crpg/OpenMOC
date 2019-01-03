@@ -2,24 +2,48 @@
 
 import os
 import sys
-import glob
 sys.path.insert(0, os.pardir)
 sys.path.insert(0, os.path.join(os.pardir, 'openmoc'))
-from testing_harness import TestHarness
 import openmoc
+from testing_harness import TestHarness
 from openmoc.log import py_printf
+import os
 
-
-class ComplexRegionBoundsTestHarness(TestHarness):
-    """Tests complex cells min and max coordinate/boundary type getters."""
+class GeometryPrintTestHarness(TestHarness):
+    """Test printing a geometry to file."""
 
     def __init__(self):
-        super(ComplexRegionBoundsTestHarness, self).__init__()
+        super(GeometryPrintTestHarness, self).__init__()
+
+
+    def create_materials(self):
+        """Instantiate C5G7 Materials."""
+        self.materials = \
+            openmoc.materialize.load_from_hdf5(filename='c5g7-mgxs.h5',
+                                               directory='../../sample-input/')
+
+
+    def _create_geometry(self):
+        self.create_materials()
+
+
+    def _create_solver(self):
+        pass
+
+
+    def _create_trackgenerator(self):
+        pass
+
+
+    def _generate_tracks(self):
+        pass
+
 
     def _run_openmoc(self):
         """Instantiate a complex region Geometry."""
         root_universe = openmoc.Universe(name='root universe')
         root_cell = openmoc.Cell(name='root cell')
+        root_universe.addCell(root_cell)
         u1 = openmoc.Universe(name='universe 1')
         u2 = openmoc.Universe(name='universe 2 in c2')
         root_cell.setFill(u1)
@@ -49,6 +73,10 @@ class ComplexRegionBoundsTestHarness(TestHarness):
         c2.setParent(root_cell)
         c2a.setParent(c2)  # to test transitivity
 
+        # Add rotation and translation to test
+        c1.setRotation([0., 0., 90.], "degrees")
+        c2.setTranslation([0.25, 0.25, 0.1])
+
         # Bounds for cell 1 : intersection region cell
         p11 = openmoc.XPlane(x=-2.0, name='xmin')
         p11.setBoundaryType(openmoc.REFLECTIVE)
@@ -63,9 +91,9 @@ class ComplexRegionBoundsTestHarness(TestHarness):
         c1.addSurface(halfspace=-1, surface=p13)
 
         # Bounds for cell 2 : union region cell
-        p22 = openmoc.ZCylinder(x=4,y=4,radius=2.5, name='cylinder')
+        p22 = openmoc.ZPlane(z=4, name='zmax')
         p22.setBoundaryType(openmoc.INTERFACE)
-        p23 = openmoc.ZCylinder(x=-2,y=-8,radius=3, name='cylinder')
+        p23 = openmoc.Plane(A=0, B=1, C=4, D=3, name='general plane')
         p23.setBoundaryType(openmoc.VACUUM)
 
         # To have a union, we need to use addLogicalNode and addSurfaceInRegion
@@ -77,52 +105,30 @@ class ComplexRegionBoundsTestHarness(TestHarness):
         c2a.addLogicalNode(1)
         c2a.addSurfaceInRegion(halfspace=+1, surface=p11)
 
-        openmoc.set_log_level('NORMAL')
-        for cell in [root_cell, c1, c2, c2a, c3]:
-            py_printf('NORMAL', 'Cell: %s', cell.getName())
-            py_printf('NORMAL', 'MinX: %f', cell.getMinX())
-            py_printf('NORMAL', 'MinXBoundaryType: %s', cell.getMinXBoundaryType())
-            py_printf('NORMAL', 'MinY: %f', cell.getMinY())
-            py_printf('NORMAL', 'MinYBoundaryType: %s', cell.getMinYBoundaryType())
-            py_printf('NORMAL', 'MinZ: %f', cell.getMinZ())
-            py_printf('NORMAL', 'MinZBoundaryType: %s', cell.getMinZBoundaryType())
-            py_printf('NORMAL', 'MaxX: %f', cell.getMaxX())
-            py_printf('NORMAL', 'MaxXBoundaryType: %s', cell.getMaxXBoundaryType())
-            py_printf('NORMAL', 'MaxY: %f', cell.getMaxY())
-            py_printf('NORMAL', 'MaxYBoundaryType: %s', cell.getMaxYBoundaryType())
-            py_printf('NORMAL', 'MaxZ: %f', cell.getMaxZ())
-            py_printf('NORMAL', 'MaxZBoundaryType: %s', cell.getMaxZBoundaryType())
-            py_printf('NORMAL', '')
+        # Add a material to a cell to know the number of groups
+        c1.setFill(self.materials['UO2'])
 
-    def _create_geometry(self):
-        pass
+        self.geometry = openmoc.Geometry()
+        self.geometry.setRootUniverse(root_universe)
 
-    def _create_trackgenerator(self):
-        pass
+        # To update result, just "mv geometry.txt geometry_true.txt"
+        # print to file is different in Python2
+        with open('geometry.txt', 'w') as f:
+            f.write(self.geometry.toString())
 
-    def _generate_tracks(self):
-        pass
-        
-    def _create_solver(self):
-        pass
 
     def _get_results(self, num_iters=False, keff=False, fluxes=False,
                      num_fsrs=False, num_tracks=False, num_segments=False,
                      hash_output=False):
-        """Digest info in the log file and return as a string."""
 
-        # Find the log filename with the time and date
-        logfilename = glob.glob('log/openmoc-*')
+        """Compare the two geometry print files."""
+        if (os.system("cmp geometry.txt geometry_true.txt") != 0):
+                py_printf(openmoc.ERROR, "Geometry files are not printed "
+                          "properly")
 
-        # Read the file into a list of strings for each line
-        with open(logfilename[0], 'r') as myfile:
-            lines = myfile.readlines()
-        
-        # Concatenate all strings in the file into a single string
-        # Exclude the first line which is the time and date
-        outstr = ''.join(lines[1:])
+        outstr = 'dummy'
         return outstr
 
 if __name__ == '__main__':
-    harness = ComplexRegionBoundsTestHarness()
+    harness = GeometryPrintTestHarness()
     harness.main()

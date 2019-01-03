@@ -12,7 +12,7 @@ Point::Point() {
 
 
 /**
- * @brief Destructor
+ * @brief Destructor.
  */
 Point::~Point() {
 }
@@ -20,7 +20,8 @@ Point::~Point() {
 
 /**
  * @brief Converts this Point to a character representation of its attributes.
- * @details The character array includes the x-coordinate, y-coordinate, and z-coordinate
+ * @details The character array includes the x-coordinate, y-coordinate, 
+ *          and z-coordinate
  * @return a character array of this Point's attributes
  */
 std::string Point::toString() {

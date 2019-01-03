@@ -172,7 +172,7 @@ LocalCoords* LocalCoords::getNext() const {
 
 /**
  * @brief Creates and returns a pointer to the next LocalCoords (nested 
- *        deeper)
+ *        deeper).
  * @param x the x-coordinate
  * @param y the y-coordinate
  * @param z the z-coordinate
@@ -206,7 +206,7 @@ LocalCoords* LocalCoords::getNextCreate(double x, double y, double z) {
 
 
 /**
- * @brief Returns the LocalCoords position in the _next_array
+ * @brief Returns the LocalCoords position in the _next_array.
  * @return The position of this object in the underlying _next_array
  */
 int LocalCoords::getPosition() {
@@ -215,7 +215,7 @@ int LocalCoords::getPosition() {
 
 
 /**
- * @brief Searches through the LocalCoords object to detect a loop
+ * @brief Searches through the LocalCoords object to detect a loop.
  * @details A loop is assumed if the LocalCoords apparent length is greater
  *          1000 members
  */
@@ -245,7 +245,7 @@ LocalCoords* LocalCoords::getPrev() const {
 
 
 /**
- * @brief Returns the version of the LocalCoords object
+ * @brief Returns the version of the LocalCoords object.
  * @details The version number differentiates otherwise matching FSR keys
  * @return The version number
  */
@@ -402,9 +402,9 @@ void LocalCoords::setArrayPosition(LocalCoords* array, int position,
 
 
 /**
- * @brief Setss the version of the LocalCoords object
+ * @brief Sets the version of the LocalCoords object.
  * @details The version number differentiates otherwise matching FSR keys
- * @param The version number
+ * @param version_num the version number
  */
 void LocalCoords::setVersionNum(int version_num) {
   _version_num = version_num;
@@ -507,7 +507,7 @@ void LocalCoords::updateMostLocal(Point* point) {
 
 /**
  * @brief Removes and frees memory for all LocalCoords beyond this one
- *        in the linked list
+ *        in the linked list.
  */
 void LocalCoords::prune() {
 
@@ -515,7 +515,7 @@ void LocalCoords::prune() {
   LocalCoords* next = curr->getPrev();
 
   /* Iterate over LocalCoords beneath this one in the linked list */
-  while (curr != this) {// it seems nothing has been down in this while loop
+  while (curr != this) {
     next = curr->getPrev();
     if (curr->getPosition() == -1)
       curr->deleteArray();
@@ -528,7 +528,7 @@ void LocalCoords::prune() {
 
 
 /**
- * @brief Deletes the underlying array for next coordinates
+ * @brief Deletes the underlying array for next coordinates.
  */
 void LocalCoords::deleteArray() {
   if (_next_array != NULL) {
@@ -540,7 +540,7 @@ void LocalCoords::deleteArray() {
 
 /**
  * @brief Copies a LocalCoords' values to this one.
- * details Given a pointer to a LocalCoords, it first prunes it and then creates
+ * @details Given a pointer to a LocalCoords, it first prunes it and then creates
  *         a copy of the linked list of LocalCoords in the linked list below
  *         this one to give to the input LocalCoords.
  * @param coords a pointer to the LocalCoords to give the linked list copy to

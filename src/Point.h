@@ -88,8 +88,8 @@ inline double Point::getZ() const {
 
 
 /**
- * @brief Returns this Point's x-coordinate.
- * @return the x-coordinate
+ * @brief Returns this Point's coordinates.
+ * @return the xyz coordinates
  */
 inline double* Point::getXYZ() {
   return _xyz;
@@ -106,7 +106,7 @@ inline void Point::setX(const double x) {
 
 
 /**
- * @brief Set the Point's y-coordinate
+ * @brief Set the Point's y-coordinate.
  * @param y the new y-coordinate
  */
 inline void Point::setY(const double y) {
@@ -115,7 +115,7 @@ inline void Point::setY(const double y) {
 
 
 /**
- * @brief Set the Point's z-coordinate
+ * @brief Set the Point's z-coordinate.
  * @param z the new z-coordinate
  */
 inline void Point::setZ(const double z) {
@@ -124,7 +124,7 @@ inline void Point::setZ(const double z) {
 
 
 /**
- * @brief Set the Point's x, y and z-coordinates
+ * @brief Set the Point's x, y and z-coordinates.
  * @param xyz array with the three coordinates
  */
 inline void Point::setXYZ(double* xyz) {
@@ -138,6 +138,7 @@ inline void Point::setXYZ(double* xyz) {
  * @brief Compute the distance from this Point to another Point of interest.
  * @param x the x-coordinate of the Point of interest
  * @param y the y-coordinate of the Point of interest
+ * @param z the z-coordinate of the Point of interest
  * @return distance to the Point of interest
  */
 inline double Point::distance(const double x, const double y, const double z) const {
@@ -162,7 +163,7 @@ inline double Point::distanceToPoint(const Point* point) {
 
 
 /**
- * @brief Copy the coordinates from another point
+ * @brief Copy the coordinates from another point.
  * @param point a pointer to the Point that has the coordinates of interest
  */
 inline void Point::copyCoords(Point* point) {

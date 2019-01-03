@@ -1,7 +1,7 @@
 #include "Track.h"
 
 
-/*
+/**
  * @brief Constructor initializes an empty Track.
  */
 Track::Track() {
@@ -264,12 +264,12 @@ void Track::setAzimIndex(int index) {
 
 /**
  * @brief Set a Track's link index.
- * @detail In generating 3D tracks, we need to know the tracks
- *         linking this track with both periodic and reflective
- *         boundary conditions. Therefore, we generate a periodic
- *         chain of tracks that extend periodically from the y-min
- *         to the y-max boundary. This is the index of each track in
- *         its' periodic chain.
+ * @details In generating 3D tracks, we need to know the tracks
+ *          linking this track with both periodic and reflective
+ *          boundary conditions. Therefore, we generate a periodic
+ *          chain of tracks that extend periodically from the y-min
+ *          to the y-max boundary. This is the index of each track in
+ *          its' periodic chain.
  * @param index The link index
  */
 void Track::setLinkIndex(int index) {
@@ -288,12 +288,12 @@ int Track::getAzimIndex() {
 
 /**
  * @brief Get a Track's link index.
- * @detail In generating 3D tracks, we need to know the tracks
- *         linking this track with both periodic and reflective
- *         boundary conditions. Therefore, we generate a periodic
- *         chain of tracks that extend periodically from the y-min
- *         to the y-max boundary. This is the index of each track in
- *         its' periodic chain.
+ * @details In generating 3D tracks, we need to know the tracks
+ *          linking this track with both periodic and reflective
+ *          boundary conditions. Therefore, we generate a periodic
+ *          chain of tracks that extend periodically from the y-min
+ *          to the y-max boundary. This is the index of each track in
+ *          its' periodic chain.
  * @return The link index
  */
 int Track::getLinkIndex() {

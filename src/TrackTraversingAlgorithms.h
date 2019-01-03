@@ -1,7 +1,7 @@
 /**
  * @file TrackTraversingAlgorithms.h
  * @brief Contains classes which extend the TraverseSegments class to apply
- *        algorithms to Tracks and possibly their segments
+ *        algorithms to Tracks and possibly their segments.
  * @details The classes defined within this file extend the TraverseSegments
  *          class so that they are capable of using the abstract looping
  *          defined in TraverseSegments::loopOverTracks(...). Each class
@@ -33,10 +33,10 @@ class CPULSSolver;
  * @class MaxOpticalLength TrackTraversingAlgorithms.h
  *        "src/TrackTraversingAlgorithms.h"
  * @brief A class used to calculate the maximum optical path length across
- *        all segments in the Geometry
+ *        all segments in the Geometry.
  * @details A MaxOpticalLength allocates SegmentationKernels to temporarily
  *          store segment data. The segments are then traversed afterwards and
- *          the maximium optical path length is calculated.
+ *          the maximum optical path length is calculated.
  */
 class MaxOpticalLength: public TraverseSegments {
 private:
@@ -80,7 +80,7 @@ public:
 /**
  * @class SegmentSplitter TrackTraversingAlgorithms.h
  *        "src/TrackTraversingAlgorithms.h"
- * @brief A class used to split explicit segments along Tracks
+ * @brief A class used to split explicit segments along Tracks.
  * @details A SegmentSplitter imports a maximum optical path length from the
  *          provided TrackGenerator and then ensures all segments have an
  *          optical path length less than the maximum optical path length by
@@ -99,7 +99,7 @@ public:
 /**
  * @class VolumeCalculator TrackTraversingAlgorithms.h
  *        "src/TrackTraversingAlgorithms.h"
- * @brief A class used to calculate FSR volumes
+ * @brief A class used to calculate FSR volumes.
  * @details A VolumeCalculator imports a buffer to store FSR volumes from the
  *          provided TrackGenerator and the allocates VolumeKernels to
  *          calculate and update the volumes in each FSR, implicitly writing
@@ -118,7 +118,7 @@ public:
 /**
  * @class CentroidGenerator TrackTraversingAlgorithms.h
  *        "src/TrackTraversingAlgorithms.h"
- * @brief A class used to calculate the centroids of each FSR
+ * @brief A class used to calculate the centroids of each FSR.
  * @details A CentroidGenerator imports FSR Volumes and associated locks form
  *          the provided TrackGenerator, then centroids are calculated and
  *          stored in the provided buffer by first allocating
@@ -149,7 +149,7 @@ public:
 /**
  * @class LinearExpansionGenerator TrackTraversingAlgorithms.h
  *        "src/TrackTraversingAlgorithms.h"
- * @brief A class used to calculate the linear expansion coeffs of each FSR
+ * @brief A class used to calculate the linear expansion coeffs of each FSR.
  * @details A LinearExpansionGenerator loops through all tracks and computes :
  *          a linear source term that is constant through all iterations, matrix
  *          coefficients in each FSR that help compute the linear source.
@@ -184,7 +184,7 @@ public:
 /**
  * @class TransportSweep TrackTraversingAlgorithms.h
  *        "src/TrackTraversingAlgorithms.h"
- * @brief A class used to apply the MOC transport equations to all segments
+ * @brief A class used to apply the MOC transport equations to all segments.
  * @details TransportSweep imports data from the provided TrackGenerator and
  *          using a provided CPUSolver, it applies the MOC equations to each
  *          segment, tallying the contributions to each FSR. At the end of each
@@ -213,7 +213,7 @@ public:
 /**
  * @class DumpSegments TrackTraversingAlgorithms.h
  *        "src/TrackTraversingAlgorithms.h"
- * @brief A class used to write tracking data to a file
+ * @brief A class used to write tracking data to a file.
  * @details DumpSegments imports Track data from the provided TrackGenerator
  *          and writes the tracking data to the provided file.
  */
@@ -305,7 +305,7 @@ public:
 /**
  * @class PrintSegments TrackTraversingAlgorithms.h
  *        "src/TrackTraversingAlgorithms.h"
- * @brief A class used to write tracking data to a file
+ * @brief A class used to write tracking data to a file.
  * @details PrintSegments imports Track data from the provided TrackGenerator
  *          and writes the tracking data to the provided file.
  */

@@ -35,7 +35,7 @@ void maximize_universe_id(int universe_id);
 
 /**
  * @enum universeType
- * @brief The type of universe
+ * @brief The type of universe.
  */
 enum universeType{
 
@@ -168,11 +168,11 @@ private:
 
   /** True if the lattice is non-uniform */
   bool _non_uniform;
-  
+
   /** The width of each Lattice cell (cm) along the x-axis
       (uniform lattices only) */
   double _width_x;
-  
+
   /** x-direction dimensions of non-uniform lattice meshes */
   std::vector<double> _widths_x;
   std::vector<double> _accumulate_x;
@@ -180,7 +180,7 @@ private:
   /** The width of each Lattice cell (cm) along the y-axis 
       (uniform lattices only) */
   double _width_y;
-  
+
   /** y-direction dimensions of non-uniform lattice meshes */
   std::vector<double> _widths_y;
   std::vector<double> _accumulate_y;
@@ -188,7 +188,7 @@ private:
   /** The width of each Lattice cell (cm) along the z-axis 
       (uniform lattices only) */
   double _width_z;
-  
+
   /** z-direction dimensions of non-uniform lattice meshes */
   std::vector<double> _widths_z;
   std::vector<double> _accumulate_z;
@@ -267,15 +267,15 @@ public:
 
   std::string toString();
   void printString();
-  
+
   /* Set XYZ widths of non-uniform meshes */
   void setWidths(std::vector<double> widths_x, std::vector<double> widths_y, 
                  std::vector<double> widths_z);
   void computeSizes();
-  
+
   /* For debug use */
   void printLatticeSizes();
-  
+
 };
 
 /**
