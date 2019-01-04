@@ -13,6 +13,8 @@ Region::Region() {
  * @brief Destructor clears vector of the nodes within the Region.
  */
 Region::~Region() {
+  for (int i = 0; i < _nodes.size(); ++i)
+    delete _nodes[i];
   _nodes.clear();
 }
 

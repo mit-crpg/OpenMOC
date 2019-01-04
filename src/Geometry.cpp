@@ -60,22 +60,16 @@ Geometry::~Geometry() {
     }
   }
 
-  /* Free all cells */
+  /* Free all cells and universes */
   if (_loaded_from_file) {
     std::map<int, Cell*> cells = getAllCells();
-    std::map<int, Cell*>::iterator iter_c;
-    for (iter_c = cells.begin(); iter_c != cells.end(); ++iter_c) {
-      delete iter_c->second;
-    }
-  }
-
-  /* Free all universes */
-  if (_loaded_from_file) {
     std::map<int, Universe*> universes = getAllUniverses();
+    std::map<int, Cell*>::iterator iter_c;
     std::map<int, Universe*>::iterator iter_u;
-    for (iter_u = universes.begin(); iter_u != universes.end(); ++iter_u) {
+    for (iter_c = cells.begin(); iter_c != cells.end(); ++iter_c)
+      delete iter_c->second;
+    for (iter_u = universes.begin(); iter_u != universes.end(); ++iter_u)
       delete iter_u->second;
-    }
   }
 
   /* Free FSR maps if they were initialized */
@@ -1964,7 +1958,7 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
 
     /* Add the segment to the Track */
     track->addSegment(new_segment);
-
+    delete new_segment;
   }
 
   log_printf(DEBUG, "Created %d segments for Track: %s",
@@ -2117,6 +2111,7 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
 
     /* Add the segment to the Track */
     track->addSegment(new_segment);
+    delete new_segment;
   }
 
   log_printf(DEBUG, "Created %d segments for Track3D: %s",
@@ -2389,6 +2384,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
 
     /* Add the segment to the 2D track */
     flattened_track->addSegment(new_segment);
+    delete new_segment;
   }
 
   /* Truncate the linked list for the LocalCoords */
@@ -3856,6 +3852,8 @@ void Geometry::loadFromFile(std::string filename, bool non_uniform_lattice,
 
     /* Create Material */
     all_materials[key] = new Material(id, name);
+    if (strcmp(name, "") != 0)
+      delete [] name;
     Material* mat = all_materials[key];
     mat->setNumEnergyGroups(num_groups);
 
@@ -3959,6 +3957,8 @@ void Geometry::loadFromFile(std::string filename, bool non_uniform_lattice,
     else {
       log_printf(ERROR, "Unsupported surface type %s", name);
     }
+    if (strcmp(name, "") != 0)
+      delete [] name;
 
     /* Check that the key and ID match */
     if (key != id) {
@@ -3998,6 +3998,8 @@ void Geometry::loadFromFile(std::string filename, bool non_uniform_lattice,
 
     /* Create the cell */
     all_cells[key] = new Cell(id, name);
+    if (strcmp(name, "") != 0)
+      delete [] name;
 
     /* Fill the cell */
     if (ct == MATERIAL) {
@@ -4185,6 +4187,8 @@ void Geometry::loadFromFile(std::string filename, bool non_uniform_lattice,
         lattice_universes[key][j] = universe_id;
       }
     }
+    if (strcmp(name, "") != 0)
+      delete [] name;
 
     /* Check that the key and ID match */
     if (key != id) {

@@ -130,14 +130,14 @@ Solver::~Solver() {
     delete [] _groupwise_scratch.at(i);
   _groupwise_scratch.clear();
 
-  /* Delete exponential evaluators */
-  if (_exp_evaluators != NULL){
+  /** Delete exponential evaluators */
+  if (_exp_evaluators != NULL) {
     for (int a=0; a < _num_exp_evaluators_azim; a++) {
       for (int p=0; p < _num_exp_evaluators_polar; p++) {
         delete _exp_evaluators[a][p];
       }
     }
-    for (int a=0; a < _num_azim/2; a++){
+    for (int a=0; a < _num_azim/2; a++) {
       /* Handle edge case when exp_evaluators are not initialized */
       if (a < 1 or _num_exp_evaluators_azim > 1)
         delete [] _exp_evaluators[a];
@@ -1540,6 +1540,8 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   _timer->stopTimer();
   _timer->recordSplit("Total time");
+
+  delete convergence_data;
 }
 
 

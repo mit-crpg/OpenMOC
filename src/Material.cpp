@@ -115,7 +115,7 @@ Material::~Material() {
   /* Data is not vector aligned */
   else {
     if (_sigma_t != NULL)
-      delete [] _sigma_t;
+      free(_sigma_t);
 
     if (_sigma_s != NULL)
       delete [] _sigma_s;
