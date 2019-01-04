@@ -357,7 +357,7 @@ private:
   int getCellByStencil(int cell_id, int stencil_id);
   CMFD_PRECISION getFluxRatio(int cell_id, int group, long fsr);
   CMFD_PRECISION getUpdateRatio(int cell_id, int moc_group, long fsr);
-  double getDistanceToCentroid(Point* centroid, int cell_id,
+  double getDistanceToCentroid(Point* centroid, int cell_id, int local_cell_id,
                                      int stencil_index);
   void getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
         int group, int moc_iteration, CMFD_PRECISION& dif_surf,
