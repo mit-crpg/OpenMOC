@@ -214,6 +214,45 @@ def compute_fission_rates(solver, use_hdf5=False):
         pickle.dump(fission_rates_sum, open(directory + filename + '.pkl', 'wb'))
 
 
+def get_sigma_by_group(material, rxn_type, g):
+    """Return the cross section for a given reaction
+
+    Parameters
+    ----------
+    material : openmoc.Material
+        Material that we are getting the cross sections from
+    rxn_type : {'flux', 'total', 'scatter', 'fission', 'nu-fission'}
+        Reaction type we are loading the cross section for
+    g : integer
+        Energy group index (starts at 0).
+
+    Returns
+    -------
+    sigma : float
+        The cross section for energy group `g' of reaction `rxn_type'.
+        For scatter, this includes self-scatter and outscatter.
+
+    """
+    global rxn_types
+    cv.check_value('rxn_type', rxn_type, rxn_types)
+    
+    # Energy groups start at 1 in OpenMOC
+    if rxn_type == "total":
+        return material.getSigmaTByGroup(g + 1)
+    elif rxn_type == "fission":
+        return material.getSigmaFByGroup(g + 1)
+    elif rxn_type == "nu-fission":
+        return material.getNuSigmaFByGroup(g + 1)
+    elif rxn_type == "scatter":
+        scatter = 0.
+        for gprime in range(material.getNumEnergyGroups()):
+            scatter += material.getSigmaSByGroup(g + 1, gprime + 1)
+        return scatter
+    else:
+        # Flux
+        return 1.
+
+
 def store_simulation_state(solver, fluxes=False, sources=False,
                            fission_rates=False, use_hdf5=False,
                            filename='simulation-state',
@@ -811,46 +850,6 @@ class Mesh(object):
         self._width = width
 
 
-    @staticmethod
-    def _get_sigma_by_group(material, rxn_type, g):
-        """Return the cross section for a given reaction
-        
-        Parameters
-        ----------
-        material : openmoc.Material
-            Material that we are getting the cross sections from
-        rxn_type : {'flux', 'total', 'scatter', 'fission', 'nu-fission'}
-            Reaction type we are loading the cross section for
-        g : integer
-            Energy group index (stars at 0).
-
-        Returns
-        -------
-        sigma : float
-            The cross section for energy group `g' of reaction `rxn_type'.
-            For scatter, this includes self-scatter and outscatter.
-
-        """
-        global rxn_types
-        cv.check_value('rxn_type', rxn_type, rxn_types)
-        
-        # Energy groups start at 1 in OpenMOC
-        if rxn_type == "total":
-            return material.getSigmaTByGroup(g + 1)
-        elif rxn_type == "fission":
-            return material.getSigmaFByGroup(g + 1)
-        elif rxn_type == "nu-fission":
-            return material.getNuSIgmaFByGroup(g + 1)
-        elif rxn_type == "scatter":
-            scatter = 0.
-            for gprime in range(material.getNumEnergyGroups()):
-                scatter += material.getSigmaSByGroup(g + 1, gprime + 1)
-            return scatter
-        else:
-            # Flux
-            return 1.
-        
-
     def get_mesh_cell_indices(self, point):
         """Get the mesh cell indices for a point within the geometry.
 
@@ -1013,7 +1012,7 @@ class Mesh(object):
         for k, mat in matdict.items():
             domains_to_coeffs[k] = np.zeros(ngroups)
             for g in range(ngroups):
-                sigma = self._get_sigma_by_group(mat, rxn_type, g)
+                sigma = get_sigma_by_group(mat, rxn_type, g)
                 domains_to_coeffs[k][g] = sigma
         tally = self.tally_on_mesh(solver, domains_to_coeffs, domain_type,
                                    volume, energy)
