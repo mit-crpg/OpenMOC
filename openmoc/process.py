@@ -25,8 +25,8 @@ else:
 
 # Store viable OpenMOC solver types for type checking
 solver_types = (openmoc.Solver,)
-# Store implemented cross section/reaction types for value checking
-xs_types = ('flux', 'total', 'scatter', 'fission', 'nu-fission')
+# Store implemented reaction types for value checking
+rxn_types = ('flux', 'total', 'scatter', 'fission', 'nu-fission')
 try:
     # Try to import OpenMOC's CUDA module
     if (sys.version_info[0] == 2):
@@ -812,36 +812,36 @@ class Mesh(object):
 
 
     @staticmethod
-    def _get_sigma_by_group(material, xs_type, g):
+    def _get_sigma_by_group(material, rxn_type, g):
         """Return the cross section for a given reaction
         
         Parameters
         ----------
         material : openmoc.Material
             Material that we are getting the cross sections from
-        xs_type : {'flux', 'total', 'scatter', 'fission', 'nu-fission'}
-            Cross section or reaction type we are loading
+        rxn_type : {'flux', 'total', 'scatter', 'fission', 'nu-fission'}
+            Reaction type we are loading the cross section for
         g : integer
             Energy group index (stars at 0).
 
         Returns
         -------
         sigma : float
-            The cross section for energy group `g' of reaction `xs_type'.
+            The cross section for energy group `g' of reaction `rxn_type'.
             For scatter, this includes self-scatter and outscatter.
 
         """
-        global xs_types
-        cv.check_value('xs_type', xs_type, xs_types)
+        global rxn_types
+        cv.check_value('rxn_type', rxn_type, rxn_types)
         
         # Energy groups start at 1 in OpenMOC
-        if xs_type == "total":
+        if rxn_type == "total":
             return material.getSigmaTByGroup(g + 1)
-        elif xs_type == "fission":
+        elif rxn_type == "fission":
             return material.getSigmaFByGroup(g + 1)
-        elif xs_type == "nu-fission":
+        elif rxn_type == "nu-fission":
             return material.getNuSIgmaFByGroup(g + 1)
-        elif xs_type == "scatter":
+        elif rxn_type == "scatter":
             scatter = 0.
             for gprime in range(material.getNumEnergyGroups()):
                 scatter += material.getSigmaSByGroup(g + 1, gprime + 1)
@@ -962,7 +962,7 @@ class Mesh(object):
         return tally
 
 
-    def tally_reaction_rates_on_mesh(self, solver, xs_type, domain_type,
+    def tally_reaction_rates_on_mesh(self, solver, rxn_type, domain_type,
                                      volume='integrated', energy='integrated'):
         """Compute 'material' or 'cell' reaction rates on a mesh
         
@@ -977,7 +977,7 @@ class Mesh(object):
         ----------
         solver : {openmoc.CPUSolver, openmoc.GPUSolver, openmoc.VectorizedSolver}
             The solver used to compute the flux
-        xs_type : {'flux', 'total', 'scatter', 'fission', 'nu-fission'}
+        rxn_type : {'flux', 'total', 'scatter', 'fission', 'nu-fission'}
             The cross section or reaction type to tally
         domain_type : {'cell', 'material'}
             The type of domain for which the coefficients are defined
@@ -993,9 +993,9 @@ class Mesh(object):
             by FSR ID and energy group (if energy is 'by_group')
         
         """
-        global solver_types, xs_types
+        global solver_types, rxn_types
         cv.check_type('solver', solver, solver_types)
-        cv.check_value('xs_type', xs_type, xs_types)
+        cv.check_value('rxn_type', rxn_type, rxn_types)
         cv.check_value('domain_type', domain_type, ('cell', 'material'))
         cv.check_value('volume', volume, ('averaged', 'integrated'))
         cv.check_value('energy', energy, ('by_group', 'integrated'))
@@ -1013,7 +1013,7 @@ class Mesh(object):
         for k, mat in matdict.items():
             domains_to_coeffs[k] = np.zeros(ngroups)
             for g in range(ngroups):
-                sigma = self._get_sigma_by_group(mat, xs_type, g)
+                sigma = self._get_sigma_by_group(mat, rxn_type, g)
                 domains_to_coeffs[k][g] = sigma
         tally = self.tally_on_mesh(solver, domains_to_coeffs, domain_type,
                                    volume, energy)
