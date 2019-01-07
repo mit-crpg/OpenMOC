@@ -71,7 +71,7 @@ class MeshTallyTestHarness(TestHarness):
                         group + 1, gprime + 1)
                 domains_to_coeffs['scatter'][material_id][group] = scatter
 
-        # Tally volume-averaged OpenMOC rates on the Mesh
+        # Tally volume-integrated OpenMOC reaction rates on the Mesh
         tallies = OrderedDict()
         for rxn, coeffs in domains_to_coeffs.items():
             tallies[rxn] = mesh.tally_on_mesh(self.solver, coeffs,
