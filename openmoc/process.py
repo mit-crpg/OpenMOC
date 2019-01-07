@@ -961,7 +961,7 @@ class Mesh(object):
         return tally
 
 
-    def tally_reaction_rates_on_mesh(self, solver, rxn_type, domain_type,
+    def tally_reaction_rates_on_mesh(self, solver, rxn_type,
                                      volume='integrated', energy='integrated'):
         """Compute 'material' or 'cell' reaction rates on a mesh
         
@@ -978,8 +978,6 @@ class Mesh(object):
             The solver used to compute the flux
         rxn_type : {'flux', 'total', 'scatter', 'fission', 'nu-fission'}
             The cross section or reaction type to tally
-        domain_type : {'cell', 'material'}
-            The type of domain for which the coefficients are defined
         volume : {'averaged', 'integrated'}
             Compute volume-averaged or volume-integrated tallies
         energy : {'by_group', 'integrated'}
@@ -992,26 +990,18 @@ class Mesh(object):
             by FSR ID and energy group (if energy is 'by_group')
         
         """
-        global solver_types, rxn_types
-        cv.check_type('solver', solver, solver_types)
+        global rxn_types
         cv.check_value('rxn_type', rxn_type, rxn_types)
-        cv.check_value('domain_type', domain_type, ('cell', 'material'))
-        cv.check_value('volume', volume, ('averaged', 'integrated'))
-        cv.check_value('energy', energy, ('by_group', 'integrated'))
         
         geometry = solver.getGeometry()
-        ngroups = geometry.getNumEnergyGroups()
+        num_groups = geometry.getNumEnergyGroups()
+        # Functionally, "material" and "cell" will produce identical results.
+        # It only affects how we build the `domains_to_coeffs' dictionary.
+        domain_type = "material"
         domains_to_coeffs = {}
-        if domain_type == 'material':
-            matdict = geometry.getAllMaterials()
-        else:
-            # then domain_type is 'cell'
-            matdict = dict()
-            for c, cell in geometry.getAllMaterialCells().items():
-                matdict[c] = cell.getFillMaterial()
-        for k, mat in matdict.items():
-            domains_to_coeffs[k] = np.zeros(ngroups)
-            for g in range(ngroups):
+        for k, mat in geometry.getAllMaterials().items():
+            domains_to_coeffs[k] = np.zeros(num_groups)
+            for g in range(num_groups):
                 sigma = get_sigma_by_group(mat, rxn_type, g)
                 domains_to_coeffs[k][g] = sigma
         tally = self.tally_on_mesh(solver, domains_to_coeffs, domain_type,

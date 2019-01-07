@@ -37,7 +37,7 @@ class MeshReactionRateTallyTestHarness(TestHarness):
 
         # Tally OpenMOC fission rates on the Mesh
         fiss_rates = mesh.tally_reaction_rates_on_mesh(
-            self.solver, 'fission', 'material', volume='integrated')
+            self.solver, 'fission', volume='integrated')
 
         # Append fission rates to the output string
         outstr = 'Fission Rate Mesh Tally\n'
@@ -46,7 +46,7 @@ class MeshReactionRateTallyTestHarness(TestHarness):
 
         # Tally volume-integrated OpenMOC total rates on the Mesh
         tot_rates = mesh.tally_reaction_rates_on_mesh(
-            self.solver, 'total', 'material', volume='integrated')
+            self.solver, 'total', volume='integrated')
 
         # Append total rates to the output string
         outstr += 'Total Rate Mesh Tally\n'
