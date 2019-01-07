@@ -28,31 +28,23 @@ class MeshReactionRateTallyTestHarness(TestHarness):
                      hash_output=True):
         """Digest info from the mesh tallies and return as a string."""
 
-        # Create OpenMOC Mesh on which to tally fission rates
+        # Create OpenMOC Mesh on which to tally reaction rates
         mesh = process.Mesh()
         mesh.dimension = [4, 4]
         mesh.lower_left = [-2., -2.]
         mesh.upper_right = [2., 2.]
         mesh.width = [1., 1.]
-
-        # Tally OpenMOC fission rates on the Mesh
-        fiss_rates = mesh.tally_reaction_rates_on_mesh(
-            self.solver, 'fission', volume='integrated')
-
-        # Append fission rates to the output string
-        outstr = 'Fission Rate Mesh Tally\n'
-        rates = ['{0:12.6E}'.format(rate) for rate in fiss_rates.ravel()]
-        outstr += '\n'.join(rates) + '\n'
-
-        # Tally volume-integrated OpenMOC total rates on the Mesh
-        tot_rates = mesh.tally_reaction_rates_on_mesh(
-            self.solver, 'total', volume='integrated')
-
-        # Append total rates to the output string
-        outstr += 'Total Rate Mesh Tally\n'
-        rates = ['{0:12.6E}'.format(rate) for rate in tot_rates.ravel()]
-        outstr += '\n'.join(rates) + '\n'
-
+        
+        outstr = ""
+        for rxn in ('fission', 'flux', 'total', 'nu-fission', 'scatter'):
+            # Tally OpenMOC reaction rates on the Mesh
+            rxn_rates = mesh.tally_reaction_rates_on_mesh(
+                self.solver, rxn, volume='integrated')
+            # Append reaction rates to the output string
+            outstr += rxn.title() + ' Rate Mesh Tally\n'
+            rates = ['{0:12.6E}'.format(rate) for rate in rxn_rates.ravel()]
+            outstr += '\n'.join(rates) + '\n'
+    
         return outstr
 
 
