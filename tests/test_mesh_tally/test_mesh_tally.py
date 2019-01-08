@@ -56,7 +56,7 @@ class MeshTallyTestHarness(TestHarness):
                 domains_to_coeffs[material_id][group] = \
                     materials[material_id].getSigmaTByGroup(group+1)
 
-        # Tally volume-integrated OpenMOC total rates on the Mesh
+        # Tally volume-averaged OpenMOC total rates on the Mesh
         tot_rates = mesh.tally_on_mesh(self.solver, domains_to_coeffs, 
                                        domain_type='material', 
                                        volume='integrated')

@@ -25,6 +25,8 @@ else:
 
 # Store viable OpenMOC solver types for type checking
 solver_types = (openmoc.Solver,)
+# Store implemented reaction types for value checking
+rxn_types = ('flux', 'total', 'scatter', 'fission', 'nu-fission')
 try:
     # Try to import OpenMOC's CUDA module
     if (sys.version_info[0] == 2):
@@ -210,6 +212,45 @@ def compute_fission_rates(solver, use_hdf5=False):
     # Pickle the fission rates to a file
     else:
         pickle.dump(fission_rates_sum, open(directory + filename + '.pkl', 'wb'))
+
+
+def get_sigma_by_group(material, rxn_type, g):
+    """Return the cross section for a given reaction
+
+    Parameters
+    ----------
+    material : openmoc.Material
+        Material that we are getting the cross sections from
+    rxn_type : {'flux', 'total', 'scatter', 'fission', 'nu-fission'}
+        Reaction type we are loading the cross section for
+    g : integer
+        Energy group index (starts at 0).
+
+    Returns
+    -------
+    sigma : float
+        The cross section for energy group `g' of reaction `rxn_type'.
+        For scatter, this includes self-scatter and outscatter.
+
+    """
+    global rxn_types
+    cv.check_value('rxn_type', rxn_type, rxn_types)
+    
+    # Energy groups start at 1 in OpenMOC
+    if rxn_type == "total":
+        return material.getSigmaTByGroup(g + 1)
+    elif rxn_type == "fission":
+        return material.getSigmaFByGroup(g + 1)
+    elif rxn_type == "nu-fission":
+        return material.getNuSigmaFByGroup(g + 1)
+    elif rxn_type == "scatter":
+        scatter = 0.
+        for gprime in range(material.getNumEnergyGroups()):
+            scatter += material.getSigmaSByGroup(g + 1, gprime + 1)
+        return scatter
+    else:
+        # Flux
+        return 1.
 
 
 def store_simulation_state(solver, fluxes=False, sources=False,
@@ -808,6 +849,7 @@ class Mesh(object):
         cv.check_length('mesh width', width, 2, 3)
         self._width = width
 
+
     def get_mesh_cell_indices(self, point):
         """Get the mesh cell indices for a point within the geometry.
 
@@ -917,6 +959,55 @@ class Mesh(object):
             tally /= self.mesh_cell_volume
 
         return tally
+
+
+    def tally_reaction_rates_on_mesh(self, solver, rxn_type,
+                                     volume='integrated', energy='integrated'):
+        """Compute 'material' or 'cell' reaction rates on a mesh
+        
+        This method streamlines the process of tallying reaction rates on a
+        mesh by constructing the `domains_to_coeffs' dictionary and wrapping
+        the Mesh.tally_on_mesh() method.
+        
+        NOTE: This method assumes that the mesh perfectly aligns with the
+        flat source region mesh used in the OpenMOC calculation.
+        
+        Parameters
+        ----------
+        solver : {openmoc.CPUSolver, openmoc.GPUSolver, openmoc.VectorizedSolver}
+            The solver used to compute the flux
+        rxn_type : {'flux', 'total', 'scatter', 'fission', 'nu-fission'}
+            The cross section or reaction type to tally
+        volume : {'averaged', 'integrated'}
+            Compute volume-averaged or volume-integrated tallies
+        energy : {'by_group', 'integrated'}
+            Compute tallies by energy group or integrate across groups
+
+        Returns
+        -------
+        tally : numpy.ndarray of Real
+            A NumPy array of the fission rates tallied in each mesh cell indexed
+            by FSR ID and energy group (if energy is 'by_group')
+        
+        """
+        global rxn_types
+        cv.check_value('rxn_type', rxn_type, rxn_types)
+        
+        geometry = solver.getGeometry()
+        num_groups = geometry.getNumEnergyGroups()
+        # Functionally, "material" and "cell" will produce identical results.
+        # It only affects how we build the `domains_to_coeffs' dictionary.
+        domain_type = "material"
+        domains_to_coeffs = {}
+        for k, mat in geometry.getAllMaterials().items():
+            domains_to_coeffs[k] = np.zeros(num_groups)
+            for g in range(num_groups):
+                sigma = get_sigma_by_group(mat, rxn_type, g)
+                domains_to_coeffs[k][g] = sigma
+        tally = self.tally_on_mesh(solver, domains_to_coeffs, domain_type,
+                                   volume, energy)
+        return tally
+
 
     def tally_on_mesh(self, solver, domains_to_coeffs, domain_type='fsr',
                       volume='integrated', energy='integrated'):
