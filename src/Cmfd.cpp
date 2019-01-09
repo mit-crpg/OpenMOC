@@ -992,7 +992,8 @@ double Cmfd::computeKeff(int moc_iteration) {
   rescaleFlux();
 
   /* Update the MOC flux */
-  updateMOCFlux();
+  if (isFluxUpdateOn())
+    updateMOCFlux();
 
   /* Tally the total CMFD time */
   _timer->stopTimer();

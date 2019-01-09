@@ -425,6 +425,10 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
     _fluxes_per_track = _num_groups * _num_polar/2;
     _tot_num_tracks = _track_generator->getNum2DTracks();
     _solve_3D = false;
+#ifdef THREED
+    log_printf(ERROR, "OpenMOC has been compiled for 3D cases only, please "
+               "recompile without the -DTHREED optimization flag.");
+#endif
   }
 
   /* Retrieve and store the Geometry from the TrackGenerator */
@@ -724,6 +728,14 @@ void Solver::initializeFSRs() {
   _num_FSRs = _geometry->getNumFSRs();
   _num_groups = _geometry->getNumEnergyGroups();
   _num_materials = _geometry->getNumMaterials();
+
+#ifdef NGROUPS
+  if (_geometry->getNumEnergyGroups() != _num_groups)
+    log_printf(ERROR, "OpenMOC has been compiled for NGROUPS groups, and the "
+               "current case is in %d groups, please re-compile with the right "
+               "number of groups for the -DNGROUPS flag or without that flag.",
+               _geometry->getNumEnergyGroups());
+#endif
 
   if (_solve_3D) {
     _fluxes_per_track = _num_groups;

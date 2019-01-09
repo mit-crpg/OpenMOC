@@ -53,6 +53,18 @@ struct ConvergenceData {
 
   /* The number of linear iterations for the final CMFD eigenvalue iteration */
   int linear_iters_end;
+
+  /* Constructor initializes convergence statistics to -1 */
+  ConvergenceData() {
+    pf = -1;
+    cmfd_res_1 = -1;
+    cmfd_res_end = -1;
+    linear_res_1 = -1;
+    linear_res_end = -1;
+    cmfd_iters = -1;
+    linear_iters_1 = -1;
+    linear_iters_end = -1;
+  }
 };
 
 

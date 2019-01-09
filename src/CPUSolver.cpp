@@ -195,6 +195,12 @@ void CPUSolver::setFixedSourceByFSR(long fsr_id, int group,
  */
 void CPUSolver::initializeFSRs() {
 
+#ifdef LINEARSOURCE
+  if (strcmp(_source_type, "Flat") == 0)
+    log_printf(ERROR, "OpenMOC was compiled for linear sources only. Remove "
+               "-DLINEARSOURCE optimization flag to use a flat source solver");
+#endif
+
   Solver::initializeFSRs();
 
   /* Get FSR locks from TrackGenerator */
