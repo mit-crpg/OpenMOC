@@ -196,7 +196,7 @@ void CPUSolver::setFixedSourceByFSR(long fsr_id, int group,
 void CPUSolver::initializeFSRs() {
 
 #ifdef LINEARSOURCE
-  if (strcmp(_source_type, "Flat") == 0)
+  if (strcmp(_source_type.c_str(), "Flat") == 0)
     log_printf(ERROR, "OpenMOC was compiled for linear sources only. Remove "
                "-DLINEARSOURCE optimization flag to use a flat source solver");
 #endif
@@ -324,7 +324,8 @@ void CPUSolver::initializeSourceArrays() {
 
   /* Allocate memory for all source arrays */
   _reduced_sources = new FP_PRECISION[size]();
-  _fixed_sources = new FP_PRECISION[size]();
+  if (_fixed_sources_on)
+    _fixed_sources = new FP_PRECISION[size]();
 
   long max_size = size;
 #ifdef MPIX
@@ -332,13 +333,16 @@ void CPUSolver::initializeSourceArrays() {
     MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX,
                   _geometry->getMPICart());
 #endif
-  double max_size_mb = (double) (2 * max_size * sizeof(FP_PRECISION))
+  double max_size_mb = (double) (max_size * sizeof(FP_PRECISION))
         / (double) (1e6);
+  if (_fixed_sources_on)
+    max_size_mb *= 2;
   log_printf(NORMAL, "Max source storage per domain = %6.2f MB",
              max_size_mb);
 
   /* Populate fixed source array with any user-defined sources */
-  initializeFixedSources();
+  if (_fixed_sources_on)
+    initializeFixedSources();
 }
 
 
@@ -1491,7 +1495,9 @@ void CPUSolver::computeFSRSources(int iteration) {
           pairwise_sum<FP_PRECISION>(scatter_sources, _num_groups);
 
       _reduced_sources(r,G) = fission_source * chi[G];
-      _reduced_sources(r,G) += scatter_source + _fixed_sources(r,G);
+      _reduced_sources(r,G) += scatter_source;
+      if (_fixed_sources_on)
+        _reduced_sources(r,G) += _fixed_sources(r,G);
       _reduced_sources(r,G) *= ONE_OVER_FOUR_PI;
 
       /* Correct negative sources to (near) zero */

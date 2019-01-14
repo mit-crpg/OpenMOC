@@ -67,6 +67,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _timer = new Timer();
 
   /* Default settings */
+  _fixed_sources_on = false;
   _correct_xs = false;
   _stabilize_transport = false;
   _verbose = false;
@@ -353,7 +354,8 @@ double Solver::getFSRSource(long fsr_id, int group) {
               * _scalar_flux(fsr_id,g);
 
   /* Add in fixed source (if specified by user) */
-  source += _fixed_sources(fsr_id,group-1);
+  if (_fixed_sources_on)
+    source += _fixed_sources(fsr_id,group-1);
 
   /* Normalize to solid angle for isotropic approximation */
   source *= ONE_OVER_FOUR_PI;
@@ -469,6 +471,7 @@ void Solver::setFixedSourceByFSR(long fsr_id, int group, double source) {
     log_printf(ERROR,"Unable to set fixed source for FSR %d with only "
                "%d FSRs in the geometry", fsr_id, _num_FSRs);
 
+  _fixed_sources_on = true;
   _fix_src_FSR_map[std::pair<int, int>(fsr_id, group)] = source;
 }
 
@@ -482,6 +485,8 @@ void Solver::setFixedSourceByFSR(long fsr_id, int group, double source) {
  * @param source the volume-averaged source in this group
  */
 void Solver::setFixedSourceByCell(Cell* cell, int group, double source) {
+
+  _fixed_sources_on = true;
 
   /* Recursively add the source to all Cells within a FILL type Cell */
   if (cell->getType() == FILL) {
@@ -508,6 +513,7 @@ void Solver::setFixedSourceByCell(Cell* cell, int group, double source) {
  */
 void Solver::setFixedSourceByMaterial(Material* material, int group,
                                       double source) {
+  _fixed_sources_on = true;
   _fix_src_material_map[std::pair<Material*, int>(material, group)] = source;
 }
 

@@ -150,19 +150,23 @@ std::vector<FP_PRECISION> Mesh::getReactionRates(RxType rx,
     }
 
     /* Tally the reaction rates summed across all groups */
+    double fsr_rx_rate = 0.;
     for (int g=0; g < num_groups; g++) {
       double xs = xs_array[g];
       rx_rates.at(lat_cell) += fluxes[r*num_groups + g] * volume * xs;
+      fsr_rx_rate += fluxes[r*num_groups + g] * volume * xs;
     }
 
-    /* Tally cell volume */
-    volumes_lattice.at(lat_cell) += volume;
+    /* Tally fsr volume to cell volume, only for a non-zero reaction rate */
+    if (std::abs(fsr_rx_rate) > FLT_EPSILON)
+      volumes_lattice.at(lat_cell) += volume;
   }
 
   /* If volume average requested, divide by volume */
   if (volume_average)
     for (int i=0; i<rx_rates.size(); i++)
-      rx_rates.at(i) /= volumes_lattice.at(i);
+      if (volumes_lattice.at(i) > FLT_EPSILON)
+        rx_rates.at(i) /= volumes_lattice.at(i);
 
   /* If domain decomposed, do a reduction */
 #ifdef MPIx

@@ -185,6 +185,9 @@ protected:
   /** Boolean for whether to solve in 3D (true) or 2D (false) */
   bool _solve_3D;
 
+  /** Boolean to indicate whether there are any fixed sources */
+  bool _fixed_sources_on;
+
   /** Boolean for whether to correct unphysical cross-sections */
   bool _correct_xs;
 
