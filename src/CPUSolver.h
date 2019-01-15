@@ -19,11 +19,9 @@
 #endif
 
 #undef track_flux
+/** Optimization macro to facilitate SIMD vectorization */
 #ifdef NGROUPS
 #define _num_groups (NGROUPS)
-#endif
-#ifdef THREED
-#define _solve_3D (true)
 #endif
 
 /** Indexing macro for the angular fluxes for each polar angle and energy

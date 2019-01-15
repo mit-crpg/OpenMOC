@@ -18,7 +18,7 @@
 typedef std::vector<std::vector<std::vector<FP_PRECISION> > > Vector3D;
 
 /* Define a floating point type for domain communication of reaction rates */
-#ifdef DOUBLE
+#ifndef SINGLE
 #define MPI_FP (MPI_DOUBLE)
 #else
 #define MPI_FP (MPI_FLOAT)

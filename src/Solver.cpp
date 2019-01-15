@@ -35,7 +35,9 @@ Solver::Solver(TrackGenerator* track_generator) {
   _exp_evaluators = new ExpEvaluator**[_num_exp_evaluators_azim];
   _exp_evaluators[0] = new ExpEvaluator*[_num_exp_evaluators_polar];
   _exp_evaluators[0][0] = new ExpEvaluator();
+#ifndef THREED
   _solve_3D = false;
+#endif
   _segment_formation = EXPLICIT_2D;
 
   /* Initialize pointers to NULL */
@@ -421,15 +423,18 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
     _tot_num_tracks = track_generator_3D->getNum3DTracks();
     _polar_spacings = _quad->getPolarSpacings();
     _tracks_per_stack = track_generator_3D->getTracksPerStack();
+#ifndef THREED
     _solve_3D = true;
+#endif
   }
   else {
     _fluxes_per_track = _num_groups * _num_polar/2;
     _tot_num_tracks = _track_generator->getNum2DTracks();
-    _solve_3D = false;
 #ifdef THREED
     log_printf(ERROR, "OpenMOC has been compiled for 3D cases only, please "
                "recompile without the -DTHREED optimization flag.");
+#else
+    _solve_3D = false;
 #endif
   }
 

@@ -24,6 +24,11 @@
 #include "Timer.h"
 #endif
 
+/** Optimization macro for 3D calculations to avoid branch statements */
+#ifdef THREED
+#define _solve_3D (true)
+#endif
+
 /** Forward declaration of Geometry class */
 class Geometry;
 
@@ -86,9 +91,6 @@ private:
   CMFD_PRECISION** _receive_split_currents_array;
   CMFD_PRECISION*** _off_domain_split_currents;
   CMFD_PRECISION*** _received_split_currents;
-
-  /* A tally buffer for threads to tally temporary surface currents */
-  CMFD_PRECISION** _temporary_currents;
 
   /** Vector representing the flux for each cmfd cell and cmfd energy group at
    * the end of a CMFD solve */
@@ -255,8 +257,10 @@ private:
   /** OpenMP mutual exclusion lock for edge/corner current tallies */
   omp_lock_t _edge_corner_lock;
 
+#ifndef THREED
   /** Flag indicating whether the problem is 2D or 3D */
   bool _solve_3D;
+#endif
 
   /** Array of azimuthal track spacings */
   double* _azim_spacings;
@@ -358,7 +362,7 @@ private:
   CMFD_PRECISION getFluxRatio(int cell_id, int group, long fsr);
   CMFD_PRECISION getUpdateRatio(int cell_id, int moc_group, long fsr);
   double getDistanceToCentroid(Point* centroid, int cell_id, int local_cell_id,
-                                     int stencil_index);
+                               int stencil_index);
   void getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
         int group, int moc_iteration, CMFD_PRECISION& dif_surf,
         CMFD_PRECISION& dif_surf_corr);
@@ -520,10 +524,8 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
 
   int surf_id, cell_id, cmfd_group;
   int ncg = _num_cmfd_groups;
-  int tid = omp_get_thread_num();
-  CMFD_PRECISION* currents = _temporary_currents[tid];
-  memset(currents, 0.0, sizeof(CMFD_PRECISION) * _num_cmfd_groups);
-  std::map<int, CMFD_PRECISION>::iterator it;
+  CMFD_PRECISION currents[_num_cmfd_groups] 
+       __attribute__ ((aligned(VEC_ALIGNMENT))) = {0.0};
 
   /* Check if the current needs to be tallied */
   bool tally_current = false;
@@ -551,24 +553,26 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
         cmfd_group = getCmfdGroup(e);
 
         /* Increment the surface group current */
-        currents[cmfd_group] += track_flux[e] * wgt;
+        currents[cmfd_group] += track_flux[e];
       }
+
+#pragma omp simd aligned(currents)
+      for (int g=0; g < ncg; g++)
+        currents[g] *= wgt;
 
       /* Increment currents on face */
       if (surf_id < NUM_FACES) {
         _surface_currents->incrementValues
             (local_cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
       }
+      /* Increment currents on corners */
       else {
 
         omp_set_lock(&_edge_corner_lock);
 
         int first_ind = (local_cell_id * NUM_SURFACES + surf_id) * ncg;
-        it = _edge_corner_currents.find(first_ind);
-        if (it == _edge_corner_currents.end())
-          for (int g=0; g < ncg; g++)
-            _edge_corner_currents[first_ind+g] = 0.0;
 
+#pragma omp simd aligned(currents)
         for (int g=0; g < ncg; g++)
           _edge_corner_currents[first_ind+g] += currents[g];
 
@@ -598,15 +602,9 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
         omp_set_lock(&_edge_corner_lock);
 
         int first_ind = (local_cell_id * NUM_SURFACES + surf_id) * ncg;
-        it = _edge_corner_currents.find(first_ind);
-
-        //TODO Optimize, it has already been set to 0 elesewhere, no need to do that OTF
-        /* Reset corner current if it has never been incremented */
-        if (it == _edge_corner_currents.end())
-          for (int g=0; g < ncg; g++)
-            _edge_corner_currents[first_ind+g] = 0.0;
 
         /* Add contribution to corner current */
+#pragma omp simd aligned(currents)
         for (int g=0; g < ncg; g++)
           _edge_corner_currents[first_ind+g] += currents[g];
 
