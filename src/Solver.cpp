@@ -735,18 +735,18 @@ void Solver::initializeFSRs() {
   _track_generator->initializeFSRVolumesBuffer();
   _FSR_volumes = _track_generator->getFSRVolumes();
 
+#ifdef NGROUPS
+  if (_geometry->getNumEnergyGroups() != _num_groups)
+    log_printf(ERROR, "OpenMOC has been compiled for %d groups, and the "
+               "current case is in %d groups, please re-compile with the right "
+               "number of groups for the -DNGROUPS flag or without that flag.",
+               NGROUPS, _geometry->getNumEnergyGroups());
+#endif
+
   /* Retrieve simulation parameters from the Geometry */
   _num_FSRs = _geometry->getNumFSRs();
   _num_groups = _geometry->getNumEnergyGroups();
   _num_materials = _geometry->getNumMaterials();
-
-#ifdef NGROUPS
-  if (_geometry->getNumEnergyGroups() != _num_groups)
-    log_printf(ERROR, "OpenMOC has been compiled for NGROUPS groups, and the "
-               "current case is in %d groups, please re-compile with the right "
-               "number of groups for the -DNGROUPS flag or without that flag.",
-               _geometry->getNumEnergyGroups());
-#endif
 
   if (_solve_3D) {
     _fluxes_per_track = _num_groups;

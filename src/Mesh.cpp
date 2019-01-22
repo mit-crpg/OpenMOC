@@ -109,7 +109,8 @@ std::vector<FP_PRECISION> Mesh::getReactionRates(RxType rx,
   std::vector<FP_PRECISION> volumes_lattice;
   int size = _lattice->getNumX() * _lattice->getNumY() * _lattice->getNumZ();
   rx_rates.resize(size, 0.);
-  volumes_lattice.resize(size, 0.);
+  if (volume_average)
+    volumes_lattice.resize(size, 0.);
 
   /* Extract the number of groups */
   int num_groups = geometry->getNumEnergyGroups();
@@ -158,7 +159,7 @@ std::vector<FP_PRECISION> Mesh::getReactionRates(RxType rx,
     }
 
     /* Tally fsr volume to cell volume, only for a non-zero reaction rate */
-    if (std::abs(fsr_rx_rate) > FLT_EPSILON)
+    if (std::abs(fsr_rx_rate) > FLT_EPSILON && volume_average)
       volumes_lattice.at(lat_cell) += volume;
   }
 

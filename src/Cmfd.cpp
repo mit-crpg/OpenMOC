@@ -986,7 +986,7 @@ double Cmfd::computeKeff(int moc_iteration) {
   rescaleFlux();
 
   /* Update the MOC flux */
-  if (isFluxUpdateOn())
+  if (_flux_update_on)
     updateMOCFlux();
 
   /* Tally the total CMFD time */
@@ -4816,8 +4816,6 @@ void Cmfd::tallyStartingCurrent(Point* point, double delta_x, double delta_y,
                point->getX(), point->getY(), point->getZ(), delta_x, delta_y,
                delta_z);
 
-
-  int tid = omp_get_thread_num();
   CMFD_PRECISION currents[_num_cmfd_groups] 
        __attribute__ ((aligned(VEC_ALIGNMENT))) = {0.0};
 
