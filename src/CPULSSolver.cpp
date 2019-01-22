@@ -370,26 +370,10 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     for (int i=0; i<3; i++)
       center_x2[i] = 2 * position[i] + length * direction[i];
 
-    FP_PRECISION wgt = _quad->getWeightInline(azim_index, polar_index);
-    FP_PRECISION length_2D = exp_evaluator->convertDistance3Dto2D(length);
-
-    // Compute the exponential terms
-    FP_PRECISION exp_F1[_num_groups] __attribute__ ((aligned(VEC_ALIGNMENT)));
-    FP_PRECISION exp_F2[_num_groups] __attribute__ ((aligned(VEC_ALIGNMENT)));
-    FP_PRECISION exp_H[_num_groups] __attribute__ ((aligned(VEC_ALIGNMENT)));
-    FP_PRECISION tau[_num_groups] __attribute__ ((aligned(VEC_ALIGNMENT)));
-
-#pragma omp simd aligned(sigma_t, tau, exp_F1, exp_F2, exp_H)
-    for (int e=0; e < _num_groups; e++) {
-      tau[e] = sigma_t[e] * length_2D;
-      exp_evaluator->retrieveExponentialComponents(tau[e], 0, &exp_F1[e],
-                                                   &exp_F2[e], &exp_H[e]);
-    }
-
     // Compute the sources
-    FP_PRECISION src_flat[_num_groups] 
+    FP_PRECISION src_flat[_num_groups]
                  __attribute__ ((aligned(VEC_ALIGNMENT)));
-    FP_PRECISION src_linear[_num_groups] 
+    FP_PRECISION src_linear[_num_groups]
                  __attribute__ ((aligned(VEC_ALIGNMENT)));
 
 #pragma omp simd aligned(src_flat, src_linear)
@@ -402,23 +386,48 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       src_linear[e] += _reduced_sources_xyz(fsr_id, e, 2) * direction[2];
     }
 
+    // Compute the exponential term G, intermediate step to F1, F2, H
+    FP_PRECISION exp_G[_num_groups] __attribute__ ((aligned(VEC_ALIGNMENT)));
+    FP_PRECISION tau[_num_groups] __attribute__ ((aligned(VEC_ALIGNMENT)));
+    FP_PRECISION inv_sin_theta = exp_evaluator->getInverseSinTheta();
+
+#pragma omp simd aligned(sigma_t, tau, exp_G)
+    for (int e=0; e < _num_groups; e++) {
+      tau[e] = std::max(FP_PRECISION(1e-6), length * sigma_t[e]);
+      expG_fractional(tau[e], &exp_G[e]);
+      exp_G[e] *= inv_sin_theta;
+      tau[e] = exp_evaluator->convertDistance3Dto2D(tau[e]);
+    }
+
+    FP_PRECISION wgt = _quad->getWeightInline(azim_index, polar_index);
+    FP_PRECISION length_2D = exp_evaluator->convertDistance3Dto2D(length);
+
     // Compute the flux attenuation and tally contribution
-#pragma omp simd aligned(tau, src_flat, src_linear, exp_F1, exp_F2, exp_H, \
-     fsr_flux, fsr_flux_x, fsr_flux_y, fsr_flux_z)
+#pragma omp simd aligned(tau, src_flat, src_linear, fsr_flux, exp_G, fsr_flux_x\
+     , fsr_flux_y, fsr_flux_z)
     for (int e=0; e < _num_groups; e++) {
 
-      // Compute the change in flux across the segment
-      exp_H[e] *= length * track_flux[e] * tau[e] * wgt;
+      /* Compute exponential F1 and F2 from G */
+      FP_PRECISION exp_F1 = 1.f - tau[e]*exp_G[e];
+      exp_F1 *= inv_sin_theta;
+      FP_PRECISION exp_F2 = 2.f*exp_G[e] - exp_F1;
+      exp_F2 *= inv_sin_theta;
+
+      /* Compute the change in flux across the segment */
       FP_PRECISION delta_psi = (tau[e] * track_flux[e] - length_2D * src_flat[e])
-           * exp_F1[e] - src_linear[e] * length_2D * length_2D * exp_F2[e];
+           * exp_F1 - src_linear[e] * length_2D * length_2D * exp_F2;
       track_flux[e] -= delta_psi;
       delta_psi *= wgt;
 
-      // Increment the fsr scalar flux and scalar flux moments
+      /* Compute exponential H without a buffer */
+      FP_PRECISION exp_H = exp_F1 - exp_G[e];
+      exp_H *= length * track_flux[e] * tau[e] * wgt;
+
+      /* Increment the fsr scalar flux and scalar flux moments */
       fsr_flux[e] += delta_psi;
-      fsr_flux_x[e] += exp_H[e] * direction[0] + delta_psi * position[0];
-      fsr_flux_y[e] += exp_H[e] * direction[1] + delta_psi * position[1];
-      fsr_flux_z[e] += exp_H[e] * direction[2] + delta_psi * position[2];
+      fsr_flux_x[e] += exp_H * direction[0] + delta_psi * position[0];
+      fsr_flux_y[e] += exp_H * direction[1] + delta_psi * position[1];
+      fsr_flux_z[e] += exp_H * direction[2] + delta_psi * position[2];
     }
   }
   else {
@@ -584,29 +593,29 @@ void CPULSSolver::addSourceToScalarFlux() {
 
         _scalar_flux_xyz(r,e,0) /= volume;
         _scalar_flux_xyz(r,e,0) += flux_const * _reduced_sources_xyz(r,e,0)
-            * _FSR_source_constants[r*_num_groups*nc + nc*e    ];
+            * _FSR_source_constants[r*_num_groups*nc + e];
         _scalar_flux_xyz(r,e,0) += flux_const * _reduced_sources_xyz(r,e,1)
-            * _FSR_source_constants[r*_num_groups*nc + nc*e + 2];
+            * _FSR_source_constants[r*_num_groups*nc + 2*_num_groups + e];
 
         _scalar_flux_xyz(r,e,1) /= volume;
         _scalar_flux_xyz(r,e,1) += flux_const * _reduced_sources_xyz(r,e,0)
-            * _FSR_source_constants[r*_num_groups*nc + nc*e + 2];
+            * _FSR_source_constants[r*_num_groups*nc + 2*_num_groups + e];
         _scalar_flux_xyz(r,e,1) += flux_const * _reduced_sources_xyz(r,e,1)
-            * _FSR_source_constants[r*_num_groups*nc + nc*e + 1];
+            * _FSR_source_constants[r*_num_groups*nc + _num_groups + e];
 
         if (_SOLVE_3D) {
           _scalar_flux_xyz(r,e,0) += flux_const * _reduced_sources_xyz(r,e,2)
-              * _FSR_source_constants[r*_num_groups*nc + nc*e + 3];
+              * _FSR_source_constants[r*_num_groups*nc + 3*_num_groups + e];
           _scalar_flux_xyz(r,e,1) += flux_const * _reduced_sources_xyz(r,e,2)
-              * _FSR_source_constants[r*_num_groups*nc + nc*e + 4];
+              * _FSR_source_constants[r*_num_groups*nc + 4*_num_groups + e];
 
           _scalar_flux_xyz(r,e,2) /= volume;
           _scalar_flux_xyz(r,e,2) += flux_const * _reduced_sources_xyz(r,e,0)
-              * _FSR_source_constants[r*_num_groups*nc + nc*e + 3];
+              * _FSR_source_constants[r*_num_groups*nc + 3*_num_groups + e];
           _scalar_flux_xyz(r,e,2) += flux_const * _reduced_sources_xyz(r,e,1)
-              * _FSR_source_constants[r*_num_groups*nc + nc*e + 4];
+              * _FSR_source_constants[r*_num_groups*nc + 4*_num_groups + e];
           _scalar_flux_xyz(r,e,2) += flux_const * _reduced_sources_xyz(r,e,2)
-              * _FSR_source_constants[r*_num_groups*nc + nc*e + 5];
+              * _FSR_source_constants[r*_num_groups*nc + 5*_num_groups + e];
         }
 
         _scalar_flux_xyz(r,e,0) /= sigma_t[e];

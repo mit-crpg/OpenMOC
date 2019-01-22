@@ -23,6 +23,10 @@
 #include "TraverseSegments.h"
 #include "ExpEvaluator.h"
 
+/** Optimization macro to help vectorize computing the LS source contants */
+#ifdef THREED
+#define _NUM_COEFFS 6
+#endif
 
 /** Forward declaration of CPUSolver class */
 class CPUSolver;
@@ -165,7 +169,9 @@ private:
   Quadrature* _quadrature;
   CPULSSolver* _solver;
   int _num_groups;
-  int _num_coeffs;
+#ifndef THREED
+  int _NUM_COEFFS;
+#endif
   int _num_flat;
   Point** _starting_points;
   double** _thread_source_constants;

@@ -665,21 +665,27 @@ void Solver::initializeExpEvaluators() {
   ExpEvaluator* first_evaluator = _exp_evaluators[0][0];
   first_evaluator->setQuadrature(_quad);
 
-  if (first_evaluator->isUsingInterpolation()) {
+  /* Find minimum of optional user-specified and actual max taus */
+  FP_PRECISION max_tau_a = _track_generator->getMaxOpticalLength();
+  FP_PRECISION max_tau_b = first_evaluator->getMaxOpticalLength();
 
-    /* Find minimum of optional user-specified and actual max taus */
-    FP_PRECISION max_tau_a = _track_generator->getMaxOpticalLength();
-    FP_PRECISION max_tau_b = first_evaluator->getMaxOpticalLength();
-    FP_PRECISION max_tau = std::min(max_tau_a, max_tau_b) + TAU_NUDGE;
+  /* Give track generator a max optical length for segments */
+  _track_generator->setMaxOpticalLength(max_tau_b);
 
-    /* Split Track segments so that none has a greater optical length */
-    _track_generator->setMaxOpticalLength(max_tau);
+  /* Split Track segments so that none has a greater optical length */
+  if (max_tau_a > max_tau_b) {
+
+    log_printf(NODAL, "Splitting segments since the maximum optical length in "
+               "the domain is %f and the maximum supported by the exponential "
+               "evaluator is %f.", max_tau_a, max_tau_b);
+
     if (_segment_formation == EXPLICIT_3D || _segment_formation == EXPLICIT_2D)
-      _track_generator->splitSegments(max_tau);
+      _track_generator->splitSegments(max_tau_b);
+    /* For non explicit ray tracing, segments are split on-the-fly */
     else
       _track_generator->countSegments();
 
-    first_evaluator->setMaxOpticalLength(max_tau);
+    first_evaluator->setMaxOpticalLength(max_tau_b);
   }
 
   /* Delete old exponential evaluators */
