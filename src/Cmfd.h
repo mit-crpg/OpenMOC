@@ -524,8 +524,6 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
 
   int surf_id, cell_id, cmfd_group;
   int ncg = _num_cmfd_groups;
-  CMFD_PRECISION currents[_num_cmfd_groups] 
-       __attribute__ ((aligned(VEC_ALIGNMENT))) = {0.0};
 
   /* Check if the current needs to be tallied */
   bool tally_current = false;
@@ -543,6 +541,8 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
   /* Tally current if necessary */
   if (tally_current) {
 
+    CMFD_PRECISION currents[_num_cmfd_groups] 
+         __attribute__ ((aligned(VEC_ALIGNMENT))) = {0.0};
     int local_cell_id = getLocalCMFDCell(cell_id);
 
     if (_solve_3D) {

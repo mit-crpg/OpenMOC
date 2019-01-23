@@ -433,6 +433,24 @@ void log_printf(logLevel level, const char* format, ...) {
 
         break;
       }
+    case (WARNING_ONCE):
+      {
+        if (rank != 0)
+          return;
+
+        std::string msg = std::string(message);
+        std::string level_prefix = "[ WARNING ]  ";
+
+        /* If message is too long for a line, split into many lines */
+        if (int(msg.length()) > line_length)
+          msg_string = create_multiline_msg(level_prefix, msg);
+
+        /* Puts message on single line */
+        else
+          msg_string = level_prefix + msg + "\n";
+
+        break;
+      }
     case (CRITICAL):
       {
         std::string msg = std::string(message);

@@ -394,53 +394,267 @@ void Cmfd::setNumDomains(int num_x, int num_y, int num_z) {
   _accumulate_lmy.resize(num_y + 1, 0);
   _accumulate_lmz.resize(num_z + 1, 0);
 
-  /* To check the position of domain decomposition interfaces in non-uniform 
-     CMFD mesh interfaces. x direction */
-  int j;
+  std::vector<std::pair<int, double> > divisions_missing_x;
+  std::vector<std::pair<int, double> > divisions_missing_y;
+  std::vector<std::pair<int, double> > divisions_missing_z;
+
+  /* Find the position of domain decomposition interfaces among the non-uniform
+     CMFD mesh cell boundaries, in the X direction */
+  int j, j_prev;
   for(int i=0; i<num_x; i++) {
     double coord = (i + 1) * _width_x / num_x;
     for(j=1; j<_num_x+1; j++) {
+
+      /* Keep track of index in mesh before domain boundary */
+      if (_accumulate_x[j] < coord)
+        j_prev = j;
+
+      /* Exit loop if division is found */
       if(fabs(coord - _accumulate_x[j]) < FLT_EPSILON) {
         _accumulate_lmx[i+1] = j;
         break;
       }
     }
-    if(j == _num_x+1) {
-      log_printf(ERROR, "The domain decomposition interface x[%d] = %f is NOT "
-                 "among the CMFD mesh division in the x direction", i, coord);
-    }
+    if(j == _num_x+1)
+      divisions_missing_x.push_back(std::make_pair(j_prev, coord));
   }
 
-  /* To check the position of domain decomposition interfaces in non-uniform 
-     CMFD mesh interfaces. y direction */
+  /* Find the position of domain decomposition interfaces among the non-uniform
+     CMFD mesh cell boundaries, in the Y direction */
   for(int i=0; i<num_y; i++) {
     double coord = (i + 1) * _width_y / num_y;
     for(j=1; j<_num_y+1; j++) {
+
+      /* Keep track of index in mesh before domain boundary */
+      if (_accumulate_y[j] < coord)
+        j_prev = j;
+
+      /* Exit loop if division is found */
       if(fabs(coord - _accumulate_y[j]) < FLT_EPSILON) {
         _accumulate_lmy[i+1] = j;
         break;
       }
     }
-    if(j == _num_y+1) {
-      log_printf(ERROR, "The domain decomposition interface y[%d] = %f is NOT "
-                 "among the CMFD mesh divisions in the y direction", i, coord);
-    }
+    if(j == _num_y+1)
+      divisions_missing_y.push_back(std::make_pair(j_prev, coord));
   }
 
-  /* To check the position of domain decomposition interfaces in non-uniform 
-     CMFD mesh interfaces. z direction */
+  /* Find the position of domain decomposition interfaces among the non-uniform
+     CMFD mesh cell boundaries, in the Z direction */
   for(int i=0; i<num_z; i++) {
     double coord = (i + 1) * _width_z / num_z;
     for(j=1; j<_num_z+1; j++) {
+
+      /* Keep track of index in mesh before domain boundary */
+      if (_accumulate_z[j] < coord)
+        j_prev = j;
+
+      /* Exit loop if division is found */
       if(fabs(coord - _accumulate_z[j]) < FLT_EPSILON) {
         _accumulate_lmz[i+1] = j;
         break;
       }
     }
-    if(j == _num_z+1) {
-      log_printf(ERROR, "The domain decomposition interface z[%d] = %f is NOT "
-                 "among the CMFD mesh divisions in the z direction", i, coord);
+    if(j == _num_z+1)
+      divisions_missing_z.push_back(std::make_pair(j_prev, coord));
+  }
+
+  /* Output the missing subdivisions */
+  std::string div_miss_x = "";
+  std::string div_miss_y = "";
+  std::string div_miss_z = "";
+  std::vector<std::pair<int, double> >::iterator iter;
+  for (iter = divisions_missing_x.begin(); iter != divisions_missing_x.end();
+       ++iter) {
+    div_miss_x += std::to_string(iter->second);
+    if (iter != std::prev(divisions_missing_x.end()))
+      div_miss_x += ", ";
+  }
+  for (iter = divisions_missing_y.begin(); iter != divisions_missing_y.end();
+       ++iter) {
+    div_miss_y += std::to_string(iter->second);
+    if (iter != std::prev(divisions_missing_y.end()))
+      div_miss_y += ", ";
+  }
+  for (iter = divisions_missing_z.begin(); iter != divisions_missing_z.end();
+       ++iter) {
+    div_miss_z += std::to_string(iter->second);
+    if (iter != std::prev(divisions_missing_z.end()))
+      div_miss_z += ", ";
+  }
+
+  if (divisions_missing_x.size() > 0)
+    log_printf(WARNING_ONCE, "Domain boundaries [%s] are not in CMFD X-mesh",
+               div_miss_x.c_str());
+  if (divisions_missing_y.size() > 0)
+    log_printf(WARNING_ONCE, "Domain boundaries [%s] are not in CMFD Y-mesh",
+               div_miss_y.c_str());
+  if (divisions_missing_z.size() > 0)
+    log_printf(WARNING_ONCE, "Domain boundaries [%s] are not in CMFD Z-mesh",
+               div_miss_z.c_str());
+
+  /* Modify the CMFD mesh, in order to have divisions at domain boundaries,
+     but also to avoid small CMFD cells */
+  std::string added_cells_x = "";
+  std::string modified_cells_x = "";
+  int cells_added = 0;
+  for (iter = divisions_missing_x.begin(); iter != divisions_missing_x.end();
+       ++iter) {
+
+    j_prev = iter->first;
+    double cmfd_cell_width = _accumulate_x[j_prev+1] - _accumulate_x[j_prev];
+    double coord = iter->second;
+
+    /* If the new CMFD cells are about to be very small,
+       move the CMFD cell boundaries instead, to the closest one */
+    double delta_below = coord - _accumulate_x[j_prev];
+    double delta_above = _accumulate_x[j_prev+1] - coord;
+
+    if (delta_below < 0.1 * cmfd_cell_width ||
+        delta_above < 0.1 * cmfd_cell_width) {
+
+      modified_cells_x += (std::to_string(coord) + " ");
+      if (delta_below < delta_above) {
+        _cell_widths_x[j_prev + cells_added - 1] += delta_below;
+        _cell_widths_x[j_prev + cells_added] -= delta_below;
+      }
+      else {
+        _cell_widths_x[j_prev + cells_added] -= delta_above;
+        _cell_widths_x[j_prev + cells_added + 1] += delta_above;
+        //FIXME Capture j_prev+1 overflow
+      }
     }
+
+    /* Else, add a new subdivision to the CMFD mesh */
+    else {
+      _cell_widths_x[j_prev + cells_added] = delta_below;
+      _cell_widths_x.insert(_cell_widths_x.begin() + j_prev + cells_added + 1,
+                            delta_above);
+      added_cells_x += (std::to_string(coord) + " ");
+      cells_added++;
+    }
+  }
+  if (added_cells_x.compare("") != 0)
+    log_printf(WARNING_ONCE, "New CMFD cells created for domain decomposition "
+               "boundaries in the X direction at [%s] cm.",
+               added_cells_x.c_str());
+  if (modified_cells_x.compare("") != 0)
+    log_printf(WARNING_ONCE, "CMFD mesh cell widths adjusted to fit "
+               "domain decomposition boundaries in the X direction "
+               "at [%s] cm.", modified_cells_x.c_str());
+
+  /* Y-direction */
+  std::string added_cells_y = "";
+  std::string modified_cells_y = "";
+  cells_added = 0;
+  for (iter = divisions_missing_y.begin(); iter != divisions_missing_y.end();
+       ++iter) {
+
+    j_prev = iter->first;
+    double cmfd_cell_width = _accumulate_y[j_prev+1] - _accumulate_y[j_prev];
+    double coord = iter->second;
+
+    /* If the new CMFD cells are about to be very small,
+       move the CMFD cell boundaries instead, to the closest one */
+    double delta_below = coord - _accumulate_y[j_prev];
+    double delta_above = _accumulate_y[j_prev+1] - coord;
+
+    if (delta_below < 0.1 * cmfd_cell_width ||
+        delta_above < 0.1 * cmfd_cell_width) {
+
+      modified_cells_y += (std::to_string(coord) + " ");
+      if (delta_below < delta_above) {
+        _cell_widths_y[j_prev + cells_added - 1] += delta_below;
+        _cell_widths_y[j_prev + cells_added] -= delta_below;
+      }
+      else {
+        _cell_widths_y[j_prev + cells_added] -= delta_above;
+        _cell_widths_y[j_prev + cells_added + 1] += delta_above;
+        //FIXME Capture j_prev+1 overflow
+      }
+    }
+
+    /* Else, add a new subdivision to the CMFD mesh */
+    else {
+      _cell_widths_y[j_prev + cells_added] = delta_below;
+      _cell_widths_y.insert(_cell_widths_y.begin() + j_prev + cells_added + 1,
+                            delta_above);
+      added_cells_y += (std::to_string(coord) + " ");
+      cells_added++;
+    }
+  }
+  if (added_cells_y.compare("") != 0)
+    log_printf(WARNING_ONCE, "New CMFD cells created for domain decomposition "
+               "boundaries in the Y direction at [%s] cm.",
+               added_cells_y.c_str());
+  if (modified_cells_y.compare("") != 0)
+    log_printf(WARNING_ONCE, "CMFD mesh cell widths adjusted to fit "
+               "domain decomposition boundaries in the Y direction "
+               "at [%s] cm.", modified_cells_y.c_str());
+
+  /* Z-direction */
+  std::string added_cells_z = "";
+  std::string modified_cells_z = "";
+  cells_added = 0;
+  for (iter = divisions_missing_z.begin(); iter != divisions_missing_z.end();
+       ++iter) {
+
+    j_prev = iter->first;
+    double cmfd_cell_width = _accumulate_z[j_prev+1] - _accumulate_z[j_prev];
+    double coord = iter->second;
+
+    /* If the new CMFD cells are about to be very small,
+       move the CMFD cell boundaries instead, to the closest one */
+    double delta_below = coord - _accumulate_z[j_prev];
+    double delta_above = _accumulate_z[j_prev+1] - coord;
+
+    if (delta_below < 0.1 * cmfd_cell_width ||
+        delta_above < 0.1 * cmfd_cell_width) {
+
+      modified_cells_z += (std::to_string(coord) + " ");
+      if (delta_below < delta_above) {
+        _cell_widths_z[j_prev + cells_added - 1] += delta_below;
+        _cell_widths_z[j_prev + cells_added] -= delta_below;
+      }
+      else {
+        _cell_widths_z[j_prev + cells_added] -= delta_above;
+        _cell_widths_z[j_prev + cells_added + 1] += delta_above;
+        //FIXME Capture j_prev+1 overflow
+      }
+    }
+
+    /* Else, add a new subdivision to the CMFD mesh */
+    else {
+      _cell_widths_z[j_prev + cells_added] = delta_below;
+      _cell_widths_z.insert(_cell_widths_z.begin() + j_prev + cells_added + 1,
+                            delta_above);
+      added_cells_z += (std::to_string(coord) + " ");
+      cells_added++;
+    }
+  }
+  if (added_cells_z.compare("") != 0)
+    log_printf(WARNING_ONCE, "New CMFD cells created for domain decomposition "
+               "boundaries in the Z direction at [%s] cm.",
+               added_cells_z.c_str());
+  if (modified_cells_z.compare("") != 0)
+    log_printf(WARNING_ONCE, "CMFD mesh cell widths adjusted to fit "
+               "domain decomposition boundaries in the Z direction "
+               "at [%s] cm.", modified_cells_z.c_str());
+
+  /* Re-initialize lattice since widths have been modified */
+  if (divisions_missing_x.size() > 0 || divisions_missing_y.size() > 0 ||
+      divisions_missing_z.size() > 0) {
+    if(_non_uniform) {
+      Point offset;
+      offset.setXYZ(_lattice->getOffset()->getXYZ());
+      initializeLattice(&offset);
+
+      /* Re-run routine to obtain _accumulate_lmxyz arrays */
+      setNumDomains(num_x, num_y, num_z);
+    }
+    else
+      log_printf(ERROR, "Mesh automatic adjusting to domain decomposition"
+                 " boundaries is not implemented for uniform CMFD meshes.");
   }
 }
 
@@ -2343,9 +2557,8 @@ void Cmfd::useAxialInterpolation(int interpolate) {
                " meaning No interpolation, FSR axially averaged value or"
                " centroid z-coordinate evaluted value");
   if(interpolate==1 || interpolate==2)
-    log_printf(NORMAL, "WARNING: Axial interpolation CMFD prolongation may only"
+    log_printf(WARNING_ONCE, "Axial interpolation CMFD prolongation may only"
                " be effective when all the FSRs are axially homogeneous");
-  //FIXME Use a log level that prints the warning once for all nodes, without NORMAL
   _use_axial_interpolation = interpolate;
 }
 
@@ -3419,15 +3632,15 @@ void Cmfd::initializeLattice(Point* offset) {
     setBoundary(SURFACE_Z_MAX, REFLECTIVE);
     is_2D = true;
   }
-  _accumulate_x.resize(_num_x+1,0.0);
-  _accumulate_y.resize(_num_y+1,0.0);
-  _accumulate_z.resize(_num_z+1,0.0);
+  _accumulate_x.resize(_num_x+1, 0.0);
+  _accumulate_y.resize(_num_y+1, 0.0);
+  _accumulate_z.resize(_num_z+1, 0.0);
 
   for(int i=0; i<_num_x; i++)
     _accumulate_x[i+1] = _accumulate_x[i] + _cell_widths_x[i];
 
   for(int i=0; i<_num_y; i++)
-    _accumulate_y[i+1] = _accumulate_y[i] + _cell_widths_y[i];  
+    _accumulate_y[i+1] = _accumulate_y[i] + _cell_widths_y[i];
 
   for(int i=0; i<_num_z; i++)
     _accumulate_z[i+1] = _accumulate_z[i] + _cell_widths_z[i];
@@ -3511,7 +3724,7 @@ void Cmfd::initializeBackupCmfdSolver() {
   _backup_cmfd->setWidthY(_width_y);
   _backup_cmfd->setWidthZ(_width_z);
 
-  /* Intialize CMFD Maps */
+  /* Initialize CMFD Maps */
   _backup_cmfd->initializeCellMap();
 
   /* Initialize the CMFD lattice */
@@ -3533,7 +3746,7 @@ void Cmfd::initializeBackupCmfdSolver() {
   /* Initialize the backup CMFD solver */
   _backup_cmfd->initialize();
 
-  /* Intialize the CMFD energy group structure */
+  /* Initialize the CMFD energy group structure */
   _backup_cmfd->setSourceConvergenceThreshold(_source_convergence_threshold);
   _backup_cmfd->setNumMOCGroups(_num_moc_groups);
   _backup_cmfd->initializeGroupMap();

@@ -66,6 +66,9 @@ typedef enum {
   /** A message sandwiched between two lines of characters */
   TITLE,
 
+  /** A message to warn the user - to be printed by rank 0 process only */
+  WARNING_ONCE,
+
   /** A message to warn the user */
   WARNING,
 

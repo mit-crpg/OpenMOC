@@ -2254,9 +2254,9 @@ void Lattice::computeSizes(){
   }
 
   /* Compute the accumulated lengths along each axis */
-  _accumulate_x.resize(_num_x+1,0.0);
-  _accumulate_y.resize(_num_y+1,0.0);
-  _accumulate_z.resize(_num_z+1,0.0);
+  _accumulate_x.resize(_num_x+1, 0.0);
+  _accumulate_y.resize(_num_y+1, 0.0);
+  _accumulate_z.resize(_num_z+1, 0.0);
 
   for(int i=0; i<_num_x; i++)
     _accumulate_x[i+1] = _accumulate_x[i] + _widths_x[i];
@@ -2277,7 +2277,7 @@ void Lattice::printLatticeSizes() {
   printf("non_uniform=%d, \nNum_XYZ: %2d, %2d, %2d\n", _non_uniform, 
          _num_x, _num_y, _num_z);
   printf("offset: %f, %f, %f\n", _offset.getX(),_offset.getY(),_offset.getZ());
-  printf("cell_width_XYZ: %f, %f, %f\n", _width_x,_width_y,_width_z);
+  printf("cell_width_XYZ: %f, %f, %f\n", _width_x, _width_y, _width_z);
   printf("cell_widths_XYZ:\n");
   for(i=0; i<_num_x; i++)
     printf("i=%d, %f; ",i, _widths_x[i]);
