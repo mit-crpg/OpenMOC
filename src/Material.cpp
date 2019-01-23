@@ -550,14 +550,8 @@ void Material::setNumEnergyGroups(const int num_groups) {
   }
 
   /* Allocate memory for data arrays */
-  try {
-    _sigma_t = (FP_PRECISION*) aligned_alloc(VEC_ALIGNMENT, 
+  _sigma_t = (FP_PRECISION*) aligned_alloc(VEC_ALIGNMENT,
                                            _num_groups*sizeof(FP_PRECISION));
-  }
-  catch (...) {
-    _sigma_t = (FP_PRECISION*) MM_MALLOC(_num_groups*sizeof(FP_PRECISION),
-                                         VEC_ALIGNMENT);
-  }
   _sigma_f = new FP_PRECISION[_num_groups];
   _nu_sigma_f = new FP_PRECISION[_num_groups];
   _chi = new FP_PRECISION[_num_groups];
@@ -886,6 +880,28 @@ void Material::setChiByGroup(double xs, int group) {
               "%d which contains %d energy groups", group, _id, _num_groups);
 
   _chi[group-1] = xs;
+}
+
+
+/**
+ * @brief Set the Material's absorption cross-section for some energy group.
+ * @details The absorption cross section is computed by OpenMOC when needed,
+ *          but the user can set it manually, to replace absorption by another
+ *          cross section as absorption is not needed when determining Keff from
+ *          fission rates.
+ * @param xs the absorption cross-section
+ * @param group the energy group
+ */
+void Material::setSigmaAByGroup(double xs, int group) {
+
+  if (group <= 0 || group > _num_groups)
+    log_printf(ERROR, "Unable to set sigma_a for group %d for Material "
+               "%d which contains %d energy groups", group, _id, _num_groups);
+
+  if (_sigma_a == NULL)
+    _sigma_a = new FP_PRECISION[_num_groups];
+
+  _sigma_a[group-1] = FP_PRECISION(xs);
 }
 
 

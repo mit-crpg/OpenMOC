@@ -40,7 +40,9 @@ Cmfd::Cmfd() {
   _k_nearest = 1;
   _SOR_factor = 1.0;
   _num_FSRs = 0;
+#ifndef THREED
   _solve_3D = false;
+#endif
   _total_tally_size = 0;
   _tallies_allocated = false;
   _domain_communicator_allocated = false;
@@ -80,7 +82,6 @@ Cmfd::Cmfd() {
   _lattice = NULL;
   _azim_spacings = NULL;
   _polar_spacings = NULL;
-  _temporary_currents = NULL;
   _backup_cmfd = NULL;
   _cmfd_group_to_backup_group = NULL;
   _backup_group_structure.resize(0);
@@ -194,13 +195,6 @@ Cmfd::~Cmfd() {
     delete [] _reaction_tally;
     delete [] _volume_tally;
     delete [] _diffusion_tally;
-  }
-
-  int num_threads = omp_get_max_threads();
-  if (_temporary_currents != NULL) {
-    for (int t=0; t < num_threads; t++)
-      delete [] _temporary_currents[t];
-    delete [] _temporary_currents;
   }
 
   /* De-allocate domain communicator */
@@ -992,7 +986,8 @@ double Cmfd::computeKeff(int moc_iteration) {
   rescaleFlux();
 
   /* Update the MOC flux */
-  updateMOCFlux();
+  if (_flux_update_on)
+    updateMOCFlux();
 
   /* Tally the total CMFD time */
   _timer->stopTimer();
@@ -1811,14 +1806,9 @@ void Cmfd::splitVertexCurrents() {
               }
               else {
 
-                /* Check for new index in map */
+                /* Map is accessed directly at new index, if the key doesn't
+                exist, the default constructor is called, initializing at 0. */
                 int new_ind = (local_cell * NUM_SURFACES + surface) * ncg + g;
-                std::map<int, CMFD_PRECISION>::iterator it =
-                  _edge_corner_currents.find(new_ind);
-
-                /* If it doesn't exist, initialize to zero */
-                if (it == _edge_corner_currents.end())
-                  _edge_corner_currents[new_ind] = 0.0;
 
                 /* Add the contribution */
                 _edge_corner_currents[new_ind] += current;
@@ -3113,12 +3103,6 @@ void Cmfd::initialize() {
 
   try {
 
-    /* Allocate temporary tally vectors for surface currents by thread */
-    int num_threads = omp_get_max_threads();
-    _temporary_currents = new CMFD_PRECISION*[num_threads];
-    for (int t=0; t < num_threads; t++)
-      _temporary_currents[t] = new CMFD_PRECISION[ncg];
-
     /* Allocate array of OpenMP locks for each CMFD cell */
     _cell_locks = new omp_lock_t[num_cells];
 
@@ -3452,7 +3436,7 @@ void Cmfd::initializeLattice(Point* offset) {
      fabs(_width_y - _accumulate_y[_num_y]) > FLT_EPSILON ||
      (!is_2D && fabs(_width_z - _accumulate_z[_num_z]) > FLT_EPSILON))
     log_printf(ERROR, "The sum of non-uniform mesh widths are not consistent "
-      "with geometry dimensions. width_x = %20.17E, width_y = %20.17E, " 
+      "with geometry dimensions. width_x = %20.17E, width_y = %20.17E, "
       "width_z = %20.17E, sum_x = %20.17E, sum_y = %20.17E, sum_z = %20.17E, "
       "diff_x = %20.17E, diff_y = %20.17E, diff_z = %20.17E, FLT_EPSILON = "
       "%20.17E", _width_x, _width_y, _width_z, _accumulate_x[_num_x],
@@ -3714,7 +3698,9 @@ int Cmfd::getSense(int surface) {
  *        solved.
  */
 void Cmfd::setSolve3D(bool solve_3D) {
+#ifndef THREED
   _solve_3D = solve_3D;
+#endif
 }
 
 
@@ -4486,14 +4472,7 @@ void Cmfd::unpackSplitCurrents(bool faces) {
                   /* Treat nonzero values */
                   if (fabs(value) > FLT_EPSILON) {
 
-                    /* Check for new index in map */
                     int new_ind = surf_idx + g;
-                    std::map<int, CMFD_PRECISION>::iterator it =
-                      _edge_corner_currents.find(new_ind);
-
-                    /* If it doesn't exist, initialize to zero */
-                    if (it == _edge_corner_currents.end())
-                      _edge_corner_currents[new_ind] = 0.0;
 
                     /* Add the contribution */
                     _edge_corner_currents[new_ind] += value;
@@ -4542,12 +4521,13 @@ int Cmfd::getLocalCMFDCell(int cmfd_cell) {
   int iz = cmfd_cell / (_num_x * _num_y);
 
   int local_cmfd_cell;
-  if (ix < x_start || ix >= x_end || iy < y_start || iy >= y_end ||
-      iz < z_start || iz >= z_end)
-    local_cmfd_cell = -1;
-  else
+  if (ix >= x_start && ix < x_end && iy >= y_start && iy < y_end &&
+      iz >= z_start && iz < z_end)
     local_cmfd_cell = ((iz - z_start) * _local_num_y + iy - y_start)
                       * _local_num_x + ix - x_start;
+  else
+    local_cmfd_cell = -1;
+
   return local_cmfd_cell;
 }
 
@@ -4836,10 +4816,8 @@ void Cmfd::tallyStartingCurrent(Point* point, double delta_x, double delta_y,
                point->getX(), point->getY(), point->getZ(), delta_x, delta_y,
                delta_z);
 
-
-  int tid = omp_get_thread_num();
-  CMFD_PRECISION* currents = _temporary_currents[tid];
-  memset(currents, 0.0, sizeof(CMFD_PRECISION) * _num_cmfd_groups);
+  CMFD_PRECISION currents[_num_cmfd_groups] 
+       __attribute__ ((aligned(VEC_ALIGNMENT))) = {0.0};
 
   /* Tally currents to each CMFD group locally */
   for (int e=0; e < _num_moc_groups; e++) {

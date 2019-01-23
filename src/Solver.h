@@ -182,8 +182,13 @@ protected:
   /** A pointer to an array with the number of Tracks per azimuthal angle */
   int*** _tracks_per_stack;
 
+#ifndef THREED
   /** Boolean for whether to solve in 3D (true) or 2D (false) */
   bool _solve_3D;
+#endif
+
+  /** Boolean to indicate whether there are any fixed sources */
+  bool _fixed_sources_on;
 
   /** Boolean for whether to correct unphysical cross-sections */
   bool _correct_xs;

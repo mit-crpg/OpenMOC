@@ -35,7 +35,9 @@ Solver::Solver(TrackGenerator* track_generator) {
   _exp_evaluators = new ExpEvaluator**[_num_exp_evaluators_azim];
   _exp_evaluators[0] = new ExpEvaluator*[_num_exp_evaluators_polar];
   _exp_evaluators[0][0] = new ExpEvaluator();
+#ifndef THREED
   _solve_3D = false;
+#endif
   _segment_formation = EXPLICIT_2D;
 
   /* Initialize pointers to NULL */
@@ -67,6 +69,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _timer = new Timer();
 
   /* Default settings */
+  _fixed_sources_on = false;
   _correct_xs = false;
   _stabilize_transport = false;
   _verbose = false;
@@ -353,7 +356,8 @@ double Solver::getFSRSource(long fsr_id, int group) {
               * _scalar_flux(fsr_id,g);
 
   /* Add in fixed source (if specified by user) */
-  source += _fixed_sources(fsr_id,group-1);
+  if (_fixed_sources_on)
+    source += _fixed_sources(fsr_id,group-1);
 
   /* Normalize to solid angle for isotropic approximation */
   source *= ONE_OVER_FOUR_PI;
@@ -419,12 +423,19 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
     _tot_num_tracks = track_generator_3D->getNum3DTracks();
     _polar_spacings = _quad->getPolarSpacings();
     _tracks_per_stack = track_generator_3D->getTracksPerStack();
+#ifndef THREED
     _solve_3D = true;
+#endif
   }
   else {
     _fluxes_per_track = _num_groups * _num_polar/2;
     _tot_num_tracks = _track_generator->getNum2DTracks();
+#ifdef THREED
+    log_printf(ERROR, "OpenMOC has been compiled for 3D cases only, please "
+               "recompile without the -DTHREED optimization flag.");
+#else
     _solve_3D = false;
+#endif
   }
 
   /* Retrieve and store the Geometry from the TrackGenerator */
@@ -465,6 +476,7 @@ void Solver::setFixedSourceByFSR(long fsr_id, int group, double source) {
     log_printf(ERROR,"Unable to set fixed source for FSR %d with only "
                "%d FSRs in the geometry", fsr_id, _num_FSRs);
 
+  _fixed_sources_on = true;
   _fix_src_FSR_map[std::pair<int, int>(fsr_id, group)] = source;
 }
 
@@ -478,6 +490,8 @@ void Solver::setFixedSourceByFSR(long fsr_id, int group, double source) {
  * @param source the volume-averaged source in this group
  */
 void Solver::setFixedSourceByCell(Cell* cell, int group, double source) {
+
+  _fixed_sources_on = true;
 
   /* Recursively add the source to all Cells within a FILL type Cell */
   if (cell->getType() == FILL) {
@@ -504,6 +518,7 @@ void Solver::setFixedSourceByCell(Cell* cell, int group, double source) {
  */
 void Solver::setFixedSourceByMaterial(Material* material, int group,
                                       double source) {
+  _fixed_sources_on = true;
   _fix_src_material_map[std::pair<Material*, int>(material, group)] = source;
 }
 
@@ -719,6 +734,14 @@ void Solver::initializeFSRs() {
   /* Get an array of volumes indexed by FSR  */
   _track_generator->initializeFSRVolumesBuffer();
   _FSR_volumes = _track_generator->getFSRVolumes();
+
+#ifdef NGROUPS
+  if (_geometry->getNumEnergyGroups() != _num_groups)
+    log_printf(ERROR, "OpenMOC has been compiled for %d groups, and the "
+               "current case is in %d groups, please re-compile with the right "
+               "number of groups for the -DNGROUPS flag or without that flag.",
+               NGROUPS, _geometry->getNumEnergyGroups());
+#endif
 
   /* Retrieve simulation parameters from the Geometry */
   _num_FSRs = _geometry->getNumFSRs();

@@ -87,6 +87,7 @@ void Vector::incrementValue(int cell, int group, CMFD_PRECISION val) {
  * @param group_first The first group location to increment.
  * @param group_last The last group location to increment.
  * @param vals The values used to increment the row locations.
+ *        NOTE: vals at group_first must be aligned with cache boundaries.
  */
 void Vector::incrementValues(int cell, int group_first, int group_last,
                              CMFD_PRECISION* vals) {
@@ -108,7 +109,7 @@ void Vector::incrementValues(int cell, int group_first, int group_last,
    * temporary array using mutual exclusion locks */
   omp_set_lock(&_cell_locks[cell]);
 
-#pragma omp simd
+#pragma omp simd aligned(vals)
   for (int g=group_first; g <= group_last; g++)
     _array[cell*_num_groups + g] += vals[g-group_first];
 

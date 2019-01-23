@@ -14,9 +14,15 @@
 #include "Geometry.h"
 
 
-/* A Vector3D is simply a 3-dimensional std::vector of doubles */
-typedef std::vector<std::vector<std::vector<double> > > Vector3D;
+/* A Vector3D is simply a 3-dimensional std::vector of floats */
+typedef std::vector<std::vector<std::vector<FP_PRECISION> > > Vector3D;
 
+/* Define a floating point type for domain communication of reaction rates */
+#ifndef SINGLE
+#define MPI_FP (MPI_DOUBLE)
+#else
+#define MPI_FP (MPI_FLOAT)
+#endif
 
 /**
  * @enum RxType
@@ -25,6 +31,8 @@ typedef std::vector<std::vector<std::vector<double> > > Vector3D;
 enum RxType {
 
   FISSION_RX,
+
+  NUFISSION_RX,
 
   TOTAL_RX,
 
@@ -57,11 +65,11 @@ public:
 
   void createLattice(int num_x, int num_y, int num_z);
   void setLattice(Lattice* lattice);
-  std::vector<double> getReactionRates(RxType rx);
-  Vector3D getFormattedReactionRates(RxType rx);
+  std::vector<FP_PRECISION> getReactionRates(RxType rx,
+                                             bool volume_average=false);
+  Vector3D getFormattedReactionRates(RxType rx, bool volume_average=false);
   Vector3D getFormattedReactionRates(std::vector<std::vector<double> > 
                                      widths_offsets, RxType rx);
-  
 
 
 };

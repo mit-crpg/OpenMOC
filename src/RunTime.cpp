@@ -436,9 +436,10 @@ int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]) {
     printf("-output_type            : (0 - FISSION_RX) set the output reaction "
            "types, an output_type should always follow output lattice \n"
            "                           0 - FISSION_RX\n"
-           "                           1 - TOTAL_RX\n"
-           "                           2 - ABSORPTION_RX\n"
-           "                           3 - FLUX_RX\n"
+           "                           1 - NU-FISSION_RX\n"
+           "                           2 - TOTAL_RX\n"
+           "                           3 - ABSORPTION_RX\n"
+           "                           4 - FLUX_RX\n"
           );
     printf("-verbose_report         : (1) switch of the verbose iteration "
            "report\n");

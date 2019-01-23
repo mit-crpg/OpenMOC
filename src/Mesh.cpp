@@ -87,9 +87,11 @@ void Mesh::setLattice(Lattice* lattice) {
 /**
  * @brief Tallies reaction rates of the given type over the Mesh lattice
  * @param rx The type of reaction to tally
+ * @param volume_average whether the reaction rates should be volume averaged
  * @return The reaction rates in a 1D vector indexed by the lattice cell IDs
  */
-std::vector<double> Mesh::getReactionRates(RxType rx) {
+std::vector<FP_PRECISION> Mesh::getReactionRates(RxType rx,
+                                                 bool volume_average) {
 
   /* Check that the Mesh contains a lattice */
   if (_lattice == NULL)
@@ -103,9 +105,12 @@ std::vector<double> Mesh::getReactionRates(RxType rx) {
   long num_fsrs = geometry->getNumFSRs();
 
   /* Create a 1D array of reaction rates with the appropriate size */
-  std::vector<double> rx_rates;
+  std::vector<FP_PRECISION> rx_rates;
+  std::vector<FP_PRECISION> volumes_lattice;
   int size = _lattice->getNumX() * _lattice->getNumY() * _lattice->getNumZ();
-  rx_rates.resize(size);
+  rx_rates.resize(size, 0.);
+  if (volume_average)
+    volumes_lattice.resize(size, 0.);
 
   /* Extract the number of groups */
   int num_groups = geometry->getNumEnergyGroups();
@@ -128,20 +133,13 @@ std::vector<double> Mesh::getReactionRates(RxType rx) {
       case FISSION_RX:
         xs_array = mat->getSigmaF();
         break;
+      case NUFISSION_RX:
+        xs_array = mat->getNuSigmaF();
       case TOTAL_RX:
         xs_array = mat->getSigmaT();
         break;
       case ABSORPTION_RX:
-        {
-          xs_array = temp_array;
-          FP_PRECISION* scattering = mat->getSigmaS();
-          for (int g=0; g < num_groups; g++) {
-            xs_array[g] = 0.0;
-            for (int gp=0; gp < num_groups; gp++) {
-              xs_array[g] += scattering[gp*num_groups + g];
-            }
-          }
-        }
+        xs_array = mat->getSigmaA();
         break;
       case FLUX_RX:
         xs_array = temp_array;
@@ -153,21 +151,33 @@ std::vector<double> Mesh::getReactionRates(RxType rx) {
     }
 
     /* Tally the reaction rates summed across all groups */
+    double fsr_rx_rate = 0.;
     for (int g=0; g < num_groups; g++) {
       double xs = xs_array[g];
       rx_rates.at(lat_cell) += fluxes[r*num_groups + g] * volume * xs;
+      fsr_rx_rate += fluxes[r*num_groups + g] * volume * xs;
     }
+
+    /* Tally fsr volume to cell volume, only for a non-zero reaction rate */
+    if (std::abs(fsr_rx_rate) > FLT_EPSILON && volume_average)
+      volumes_lattice.at(lat_cell) += volume;
   }
+
+  /* If volume average requested, divide by volume */
+  if (volume_average)
+    for (int i=0; i<rx_rates.size(); i++)
+      if (volumes_lattice.at(i) > FLT_EPSILON)
+        rx_rates.at(i) /= volumes_lattice.at(i);
 
   /* If domain decomposed, do a reduction */
 #ifdef MPIx
   if (geometry->isDomainDecomposed()) {
     MPI_Comm comm = geometry->getMPICart();
-    double* rx_rates_array = &rx_rates[0];
-    double* rx_rates_send = new double[size];
+    FP_PRECISION* rx_rates_array = &rx_rates[0];
+    FP_PRECISION* rx_rates_send = new FP_PRECISION[size];
     for (int i=0; i < size; i++)
       rx_rates_send[i] = rx_rates_array[i];
-    MPI_Allreduce(rx_rates_send, rx_rates_array, size, MPI_DOUBLE, MPI_SUM,
+    MPI_Allreduce(rx_rates_send, rx_rates_array, size, MPI_FP, MPI_SUM,
                   comm);
     delete [] rx_rates_send;
   }
@@ -180,23 +190,25 @@ std::vector<double> Mesh::getReactionRates(RxType rx) {
 /**
  * @brief Tallies reaction rates of the given type over the Mesh lattice
  * @param rx The type of reaction to tally
+ * @param volume_average whether the reaction rates should be volume averaged
  * @return The reaction rates in a 3D vector indexed by the lattice cell
  *         x, y, and z indexes
  */
-Vector3D Mesh::getFormattedReactionRates(RxType rx) {
+Vector3D Mesh::getFormattedReactionRates(RxType rx, bool volume_average) {
 
   /* Extract reaction rates */
   Vector3D rx_rates;
-  std::vector<double> rx_rates_array = getReactionRates(rx);
+  std::vector<FP_PRECISION> rx_rates_array = getReactionRates(rx,
+                                                              volume_average);
 
   /* Format reaction rates into a 3D array */
   int num_x = _lattice->getNumX();
   for (int i=0; i < num_x; i++) {
     int num_y = _lattice->getNumY();
-    std::vector<std::vector<double> > vector_2D;
+    std::vector<std::vector<FP_PRECISION> > vector_2D;
     for (int j=0; j < num_y; j++) {
       int num_z = _lattice->getNumZ();
-      std::vector<double> vector_1D;
+      std::vector<FP_PRECISION> vector_1D;
       for (int k=0; k < num_z; k++) {
         int idx = k * num_x * num_y + j * num_x + i;
         vector_1D.push_back(rx_rates_array[idx]);

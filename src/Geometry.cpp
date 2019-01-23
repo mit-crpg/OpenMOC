@@ -3508,6 +3508,14 @@ void Geometry::dumpToFile(std::string filename, bool non_uniform_lattice) {
       fwrite(&value, sizeof(double), 1, out);
     }
 
+    /* Print absorption cross section */
+    //NOTE This can be used to transfer another XS, like U238 absorption
+    FP_PRECISION* xs = mat->getSigmaA();
+    for (int g=0; g < num_groups; g++) {
+      double value = xs[g];
+      fwrite(&value, sizeof(double), 1, out);
+    }
+
     /* Print scattering cross-section */
     for (int g=0; g < num_groups; g++) {
       for (int gp=0; gp < num_groups; gp++) {
@@ -3880,6 +3888,12 @@ void Geometry::loadFromFile(std::string filename, bool non_uniform_lattice,
     for (int g=0; g < num_groups; g++) {
       ret = twiddleRead(&value, sizeof(double), 1, in);
       mat->setChiByGroup(value, g+1);
+    }
+
+    /* Set absorption cross section */
+    for (int g=0; g < num_groups; g++) {
+      ret = twiddleRead(&value, sizeof(double), 1, in);
+      mat->setSigmaAByGroup(value, g+1);
     }
 
     /* Set scattering cross-section */
