@@ -134,7 +134,7 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
     /* Copy the new source to the old source */
     new_source.copyTo(&old_source);
 
-    log_printf(INFO, "Matrix-Vector eigenvalue iter: %d, keff: %f, residual: "
+    log_printf(INFO_ONCE, "Matrix-Vector eigenvalue iter: %d, keff: %f, residual: "
                "%3.2e", iter, k_eff, residual);
 
     /* Check for convergence */
@@ -148,7 +148,7 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
     }
   }
 
-  log_printf(INFO, "Matrix-Vector eigenvalue solve iterations: %d", iter);
+  log_printf(INFO_ONCE, "Matrix-Vector eigenvalue solve iterations: %d", iter);
   if (iter == MAX_LINALG_POWER_ITERATIONS)
     log_printf(ERROR, "Eigenvalue solve failed to converge in %d iterations",
                iter);
@@ -328,7 +328,7 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
     // Increment the interations counter
     iter++;
 
-    log_printf(INFO, "SOR iter: %d, residual: %3.2e, initial residual: %3.2e"
+    log_printf(DEBUG, "SOR iter: %d, residual: %3.2e, initial residual: %3.2e"
                ", ratio = %3.2e, tolerance: %3.2e, end? %d", iter, residual,
                initial_residual, residual / initial_residual, tol,
                (residual / initial_residual < 0.1 || residual < tol) &&
@@ -343,7 +343,7 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
     }
   }
 
-  log_printf(INFO, "linear solve iterations: %d", iter);
+  log_printf(DEBUG, "linear solve iterations: %d", iter);
 
   // Check if the maximum iterations were reached
   if (iter == MAX_LINEAR_SOLVE_ITERATIONS) {

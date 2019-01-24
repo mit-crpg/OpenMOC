@@ -891,10 +891,6 @@ void CPUSolver::transferAllInterfaceFluxes() {
     bool communication_complete = true;
     for (int i=0; i < num_domains; i++) {
 
-      /* Initialize MPI request */
-      _MPI_requests[i*2] = MPI_REQUEST_NULL;
-      _MPI_requests[i*2+1] = MPI_REQUEST_NULL;
-
       /* Get the communicating neighbor domain */
       int domain = _neighbor_domains.at(i);
 
@@ -918,6 +914,10 @@ void CPUSolver::transferAllInterfaceFluxes() {
 
         /* Mark communication as ongoing */
         communication_complete = false;
+      }
+      else {
+        _MPI_requests[i*2] = MPI_REQUEST_NULL;
+        _MPI_requests[i*2+1] = MPI_REQUEST_NULL;
       }
     }
 
