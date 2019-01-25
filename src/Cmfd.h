@@ -207,6 +207,9 @@ private:
   /** True if the cmfd meshes are non-uniform */
   bool _non_uniform;
 
+  /** True if the cmfd mesh has been adjusted to fit the domain decomposition */
+  bool _widths_adjusted_for_domains;
+
   /** Array of geometry boundaries */
   boundaryType* _boundaries;
 

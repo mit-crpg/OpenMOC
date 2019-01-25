@@ -981,6 +981,8 @@ void CPUSolver::transferAllInterfaceFluxes() {
  *          the connecting track - specifically its angles, and its location.
  *          When the information is returned, it is checked by the requesting
  *          domain for consistency.
+ *          //NOTE : This routine may only be called after the track fluxes
+ *          have been exchanged.
  */
 void CPUSolver::boundaryFluxChecker() {
 
@@ -999,6 +1001,8 @@ void CPUSolver::boundaryFluxChecker() {
   while (tester < num_ranks) {
 
     if (tester == my_rank) {
+
+      log_printf(NODAL, "Checking boundary fluxes for process %d", tester);
 
       /* Loop over all tracks */
       for (long t=0; t < _tot_num_tracks; t++) {
@@ -1039,7 +1043,7 @@ void CPUSolver::boundaryFluxChecker() {
             /* Check for a valid destination */
             if (dest == -1)
               log_printf(ERROR, "Track %d on domain %d has been found to have "
-                         "a INTERFACE boundary but no connecting domain", t,
+                         "an INTERFACE boundary but no connecting domain", t,
                          my_rank);
 
             /* Send a request for info */
@@ -1050,7 +1054,7 @@ void CPUSolver::boundaryFluxChecker() {
             float buffer[receive_size];
             MPI_Recv(buffer, receive_size, MPI_FLOAT, dest, 0, MPI_cart, &stat);
 
-            /* Unpack received infomrmation */
+            /* Unpack received information */
             float angular_fluxes[_fluxes_per_track];
             for (int i=0; i < _fluxes_per_track; i++)
               angular_fluxes[i] = buffer[i];
@@ -1124,8 +1128,6 @@ void CPUSolver::boundaryFluxChecker() {
                            "in the -- direction is %f", t, my_rank,
                            dir_string.c_str(), pe, _boundary_flux(t, dir, pe),
                            connection[0], dest, angular_fluxes[pe]);
-                //FIXME Include track direction in track_info when debugging, 
-                //      but not in production mode
               }
             }
           }
@@ -1170,6 +1172,11 @@ void CPUSolver::boundaryFluxChecker() {
             }
             double phi = connecting_track.getPhi();
             double theta = connecting_track.getTheta();
+
+            /* Check for a vacuum boundary condition */
+            if (bc == VACUUM)
+              memset(&_boundary_flux(t, dir, 0), 0, sizeof(float) *
+                                                    _fluxes_per_track);
 
             /* Check angular fluxes */
             for (int pe=0; pe < _fluxes_per_track; pe++) {
@@ -1231,7 +1238,7 @@ void CPUSolver::boundaryFluxChecker() {
                            " angle %f and polar angle %f", t, track.getPhi(),
                            track.getTheta(), connecting_idx, phi, theta);
 
-              /* Check that the periodic Track has a does not share the same
+              /* Check that the periodic Track does not share the same
                  connecting point */
               if (fabs(point->getX() - x) < 1e-5 &&
                   fabs(point->getY() - y) < 1e-5 &&
@@ -1670,12 +1677,12 @@ double CPUSolver::computeResidual(residualType res_type) {
 
   /* Error check residual componenets */
   if (residual < 0.0) {
-    log_printf(WARNING, "MOC Residual mean square error %6.4f less than zero", 
+    log_printf(WARNING, "MOC residual mean square error %6.4f less than zero", 
                residual);
     residual = 0.0;
   }
   if (norm <= 0) {
-    log_printf(WARNING, "MOC resdiual norm %d less than one", norm);
+    log_printf(WARNING, "MOC residual norm %d less than one", norm);
     norm = 1;
   }
 
@@ -1958,13 +1965,11 @@ void CPUSolver::transferBoundaryFlux(Track* track,
   /* Extract boundary conditions for this Track and the pointer to the
    * outgoing reflective Track, and index into the leakage array */
   boundaryType bc_out;
-  boundaryType bc_in;
   long track_out_id;
   int start_out;
 
   /* For the "forward" direction */
   if (direction) {
-    bc_in = track->getBCBwd();
     bc_out = track->getBCFwd();
     track_out_id = track->getTrackNextFwd();
     start_out = _fluxes_per_track * (!track->getNextFwdFwd());
@@ -1972,7 +1977,6 @@ void CPUSolver::transferBoundaryFlux(Track* track,
 
   /* For the "reverse" direction */
   else {
-    bc_in = track->getBCFwd();
     bc_out = track->getBCBwd();
     track_out_id = track->getTrackNextBwd();
     start_out = _fluxes_per_track * (!track->getNextBwdFwd());
@@ -1983,11 +1987,7 @@ void CPUSolver::transferBoundaryFlux(Track* track,
     float* track_out_flux = &_start_flux(track_out_id, 0, start_out);
     memcpy(track_out_flux, track_flux, _fluxes_per_track * sizeof(float));
   }
-  if (bc_in == VACUUM) {
-    long track_id = track->getUid();
-    float* track_in_flux = &_start_flux(track_id, !direction, 0);
-    memset(track_in_flux, 0, _fluxes_per_track * sizeof(float));
-  }
+  /* For vacuum boundary conditions, losing the flux is enough */
 
   /* Tally leakage if applicable */
   if (_cmfd == NULL) {

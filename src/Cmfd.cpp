@@ -33,7 +33,7 @@ Cmfd::Cmfd() {
   _cell_width_y = 0.;
   _cell_width_z = 0.;
   _flux_update_on = true;
-  _centroid_update_on = true;
+  _centroid_update_on = false;
   _use_axial_interpolation = 0;
   _flux_limiting = true;
   _balance_sigma_t = false;
@@ -47,10 +47,11 @@ Cmfd::Cmfd() {
   _tallies_allocated = false;
   _domain_communicator_allocated = false;
   _linear_source = false;
-  _check_neutron_balance = false;
+  _check_neutron_balance = true;  //////////////
   _old_dif_surf_valid = false;
 
   _non_uniform = false;
+  _widths_adjusted_for_domains = false;
 
   /* Energy group and polar angle problem parameters */
   _num_moc_groups = 0;
@@ -650,7 +651,14 @@ void Cmfd::setNumDomains(int num_x, int num_y, int num_z) {
       initializeLattice(&offset);
 
       /* Re-run routine to obtain _accumulate_lmxyz arrays */
-      setNumDomains(num_x, num_y, num_z);
+      if (!_widths_adjusted_for_domains) {
+        _widths_adjusted_for_domains = true;
+        setNumDomains(num_x, num_y, num_z);
+      }
+      else
+        log_printf(ERROR, "Mesh adjustment to domain decomposition boundaries "
+                   "failed. Manually add the domain boundaries in a non-"
+                   "uniform CMFD mesh.");
     }
     else
       log_printf(ERROR, "Mesh automatic adjusting to domain decomposition"
@@ -3236,6 +3244,9 @@ void Cmfd::setKNearest(int k_nearest) {
                "must be between 1 and 9.", k_nearest);
   else
     _k_nearest = k_nearest;
+
+  /* Enables use of centroids for K-nearest */
+  _centroid_update_on = true;
 }
 
 
@@ -4359,7 +4370,7 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
         max_imbalance_grp = e;
       }
 
-      if (std::abs(moc_balance - cmfd_balance) > 1e-14) {
+      if (std::abs(moc_balance - cmfd_balance) > 1e-14) {  //FIXME 1e-7
         log_printf(NORMAL, "MOC neutron balance in cell (%d, %d, %d) for CMFD "
                    "group %d = %g", x, y, z, e, moc_balance);
 

@@ -20,7 +20,7 @@ int material_id() {
 
 
 /**
- * @brief Resets the auto-generated unique Material ID counter to 1000,000.
+ * @brief Resets the auto-generated unique Material ID counter to 1,000,000.
  */
 void reset_material_id() {
   auto_id = DEFAULT_INIT_ID;
