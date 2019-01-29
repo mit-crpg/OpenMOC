@@ -1208,10 +1208,13 @@ double Cmfd::computeKeff(int moc_iteration) {
   rescaleFlux();
 
   /* Update the MOC flux */
+  _timer->startTimer();
   if (_flux_update_on)
     updateMOCFlux();
 
-  /* Tally the total CMFD time */
+  /* Tally the update and total CMFD time */
+  _timer->stopTimer();
+  _timer->recordSplit("Total MOC flux update time");
   _timer->stopTimer();
   _timer->recordSplit("Total CMFD time");
 
@@ -1403,6 +1406,7 @@ void Cmfd::updateMOCFlux() {
 #pragma omp parallel for
   for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
 
+    CMFD_PRECISION thread_max_update_ratio = 1;
     std::vector<long>::iterator iter;
 
     /* Loop over CMFD groups */
@@ -1421,14 +1425,11 @@ void Cmfd::updateMOCFlux() {
         if (update_ratio < 0.05)
           update_ratio = 0.05;
 
-        if (_convergence_data != NULL) {
-#pragma omp critical
-          {
+        /* Save max update ratio among fsrs and groups in a cell */
+        if (_convergence_data != NULL)
             if (std::abs(log(update_ratio)) > 
-                std::abs(log(_convergence_data->pf)))
-              _convergence_data->pf = update_ratio;
-          }
-        }
+                std::abs(log(thread_max_update_ratio)))
+              thread_max_update_ratio = update_ratio;
 
         for (int h = _group_indices[e]; h < _group_indices[e + 1]; h++) {
 
@@ -1449,7 +1450,19 @@ void Cmfd::updateMOCFlux() {
         }
       }
     }
+
+    /* Save maximum update ratio among CMFD cells, for output purposes */
+    if (_convergence_data != NULL) {
+#pragma omp critical
+      {
+        if (std::abs(log(thread_max_update_ratio)) > 
+            std::abs(log(_convergence_data->pf)))
+              _convergence_data->pf = thread_max_update_ratio;
+      }
+    }
   }
+
+  /* Compare maximum update ratios between domains and keep the maximum */
 #ifdef MPIx
   if (_domain_communicator != NULL && _convergence_data != NULL) {
     double max_pf = _convergence_data->pf;
@@ -4061,6 +4074,12 @@ void Cmfd::printTimerReport() {
   msg_string = "    Total CMFD solver time";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), solver_time);
+
+  /* Get the total MOC flux update time */
+  double update_time = _timer->getSplit("Total MOC flux update time");
+  msg_string = "    Total flux update time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), update_time);
 }
 
 
@@ -4134,31 +4153,33 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
   CMFD_PRECISION* a_phi_array = a_phi.getArray();
 
 #ifdef MPIx
-  int* coupling_sizes = NULL;
-  int** coupling_indexes = NULL;
-  CMFD_PRECISION** coupling_coeffs = NULL;
-  CMFD_PRECISION** coupling_fluxes = NULL;
-  int offset = 0;
-  for (int color=0; color < 2; color++) {
+  if (_geometry->isDomainDecomposed()) {
+    int* coupling_sizes = NULL;
+    int** coupling_indexes = NULL;
+    CMFD_PRECISION** coupling_coeffs = NULL;
+    CMFD_PRECISION** coupling_fluxes = NULL;
+    int offset = 0;
+    for (int color=0; color < 2; color++) {
 
-    getCouplingTerms(_domain_communicator, color, coupling_sizes,
-                     coupling_indexes, coupling_coeffs, coupling_fluxes,
-                     _old_flux->getArray(), offset);
+      getCouplingTerms(_domain_communicator, color, coupling_sizes,
+                       coupling_indexes, coupling_coeffs, coupling_fluxes,
+                       _old_flux->getArray(), offset);
 
 #pragma omp parallel for collapse(2)
-    for (int iz=0; iz < _local_num_z; iz++) {
-      for (int iy=0; iy < _local_num_y; iy++) {
-        for (int ix=(iy+iz+color+offset)%2; ix < _local_num_x; ix+=2) {
-          int cell = (iz*_local_num_y + iy)*_local_num_x + ix;
-          for (int g=0; g < _num_cmfd_groups; g++) {
+      for (int iz=0; iz < _local_num_z; iz++) {
+        for (int iy=0; iy < _local_num_y; iy++) {
+          for (int ix=(iy+iz+color+offset)%2; ix < _local_num_x; ix+=2) {
+            int cell = (iz*_local_num_y + iy)*_local_num_x + ix;
+            for (int g=0; g < _num_cmfd_groups; g++) {
 
-            int row = cell * _num_cmfd_groups + g;
+              int row = cell * _num_cmfd_groups + g;
 
-            for (int i = 0; i < coupling_sizes[row]; i++) {
-              int idx = coupling_indexes[row][i] * _num_cmfd_groups + g;
-              int domain = _domain_communicator->domains[color][row][i];
-              CMFD_PRECISION flux = coupling_fluxes[domain][idx];
-              a_phi_array[row] += coupling_coeffs[row][i] * flux;
+              for (int i = 0; i < coupling_sizes[row]; i++) {
+                int idx = coupling_indexes[row][i] * _num_cmfd_groups + g;
+                int domain = _domain_communicator->domains[color][row][i];
+                CMFD_PRECISION flux = coupling_fluxes[domain][idx];
+                a_phi_array[row] += coupling_coeffs[row][i] * flux;
+              }
             }
           }
         }
@@ -4238,6 +4259,9 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
         cell_ind[0] = i % _local_num_x;
         cell_ind[1] = (i / _local_num_x) % _local_num_y;
         cell_ind[2] = i / (_local_num_x * _local_num_y);
+//         log_printf(NORMAL, "%d %d %d -> %d (%d)", cell_ind[0], cell_ind[1], cell_ind[2], 
+//                    cell_ind[0] + cell_ind[1] * _local_num_x
+//                          + cell_ind[2] * (_local_num_x * _local_num_y), i);
 
         /* Tally current from all surfaces including edges and corners */
         for (int s=0; s < NUM_SURFACES; s++) {
@@ -4342,7 +4366,7 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
             if (_boundaries[s] == VACUUM) {
               net_current += _surface_currents->getValue(i, idx);
               int direction[3];
-              convertSurfaceToDirection(s, direction);
+              convertSurfaceToDirection(s, direction);  // why is that here
             }
           }
           else {
@@ -4350,17 +4374,21 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
                 _surface_currents->getValue(cmfd_cell_next,idx_next);
             int direction[3];
             int op_direction[3];
-            convertSurfaceToDirection(s, direction);
+            convertSurfaceToDirection(s, direction); // why is that here
             convertSurfaceToDirection(surface_next, op_direction);
+            log_printf(NORMAL, "Comp dir %d %d %d : %d %d %d", direction[0], direction[1], direction[2],
+                       op_direction[0], op_direction[1], op_direction[2]);
           }
         }
       }
 
       /* Compute balance in given cell and group */
       double moc_balance = in_scattering + fission - total - net_current;
+      log_printf(NORMAL, "Scat %f , fiss %f , total %f, curr %f", in_scattering, fission, total, net_current); 
 
       double cmfd_balance = m_phi.getValue(i, e) / _k_eff -
             a_phi.getValue(i, e);
+      log_printf(NORMAL, "M %f , A %f", m_phi.getValue(i, e) / _k_eff, a_phi.getValue(i, e));
 
       double tmp_imbalance = std::max(std::abs(moc_balance),
                                       std::abs(cmfd_balance));
@@ -4370,7 +4398,7 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
         max_imbalance_grp = e;
       }
 
-      if (std::abs(moc_balance - cmfd_balance) > 1e-14) {  //FIXME 1e-7
+      if (std::abs(moc_balance - cmfd_balance) > 5e-7) {  //FIXME 1e-7
         log_printf(NORMAL, "MOC neutron balance in cell (%d, %d, %d) for CMFD "
                    "group %d = %g", x, y, z, e, moc_balance);
 

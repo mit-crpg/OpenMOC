@@ -261,10 +261,11 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
             int cell = (iz*num_y + iy)*num_x + ix;
             int row_start = cell*num_groups;
 
+            /* Contribution of off-diagonal terms, hard to SIMD vectorize */
             for (int g=0; g < num_groups; g++) {
 
               int row = row_start + g;
-              x[row] = (1.0 - SOR_factor) * x[row];
+              x[row] = (1.0 - SOR_factor) * x[row] * (DIAG[row] / SOR_factor);
 
               if (fabs(DIAG[row]) < FLT_EPSILON )
                   log_printf(ERROR, "A zero has been found on the diagonal of "
@@ -275,10 +276,10 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 
                 // Get the column index
                 int col = JA[i];
-                if (row == col)
-                  x[row] += SOR_factor * b[row] / DIAG[row];
+                if (row != col)
+                  x[row] -= a[i] * x[col];
                 else
-                  x[row] -= SOR_factor * a[i] * x[col] / DIAG[row];
+                  x[row] += b[row];
               }
 
               // Contribution of off node fluxes
@@ -287,10 +288,12 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
                   int idx = coupling_indexes[row][i] * num_groups + g;
                   int domain = comm->domains[color][row][i];
                   CMFD_PRECISION flux = coupling_fluxes[domain][idx];
-                  x[row] -= SOR_factor * coupling_coeffs[row][i] * flux
-                            / DIAG[row];
+                  x[row] -= coupling_coeffs[row][i] * flux;
                 }
               }
+
+              // Perform these operations separately, for performance
+              x[row] *= (SOR_factor / DIAG[row]);
             }
           }
         }
