@@ -574,7 +574,7 @@ void log_printf(logLevel level, const char* format, ...) {
       {
 #ifdef MPIx
         if (_MPI_present) {
-          printf("%s", "[  ERROR  ] ");
+          printf("%s", "[  ERROR  ]  ");
           printf("%s", &msg_string[0]);
           fflush(stdout);
           MPI_Finalize();

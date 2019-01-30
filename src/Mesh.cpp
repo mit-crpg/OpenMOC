@@ -172,12 +172,20 @@ std::vector<FP_PRECISION> Mesh::getReactionRates(RxType rx,
   /* If domain decomposed, do a reduction */
 #ifdef MPIx
   if (geometry->isDomainDecomposed()) {
+
+    /* Select appropriate floating point size for transfer */
+    MPI_Datatype precision;
+    if (sizeof(FP_PRECISION) == 4)
+      precision = MPI_FLOAT;
+    else
+      precision = MPI_DOUBLE;
+
     MPI_Comm comm = geometry->getMPICart();
     FP_PRECISION* rx_rates_array = &rx_rates[0];
     FP_PRECISION* rx_rates_send = new FP_PRECISION[size];
     for (int i=0; i < size; i++)
       rx_rates_send[i] = rx_rates_array[i];
-    MPI_Allreduce(rx_rates_send, rx_rates_array, size, MPI_FP, MPI_SUM,
+    MPI_Allreduce(rx_rates_send, rx_rates_array, size, precision, MPI_SUM,
                   comm);
     delete [] rx_rates_send;
   }

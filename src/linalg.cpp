@@ -138,8 +138,8 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
                "%3.2e", iter, k_eff, residual);
 
     /* Check for convergence */
-    if ((residual / initial_residual < 0.03) &&
-        iter > MIN_LINALG_POWER_ITERATIONS) {
+    if ((residual / initial_residual < 0.03 || residual < MIN_LINALG_TOLERANCE)
+        && iter > MIN_LINALG_POWER_ITERATIONS) {
       if (convergence_data != NULL) {
         convergence_data->cmfd_res_end = residual;
         convergence_data->cmfd_iters = iter;
@@ -400,6 +400,7 @@ void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
 
     int ng = comm->num_groups;
 
+    // Get numerical precision for communication
     MPI_Datatype flux_type;
     if (sizeof(CMFD_PRECISION) == 4)
       flux_type = MPI_FLOAT;
