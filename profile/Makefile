@@ -105,7 +105,7 @@ endif
 
 # MPI wrapped compiler
 ifeq ($(COMPILER),mpi)
-  CC = mpicc
+  CC = mpic++
   CFLAGS += -DMPIx
   LDFLAGS += -lm
   LDFLAGS += -lstdc++

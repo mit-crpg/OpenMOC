@@ -259,8 +259,8 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
 
   /* Allocate array for the table */
   _table_size = num_array_values * _num_exp_terms * _num_polar_terms;
-  _exp_table = (FP_PRECISION*) aligned_alloc(VEC_ALIGNMENT, 
-               _table_size*sizeof(FP_PRECISION));
+  _exp_table = (FP_PRECISION*) memalign(VEC_ALIGNMENT, 
+               _table_size * sizeof(FP_PRECISION));
 
   /* Create exponential linear interpolation table */
   for (int i=0; i < num_array_values; i++) {

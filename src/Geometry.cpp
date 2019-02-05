@@ -630,6 +630,9 @@ void Geometry::setNumDomainModules(int num_x, int num_y, int num_z) {
   _num_modules_x = num_x;
   _num_modules_y = num_y;
   _num_modules_z = num_z;
+
+  log_printf(NORMAL, "Using a [%d %d %d] inner domain structure for track "
+             "laydown.", num_x, num_y, num_z);
 }
 
 

@@ -563,12 +563,12 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
       for (int g=0; g < ncg; g++)
         currents[g] *= wgt;
 
-      /* Increment currents on face */
+      /* Increment currents on faces */
       if (surf_id < NUM_FACES) {
         _surface_currents->incrementValues
             (local_cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
       }
-      /* Increment currents on corners */
+      /* Increment currents on corners and edges */
       else {
 
         omp_set_lock(&_edge_corner_lock);
