@@ -397,7 +397,7 @@ public:
   void initializeCellMap();
   void initializeGroupMap();
   void allocateTallies();
-  void initializeLattice(Point* offset);
+  void initializeLattice(Point* offset, bool is_2D=false);
   void initializeBackupCmfdSolver();
   void copyCurrentsToBackup();
   int findCmfdCell(LocalCoords* coords);

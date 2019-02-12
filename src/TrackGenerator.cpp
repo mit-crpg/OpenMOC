@@ -1046,24 +1046,37 @@ void TrackGenerator::initializeTrackReflections() {
       /* Get current track */
       Track* track = &_tracks_2D[a][i];
 
-      /* Set the foward boundary conditions */
+      /* Set the forward boundary conditions */
       if (a < _num_azim/4) {
         if (i < _num_y[a]) {
           track->setBCFwd(_geometry->getMaxXBoundaryType());
           track->setSurfaceOut(SURFACE_X_MAX);
+#ifdef MPIx
+          track->setDomainFwd(_geometry->getNeighborDomain(1, 0, 0));
+#endif
         }
         else {
           track->setBCFwd(_geometry->getMaxYBoundaryType());
           track->setSurfaceOut(SURFACE_Y_MAX);
+#ifdef MPIx
+          track->setDomainFwd(_geometry->getNeighborDomain(0, 1, 0));
+#endif
         }
 
         if (i < _num_x[a]) {
           track->setBCBwd(_geometry->getMinYBoundaryType());
           track->setSurfaceIn(SURFACE_Y_MIN);
+#ifdef MPIx
+          track->setDomainBwd(_geometry->getNeighborDomain(0, -1, 0));
+#endif
+
         }
         else {
           track->setBCBwd(_geometry->getMinXBoundaryType());
           track->setSurfaceIn(SURFACE_X_MIN);
+#ifdef MPIx
+          track->setDomainBwd(_geometry->getNeighborDomain(-1, 0, 0));
+#endif
         }
       }
 
@@ -1072,19 +1085,31 @@ void TrackGenerator::initializeTrackReflections() {
         if (i < _num_y[a]) {
           track->setBCFwd(_geometry->getMinXBoundaryType());
           track->setSurfaceOut(SURFACE_X_MIN);
+#ifdef MPIx
+          track->setDomainFwd(_geometry->getNeighborDomain(-1, 0, 0));
+#endif
         }
         else {
           track->setBCFwd(_geometry->getMaxYBoundaryType());
           track->setSurfaceOut(SURFACE_Y_MAX);
+#ifdef MPIx
+          track->setDomainFwd(_geometry->getNeighborDomain(0, 1, 0));
+#endif
         }
 
         if (i < _num_x[a]) {
           track->setBCBwd(_geometry->getMinYBoundaryType());
           track->setSurfaceIn(SURFACE_Y_MIN);
+#ifdef MPIx
+          track->setDomainBwd(_geometry->getNeighborDomain(0, -1, 0));
+#endif
         }
         else {
           track->setBCBwd(_geometry->getMaxXBoundaryType());
           track->setSurfaceIn(SURFACE_X_MAX);
+#ifdef MPIx
+          track->setDomainBwd(_geometry->getNeighborDomain(1, 0, 0));
+#endif
         }
       }
 
@@ -1173,12 +1198,11 @@ void TrackGenerator::segmentize() {
                    "may be missing.");
 
       /* Re-initialize CMFD lattice with 2D dimensions */
-      cmfd->setWidthZ(std::numeric_limits<double>::infinity());
       Point offset;
       offset.setX(cmfd->getLattice()->getOffset()->getX());
       offset.setY(cmfd->getLattice()->getOffset()->getY());
       offset.setZ(0.0);
-      cmfd->initializeLattice(&offset);
+      cmfd->initializeLattice(&offset, true);
     }
   }
 

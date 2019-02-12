@@ -262,9 +262,11 @@ void Cmfd::setNumX(int num_x) {
                "must be > 0. Input value: %i", num_x);
 
   _num_x = num_x;
-  _local_num_x = _num_x;
-  if (_domain_communicator != NULL && !_widths_adjusted_for_domains)
-    _local_num_x = _num_x / _domain_communicator->_num_domains_x;
+  if (!_widths_adjusted_for_domains) {
+    _local_num_x = _num_x;
+    if (_domain_communicator != NULL)
+      _local_num_x = _num_x / _domain_communicator->_num_domains_x;
+  }
 }
 
 
@@ -279,9 +281,11 @@ void Cmfd::setNumY(int num_y) {
                "must be > 0. Input value: %i", num_y);
 
   _num_y = num_y;
-  _local_num_y = _num_y;
-  if (_domain_communicator != NULL && !_widths_adjusted_for_domains)
-    _local_num_y = _num_y / _domain_communicator->_num_domains_y;
+  if (!_widths_adjusted_for_domains) {
+    _local_num_y = _num_y;
+    if (_domain_communicator != NULL)
+      _local_num_y = _num_y / _domain_communicator->_num_domains_y;
+  }
 }
 
 
@@ -296,9 +300,11 @@ void Cmfd::setNumZ(int num_z) {
                "must be > 0. Input value: %i", num_z);
 
   _num_z = num_z;
-  _local_num_z = _num_z;
-  if (_domain_communicator != NULL && !_widths_adjusted_for_domains)
-    _local_num_z = _num_z / _domain_communicator->_num_domains_z;
+  if (!_widths_adjusted_for_domains) {
+    _local_num_z = _num_z;
+    if (_domain_communicator != NULL)
+      _local_num_z = _num_z / _domain_communicator->_num_domains_z;
+  }
 }
 
 
@@ -3631,8 +3637,19 @@ void Cmfd::initialize() {
  * @brief Initialize the CMFD lattice and compute mesh dimensions, considering
  *        both uniform/non-uniform and 2D/3D cases.
  * @param offset the offset point of the CMFD Lattice
+ * @param whether CMFD will be used in a 2D simulation (true) or 3D
  */
-void Cmfd::initializeLattice(Point* offset) {
+void Cmfd::initializeLattice(Point* offset, bool is_2D) {
+
+  /* Deal with 2D case, set all widths Z to 1 */
+  if (is_2D) {
+    setNumZ(1);
+    _width_z = 1.0;
+    _cell_width_z = 1.0;
+    _cell_widths_z.resize(_num_z, _cell_width_z);
+    setBoundary(SURFACE_Z_MIN, REFLECTIVE);
+    setBoundary(SURFACE_Z_MAX, REFLECTIVE);
+  }
 
   if(_non_uniform) {
     setNumX(_cell_widths_x.size());
@@ -3644,23 +3661,11 @@ void Cmfd::initializeLattice(Point* offset) {
     _cell_width_y = _width_y / _num_y;
     _cell_width_z = _width_z / _num_z;
 
-    /* 2D case, set the axial width 1.0 */
-    if(_width_z == std::numeric_limits<double>::infinity())
-      _cell_width_z = 1.0;
-
-    _cell_widths_x.resize(_num_x,_cell_width_x);
-    _cell_widths_y.resize(_num_y,_cell_width_y);
-    _cell_widths_z.resize(_num_z,_cell_width_z);
+    _cell_widths_x.resize(_num_x, _cell_width_x);
+    _cell_widths_y.resize(_num_y, _cell_width_y);
+    _cell_widths_z.resize(_num_z, _cell_width_z);
   }
 
-  /* 2D case */
-  bool is_2D = false;
-  if(_width_z == std::numeric_limits<double>::infinity()) {
-    _width_z = 1.0;
-    setBoundary(SURFACE_Z_MIN, REFLECTIVE);
-    setBoundary(SURFACE_Z_MAX, REFLECTIVE);
-    is_2D = true;
-  }
   _accumulate_x.resize(_num_x+1, 0.0);
   _accumulate_y.resize(_num_y+1, 0.0);
   _accumulate_z.resize(_num_z+1, 0.0);
@@ -3676,7 +3681,7 @@ void Cmfd::initializeLattice(Point* offset) {
 
   if(fabs(_width_x - _accumulate_x[_num_x]) > FLT_EPSILON ||
      fabs(_width_y - _accumulate_y[_num_y]) > FLT_EPSILON ||
-     (!is_2D && fabs(_width_z - _accumulate_z[_num_z]) > FLT_EPSILON))
+     fabs(_width_z - _accumulate_z[_num_z]) > FLT_EPSILON)
     log_printf(ERROR, "The sum of non-uniform mesh widths are not consistent "
       "with geometry dimensions. width_x = %20.17E, width_y = %20.17E, "
       "width_z = %20.17E, sum_x = %20.17E, sum_y = %20.17E, sum_z = %20.17E, "

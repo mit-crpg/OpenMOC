@@ -533,25 +533,33 @@ void CPUSolver::setupMPIBuffers() {
 #pragma omp parallel for
     for (long t=0; t<_tot_num_tracks; t++) {
 
+      Track* track;
       /* Get 3D Track data */
-      TrackStackIndexes tsi;
-      Track3D track;
-      TrackGenerator3D* track_generator_3D =
-        dynamic_cast<TrackGenerator3D*>(_track_generator);
-      track_generator_3D->getTSIByIndex(t, &tsi);
-      track_generator_3D->getTrackOTF(&track, &tsi);
+      if (_solve_3D) {
+        TrackStackIndexes tsi;
+        track = new Track3D();
+        TrackGenerator3D* track_generator_3D =
+          dynamic_cast<TrackGenerator3D*>(_track_generator);
+        track_generator_3D->getTSIByIndex(t, &tsi);
+        track_generator_3D->getTrackOTF(dynamic_cast<Track3D*>(track), &tsi);
+      }
+      /* Get 2D Track data */
+      else {
+        Track** tracks = _track_generator->get2DTracksArray();
+        track = tracks[t];
+      }
 
       /* Save the index of the forward and backward connecting Tracks */
-      _track_connections.at(0).at(t) = track.getTrackNextFwd();
-      _track_connections.at(1).at(t) = track.getTrackNextBwd();
+      _track_connections.at(0).at(t) = track->getTrackNextFwd();
+      _track_connections.at(1).at(t) = track->getTrackNextBwd();
 
       /* Determine the indexes of connecting domains */
       int domains[2];
-      domains[0] = track.getDomainFwd();
-      domains[1] = track.getDomainBwd();
+      domains[0] = track->getDomainFwd();
+      domains[1] = track->getDomainBwd();
       bool interface[2];
-      interface[0] = track.getBCFwd() == INTERFACE;
-      interface[1] = track.getBCBwd() == INTERFACE;
+      interface[0] = track->getBCFwd() == INTERFACE;
+      interface[1] = track->getBCBwd() == INTERFACE;
       for (int d=0; d < 2; d++) {
         if (domains[d] != -1 && interface[d]) {
           int neighbor = neighbor_connections.at(domains[d]);
@@ -559,6 +567,9 @@ void CPUSolver::setupMPIBuffers() {
           num_tracks[neighbor]++;
         }
       }
+      if (_solve_3D)
+        delete track;
+
     }
 
     /* Resize the buffers for the counted number of Tracks */
@@ -571,21 +582,29 @@ void CPUSolver::setupMPIBuffers() {
 #pragma omp parallel for
     for (long t=0; t<_tot_num_tracks; t++) {
 
+      Track* track;
       /* Get 3D Track data */
-      TrackStackIndexes tsi;
-      Track3D track;
-      TrackGenerator3D* track_generator_3D =
-        dynamic_cast<TrackGenerator3D*>(_track_generator);
-      track_generator_3D->getTSIByIndex(t, &tsi);
-      track_generator_3D->getTrackOTF(&track, &tsi);
+      if (_solve_3D) {
+        TrackStackIndexes tsi;
+        track = new Track3D();
+        TrackGenerator3D* track_generator_3D =
+          dynamic_cast<TrackGenerator3D*>(_track_generator);
+        track_generator_3D->getTSIByIndex(t, &tsi);
+        track_generator_3D->getTrackOTF(dynamic_cast<Track3D*>(track), &tsi);
+      }
+      /* Get 2D Track data */
+      else {
+        Track** tracks = _track_generator->get2DTracksArray();
+        track = tracks[t];
+      }
 
       /* Determine the indexes of connecting domains */
       int domains[2];
-      domains[0] = track.getDomainFwd();
-      domains[1] = track.getDomainBwd();
+      domains[0] = track->getDomainFwd();
+      domains[1] = track->getDomainBwd();
       bool interface[2];
-      interface[0] = track.getBCFwd() == INTERFACE;
-      interface[1] = track.getBCBwd() == INTERFACE;
+      interface[0] = track->getBCFwd() == INTERFACE;
+      interface[1] = track->getBCBwd() == INTERFACE;
       for (int d=0; d < 2; d++) {
         if (domains[d] != -1 && interface[d]) {
           int neighbor = neighbor_connections.at(domains[d]);
@@ -600,6 +619,8 @@ void CPUSolver::setupMPIBuffers() {
           _boundary_tracks.at(neighbor).at(slot) = 2*t + d;
         }
       }
+      if (_solve_3D)
+        delete track;
     }
 
     log_printf(NORMAL, "Finished setting up MPI buffers...");
@@ -1297,6 +1318,24 @@ void CPUSolver::boundaryFluxChecker() {
             dynamic_cast<TrackGenerator3D*>(_track_generator);
           track_generator_3D->getTSIByIndex(t, &tsi);
           track_generator_3D->getTrackOTF(&track, &tsi);
+
+          /* Check that the track should be transfered */
+          boundaryType bc_transfer;
+          int dest_transfer;
+          if (dir) {
+            bc_transfer = track.getBCFwd();
+            dest_transfer = track.getDomainFwd();
+          }
+          else {
+            bc_transfer = track.getBCBwd();
+            dest_transfer = track.getDomainBwd();
+          }
+          if (bc_transfer != INTERFACE)
+            log_printf(NODAL, "Node %d requested track %ld that doesn't end at"
+                              "an interface boundary condition.", tester, t);
+          if (dest_transfer != tester)
+            log_printf(NODAL, "Node %d requested track %ld that connects with "
+                              "domain %d.", tester, t, dest_transfer);
 
           /* Fill the information */
           int send_size = _fluxes_per_track + 2 * 5;
