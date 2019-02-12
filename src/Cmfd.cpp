@@ -253,6 +253,7 @@ Cmfd::~Cmfd() {
 /**
  * @brief Set the number of Mesh cells in a row.
  * @param number of Mesh cells in a row
+ * @param whether to set the local number of mesh cells
  */
 void Cmfd::setNumX(int num_x) {
 
@@ -262,7 +263,7 @@ void Cmfd::setNumX(int num_x) {
 
   _num_x = num_x;
   _local_num_x = _num_x;
-  if (_domain_communicator != NULL)
+  if (_domain_communicator != NULL && !_widths_adjusted_for_domains)
     _local_num_x = _num_x / _domain_communicator->_num_domains_x;
 }
 
@@ -279,7 +280,7 @@ void Cmfd::setNumY(int num_y) {
 
   _num_y = num_y;
   _local_num_y = _num_y;
-  if (_domain_communicator != NULL)
+  if (_domain_communicator != NULL && !_widths_adjusted_for_domains)
     _local_num_y = _num_y / _domain_communicator->_num_domains_y;
 }
 
@@ -296,7 +297,7 @@ void Cmfd::setNumZ(int num_z) {
 
   _num_z = num_z;
   _local_num_z = _num_z;
-  if (_domain_communicator != NULL)
+  if (_domain_communicator != NULL && !_widths_adjusted_for_domains)
     _local_num_z = _num_z / _domain_communicator->_num_domains_z;
 }
 
@@ -645,24 +646,21 @@ void Cmfd::setNumDomains(int num_x, int num_y, int num_z) {
   /* Re-initialize lattice since widths have been modified */
   if (divisions_missing_x.size() > 0 || divisions_missing_y.size() > 0 ||
       divisions_missing_z.size() > 0) {
-    if(_non_uniform) {
-      Point offset;
-      offset.setXYZ(_lattice->getOffset()->getXYZ());
-      initializeLattice(&offset);
+    _non_uniform = true;
+    Point offset;
+    offset.setXYZ(_lattice->getOffset()->getXYZ());
+    initializeLattice(&offset);
 
-      /* Re-run routine to obtain _accumulate_lmxyz arrays */
-      if (!_widths_adjusted_for_domains) {
-        _widths_adjusted_for_domains = true;
-        setNumDomains(num_x, num_y, num_z);
-      }
-      else
-        log_printf(ERROR, "Mesh adjustment to domain decomposition boundaries "
-                   "failed. Manually add the domain boundaries in a non-"
-                   "uniform CMFD mesh.");
+    /* Re-run routine to obtain _accumulate_lmxyz arrays */
+    if (!_widths_adjusted_for_domains) {
+      _widths_adjusted_for_domains = true;
+      setNumDomains(num_x, num_y, num_z);
     }
     else
-      log_printf(ERROR, "Mesh automatic adjusting to domain decomposition"
-                 " boundaries is not implemented for uniform CMFD meshes.");
+      log_printf(ERROR, "Mesh adjustment to domain decomposition boundaries "
+                 "failed. Manually add the domain boundaries in a non-"
+                 "uniform CMFD mesh.");
+
   }
 }
 
@@ -1021,15 +1019,6 @@ void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
       /* Set the surface diffusion coefficient and MOC correction */
       dif_surf =  2 * dif_coef / delta / (1 + 4 * dif_coef / delta);
       dif_surf_corr = (sense * dif_surf * flux - current_out) / flux;
-
-      /* Weight the old and new corrected diffusion coefficients by the
-         relaxation factor */
-      if (_old_dif_surf_valid) {
-        CMFD_PRECISION old_dif_surf_corr = _old_dif_surf_corr->getValue
-            (cmfd_cell, surface*_num_cmfd_groups+group);
-        dif_surf_corr = _relaxation_factor * dif_surf_corr +
-            (1.0 - _relaxation_factor) * old_dif_surf_corr;
-      }
     }
   }
 
@@ -1099,15 +1088,14 @@ void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
                         / (flux_next + flux);
       }
     }
-
-    /* Weight the old and new corrected diffusion coefficients by the
-       relaxation factor */
-    if (_old_dif_surf_valid) {
-      CMFD_PRECISION old_dif_surf_corr = _old_dif_surf_corr->getValue
-          (cmfd_cell, surface*_num_cmfd_groups+group);
-      dif_surf_corr = _relaxation_factor * dif_surf_corr +
-          (1.0 - _relaxation_factor) * old_dif_surf_corr;
-    }
+  }
+  /* Weight the old and new corrected diffusion coefficients by the
+     relaxation factor */
+  if (_old_dif_surf_valid) {
+    CMFD_PRECISION old_dif_surf_corr = _old_dif_surf_corr->getValue
+        (cmfd_cell, surface*_num_cmfd_groups+group);
+    dif_surf_corr = _relaxation_factor * dif_surf_corr +
+        (1.0 - _relaxation_factor) * old_dif_surf_corr;
   }
 
   /* If it is the first MOC iteration, solve the straight diffusion problem
@@ -2070,8 +2058,11 @@ void Cmfd::splitVertexCurrents() {
                   int idx = it->second;
 
                   /* Add the current to the off-domain split currents cell */
+                  // Comment out this line to check for MOC neutron balance
+                  omp_set_lock(&_edge_corner_lock);
                   _off_domain_split_currents[s][idx][surface * ncg + g] +=
                     current;
+                  omp_unset_lock(&_edge_corner_lock);
                   break;
                 }
               }
@@ -2173,8 +2164,11 @@ void Cmfd::splitEdgeCurrents() {
                   int idx = it->second;
 
                   /* Add the current to the off-domain split currents cell */
+                  // Comment out this line to check for MOC neutron balance
+                  omp_set_lock(&_edge_corner_lock);
                   _off_domain_split_currents[s][idx][surface * ncg + g] +=
                     current;
+                  omp_unset_lock(&_edge_corner_lock);
                   break;
                 }
               }
@@ -4490,11 +4484,11 @@ void Cmfd::checkNeutronBalance(bool pre_split, bool moc_balance) {
   int y = (max_imbalance_cell % (_local_num_x * _local_num_y)) / _local_num_x;
   int z = max_imbalance_cell / (_local_num_x * _local_num_y);
   if (moc_balance) {
-    log_printf(NODAL, "Maximum neutron imbalance MOC %f CMFD %f at cell %i "
+    log_printf(NODAL, "Maximum neutron imbalance MOC %f (CMFD %f) at cell %i "
                "(%d %d %d) and group %d.", max_imbalance_moc,
                max_imbalance_cmfd, max_imbalance_cell, x, y, z,
                max_imbalance_grp);
-    log_printf(NODAL, "%d CMFD cells report a neutron imbalance",
+    log_printf(NODAL, "%d CMFD cells report a MOC neutron imbalance",
                num_imbalanced);
   }
   else {

@@ -368,7 +368,7 @@ boundaryType Region::getMinXBoundaryType() {
   }
 
   /* If the min coordinate is infinite, it's not really a boundary */
-  if (std::abs(min_x) != std::numeric_limits<double>::infinity())
+  if (std::abs(min_x) < FLT_INFINITY)
     return bc;
   else
     return BOUNDARY_NONE;
@@ -407,7 +407,7 @@ boundaryType Region::getMaxXBoundaryType() {
   }
 
   /* If the max coordinate is infinite, it's not really a boundary */
-  if (std::abs(max_x) != std::numeric_limits<double>::infinity())
+  if (std::abs(max_x) < FLT_INFINITY)
     return bc;
   else
     return BOUNDARY_NONE;
@@ -446,7 +446,7 @@ boundaryType Region::getMinYBoundaryType() {
   }
 
   /* If the min coordinate is infinite, it's not really a boundary */
-  if (std::abs(min_y) != std::numeric_limits<double>::infinity())
+  if (std::abs(min_y) < FLT_INFINITY)
     return bc;
   else
     return BOUNDARY_NONE;
@@ -485,7 +485,7 @@ boundaryType Region::getMaxYBoundaryType() {
   }
 
   /* If the max coordinate is infinite, it's not really a boundary */
-  if (std::abs(max_y) != std::numeric_limits<double>::infinity())
+  if (std::abs(max_y) < FLT_INFINITY)
     return bc;
   else
     return BOUNDARY_NONE;
@@ -524,7 +524,7 @@ boundaryType Region::getMinZBoundaryType() {
   }
 
   /* If the min coordinate is infinite, it's not really a boundary */
-  if (std::abs(min_z) != std::numeric_limits<double>::infinity())
+  if (std::abs(min_z) < FLT_INFINITY)
     return bc;
   else
     return BOUNDARY_NONE;
@@ -562,7 +562,7 @@ boundaryType Region::getMaxZBoundaryType() {
     }
   }
   /* If the max coordinate is infinite, it's not really a boundary */
-  if (std::abs(max_z) != std::numeric_limits<double>::infinity())
+  if (std::abs(max_z) < FLT_INFINITY)
     return bc;
   else
     return BOUNDARY_NONE;

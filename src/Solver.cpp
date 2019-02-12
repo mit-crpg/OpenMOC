@@ -774,11 +774,8 @@ void Solver::initializeFSRs() {
   _FSR_materials = new Material*[_num_FSRs];
 
   /* Loop over all FSRs to extract FSR material pointers */
-  for (long r=0; r < _num_FSRs; r++) {
+  for (long r=0; r < _num_FSRs; r++)
     _FSR_materials[r] = _geometry->findFSRMaterial(r);
-    log_printf(DEBUG, "FSR ID = %d has Material ID = %d, volume = %f", r, 
-               _FSR_materials[r]->getId(), _FSR_volumes[r]);
-  }
 }
 
 
@@ -1622,8 +1619,11 @@ void Solver::printTimerReport() {
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), transport_sweep);
 
+  double transfer_time = 0.;
+  double idle_time = 0.;
+#ifdef MPIx
   /* Boundary track angular fluxes transfer */
-  double transfer_time = _timer->getSplit("Total transfer time");
+  transfer_time = _timer->getSplit("Total transfer time");
   msg_string = "    Angular Flux Transfer";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), transfer_time);
@@ -1641,10 +1641,11 @@ void Solver::printTimerReport() {
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), comm_time);
 
   /* Idle time between transport sweep and angular fluxes transfer */
-  double idle_time = _timer->getSplit("Idle time");
+  idle_time = _timer->getSplit("Idle time");
   msg_string = "    Total Idle Time Between Sweeps";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), idle_time);
+#endif
 
   /* CMFD acceleration time */
   if (_cmfd != NULL)

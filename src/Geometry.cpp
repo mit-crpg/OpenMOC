@@ -2215,7 +2215,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
     /* Check if stuck in loop */
     find_cell_count++;
     if (find_cell_count > 1e6)
-      log_printf(ERROR, "Caught in inifinite loop finding next cell");
+      log_printf(ERROR, "Caught in infinite loop finding next cell");
 
     /* Records the minimum length to a 2D intersection */
     double min_length = std::numeric_limits<double>::infinity();
@@ -4240,6 +4240,7 @@ void Geometry::loadFromFile(std::string filename, bool non_uniform_lattice,
       universes[i] = all_universes[array[i]];
     }
     lattice->setUniverses(num_z, num_y, num_x, universes);
+    delete [] lattice_iter->second;
   }
 
   /* Set root universe */

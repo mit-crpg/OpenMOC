@@ -571,9 +571,8 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
       /* Increment currents on corners and edges */
       else {
 
-        omp_set_lock(&_edge_corner_lock);
-
         int first_ind = (local_cell_id * NUM_SURFACES + surf_id) * ncg;
+        omp_set_lock(&_edge_corner_lock);
 
 #pragma omp simd aligned(currents)
         for (int g=0; g < ncg; g++)
@@ -584,7 +583,7 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
     }
     else {
       int pe = 0;
-      for (int p = 0; p < _num_polar/2; p++) {
+      for (int p=0; p < _num_polar/2; p++) {
         for (int e=0; e < _num_moc_groups; e++) {
 
           /* Get the CMFD group */

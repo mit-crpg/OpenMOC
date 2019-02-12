@@ -348,6 +348,12 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
                "no track traversed the FSRs. Use a finer track laydown to "
                "ensure every FSR is traversed.", num_zero_volume_fsrs);
 
+  /* Print out total domains' volumes for debugging purposes */
+  double total_volume = 0;
+  for (long r=0; r < num_FSRs; r++)
+    total_volume += _FSR_volumes[r];
+  log_printf(DEBUG, "Total volume %f cm3.", total_volume);
+
   return _FSR_volumes;
 }
 
@@ -1151,13 +1157,22 @@ void TrackGenerator::segmentize() {
   double max_z = _geometry->getRootUniverse()->getMaxZ();
   double min_z = _geometry->getRootUniverse()->getMinZ();
   if ((max_z - min_z) != std::numeric_limits<double>::infinity()) {
-    log_printf(WARNING, "The Geometry was set with non-inifinite z-boundaries"
-               " and supplied to a 2D TrackGenerator. The min-z boundary was "
-               "set to %5.2f and the max-z boundary was set to %5.2f. "
-               "Z-boundaries are assumed to be infinite in 2D "
+    log_printf(WARNING_ONCE, "The Geometry was set with non-inifinite "
+               "z-boundaries and supplied to a 2D TrackGenerator. The min-z "
+               "boundary wasset to %5.2f and the max-z boundary was set to "
+               "%5.2f. Z-boundaries are assumed to be infinite in 2D "
                "TrackGenerators.", min_z, max_z);
+
     Cmfd* cmfd = _geometry->getCmfd();
     if (cmfd != NULL) {
+
+      /* Check that CMFD has been initialized */
+      if (cmfd->getLattice() == NULL)
+        log_printf(ERROR, "CMFD has not been initialized before generating "
+                   "tracks. A call to geometry.initializeFlatSourceRegions() "
+                   "may be missing.");
+
+      /* Re-initialize CMFD lattice with 2D dimensions */
       cmfd->setWidthZ(std::numeric_limits<double>::infinity());
       Point offset;
       offset.setX(cmfd->getLattice()->getOffset()->getX());
@@ -1574,6 +1589,23 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
     rs.execute();
     _segments_centered = true;
   }
+
+  /* Print FSR volumes, centroids and volume moments for debugging purposes */
+  double total_volume[4] = {0.0};
+  for (long r=0; r < num_FSRs; r++) {
+    Point* centroid = _geometry->getFSRCentroid(r);
+    total_volume[0] += _FSR_volumes[r];
+    total_volume[1] += _FSR_volumes[r] * centroids[r]->getX();
+    total_volume[2] += _FSR_volumes[r] * centroids[r]->getY();
+    total_volume[3] += _FSR_volumes[r] * centroids[r]->getZ();
+
+    log_printf(DEBUG, "FSR ID = %d has volume = %f, centroid"
+               " (%f %f %f)", r, _FSR_volumes[r], centroids[r]->getX(),
+               centroids[r]->getY(), centroids[r]->getZ());
+  }
+  log_printf(DEBUG, "Total volume %f cm3, moments of volume (%f %f %f).",
+             total_volume[0], total_volume[1], total_volume[2],
+             total_volume[3]);
 
   delete [] centroids;
 }

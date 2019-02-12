@@ -1279,7 +1279,7 @@ void CPUSolver::boundaryFluxChecker() {
         long connection[2];
         MPI_Recv(connection, 2, MPI_LONG, tester, 0, MPI_cart, &stat);
 
-        /* Check for a broadcast */
+        /* Check for a broadcast of the new tester rank */
         if (connection[0] == -1) {
           tester = connection[1];
         }

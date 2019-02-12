@@ -862,7 +862,7 @@ bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
   CMFD_PRECISION* dd_array = dd.getArray();
   CMFD_PRECISION* x = X->getArray();
 
-  /* Stabalize matrix A to be diagonally dominant */
+  /* Stabilize matrix A to be diagonally dominant */
   CMFD_PRECISION* a = A->getA();
   CMFD_PRECISION* a_diag = A->getDiag();
   int* IA = A->getIA();
@@ -957,7 +957,7 @@ bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
     bool converged = linearSolve(A, M, X, &RHS, tol, SOR_factor,
                                  convergence_data, comm);
     if (!converged)
-      log_printf(ERROR, "Stabalized linear solver inner iteration failed"
+      log_printf(ERROR, "Stabilized linear solver inner iteration failed"
                  " to converge");
 
     // Compute the new source

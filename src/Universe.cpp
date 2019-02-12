@@ -731,7 +731,7 @@ void Universe::calculateBoundaries() {
 
   /* If a x-min boundary was not found, get the x-min from the bounding boxes
    * of the cells */
-  if (min_x == std::numeric_limits<double>::infinity()) {
+  if (min_x > FLT_INFINITY) {
     for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
       min_x = std::min(min_x, c_iter->second->getMinX());
   }
@@ -772,7 +772,7 @@ void Universe::calculateBoundaries() {
 
   /* If a x-max boundary was not found, get the x-max from the bounding boxes
    * of the cells */
-  if (max_x == -std::numeric_limits<double>::infinity()) {
+  if (max_x < -FLT_INFINITY) {
     for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
       max_x = std::max(max_x, c_iter->second->getMaxX());
   }
@@ -814,7 +814,7 @@ void Universe::calculateBoundaries() {
 
   /* If a y-min boundary was not found, get the y-min from the bounding boxes
    * of the cells */
-  if (min_y == std::numeric_limits<double>::infinity()) {
+  if (min_y > FLT_INFINITY) {
     for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
       min_y = std::min(min_y, c_iter->second->getMinY());
   }
@@ -855,7 +855,7 @@ void Universe::calculateBoundaries() {
 
   /* If a y-max boundary was not found, get the y-max from the bounding boxes
    * of the cells */
-  if (max_y == -std::numeric_limits<double>::infinity()) {
+  if (max_y < -FLT_INFINITY) {
     for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
       max_y = std::max(max_y, c_iter->second->getMaxY());
   }
@@ -896,7 +896,7 @@ void Universe::calculateBoundaries() {
 
   /* If a z-min boundary was not found, get the z-min from the bounding boxes
    * of the cells */
-  if (min_z == std::numeric_limits<double>::infinity()) {
+  if (min_z > FLT_INFINITY) {
     for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
       min_z = std::min(min_z, c_iter->second->getMinZ());
   }
@@ -937,7 +937,7 @@ void Universe::calculateBoundaries() {
 
   /* If a z-max boundary was not found, get the z-max from the bounding boxes
    * of the cells */
-  if (max_z == -std::numeric_limits<double>::infinity()) {
+  if (max_z < -FLT_INFINITY) {
     for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
       max_z = std::max(max_z, c_iter->second->getMaxZ());
   }
