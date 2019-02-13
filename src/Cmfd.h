@@ -26,7 +26,7 @@
 
 /** Optimization macro for 3D calculations to avoid branch statements */
 #ifdef THREED
-#define _solve_3D (true)
+#define _SOLVE_3D (true)
 #endif
 
 /** Forward declaration of Geometry class */
@@ -262,7 +262,7 @@ private:
 
 #ifndef THREED
   /** Flag indicating whether the problem is 2D or 3D */
-  bool _solve_3D;
+  bool _SOLVE_3D;
 #endif
 
   /** Array of azimuthal track spacings */
@@ -548,7 +548,7 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
          __attribute__ ((aligned(VEC_ALIGNMENT))) = {0.0};
     int local_cell_id = getLocalCMFDCell(cell_id);
 
-    if (_solve_3D) {
+    if (_SOLVE_3D) {
       double wgt = _quadrature->getWeightInline(azim_index, polar_index);
       for (int e=0; e < _num_moc_groups; e++) {
 

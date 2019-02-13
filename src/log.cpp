@@ -569,30 +569,24 @@ void log_printf(logLevel level, const char* format, ...) {
     log_file.close();
 
     /* Write the log message to the shell */
-#ifdef SWIG  //FIXME Critical clause to avoid SEGFAULTS with too much output
-#pragma omp critical
-      {
-#endif
+    //FIXME Too much output tends to segfault, locking output blocks test suite
     if (level == ERROR) {
-      {
+      omp_set_lock(&log_error_lock);
 #ifdef MPIx
-        if (_MPI_present) {
-          printf("%s", "[  ERROR  ]  ");
-          printf("%s", &msg_string[0]);
-          fflush(stdout);
-          MPI_Abort(_MPI_comm, 0);
-        }
-#endif
-        throw std::logic_error(&msg_string[0]);
+      if (_MPI_present) {
+        printf("%s", "[  ERROR  ]  ");
+        printf("%s", &msg_string[0]);
+        fflush(stdout);
+        MPI_Abort(_MPI_comm, 0);
       }
+#endif
+      throw std::logic_error(&msg_string[0]);
+      omp_unset_lock(&log_error_lock);
     }
     else {
       printf("%s", &msg_string[0]);
       fflush(stdout);
     }
-#ifdef SWIG
-    }
-#endif
   }
 }
 

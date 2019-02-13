@@ -41,7 +41,7 @@ Cmfd::Cmfd() {
   _SOR_factor = 1.0;
   _num_FSRs = 0;
 #ifndef THREED
-  _solve_3D = false;
+  _SOLVE_3D = false;
 #endif
   _total_tally_size = 0;
   _tallies_allocated = false;
@@ -3786,7 +3786,7 @@ void Cmfd::initializeBackupCmfdSolver() {
   _backup_cmfd->initializeGroupMap();
 
   /* Give CMFD number of FSRs and FSR property arrays */
-  _backup_cmfd->setSolve3D(_solve_3D);
+  _backup_cmfd->setSolve3D(_SOLVE_3D);
   _backup_cmfd->setNumFSRs(_num_FSRs);
   _backup_cmfd->setFSRVolumes(_FSR_volumes);
   _backup_cmfd->setFSRMaterials(_FSR_materials);
@@ -3947,7 +3947,7 @@ int Cmfd::getSense(int surface) {
  */
 void Cmfd::setSolve3D(bool solve_3D) {
 #ifndef THREED
-  _solve_3D = solve_3D;
+  _SOLVE_3D = solve_3D;
 #endif
 }
 

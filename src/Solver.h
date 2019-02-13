@@ -184,7 +184,7 @@ protected:
 
 #ifndef THREED
   /** Boolean for whether to solve in 3D (true) or 2D (false) */
-  bool _solve_3D;
+  bool _SOLVE_3D;
 #endif
 
   /** Boolean to indicate whether there are any fixed sources */
