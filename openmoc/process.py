@@ -26,7 +26,7 @@ else:
 # Store viable OpenMOC solver types for type checking
 solver_types = (openmoc.Solver,)
 # Store implemented reaction types for value checking
-rxn_types = ('flux', 'total', 'scatter', 'fission', 'nu-fission')
+rxn_types = ('flux', 'total', 'absorption', 'scatter', 'fission', 'nu-fission')
 try:
     # Try to import OpenMOC's CUDA module
     if (sys.version_info[0] == 2):
@@ -222,7 +222,8 @@ def get_sigma_by_group(material, rxn_type, g):
     ----------
     material : openmoc.Material
         Material that we are getting the cross sections from
-    rxn_type : {'flux', 'total', 'scatter', 'fission', 'nu-fission'}
+    rxn_type : {'flux', 'total', 'absorption', 'scatter',
+                'fission', 'nu-fission'}
         Reaction type we are loading the cross section for
     g : integer
         Energy group index (starts at 0).
@@ -240,6 +241,8 @@ def get_sigma_by_group(material, rxn_type, g):
     # Energy groups start at 1 in OpenMOC
     if rxn_type == "total":
         return material.getSigmaTByGroup(g + 1)
+    elif rxn_type == "absorption":
+        return material.getSigmaAByGroup(g + 1)
     elif rxn_type == "fission":
         return material.getSigmaFByGroup(g + 1)
     elif rxn_type == "nu-fission":
@@ -978,8 +981,8 @@ class Mesh(object):
         ----------
         solver : {openmoc.CPUSolver, openmoc.GPUSolver, openmoc.VectorizedSolver}
             The solver used to compute the flux
-        rxn_type : {'flux', 'total', 'scatter', 'fission', 'nu-fission'}
-            The cross section or reaction type to tally
+        rxn_type : {'flux', 'total', 'absorption', 'scatter',
+                'fission', 'nu-fission'}
         volume : {'averaged', 'integrated'}
             Compute volume-averaged or volume-integrated tallies
         energy : {'by_group', 'integrated'}
