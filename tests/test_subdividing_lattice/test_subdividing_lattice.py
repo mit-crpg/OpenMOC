@@ -10,7 +10,7 @@ import openmoc
 
 
 
-class SimpleLatticeInput(InputSet):
+class SimplerLatticeInput(InputSet):
     """A 4x4 pin cell lattice problem from sample-input/simple-lattice."""
 
     def create_materials(self):
@@ -18,18 +18,17 @@ class SimpleLatticeInput(InputSet):
         self.materials = \
             openmoc.materialize.load_from_hdf5(filename='c5g7-mgxs.h5',
                                                directory='../../sample-input/')
-    
+
     def create_lattice(self):
-        
-        large_zcylinder = openmoc.ZCylinder(x=0.0, y=0.0,
-                                            radius=0.4, name='large pin')
-        medium_zcylinder = openmoc.ZCylinder(x=0.0, y=0.0,
-                                             radius=0.3, name='medium pin')
-        small_zcylinder = openmoc.ZCylinder(x=0.0, y=0.0,
-                                            radius=0.2, name='small pin')
-        
-        x0_plane = openmoc.XPlane(0)
-        y0_plane = openmoc.YPlane(0)
+    
+        large_zcylinder = openmoc.ZCylinder(
+            x=0.0, y=0.0, radius=0.4, name='large pin')
+        medium_zcylinder = openmoc.ZCylinder(
+            x=0.0, y=0.0, radius=0.3, name='medium pin')
+        small_zcylinder = openmoc.ZCylinder(
+            x=0.0, y=0.0, radius=0.2, name='small pin')
+        x0_plane = openmoc.XPlane(x=0)
+        y0_plane = openmoc.YPlane(y=0)
     
         large_fuel = openmoc.Cell(name='large pin fuel')
         large_fuel.setFill(self.materials['UO2'])
@@ -94,13 +93,11 @@ class SimpleLatticeInput(InputSet):
         ###################
         lleft = [-0.5]*2
         uright = [0.5]*2
-        
         DIV = (2, 2)
         div1 = openmoc.Subdivider(DIV, lleft, uright)
         pin1_div = div1.get_subdivided_universe(pin1)
         div4 = openmoc.Subdivider(DIV, lleft, uright)
         pin4_div = div4.get_subdivided_universe(pin4)
-        
     
         # 2x2 assembly
         lattice = openmoc.Lattice(name='2x2 lattice')
@@ -152,50 +149,31 @@ class SimpleLatticeInput(InputSet):
         self.geometry = openmoc.Geometry()
         self.geometry.setRootUniverse(root_universe)
 
-        super(SimpleLatticeInput, self).create_geometry()
+        super(SimplerLatticeInput, self).create_geometry()
 
-class SimpleLatticeTestHarness(TestHarness):
+class SubdividingLatticeTestHarness(TestHarness):
     """An eigenvalue calculation for a 4x4 lattice with 7-group C5G7
     cross section data."""
 
     def __init__(self):
-        super(SimpleLatticeTestHarness, self).__init__()
-        self.input_set = SimpleLatticeInput(num_dimensions=2)
+        super(SubdividingLatticeTestHarness, self).__init__()
+        self.input_set = SimplerLatticeInput(num_dimensions=2)
 
         # Change spacing to avoid having rays start on lattice planes
         # Those rays are problematic because they cross through fuel pins
         # parallelly to sector planes.
         self.spacing = 0.12
-    
-    '''
-    def _create_geometry(self):
-        super()._create_geometry()
-        # Initialize CMFD
-        cmfd = openmoc.Cmfd()
-        #cmfd.setSORRelaxationFactor(1.5)
-        cmfd.setLatticeStructure(4, 4)
-        #cmfd.setGroupStructure([[1, 2, 3], [4, 5, 6, 7]])
-        cmfd.setKNearest(3)
-        # Add CMFD to the Geometry
-        self.input_set.geometry.setCmfd(cmfd)
-    '''
 
     def _get_results(self, num_iters=True, keff=True, fluxes=True,
-                     num_fsrs=False, num_tracks=False, num_segments=False,
+                     num_fsrs=True, num_tracks=False, num_segments=False,
                      hash_output=False):
         """Digest info in the solver and return hash as a string."""
-        return super(SimpleLatticeTestHarness, self)._get_results(
+        return super(SubdividingLatticeTestHarness, self)._get_results(
                 num_iters=num_iters, keff=keff, fluxes=fluxes,
                 num_fsrs=num_fsrs, num_tracks=num_tracks,
                 num_segments=num_segments, hash_output=hash_output)
-    
-    def main(self):
-        self._setup()
-        #plt.plot_flat_source_regions(self.input_set.geometry)
-        #plt.plot_materials(self.input_set.geometry)
-        super(SimpleLatticeTestHarness, self).main()
 
 
 if __name__ == '__main__':
-    harness = SimpleLatticeTestHarness()
+    harness = SubdividingLatticeTestHarness()
     harness.main()
