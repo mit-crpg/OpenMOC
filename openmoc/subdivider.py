@@ -2,9 +2,15 @@
 #
 # Class that performs spatial discretization on a mesh
 
+import sys
 import numpy as np
 import openmoc
-import openmoc.checkvalue as cv
+ #For Python 2.X.X
+if (sys.version_info[0] == 2):
+    import checkvalue as cv
+# For Python 3.X.X
+else:
+    import openmoc.checkvalue as cv
 
 
 class Subdivider(openmoc.Lattice):
