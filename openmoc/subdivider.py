@@ -53,7 +53,7 @@ class Subdivider(openmoc.Lattice):
         self.division = division
         
         self.ndim = ndim
-        super().__init__(*args, *kwargs)
+        super().__init__(*args, **kwargs)
     
     @property
     def deltas(self):
