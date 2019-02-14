@@ -3009,7 +3009,10 @@ void Geometry::initializeCmfd() {
   Point offset;
   offset.setX(min_x + (max_x - min_x)/2.0);
   offset.setY(min_y + (max_y - min_y)/2.0);
-  offset.setZ(min_z + (max_z - min_z)/2.0);
+  if (std::abs(min_z + (max_z - min_z)/2.0) < FLT_INFINITY)
+    offset.setZ(min_z + (max_z - min_z)/2.0);
+  else
+    offset.setZ(0.);
 
   _cmfd->initializeLattice(&offset);
 
@@ -3023,7 +3026,7 @@ void Geometry::initializeCmfd() {
     _cmfd->setDomainIndexes(_domain_index_x, _domain_index_y, _domain_index_z);
   }
 #endif
-  /* Intialize CMFD Maps */
+  /* Initialize CMFD Maps */
   _cmfd->initializeCellMap();
 }
 
@@ -3066,7 +3069,7 @@ void Geometry::initializeSpectrumCalculator(Cmfd* spectrum_calculator) {
   spectrum_calculator->setWidthY(max_y - min_y);
   spectrum_calculator->setWidthZ(max_z - min_z);
 
-  /* Intialize CMFD Maps */
+  /* Initialize CMFD Maps */
   spectrum_calculator->initializeCellMap();
 
   /* Initialize the CMFD lattice */

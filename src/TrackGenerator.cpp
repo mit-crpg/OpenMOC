@@ -1201,7 +1201,7 @@ void TrackGenerator::segmentize() {
       Point offset;
       offset.setX(cmfd->getLattice()->getOffset()->getX());
       offset.setY(cmfd->getLattice()->getOffset()->getY());
-      offset.setZ(0.0);
+      offset.setZ(_z_coord);
       cmfd->initializeLattice(&offset, true);
     }
   }

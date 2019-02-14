@@ -1042,7 +1042,7 @@ void Solver::initializeCmfd() {
   else if (!_cmfd->isFluxUpdateOn())
     return;
 
-  /* Intialize the CMFD energy group structure */
+  /* Initialize the CMFD energy group structure */
   _cmfd->setSourceConvergenceThreshold(_converge_thresh*1.e-1); //FIXME
   _cmfd->setNumMOCGroups(_num_groups);
   _cmfd->initializeGroupMap();
@@ -1102,7 +1102,7 @@ void Solver::calculateInitialSpectrum(double threshold) {
     spectrum_calculator.setBoundary(SURFACE_Z_MAX, REFLECTIVE);
   }
 
-  /* Intialize the energy group structure */
+  /* Initialize the energy group structure */
   spectrum_calculator.setSourceConvergenceThreshold(threshold);
   spectrum_calculator.setNumMOCGroups(_num_groups);
   spectrum_calculator.initializeGroupMap();

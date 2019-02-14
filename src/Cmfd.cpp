@@ -3642,8 +3642,9 @@ void Cmfd::initialize() {
 void Cmfd::initializeLattice(Point* offset, bool is_2D) {
 
   /* Deal with 2D case, set all widths Z to 1 */
-  if (is_2D) {
-    setNumZ(1);
+  if (is_2D || _width_z == std::numeric_limits<double>::infinity()) {
+    _num_z = 1;
+    _local_num_z = 1;
     _width_z = 1.0;
     _cell_width_z = 1.0;
     _cell_widths_z.resize(_num_z, _cell_width_z);
@@ -3651,7 +3652,7 @@ void Cmfd::initializeLattice(Point* offset, bool is_2D) {
     setBoundary(SURFACE_Z_MAX, REFLECTIVE);
   }
 
-  if(_non_uniform) {
+  if (_non_uniform) {
     setNumX(_cell_widths_x.size());
     setNumY(_cell_widths_y.size());
     setNumZ(_cell_widths_z.size());
@@ -3670,16 +3671,16 @@ void Cmfd::initializeLattice(Point* offset, bool is_2D) {
   _accumulate_y.resize(_num_y+1, 0.0);
   _accumulate_z.resize(_num_z+1, 0.0);
 
-  for(int i=0; i<_num_x; i++)
+  for (int i=0; i<_num_x; i++)
     _accumulate_x[i+1] = _accumulate_x[i] + _cell_widths_x[i];
 
-  for(int i=0; i<_num_y; i++)
+  for (int i=0; i<_num_y; i++)
     _accumulate_y[i+1] = _accumulate_y[i] + _cell_widths_y[i];
 
-  for(int i=0; i<_num_z; i++)
+  for (int i=0; i<_num_z; i++)
     _accumulate_z[i+1] = _accumulate_z[i] + _cell_widths_z[i];
 
-  if(fabs(_width_x - _accumulate_x[_num_x]) > FLT_EPSILON ||
+  if (fabs(_width_x - _accumulate_x[_num_x]) > FLT_EPSILON ||
      fabs(_width_y - _accumulate_y[_num_y]) > FLT_EPSILON ||
      fabs(_width_z - _accumulate_z[_num_z]) > FLT_EPSILON)
     log_printf(ERROR, "The sum of non-uniform mesh widths are not consistent "
@@ -3704,16 +3705,9 @@ void Cmfd::initializeLattice(Point* offset, bool is_2D) {
 
   if (_non_uniform)
     _lattice->setWidths(_cell_widths_x, _cell_widths_y, _cell_widths_z);
-  else {
-    if (is_2D)
-      _lattice->setWidth(_cell_width_x, _cell_width_y, 
-                         std::numeric_limits<double>::infinity());
-    else
-      _lattice->setWidth(_cell_width_x, _cell_width_y, _cell_width_z);
-  }
-
+  else
+    _lattice->setWidth(_cell_width_x, _cell_width_y, _cell_width_z);
   _lattice->setOffset(offset->getX(), offset->getY(), offset->getZ());
-
   _lattice->computeSizes();
 }
 

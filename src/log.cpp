@@ -580,8 +580,8 @@ void log_printf(logLevel level, const char* format, ...) {
         MPI_Abort(_MPI_comm, 0);
       }
 #endif
-      throw std::logic_error(&msg_string[0]);
       omp_unset_lock(&log_error_lock);
+      throw std::logic_error(&msg_string[0]);
     }
     else {
       printf("%s", &msg_string[0]);
