@@ -22,7 +22,6 @@ else:
     import openmoc.materialize
     import openmoc.plotter
     import openmoc.process
-    import openmoc.subdivider
     import openmoc.krylov
 
 # Tell Python to recognize CTRL+C and stop the C++ extension module

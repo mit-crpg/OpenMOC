@@ -1,7 +1,3 @@
-# Subdividing Lattice
-#
-# Class that performs spatial discretization on a mesh
-
 import sys
 import numpy as np
 import openmoc
