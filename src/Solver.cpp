@@ -2126,7 +2126,7 @@ void Solver::printInputParamsSummary() {
     log_printf(NORMAL, "CMFD acceleration: ON");
     log_printf(NORMAL, "CMFD Mesh: %d x %d x %d", _cmfd->getNumX(),
                _cmfd->getNumY(), _cmfd->getNumZ());
-    if (_num_groups != _cmfd->getNumMOCGroups()) {
+    if (_num_groups != _cmfd->getNumCmfdGroups()) {
       log_printf(NORMAL, "CMFD Group Structure:");
       log_printf(NORMAL, "\t MOC Group \t CMFD Group");
       for (int g=0; g < _cmfd->getNumMOCGroups(); g++)

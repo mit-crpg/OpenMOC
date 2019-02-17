@@ -3646,7 +3646,8 @@ void Cmfd::initializeLattice(Point* offset, bool is_2D) {
     _local_num_z = 1;
     _width_z = 1.0;
     _cell_width_z = 1.0;
-    _cell_widths_z.resize(_num_z, _cell_width_z);
+    _cell_widths_z.resize(_num_z);
+    _cell_widths_z[0] = _cell_width_z;
     setBoundary(SURFACE_Z_MIN, REFLECTIVE);
     setBoundary(SURFACE_Z_MAX, REFLECTIVE);
   }
