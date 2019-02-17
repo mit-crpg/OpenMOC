@@ -253,7 +253,6 @@ Cmfd::~Cmfd() {
 /**
  * @brief Set the number of Mesh cells in a row.
  * @param number of Mesh cells in a row
- * @param whether to set the local number of mesh cells
  */
 void Cmfd::setNumX(int num_x) {
 
