@@ -162,7 +162,7 @@ protected:
   int _fluxes_per_track;
 
   /** A pointer to the Tracks array, only for GPUSolver and VectorizedSolver */
-  Track** _tracks; //FIXME 
+  Track** _tracks; //FIXME
 
   /** Ids of materials that will have their cross section limited */
   std::vector<int> _limit_xs_materials;
@@ -200,7 +200,7 @@ protected:
   /** Boolean for whether to print verbose iteration reports */
   bool _verbose;
 
-  /** Boolean for whether to perform a spectrum calculation for the initial 
+  /** Boolean for whether to perform a spectrum calculation for the initial
    *  flux guess */
   bool _calculate_initial_spectrum;
 
@@ -227,12 +227,6 @@ protected:
 
   /** The total number of Tracks */
   long _tot_num_tracks;
-
-  /** The weights for each azimuthal angle */
-  double* _azim_spacings;
-
-  /** The weights for each polar angle in the polar angle quadrature */
-  double** _polar_spacings;
 
   /** The angular fluxes for each Track for all energy groups, polar angles,
    *  and azimuthal angles. This array stores the boundary fluxes for a
@@ -362,7 +356,7 @@ protected:
    * @brief Computes the stabilizing flux for transport stabilization
    */
   virtual void computeStabilizingFlux() =0;
-  
+
   /**
    * @brief Adjusts the scalar flux for transport stabilization
    */

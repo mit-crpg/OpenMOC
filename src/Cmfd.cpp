@@ -394,7 +394,7 @@ void Cmfd::setNumDomains(int num_x, int num_y, int num_z) {
   _accumulate_lmy.resize(num_y + 1, 0);
   _accumulate_lmz.resize(num_z + 1, 0);
 
-  /* To check the position of domain decomposition interfaces in non-uniform 
+  /* To check the position of domain decomposition interfaces in non-uniform
      CMFD mesh interfaces. x direction */
   int j;
   for(int i=0; i<num_x; i++) {
@@ -411,7 +411,7 @@ void Cmfd::setNumDomains(int num_x, int num_y, int num_z) {
     }
   }
 
-  /* To check the position of domain decomposition interfaces in non-uniform 
+  /* To check the position of domain decomposition interfaces in non-uniform
      CMFD mesh interfaces. y direction */
   for(int i=0; i<num_y; i++) {
     double coord = (i + 1) * _width_y / num_y;
@@ -427,7 +427,7 @@ void Cmfd::setNumDomains(int num_x, int num_y, int num_z) {
     }
   }
 
-  /* To check the position of domain decomposition interfaces in non-uniform 
+  /* To check the position of domain decomposition interfaces in non-uniform
      CMFD mesh interfaces. z direction */
   for(int i=0; i<num_z; i++) {
     double coord = (i + 1) * _width_z / num_z;
@@ -622,13 +622,13 @@ void Cmfd::collapseXS() {
                   scat[g*_num_moc_groups+h] * flux * volume;
             }
           }
-          if (fabs(rxn_tally_group) > FLT_EPSILON && 
+          if (fabs(rxn_tally_group) > FLT_EPSILON &&
               fabs(trans_tally_group) > FLT_EPSILON) {
             CMFD_PRECISION flux_avg_sigma_t = trans_tally_group /
                 rxn_tally_group;
 //why times rxn_tally_group here and divided by _reaction_tally[cmfd_cell][group]
 //in getDiffusionCoefficient?
-            _diffusion_tally[i][e] += rxn_tally_group / 
+            _diffusion_tally[i][e] += rxn_tally_group /
                 (3.0 * flux_avg_sigma_t);
           }
         }
@@ -754,7 +754,7 @@ CMFD_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
  */
 void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
                                           int group, int moc_iteration,
-                                          CMFD_PRECISION& dif_surf, 
+                                          CMFD_PRECISION& dif_surf,
                                           CMFD_PRECISION& dif_surf_corr) {
 
   FP_PRECISION current, current_out, current_in;
@@ -769,7 +769,7 @@ void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
   CMFD_PRECISION delta = getPerpendicularSurfaceWidth(surface, global_cmfd_cell);
 
   CMFD_PRECISION delta_next = 0.0;
-  if(global_cmfd_cell_next != -1) 
+  if(global_cmfd_cell_next != -1)
     delta_next = getPerpendicularSurfaceWidth(surface, global_cmfd_cell_next);
 
   int sense = getSense(surface);
@@ -1114,7 +1114,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
 
           /* Set transport term on diagonal.
           dif_surf and dif_surf_corr are modified via reference */
-          getSurfaceDiffusionCoefficient(i, s, e, moc_iteration, dif_surf, 
+          getSurfaceDiffusionCoefficient(i, s, e, moc_iteration, dif_surf,
                                           dif_surf_corr);
 
           /* Record the corrected diffusion coefficient */
@@ -1202,7 +1202,7 @@ void Cmfd::updateMOCFlux() {
         if (_convergence_data != NULL) {
 #pragma omp critical
           {
-            if (std::abs(log(update_ratio)) > 
+            if (std::abs(log(update_ratio)) >
                 std::abs(log(_convergence_data->pf)))
               _convergence_data->pf = update_ratio;
           }
@@ -1218,7 +1218,7 @@ void Cmfd::updateMOCFlux() {
             _flux_moments[(*iter)*3*_num_moc_groups + h] *= update_ratio;
             _flux_moments[(*iter)*3*_num_moc_groups + _num_moc_groups + h]
                  *= update_ratio;
-            _flux_moments[(*iter)*3*_num_moc_groups + 2*_num_moc_groups + h] 
+            _flux_moments[(*iter)*3*_num_moc_groups + 2*_num_moc_groups + h]
                  *= update_ratio;
           }
 
@@ -1452,7 +1452,7 @@ void Cmfd::initializeMaterials() {
 
   /* Compute and log size in memory of Material array */
   double size = (double) (_num_cmfd_groups + 4) * _num_cmfd_groups *
-              _local_num_x * _local_num_y * _local_num_z * 
+              _local_num_x * _local_num_y * _local_num_z *
               sizeof(FP_PRECISION) / (double) 1e6;
   log_printf(NORMAL, "CMFD material storage per domain = %6.2f MB", size);
 
@@ -1522,7 +1522,7 @@ void Cmfd::initializeCellMap() {
 
 /**
  * @brief Allocates memory for the CMFD tallies.
- * @details This method is called by the CMFD initialization routine, and 
+ * @details This method is called by the CMFD initialization routine, and
  *          allocates memory for the diffusion, reaction and volume tallies for
  *          every CMFD cells.
  */
@@ -1635,13 +1635,13 @@ int Cmfd::findCmfdCell(LocalCoords* coords) {
   Point* point = coords->getHighestLevel()->getPoint();
   int global_cmfd_cell = _lattice->getLatticeCell(point);
 
-  /* If domain decomposition, compute the local CMFD cell ID*/ 
+  /* If domain decomposition, compute the local CMFD cell ID*/
   if (_geometry->isDomainDecomposed()) {
     int local_cmfd_cell = getLocalCMFDCell(global_cmfd_cell);
     return local_cmfd_cell;
   }
   else
-    /* Without decomposition, global and local CMFD cell ID are equal.*/ 
+    /* Without decomposition, global and local CMFD cell ID are equal.*/
     return global_cmfd_cell;
 }
 
@@ -2221,7 +2221,7 @@ int Cmfd::getBoundary(int side) {
  *          cell is just a way of describing each of the rectangular regions
  *          that make up a CMFD lattice. CMFD cells are numbered with 0 in the
  *          lower left corner and monotonically increasing from left to right,
- *          from bottom to top. For example, the indices for a 4 x 4 lattice 
+ *          from bottom to top. For example, the indices for a 4 x 4 lattice
  *          are:
  *                  12  13  14  15
  *                  8    9  10  11
@@ -2292,7 +2292,7 @@ std::vector< std::vector<long> >* Cmfd::getCellFSRs() {
 
 
 /**
- * @brief Set the vector of vectors that contains the FSRs that lie in each 
+ * @brief Set the vector of vectors that contains the FSRs that lie in each
  *        cell.
  * @param cell_fsrs vector of vectors containing FSR IDs in each cell.
  */
@@ -2331,9 +2331,9 @@ void Cmfd::setConvergenceData(ConvergenceData* convergence_data) {
 
 
 /**
- * @brief Set the flag indicating whether to use quadratic axial interpolation 
+ * @brief Set the flag indicating whether to use quadratic axial interpolation
  *        for update ratios.
- * @param interpolate flag meaning No interpolation(0), FSR axially averaged 
+ * @param interpolate flag meaning No interpolation(0), FSR axially averaged
           value(1) or centroid z-coordinate evaluated value(2)
  */
 void Cmfd::useAxialInterpolation(int interpolate) {
@@ -2352,8 +2352,8 @@ void Cmfd::useAxialInterpolation(int interpolate) {
 
 /**
  * @brief Turns on the flux limiting condition.
- * @details If the CMFD correction diffusion coefficient is larger than the 
- *          diffusion coefficient, recompute the diffusion coefficient as the 
+ * @details If the CMFD correction diffusion coefficient is larger than the
+ *          diffusion coefficient, recompute the diffusion coefficient as the
  *          ratio of current to twice the flux, and re-compute a correction
  *          diffusion coefficient.
  * @param flux_limiting whether to turn on the flux limiting condition
@@ -2532,7 +2532,7 @@ void Cmfd::generateKNearestStencils() {
         for (int j=0; j < num_cells_in_stencil; j++)
           _k_nearest_stencils[fsr_id]
             .push_back(std::make_pair<int, double>
-                      (int(j), getDistanceToCentroid(centroid, global_ind, i, 
+                      (int(j), getDistanceToCentroid(centroid, global_ind, i,
                                                      j)));
 
         /* Sort the distances */
@@ -2597,7 +2597,7 @@ void Cmfd::generateKNearestStencils() {
       int z_ind = i / (_local_num_x * _local_num_y);
 
       /* The heights of neighboring three CMFD meshes for quadratic fit */
-      double h0, h1, h2; 
+      double h0, h1, h2;
 
       /* The z coordinate of the mesh center of the middle-CMFD cell  */
       double z_cmfd;
@@ -2638,7 +2638,7 @@ void Cmfd::generateKNearestStencils() {
         zs = (feature_point->getZ() - z_cmfd) / h1;
         ze = 2*zc - zs;
 
-        /* Calculate components for quadratic interpolation of the FSR axially 
+        /* Calculate components for quadratic interpolation of the FSR axially
            averaged value */
         if(_use_axial_interpolation ==1) {
           _axial_interpolants.at(fsr_id)[0] = (h1*(h1+h1*zc*4.0+h2*zc*8.0-
@@ -2663,7 +2663,7 @@ void Cmfd::generateKNearestStencils() {
                      _axial_interpolants.at(fsr_id)[2]);
         }
 
-      /* Calculate components for quadratic interpolation of the centroid  
+      /* Calculate components for quadratic interpolation of the centroid
          z-coordinate evaluated value. */
         else if(_use_axial_interpolation == 2) {
           _axial_interpolants.at(fsr_id)[0] = -(h1*(h1+h1*zc*4.0+h2*zc*8.0-h1*
@@ -2686,7 +2686,7 @@ void Cmfd::generateKNearestStencils() {
                     _axial_interpolants.at(fsr_id)[1],
                     _axial_interpolants.at(fsr_id)[2]);
         }
-        /* Calculate components for quadratic interpolation of the centroid  
+        /* Calculate components for quadratic interpolation of the centroid
            z-coordinate evaluted value. For uniform CMFD */
         /*_axial_interpolants.at(fsr_id)[0] = zc * zc/2.0 - zc/2.0 - 1.0/24.0;
         _axial_interpolants.at(fsr_id)[1] = -zc * zc + 26.0/24.0;
@@ -3002,7 +3002,7 @@ double Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
 }
 
 
-/** 
+/**
  * @brief Set a pointer to the Geometry.
  * @param goemetry A pointer to a Geometry object.
  */
@@ -3011,7 +3011,7 @@ void Cmfd::setGeometry(Geometry* geometry) {
 }
 
 
-/** 
+/**
  * @brief Set a number of k-nearest neighbor cells to use in updating
  *         the FSR flux.
  * @param k_nearest The number of nearest neighbor CMFD cells.
@@ -3114,15 +3114,15 @@ void Cmfd::initialize() {
 
     /* Compute and log size in memory of CMFD matrices */
     int num_rows = _num_cmfd_groups * _local_num_x * _local_num_y *
-                   _local_num_z * 2; 
+                   _local_num_z * 2;
     // A matrix is duplicated as list of list and CSR form (allocated before
     // each transport iteration's CMFD solve)
 
-    int num_non_zero_coeffs = 6 + std::min(20, _num_cmfd_groups); 
+    int num_non_zero_coeffs = 6 + std::min(20, _num_cmfd_groups);
     // 20 is estimated number of non-zero scatters per group for 70g structure
     double size = (double) (num_rows) * num_non_zero_coeffs *
                   sizeof(CMFD_PRECISION) / (double) 1e6;
-    log_printf(NORMAL, "CMFD A matrix est. storage per domain = %6.2f MB", 
+    log_printf(NORMAL, "CMFD A matrix est. storage per domain = %6.2f MB",
                size);
 
     /* Allocate memory for matrix and vector objects */
@@ -3141,7 +3141,7 @@ void Cmfd::initialize() {
     _old_dif_surf_corr = new Vector(_cell_locks, _local_num_x, _local_num_y,
                                     _local_num_z, NUM_FACES * ncg);
     _old_dif_surf_corr->setAll(0.0);
-    _volumes = new Vector(_cell_locks, _local_num_x, _local_num_y, 
+    _volumes = new Vector(_cell_locks, _local_num_x, _local_num_y,
                           _local_num_z, 1);
 
     /* Initialize k-nearest stencils, currents, flux, materials and tallies */
@@ -3427,7 +3427,7 @@ void Cmfd::initializeLattice(Point* offset) {
     _accumulate_x[i+1] = _accumulate_x[i] + _cell_widths_x[i];
 
   for(int i=0; i<_num_y; i++)
-    _accumulate_y[i+1] = _accumulate_y[i] + _cell_widths_y[i];  
+    _accumulate_y[i+1] = _accumulate_y[i] + _cell_widths_y[i];
 
   for(int i=0; i<_num_z; i++)
     _accumulate_z[i+1] = _accumulate_z[i] + _cell_widths_z[i];
@@ -3441,8 +3441,8 @@ void Cmfd::initializeLattice(Point* offset) {
       "diff_x = %20.17E, diff_y = %20.17E, diff_z = %20.17E, FLT_EPSILON = "
       "%20.17E", _width_x, _width_y, _width_z, _accumulate_x[_num_x],
       _accumulate_y[_num_y], _accumulate_z[_num_z],
-      fabs(_width_x - _accumulate_x[_num_x]), 
-      fabs(_width_y - _accumulate_y[_num_y]), 
+      fabs(_width_x - _accumulate_x[_num_x]),
+      fabs(_width_y - _accumulate_y[_num_y]),
       fabs(_width_z - _accumulate_z[_num_z]), FLT_EPSILON);
 
   /* Delete old lattice if it exists */
@@ -3459,7 +3459,7 @@ void Cmfd::initializeLattice(Point* offset) {
     _lattice->setWidths(_cell_widths_x, _cell_widths_y, _cell_widths_z);
   else {
     if (is_2D)
-      _lattice->setWidth(_cell_width_x, _cell_width_y, 
+      _lattice->setWidth(_cell_width_x, _cell_width_y,
                          std::numeric_limits<double>::infinity());
     else
       _lattice->setWidth(_cell_width_x, _cell_width_y, _cell_width_z);
@@ -3473,7 +3473,7 @@ void Cmfd::initializeLattice(Point* offset) {
 
 /**
  * @brief Initializes a backup CMFD solver.
- * @details This backup solver is not necessary to run simulations, but may be 
+ * @details This backup solver is not necessary to run simulations, but may be
  *          used if the regular solver fails and the user wants to try another
  *          group structure without restarting the simulation.
  */
@@ -3709,7 +3709,8 @@ void Cmfd::setSolve3D(bool solve_3D) {
  * @param azim_spacings An array of azimuthal spacings for each azimuthal angle.
  * @param num_azim the number of azimuthal angles.
  */
-void Cmfd::setAzimSpacings(double* azim_spacings, int num_azim) {
+void Cmfd::setAzimSpacings(const std::vector<double>& azim_spacings,
+                           int num_azim) {
 
   if (_azim_spacings != NULL)
     delete [] _azim_spacings;
@@ -3728,8 +3729,8 @@ void Cmfd::setAzimSpacings(double* azim_spacings, int num_azim) {
  * @param num_azim the number of azimuthal angles.
  * @param num_polar the number of polar angles.
  */
-void Cmfd::setPolarSpacings(double** polar_spacings, int num_azim,
-                            int num_polar) {
+void Cmfd::setPolarSpacings(const std::vector< std::vector<double> >&
+                            polar_spacings, int num_azim, int num_polar) {
 
   if (_polar_spacings != NULL) {
     for (int a=0; a < num_azim/4; a++)
@@ -3749,7 +3750,7 @@ void Cmfd::setPolarSpacings(double** polar_spacings, int num_azim,
 
 
 /**
- * @brief Set the value of the k effective for the CMFD solver. This is meant 
+ * @brief Set the value of the k effective for the CMFD solver. This is meant
  *        for research / debugging purposes.
  * @param k_eff the k_eff value to set.
  */
@@ -4301,7 +4302,7 @@ void Cmfd::ghostCellExchange() {
 
 
 /**
- * @brief Communicate split (at corners and edges) currents (respectively edge 
+ * @brief Communicate split (at corners and edges) currents (respectively edge
  *        and face currents) to other domains.
  * @param faces whether the currents are for edges or faces, for unpacking
  */
@@ -4816,7 +4817,7 @@ void Cmfd::tallyStartingCurrent(Point* point, double delta_x, double delta_y,
                point->getX(), point->getY(), point->getZ(), delta_x, delta_y,
                delta_z);
 
-  CMFD_PRECISION currents[_num_cmfd_groups] 
+  CMFD_PRECISION currents[_num_cmfd_groups]
        __attribute__ ((aligned(VEC_ALIGNMENT))) = {0.0};
 
   /* Tally currents to each CMFD group locally */
@@ -4927,7 +4928,7 @@ void Cmfd::recordNetCurrents() {
  */
 void Cmfd::setWidths(std::vector< std::vector<double> > widths) {
 
-  if(widths.size() == 3) 
+  if(widths.size() == 3)
     _cell_widths_z = widths[2];
   else if(widths.size() == 2)
     _cell_widths_z.push_back(1.0);
@@ -4948,7 +4949,7 @@ void Cmfd::printCmfdCellSizes() {
   int i;
   printf("non_uniform=%d, \nNum_XYZ: %2d, %2d, %2d\n", _non_uniform,
          _num_x, _num_y, _num_z);
-  printf("Num_Local_XYZ: %2d, %2d, %2d\n", _local_num_x, 
+  printf("Num_Local_XYZ: %2d, %2d, %2d\n", _local_num_x,
          _local_num_y, _local_num_z);
   printf("width_XYZ: %f, %f, %f\n", _width_x,_width_y,_width_z);
   printf("cell_width_XYZ: %f, %f, %f\n", _cell_width_x,
