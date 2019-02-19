@@ -910,7 +910,7 @@ class Mesh(object):
         else:
             return mesh_x, mesh_y, mesh_z
 
-    def tally_fission_rates(self, solver, volume='integrated'):
+    def tally_fission_rates(self, solver, volume='integrated', nu=False):
         """Compute the fission rates in each mesh cell.
 
         NOTE: This method assumes that the mesh perfectly aligns with the
@@ -927,6 +927,8 @@ class Mesh(object):
             The solver used to compute the flux
         volume : {'averaged' ,'integrated'}
             Compute volume-averaged or volume-integrated fission rates
+        nu : bool
+            Find 'nu-fission' rates instead of 'fission' rates
 
         Returns
         -------
@@ -944,7 +946,7 @@ class Mesh(object):
 
         # Compute the volume- and energy-integrated fission rates for each FSR
         fission_rates = \
-            solver.computeFSRFissionRates(int(geometry.getNumTotalFSRs()))
+            solver.computeFSRFissionRates(int(geometry.getNumTotalFSRs()), nu)
 
         # Initialize a 2D or 3D NumPy array in which to tally
         tally = np.zeros(tuple(self.dimension), dtype=np.float)
