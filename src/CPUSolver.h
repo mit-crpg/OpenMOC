@@ -123,7 +123,7 @@ public:
   int getNumThreads();
   void setNumThreads(int num_threads);
   void setFixedSourceByFSR(long fsr_id, int group, FP_PRECISION source);
-  void computeFSRFissionRates(double* fission_rates, long num_FSRs);
+  void computeFSRFissionRates(double* fission_rates, long num_FSRs, bool nu);
   void printInputParamsSummary();
 
   void tallyScalarFlux(segment* curr_segment, int azim_index, int polar_index,

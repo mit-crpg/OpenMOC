@@ -1747,7 +1747,7 @@ void Solver::printFissionRates(std::string fname, int nx, int ny, int nz) {
 
   int num_fsrs = _geometry->getNumTotalFSRs();
   double* fsr_fission_rates = new double[num_fsrs];
-  computeFSRFissionRates(fsr_fission_rates, num_fsrs);
+  computeFSRFissionRates(fsr_fission_rates, num_fsrs, false);
 
   for (long r=0; r < num_fsrs; r++) {
 
