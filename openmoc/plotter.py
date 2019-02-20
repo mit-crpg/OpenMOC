@@ -963,9 +963,10 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
         return figures
 
 
-def plot_fission_rates(solver, norm=False, transparent_zeros=True, gridsize=250,
-                       xlim=None, ylim=None, zlim=None, plane='xy', offset=0,
-                       get_figure=False, library='matplotlib'):
+def plot_fission_rates(solver, nu=False, norm=False, transparent_zeros=True,
+                       gridsize=250, xlim=None, ylim=None, zlim=None,
+                       plane='xy', offset=0, get_figure=False,
+                       library='matplotlib'):
     """Plot a color-coded 2D surface plot representing the FSR fission rates.
 
     The Solver must have converged the FSR sources before calling this routine.
@@ -976,6 +977,9 @@ def plot_fission_rates(solver, norm=False, transparent_zeros=True, gridsize=250,
     ----------
     solver : openmoc.Solver
         An OpenMOC solver used to compute the flux
+    nu : bool
+        Whether use the nu-fission rates instead of the fission rates
+        (False by default)
     norm : bool
         Whether to normalize the fission rates (False by default)
     transparent_zeros : bool
@@ -1017,7 +1021,8 @@ def plot_fission_rates(solver, norm=False, transparent_zeros=True, gridsize=250,
 
     # Compute the volume-weighted fission rates for each FSR
     geometry = solver.getGeometry()
-    fission_rates = solver.computeFSRFissionRates(int(geometry.getNumTotalFSRs()))
+    fission_rates = solver.computeFSRFissionRates(
+        int(geometry.getNumTotalFSRs()), nu)
 
     # Initialize plotting parameters
     plot_params = PlotParams()

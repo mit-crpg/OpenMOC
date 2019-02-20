@@ -3,6 +3,7 @@
 import os
 import sys
 import hashlib
+from collections import OrderedDict
 sys.path.insert(0, os.pardir)
 sys.path.insert(0, os.path.join(os.pardir, 'openmoc'))
 from testing_harness import TestHarness
@@ -54,22 +55,39 @@ class MeshTallyTestHarness(TestHarness):
 
         # Aggregate the total cross sections for each Material
         # into a dictionary to pass to the mesh tally
-        domains_to_coeffs = {}
+        domains_to_coeffs = OrderedDict(
+            {'flux'      : {},
+             'total'     : {},
+             'nu-fission': {},
+             'scatter'   : {}})
         for material_id in materials:
-            domains_to_coeffs[material_id] = np.zeros(num_groups)
+            for rxn in domains_to_coeffs:
+                domains_to_coeffs[rxn][material_id] = np.zeros(num_groups)
             for group in range(num_groups):
-                domains_to_coeffs[material_id][group] = \
+                domains_to_coeffs['flux'][material_id][group] = 1.
+                domains_to_coeffs['total'][material_id][group] = \
                     materials[material_id].getSigmaTByGroup(group+1)
+                domains_to_coeffs['nu-fission'][material_id][group] = \
+                    materials[material_id].getNuSigmaFByGroup(group+1)
+                # Add up reaction rates for scattering to all energy groups
+                scatter = 0
+                for gprime in range(num_groups):
+                    scatter += materials[material_id].getSigmaSByGroup(
+                        group + 1, gprime + 1)
+                domains_to_coeffs['scatter'][material_id][group] = scatter
 
-        # Tally volume-averaged OpenMOC total rates on the Mesh
-        tot_rates = mesh.tally_on_mesh(self.solver, domains_to_coeffs, 
-                                       domain_type='material', 
-                                       volume='integrated')
+        # Tally volume-averaged OpenMOC rates on the Mesh
+        tallies = OrderedDict()
+        for rxn, coeffs in domains_to_coeffs.items():
+            tallies[rxn] = mesh.tally_on_mesh(self.solver, coeffs,
+                                              domain_type='material',
+                                              volume='integrated')
 
-        # Append total rates to the output string
-        outstr += 'Total Rate Mesh Tally\n'
-        rates = ['{0:12.6E}'.format(rate) for rate in tot_rates.ravel()]
-        outstr += '\n'.join(rates) + '\n'
+        # Append reaction rates to the output string
+        for rxn, rates in tallies.items():
+            outstr += rxn.title() + ' Rate Mesh Tally\n'
+            rates = ['{0:12.6E}'.format(rate) for rate in rates.ravel()]
+            outstr += '\n'.join(rates) + '\n'
 
         return outstr
 

@@ -2202,22 +2202,24 @@ void CPUSolver::stabilizeFlux() {
 
 
 /**
- * @brief Computes the volume-averaged, energy-integrated nu-fission rate in
- *        each FSR and stores them in an array indexed by FSR ID.
+ * @brief Computes the volume-averaged, energy-integrated fission or nu-fission
+ *        rate in each FSR and stores them in an array indexed by FSR ID.
  * @details This is a helper method for SWIG to allow users to retrieve
- *          FSR nu-fission rates as a NumPy array. An example of how this
- *          method can be called from Python is as follows:
+ *          FSR fission or nu-fission rates as a NumPy array. An example of
+ *          how this method can be called from Python is as follows:
  *
  * @code
  *          num_FSRs = geometry.getNumFSRs()
  *          fission_rates = solver.computeFSRFissionRates(num_FSRs)
  * @endcode
  *
- * @param fission_rates an array to store the nu-fission rates (implicitly
+ * @param fission_rates an array to store the fission rates (implicitly
  *                      passed in as a NumPy array from Python)
  * @param num_FSRs the number of FSRs passed in from Python
+ * @param nu whether return nu-fission (true) or fission (default, false) rates
  */
-void CPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs) {
+void CPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs,
+                                       bool nu) {
 
   if (_scalar_flux == NULL)
     log_printf(ERROR, "Unable to compute FSR fission rates since the "
@@ -2225,7 +2227,7 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs) {
 
   log_printf(INFO, "Computing FSR fission rates...");
 
-  FP_PRECISION* nu_sigma_f;
+  FP_PRECISION* sigma_f;
   FP_PRECISION vol;
 
   /* Initialize fission rates to zero */
@@ -2233,13 +2235,18 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs) {
     fission_rates[r] = 0.0;
 
   /* Loop over all FSRs and compute the volume-weighted fission rate */
-#pragma omp parallel for private (nu_sigma_f, vol) schedule(static)
+#pragma omp parallel for private (sigma_f, vol) schedule(static)
   for (long r=0; r < _num_FSRs; r++) {
-    nu_sigma_f = _FSR_materials[r]->getNuSigmaF();
+    if (nu) {
+      sigma_f = _FSR_materials[r]->getNuSigmaF();
+    } 
+    else {
+      sigma_f = _FSR_materials[r]->getSigmaF();
+    }
     vol = _FSR_volumes[r];
 
     for (int e=0; e < _num_groups; e++)
-      fission_rates[r] += nu_sigma_f[e] * _scalar_flux(r,e) * vol;
+      fission_rates[r] += sigma_f[e] * _scalar_flux(r,e) * vol;
   }
 
   /* Reduce domain data for domain decomposition */
