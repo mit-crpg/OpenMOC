@@ -317,7 +317,7 @@ def parallel_compile(self, sources, output_dir=None, macros=None,
       self._compile(obj, src, ext, cc_args, extra_postargs, pp_opts)
 
   # Convert thread mapping to C/C++/CUDA objects to a list and return
-  list(pool.ThreadPool(num_cpus).imap(_single_compile, objects))
+  list(pool.ThreadPool(num_cpus).map(_single_compile, objects))
   return objects
 
 
