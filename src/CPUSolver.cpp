@@ -2216,9 +2216,10 @@ void CPUSolver::stabilizeFlux() {
  * @param fission_rates an array to store the fission rates (implicitly
  *                      passed in as a NumPy array from Python)
  * @param num_FSRs the number of FSRs passed in from Python
- * @param nu whether to use nu-fission rates instead of fission rates
+ * @param nu whether return nu-fission (true) or fission (default, false) rates
  */
-void CPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs, bool nu = false) {
+void CPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs,
+                                       bool nu) {
 
   if (_scalar_flux == NULL)
     log_printf(ERROR, "Unable to compute FSR fission rates since the "
@@ -2236,10 +2237,10 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs, boo
   /* Loop over all FSRs and compute the volume-weighted fission rate */
 #pragma omp parallel for private (sigma_f, vol) schedule(static)
   for (long r=0; r < _num_FSRs; r++) {
-    /* TODO: move the 'if' block outside */
     if (nu) {
       sigma_f = _FSR_materials[r]->getNuSigmaF();
-    } else {
+    } 
+    else {
       sigma_f = _FSR_materials[r]->getSigmaF();
     }
     vol = _FSR_volumes[r];

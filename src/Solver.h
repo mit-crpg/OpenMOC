@@ -478,7 +478,8 @@ public:
   *                      in as a NumPy array from Python)
   * @param num_FSRs the number of FSRs passed in from Python
   */
-  virtual void computeFSRFissionRates(double* fission_rates, long num_FSRs, bool nu) =0;
+  virtual void computeFSRFissionRates(double* fission_rates, long num_FSRs,
+                                      bool nu = false) =0;
 
   /**
    * @brief Returns the boundary flux array at the requested indexes.
