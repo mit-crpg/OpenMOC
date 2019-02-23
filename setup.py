@@ -2,7 +2,7 @@
 The setup script for OpenMOC
 '''
 
-import os, string
+import os, site, string, sys
 from distutils.errors import DistutilsOptionError
 import distutils.ccompiler
 import multiprocessing
@@ -403,3 +403,15 @@ dist = setup(name = 'openmoc',
 build_py = build_py(dist)
 build_py.ensure_finalized()
 build_py.run()
+
+# Remove the shared library in the site packages
+if "clean" in sys.argv:
+    install_location = site.getsitepackages()[0]
+    print("Removing build from "+ install_location)
+    os.system("rm -rf " + install_location + "/*openmoc*")
+    install_location = site.getusersitepackages()
+    print("Removing build from "+ install_location)
+    os.system("rm -rf " + install_location + "/*openmoc*")
+    install_location = "./tests/"
+    print("Removing build from "+ install_location)
+    os.system("rm -rf "+install_location+"openmoc "+install_location+"build")

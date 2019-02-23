@@ -161,14 +161,15 @@ class configuration:
     compiler_flags = dict()
 
     compiler_flags['gcc'] = ['-c', '-O3', '-ffast-math', '-fopenmp',
-                             '-std=c++11', '-fpic']
+                             '-std=c++11', '-fpic', '-march=native']
     compiler_flags['mpicc'] = ['-c', '-O3', '-ffast-math', '-fopenmp',
-                               '-std=c++11', '-fpic']
+                               '-std=c++11', '-fpic', '-march=native']
     compiler_flags['clang'] = ['-c', '-O3', '-ffast-math', '-std=c++11',
                                '-fopenmp', '-fvectorize', '-fpic',
                                '-Qunused-arguments',
                                '-Wno-deprecated-register',
-                               '-Wno-parentheses-equality']
+                               '-Wno-parentheses-equality',
+                               '-march=native']
     compiler_flags['icpc'] =['-c', '-O3', '-fast', '--ccache-skip',
                              '-openmp', '-xhost', '-std=c++11',
                              '--ccache-skip', '-fpic',
@@ -355,8 +356,8 @@ class configuration:
         for precision in macros[compiler]:
             macros[compiler][precision].append(('OPENMP', None))
             macros[compiler][precision].append(('SWIG', None))
-        if cc == 'mpicc':
-            macros[compiler][precision].append(('MPIx', None))
+            if compiler == 'mpicc':
+                macros[compiler][precision].append(('MPIx', None))
 
     # set CMFD precision and linear algebra solver tolerance
     for compiler in macros:
@@ -377,8 +378,9 @@ class configuration:
         if self.debug_mode:
             for k in self.compiler_flags:
                 self.compiler_flags[k].append('-g')
+                self.compiler_flags[k].append('-fno-omit-frame-pointer')
                 ind = [i for i, item in enumerate(self.compiler_flags[k]) \
-            if item.startswith('-O')]
+                       if item.startswith('-O')]
                 self.compiler_flags[k][ind[0]] = '-O0'
 
         # If the user wishes to compile using the address sanitizer, append
@@ -417,7 +419,7 @@ class configuration:
         # Add the mpi4py module directory
         try:
             import mpi4py
-            mpi4py_include = mpi4py.__file__
+            mpi4py_include = mpi4py.__file__.split("__")[0]+"include"
         except:
             mpi4py_include = ''
         self.include_directories['mpicc'].append(mpi4py_include)

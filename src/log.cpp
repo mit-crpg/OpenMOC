@@ -225,47 +225,47 @@ void set_log_level(const char* new_level) {
 
   if (strcmp("DEBUG", new_level) == 0) {
     log_level = DEBUG;
-    log_printf(INFO, "Logging level set to DEBUG");
+    log_printf(INFO_ONCE, "Logging level set to DEBUG");
   }
   else if (strcmp("INFO", new_level) == 0) {
     log_level = INFO;
-    log_printf(INFO, "Logging level set to INFO");
+    log_printf(INFO_ONCE, "Logging level set to INFO");
   }
   else if (strcmp("NORMAL", new_level) == 0) {
     log_level = NORMAL;
-    log_printf(INFO, "Logging level set to NORMAL");
+    log_printf(INFO_ONCE, "Logging level set to NORMAL");
   }
   else if (strcmp("SEPARATOR", new_level) == 0) {
     log_level = SEPARATOR;
-    log_printf(INFO, "Logging level set to SEPARATOR");
+    log_printf(INFO_ONCE, "Logging level set to SEPARATOR");
   }
   else if (strcmp("HEADER", new_level) == 0) {
     log_level = HEADER;
-    log_printf(INFO, "Logging level set to HEADER");
+    log_printf(INFO_ONCE, "Logging level set to HEADER");
   }
   else if (strcmp("TITLE", new_level) == 0) {
     log_level = TITLE;
-    log_printf(INFO, "Logging level set to TITLE");
+    log_printf(INFO_ONCE, "Logging level set to TITLE");
   }
   else if (strcmp("WARNING", new_level) == 0) {
     log_level = WARNING;
-    log_printf(INFO, "Logging level set to WARNING");
+    log_printf(INFO_ONCE, "Logging level set to WARNING");
   }
   else if (strcmp("CRITICAL", new_level) == 0) {
     log_level = CRITICAL;
-    log_printf(INFO, "Logging level set to CRITICAL");
+    log_printf(INFO_ONCE, "Logging level set to CRITICAL");
   }
   else if (strcmp("RESULT", new_level) == 0) {
     log_level = RESULT;
-    log_printf(INFO, "Logging level set to RESULT");
+    log_printf(INFO_ONCE, "Logging level set to RESULT");
   }
   else if (strcmp("UNITTEST", new_level) == 0) {
     log_level = UNITTEST;
-    log_printf(INFO, "Logging level set to UNITTEST");
+    log_printf(INFO_ONCE, "Logging level set to UNITTEST");
   }
   else if (strcmp("ERROR", new_level) == 0) {
       log_level = ERROR;
-      log_printf(INFO, "Logging level set to ERROR");
+      log_printf(INFO_ONCE, "Logging level set to ERROR");
   }
 }
 
@@ -327,6 +327,24 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (INFO):
       {
+        std::string msg = std::string(message);
+        std::string level_prefix = "[  INFO   ]  ";
+
+        /* If message is too long for a line, split into many lines */
+        if (int(msg.length()) > line_length)
+          msg_string = create_multiline_msg(level_prefix, msg);
+
+        /* Puts message on single line */
+        else
+          msg_string = level_prefix + msg + "\n";
+
+        break;
+      }
+    case (INFO_ONCE):
+      {
+        if (rank != 0)
+          return;
+
         std::string msg = std::string(message);
         std::string level_prefix = "[  INFO   ]  ";
 
@@ -420,6 +438,24 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (WARNING):
       {
+        std::string msg = std::string(message);
+        std::string level_prefix = "[ WARNING ]  ";
+
+        /* If message is too long for a line, split into many lines */
+        if (int(msg.length()) > line_length)
+          msg_string = create_multiline_msg(level_prefix, msg);
+
+        /* Puts message on single line */
+        else
+          msg_string = level_prefix + msg + "\n";
+
+        break;
+      }
+    case (WARNING_ONCE):
+      {
+        if (rank != 0)
+          return;
+
         std::string msg = std::string(message);
         std::string level_prefix = "[ WARNING ]  ";
 
@@ -533,22 +569,19 @@ void log_printf(logLevel level, const char* format, ...) {
     log_file.close();
 
     /* Write the log message to the shell */
+    //FIXME Too much output tends to segfault, locking output blocks test suite
     if (level == ERROR) {
       omp_set_lock(&log_error_lock);
-      {
 #ifdef MPIx
-        if (_MPI_present) {
-          printf("%s", "[  ERROR  ] ");
-          printf("%s", &msg_string[0]);
-          fflush(stdout);
-          MPI_Finalize();
-          MPI_Abort(_MPI_comm, 0);
-          //FIXME Not best communicator to abort, but better than not returning.
-        }
-#endif
-        throw std::logic_error(msg_string.c_str());
+      if (_MPI_present) {
+        printf("%s", "[  ERROR  ]  ");
+        printf("%s", &msg_string[0]);
+        fflush(stdout);
+        MPI_Abort(_MPI_comm, 0);
       }
+#endif
       omp_unset_lock(&log_error_lock);
+      throw std::logic_error(&msg_string[0]);
     }
     else {
       printf("%s", &msg_string[0]);

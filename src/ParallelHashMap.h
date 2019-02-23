@@ -429,7 +429,7 @@ void FixedHashMap<K,V>::print_buckets() {
 
 /**
  * @brief Constructor generates initial underlying table as a fixed-sized
- *      hash map and intializes concurrency structures.
+ *      hash map and initializes concurrency structures.
  */
 template <class K, class V>
 ParallelHashMap<K,V>::ParallelHashMap(size_t M, size_t L) {

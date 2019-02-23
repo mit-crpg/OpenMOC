@@ -51,6 +51,9 @@ typedef enum {
   /** An informational but verbose message */
   INFO,
 
+  /** An informational verbose message - printed by rank 0 process only */
+  INFO_ONCE,
+
   /** A brief progress update on run progress */
   NORMAL,
 
@@ -68,6 +71,9 @@ typedef enum {
 
   /** A message to warn the user */
   WARNING,
+
+  /** A message to warn the user - to be printed by rank 0 process only */
+  WARNING_ONCE,
 
   /** A message to warn of critical program conditions */
   CRITICAL,

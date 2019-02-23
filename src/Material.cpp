@@ -20,7 +20,7 @@ int material_id() {
 
 
 /**
- * @brief Resets the auto-generated unique Material ID counter to 1000,000.
+ * @brief Resets the auto-generated unique Material ID counter to 1,000,000.
  */
 void reset_material_id() {
   auto_id = DEFAULT_INIT_ID;
@@ -550,8 +550,8 @@ void Material::setNumEnergyGroups(const int num_groups) {
   }
 
   /* Allocate memory for data arrays */
-  _sigma_t = (FP_PRECISION*) aligned_alloc(VEC_ALIGNMENT,
-                                           _num_groups*sizeof(FP_PRECISION));
+  _sigma_t = (FP_PRECISION*) memalign(VEC_ALIGNMENT,
+                                      _num_groups*sizeof(FP_PRECISION));
   _sigma_f = new FP_PRECISION[_num_groups];
   _nu_sigma_f = new FP_PRECISION[_num_groups];
   _chi = new FP_PRECISION[_num_groups];

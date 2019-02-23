@@ -26,7 +26,7 @@
 
 /** Optimization macro for 3D calculations to avoid branch statements */
 #ifdef THREED
-#define _solve_3D (true)
+#define _SOLVE_3D (true)
 #endif
 
 /** Forward declaration of Geometry class */
@@ -207,6 +207,9 @@ private:
   /** True if the cmfd meshes are non-uniform */
   bool _non_uniform;
 
+  /** True if the cmfd mesh has been adjusted to fit the domain decomposition */
+  bool _widths_adjusted_for_domains;
+
   /** Array of geometry boundaries */
   boundaryType* _boundaries;
 
@@ -259,7 +262,7 @@ private:
 
 #ifndef THREED
   /** Flag indicating whether the problem is 2D or 3D */
-  bool _solve_3D;
+  bool _SOLVE_3D;
 #endif
 
   /** Array of azimuthal track spacings */
@@ -380,7 +383,7 @@ private:
 #endif
   void unpackSplitCurrents(bool faces);
   void copyFullSurfaceCurrents();
-  void checkNeutronBalance(bool pre_split=true);
+  void checkNeutronBalance(bool pre_split=true, bool old_source=false);
   void printProlongationFactors(int iteration);
 
 public:
@@ -394,7 +397,7 @@ public:
   void initializeCellMap();
   void initializeGroupMap();
   void allocateTallies();
-  void initializeLattice(Point* offset);
+  void initializeLattice(Point* offset, bool is_2D=false);
   void initializeBackupCmfdSolver();
   void copyCurrentsToBackup();
   int findCmfdCell(LocalCoords* coords);
@@ -524,8 +527,6 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
 
   int surf_id, cell_id, cmfd_group;
   int ncg = _num_cmfd_groups;
-  CMFD_PRECISION currents[_num_cmfd_groups] 
-       __attribute__ ((aligned(VEC_ALIGNMENT))) = {0.0};
 
   /* Check if the current needs to be tallied */
   bool tally_current = false;
@@ -543,9 +544,11 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
   /* Tally current if necessary */
   if (tally_current) {
 
+    CMFD_PRECISION currents[_num_cmfd_groups] 
+         __attribute__ ((aligned(VEC_ALIGNMENT))) = {0.0};
     int local_cell_id = getLocalCMFDCell(cell_id);
 
-    if (_solve_3D) {
+    if (_SOLVE_3D) {
       double wgt = _quadrature->getWeightInline(azim_index, polar_index);
       for (int e=0; e < _num_moc_groups; e++) {
 
@@ -560,17 +563,16 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
       for (int g=0; g < ncg; g++)
         currents[g] *= wgt;
 
-      /* Increment currents on face */
+      /* Increment currents on faces */
       if (surf_id < NUM_FACES) {
         _surface_currents->incrementValues
             (local_cell_id, surf_id*ncg, (surf_id+1)*ncg - 1, currents);
       }
-      /* Increment currents on corners */
+      /* Increment currents on corners and edges */
       else {
 
-        omp_set_lock(&_edge_corner_lock);
-
         int first_ind = (local_cell_id * NUM_SURFACES + surf_id) * ncg;
+        omp_set_lock(&_edge_corner_lock);
 
 #pragma omp simd aligned(currents)
         for (int g=0; g < ncg; g++)
@@ -581,7 +583,7 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
     }
     else {
       int pe = 0;
-      for (int p = 0; p < _num_polar/2; p++) {
+      for (int p=0; p < _num_polar/2; p++) {
         for (int e=0; e < _num_moc_groups; e++) {
 
           /* Get the CMFD group */

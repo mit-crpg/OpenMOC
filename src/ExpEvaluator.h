@@ -12,6 +12,7 @@
 #define _USE_MATH_DEFINES
 #include "log.h"
 #include "Quadrature.h"
+#include <malloc.h>
 #include <math.h>
 #endif
 

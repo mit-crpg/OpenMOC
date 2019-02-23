@@ -33,7 +33,7 @@ Cmfd::Cmfd() {
   _cell_width_y = 0.;
   _cell_width_z = 0.;
   _flux_update_on = true;
-  _centroid_update_on = true;
+  _centroid_update_on = false;
   _use_axial_interpolation = 0;
   _flux_limiting = true;
   _balance_sigma_t = false;
@@ -41,7 +41,7 @@ Cmfd::Cmfd() {
   _SOR_factor = 1.0;
   _num_FSRs = 0;
 #ifndef THREED
-  _solve_3D = false;
+  _SOLVE_3D = false;
 #endif
   _total_tally_size = 0;
   _tallies_allocated = false;
@@ -51,6 +51,7 @@ Cmfd::Cmfd() {
   _old_dif_surf_valid = false;
 
   _non_uniform = false;
+  _widths_adjusted_for_domains = false;
 
   /* Energy group and polar angle problem parameters */
   _num_moc_groups = 0;
@@ -260,9 +261,11 @@ void Cmfd::setNumX(int num_x) {
                "must be > 0. Input value: %i", num_x);
 
   _num_x = num_x;
-  _local_num_x = _num_x;
-  if (_domain_communicator != NULL)
-    _local_num_x = _num_x / _domain_communicator->_num_domains_x;
+  if (!_widths_adjusted_for_domains) {
+    _local_num_x = _num_x;
+    if (_domain_communicator != NULL)
+      _local_num_x = _num_x / _domain_communicator->_num_domains_x;
+  }
 }
 
 
@@ -277,9 +280,11 @@ void Cmfd::setNumY(int num_y) {
                "must be > 0. Input value: %i", num_y);
 
   _num_y = num_y;
-  _local_num_y = _num_y;
-  if (_domain_communicator != NULL)
-    _local_num_y = _num_y / _domain_communicator->_num_domains_y;
+  if (!_widths_adjusted_for_domains) {
+    _local_num_y = _num_y;
+    if (_domain_communicator != NULL)
+      _local_num_y = _num_y / _domain_communicator->_num_domains_y;
+  }
 }
 
 
@@ -294,9 +299,11 @@ void Cmfd::setNumZ(int num_z) {
                "must be > 0. Input value: %i", num_z);
 
   _num_z = num_z;
-  _local_num_z = _num_z;
-  if (_domain_communicator != NULL)
-    _local_num_z = _num_z / _domain_communicator->_num_domains_z;
+  if (!_widths_adjusted_for_domains) {
+    _local_num_z = _num_z;
+    if (_domain_communicator != NULL)
+      _local_num_z = _num_z / _domain_communicator->_num_domains_z;
+  }
 }
 
 
@@ -394,53 +401,271 @@ void Cmfd::setNumDomains(int num_x, int num_y, int num_z) {
   _accumulate_lmy.resize(num_y + 1, 0);
   _accumulate_lmz.resize(num_z + 1, 0);
 
-  /* To check the position of domain decomposition interfaces in non-uniform 
-     CMFD mesh interfaces. x direction */
-  int j;
+  std::vector<std::pair<int, double> > divisions_missing_x;
+  std::vector<std::pair<int, double> > divisions_missing_y;
+  std::vector<std::pair<int, double> > divisions_missing_z;
+
+  /* Find the position of domain decomposition interfaces among the non-uniform
+     CMFD mesh cell boundaries, in the X direction */
+  int j, j_prev;
   for(int i=0; i<num_x; i++) {
     double coord = (i + 1) * _width_x / num_x;
     for(j=1; j<_num_x+1; j++) {
+
+      /* Keep track of index in mesh before domain boundary */
+      if (_accumulate_x[j] < coord)
+        j_prev = j;
+
+      /* Exit loop if division is found */
       if(fabs(coord - _accumulate_x[j]) < FLT_EPSILON) {
         _accumulate_lmx[i+1] = j;
         break;
       }
     }
-    if(j == _num_x+1) {
-      log_printf(ERROR, "The domain decomposition interface x[%d] = %f is NOT "
-                 "among the CMFD mesh division in the x direction", i, coord);
-    }
+    if(j == _num_x+1)
+      divisions_missing_x.push_back(std::make_pair(j_prev, coord));
   }
 
-  /* To check the position of domain decomposition interfaces in non-uniform 
-     CMFD mesh interfaces. y direction */
+  /* Find the position of domain decomposition interfaces among the non-uniform
+     CMFD mesh cell boundaries, in the Y direction */
   for(int i=0; i<num_y; i++) {
     double coord = (i + 1) * _width_y / num_y;
     for(j=1; j<_num_y+1; j++) {
+
+      /* Keep track of index in mesh before domain boundary */
+      if (_accumulate_y[j] < coord)
+        j_prev = j;
+
+      /* Exit loop if division is found */
       if(fabs(coord - _accumulate_y[j]) < FLT_EPSILON) {
         _accumulate_lmy[i+1] = j;
         break;
       }
     }
-    if(j == _num_y+1) {
-      log_printf(ERROR, "The domain decomposition interface y[%d] = %f is NOT "
-                 "among the CMFD mesh divisions in the y direction", i, coord);
-    }
+    if(j == _num_y+1)
+      divisions_missing_y.push_back(std::make_pair(j_prev, coord));
   }
 
-  /* To check the position of domain decomposition interfaces in non-uniform 
-     CMFD mesh interfaces. z direction */
+  /* Find the position of domain decomposition interfaces among the non-uniform
+     CMFD mesh cell boundaries, in the Z direction */
   for(int i=0; i<num_z; i++) {
     double coord = (i + 1) * _width_z / num_z;
     for(j=1; j<_num_z+1; j++) {
+
+      /* Keep track of index in mesh before domain boundary */
+      if (_accumulate_z[j] < coord)
+        j_prev = j;
+
+      /* Exit loop if division is found */
       if(fabs(coord - _accumulate_z[j]) < FLT_EPSILON) {
         _accumulate_lmz[i+1] = j;
         break;
       }
     }
-    if(j == _num_z+1) {
-      log_printf(ERROR, "The domain decomposition interface z[%d] = %f is NOT "
-                 "among the CMFD mesh divisions in the z direction", i, coord);
+    if(j == _num_z+1)
+      divisions_missing_z.push_back(std::make_pair(j_prev, coord));
+  }
+
+  /* Output the missing subdivisions */
+  std::string div_miss_x = "";
+  std::string div_miss_y = "";
+  std::string div_miss_z = "";
+  std::vector<std::pair<int, double> >::iterator iter;
+  for (iter = divisions_missing_x.begin(); iter != divisions_missing_x.end();
+       ++iter) {
+    div_miss_x += std::to_string(iter->second);
+    if (iter != std::prev(divisions_missing_x.end()))
+      div_miss_x += ", ";
+  }
+  for (iter = divisions_missing_y.begin(); iter != divisions_missing_y.end();
+       ++iter) {
+    div_miss_y += std::to_string(iter->second);
+    if (iter != std::prev(divisions_missing_y.end()))
+      div_miss_y += ", ";
+  }
+  for (iter = divisions_missing_z.begin(); iter != divisions_missing_z.end();
+       ++iter) {
+    div_miss_z += std::to_string(iter->second);
+    if (iter != std::prev(divisions_missing_z.end()))
+      div_miss_z += ", ";
+  }
+
+  if (divisions_missing_x.size() > 0)
+    log_printf(WARNING_ONCE, "Domain boundaries [%s] are not in CMFD X-mesh",
+               div_miss_x.c_str());
+  if (divisions_missing_y.size() > 0)
+    log_printf(WARNING_ONCE, "Domain boundaries [%s] are not in CMFD Y-mesh",
+               div_miss_y.c_str());
+  if (divisions_missing_z.size() > 0)
+    log_printf(WARNING_ONCE, "Domain boundaries [%s] are not in CMFD Z-mesh",
+               div_miss_z.c_str());
+
+  /* Modify the CMFD mesh, in order to have divisions at domain boundaries,
+     but also to avoid small CMFD cells */
+  std::string added_cells_x = "";
+  std::string modified_cells_x = "";
+  int cells_added = 0;
+  for (iter = divisions_missing_x.begin(); iter != divisions_missing_x.end();
+       ++iter) {
+
+    j_prev = iter->first;
+    double cmfd_cell_width = _accumulate_x[j_prev+1] - _accumulate_x[j_prev];
+    double coord = iter->second;
+
+    /* If the new CMFD cells are about to be very small,
+       move the CMFD cell boundaries instead, to the closest one */
+    double delta_below = coord - _accumulate_x[j_prev];
+    double delta_above = _accumulate_x[j_prev+1] - coord;
+
+    if (delta_below < 0.1 * cmfd_cell_width ||
+        delta_above < 0.1 * cmfd_cell_width) {
+
+      modified_cells_x += (std::to_string(coord) + " ");
+      if (delta_below < delta_above) {
+        _cell_widths_x[j_prev + cells_added - 1] += delta_below;
+        _cell_widths_x[j_prev + cells_added] -= delta_below;
+      }
+      else {
+        _cell_widths_x[j_prev + cells_added] -= delta_above;
+        _cell_widths_x[j_prev + cells_added + 1] += delta_above;
+        //FIXME Capture j_prev+1 overflow
+      }
     }
+
+    /* Else, add a new subdivision to the CMFD mesh */
+    else {
+      _cell_widths_x[j_prev + cells_added] = delta_below;
+      _cell_widths_x.insert(_cell_widths_x.begin() + j_prev + cells_added + 1,
+                            delta_above);
+      added_cells_x += (std::to_string(coord) + " ");
+      cells_added++;
+    }
+  }
+  if (added_cells_x.compare("") != 0)
+    log_printf(WARNING_ONCE, "New CMFD cells created for domain decomposition "
+               "boundaries in the X direction at [%s] cm.",
+               added_cells_x.c_str());
+  if (modified_cells_x.compare("") != 0)
+    log_printf(WARNING_ONCE, "CMFD mesh cell widths adjusted to fit "
+               "domain decomposition boundaries in the X direction "
+               "at [%s] cm.", modified_cells_x.c_str());
+
+  /* Y-direction */
+  std::string added_cells_y = "";
+  std::string modified_cells_y = "";
+  cells_added = 0;
+  for (iter = divisions_missing_y.begin(); iter != divisions_missing_y.end();
+       ++iter) {
+
+    j_prev = iter->first;
+    double cmfd_cell_width = _accumulate_y[j_prev+1] - _accumulate_y[j_prev];
+    double coord = iter->second;
+
+    /* If the new CMFD cells are about to be very small,
+       move the CMFD cell boundaries instead, to the closest one */
+    double delta_below = coord - _accumulate_y[j_prev];
+    double delta_above = _accumulate_y[j_prev+1] - coord;
+
+    if (delta_below < 0.1 * cmfd_cell_width ||
+        delta_above < 0.1 * cmfd_cell_width) {
+
+      modified_cells_y += (std::to_string(coord) + " ");
+      if (delta_below < delta_above) {
+        _cell_widths_y[j_prev + cells_added - 1] += delta_below;
+        _cell_widths_y[j_prev + cells_added] -= delta_below;
+      }
+      else {
+        _cell_widths_y[j_prev + cells_added] -= delta_above;
+        _cell_widths_y[j_prev + cells_added + 1] += delta_above;
+        //FIXME Capture j_prev+1 overflow
+      }
+    }
+
+    /* Else, add a new subdivision to the CMFD mesh */
+    else {
+      _cell_widths_y[j_prev + cells_added] = delta_below;
+      _cell_widths_y.insert(_cell_widths_y.begin() + j_prev + cells_added + 1,
+                            delta_above);
+      added_cells_y += (std::to_string(coord) + " ");
+      cells_added++;
+    }
+  }
+  if (added_cells_y.compare("") != 0)
+    log_printf(WARNING_ONCE, "New CMFD cells created for domain decomposition "
+               "boundaries in the Y direction at [%s] cm.",
+               added_cells_y.c_str());
+  if (modified_cells_y.compare("") != 0)
+    log_printf(WARNING_ONCE, "CMFD mesh cell widths adjusted to fit "
+               "domain decomposition boundaries in the Y direction "
+               "at [%s] cm.", modified_cells_y.c_str());
+
+  /* Z-direction */
+  std::string added_cells_z = "";
+  std::string modified_cells_z = "";
+  cells_added = 0;
+  for (iter = divisions_missing_z.begin(); iter != divisions_missing_z.end();
+       ++iter) {
+
+    j_prev = iter->first;
+    double cmfd_cell_width = _accumulate_z[j_prev+1] - _accumulate_z[j_prev];
+    double coord = iter->second;
+
+    /* If the new CMFD cells are about to be very small,
+       move the CMFD cell boundaries instead, to the closest one */
+    double delta_below = coord - _accumulate_z[j_prev];
+    double delta_above = _accumulate_z[j_prev+1] - coord;
+
+    if (delta_below < 0.1 * cmfd_cell_width ||
+        delta_above < 0.1 * cmfd_cell_width) {
+
+      modified_cells_z += (std::to_string(coord) + " ");
+      if (delta_below < delta_above) {
+        _cell_widths_z[j_prev + cells_added - 1] += delta_below;
+        _cell_widths_z[j_prev + cells_added] -= delta_below;
+      }
+      else {
+        _cell_widths_z[j_prev + cells_added] -= delta_above;
+        _cell_widths_z[j_prev + cells_added + 1] += delta_above;
+        //FIXME Capture j_prev+1 overflow
+      }
+    }
+
+    /* Else, add a new subdivision to the CMFD mesh */
+    else {
+      _cell_widths_z[j_prev + cells_added] = delta_below;
+      _cell_widths_z.insert(_cell_widths_z.begin() + j_prev + cells_added + 1,
+                            delta_above);
+      added_cells_z += (std::to_string(coord) + " ");
+      cells_added++;
+    }
+  }
+  if (added_cells_z.compare("") != 0)
+    log_printf(WARNING_ONCE, "New CMFD cells created for domain decomposition "
+               "boundaries in the Z direction at [%s] cm.",
+               added_cells_z.c_str());
+  if (modified_cells_z.compare("") != 0)
+    log_printf(WARNING_ONCE, "CMFD mesh cell widths adjusted to fit "
+               "domain decomposition boundaries in the Z direction "
+               "at [%s] cm.", modified_cells_z.c_str());
+
+  /* Re-initialize lattice since widths have been modified */
+  if (divisions_missing_x.size() > 0 || divisions_missing_y.size() > 0 ||
+      divisions_missing_z.size() > 0) {
+    _non_uniform = true;
+    Point offset;
+    offset.setXYZ(_lattice->getOffset()->getXYZ());
+    initializeLattice(&offset);
+
+    /* Re-run routine to obtain _accumulate_lmxyz arrays */
+    if (!_widths_adjusted_for_domains) {
+      _widths_adjusted_for_domains = true;
+      setNumDomains(num_x, num_y, num_z);
+    }
+    else
+      log_printf(ERROR, "Mesh adjustment to domain decomposition boundaries "
+                 "failed. Manually add the domain boundaries in a non-"
+                 "uniform CMFD mesh.");
+
   }
 }
 
@@ -506,7 +731,7 @@ void Cmfd::collapseXS() {
 #pragma omp parallel
   {
 
-    /* Initialize variables for FSR properties*/
+    /* Initialize variables for FSR properties */
     FP_PRECISION volume, flux;
     FP_PRECISION tot, nu_fis, chi;
     FP_PRECISION* scat;
@@ -622,12 +847,12 @@ void Cmfd::collapseXS() {
                   scat[g*_num_moc_groups+h] * flux * volume;
             }
           }
+
+          /* Condense diffusion coefficient (with homogenized transport XS) */
           if (fabs(rxn_tally_group) > FLT_EPSILON && 
               fabs(trans_tally_group) > FLT_EPSILON) {
             CMFD_PRECISION flux_avg_sigma_t = trans_tally_group /
                 rxn_tally_group;
-//why times rxn_tally_group here and divided by _reaction_tally[cmfd_cell][group]
-//in getDiffusionCoefficient?
             _diffusion_tally[i][e] += rxn_tally_group / 
                 (3.0 * flux_avg_sigma_t);
           }
@@ -799,15 +1024,6 @@ void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
       /* Set the surface diffusion coefficient and MOC correction */
       dif_surf =  2 * dif_coef / delta / (1 + 4 * dif_coef / delta);
       dif_surf_corr = (sense * dif_surf * flux - current_out) / flux;
-
-      /* Weight the old and new corrected diffusion coefficients by the
-         relaxation factor */
-      if (_old_dif_surf_valid) {
-        CMFD_PRECISION old_dif_surf_corr = _old_dif_surf_corr->getValue
-            (cmfd_cell, surface*_num_cmfd_groups+group);
-        dif_surf_corr = _relaxation_factor * dif_surf_corr +
-            (1.0 - _relaxation_factor) * old_dif_surf_corr;
-      }
     }
   }
 
@@ -877,20 +1093,19 @@ void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
                         / (flux_next + flux);
       }
     }
-
-    /* Weight the old and new corrected diffusion coefficients by the
-       relaxation factor */
-    if (_old_dif_surf_valid) {
-      CMFD_PRECISION old_dif_surf_corr = _old_dif_surf_corr->getValue
-          (cmfd_cell, surface*_num_cmfd_groups+group);
-      dif_surf_corr = _relaxation_factor * dif_surf_corr +
-          (1.0 - _relaxation_factor) * old_dif_surf_corr;
-    }
+  }
+  /* Weight the old and new corrected diffusion coefficients by the
+     relaxation factor */
+  if (_old_dif_surf_valid) {
+    CMFD_PRECISION old_dif_surf_corr = _old_dif_surf_corr->getValue
+        (cmfd_cell, surface*_num_cmfd_groups+group);
+    dif_surf_corr = _relaxation_factor * dif_surf_corr +
+        (1.0 - _relaxation_factor) * old_dif_surf_corr;
   }
 
   /* If it is the first MOC iteration, solve the straight diffusion problem
    * with no MOC correction */
-  if (moc_iteration == 0)
+  if (moc_iteration == 0 && !_check_neutron_balance)
     dif_surf_corr = 0.0;
 }
 
@@ -928,18 +1143,21 @@ double Cmfd::computeKeff(int moc_iteration) {
   /* Collapse the cross sections onto the CMFD mesh */
   collapseXS();
 
-  /* Tally the XS collpase time */
+  /* Tally the XS collapse time */
   _timer->stopTimer();
   _timer->recordSplit("Total collapse time");
 
-  /* Construct matrices */
+  /* Construct matrices and record time */
+  _timer->startTimer();
   constructMatrices(moc_iteration);
+  _timer->stopTimer();
+  _timer->recordSplit("Matrix construction time");
 
   /* Check neutron balance if requested */
   if (_check_neutron_balance)
-    checkNeutronBalance();
+    checkNeutronBalance(false, false);
 
-  /* Copy old flux to new flux */
+  /* Copy old flux to new flux to use collapsed flux as a starting guess */
   _old_flux->copyTo(_new_flux);
 
   /* Start recording CMFD solve time */
@@ -975,7 +1193,7 @@ double Cmfd::computeKeff(int moc_iteration) {
   else
     return _k_eff;
 
-  /* Do not prolong again if the few-group solution was used */
+  /* Do not prolong if the few-group solution was used */
   if (reduced_group_solution) {
     log_printf(NORMAL, "The %d group CMFD solver was successful",
                _num_backup_groups);
@@ -986,10 +1204,13 @@ double Cmfd::computeKeff(int moc_iteration) {
   rescaleFlux();
 
   /* Update the MOC flux */
+  _timer->startTimer();
   if (_flux_update_on)
     updateMOCFlux();
 
-  /* Tally the total CMFD time */
+  /* Tally the update and total CMFD time */
+  _timer->stopTimer();
+  _timer->recordSplit("Total MOC flux update time");
   _timer->stopTimer();
   _timer->recordSplit("Total CMFD time");
 
@@ -1037,7 +1258,7 @@ void Cmfd::rescaleFlux() {
  */
 void Cmfd::constructMatrices(int moc_iteration) {
 
-  log_printf(INFO,"Constructing matrices...");
+  log_printf(INFO, "Constructing matrices...");
 
   /* Zero _A and _M matrices */
   _A->clear();
@@ -1112,14 +1333,12 @@ void Cmfd::constructMatrices(int moc_iteration) {
           sense = getSense(s);
           delta = getSurfaceWidth(s, global_ind);
 
-          /* Set transport term on diagonal.
-          dif_surf and dif_surf_corr are modified via reference */
+          /* Set transport term on diagonal */
           getSurfaceDiffusionCoefficient(i, s, e, moc_iteration, dif_surf, 
                                           dif_surf_corr);
 
           /* Record the corrected diffusion coefficient */
           _old_dif_surf_corr->setValue(i, s*_num_cmfd_groups+e, dif_surf_corr);
-          _old_dif_surf_valid = true;
 
           /* Set the diagonal term */
           value = (dif_surf - sense * dif_surf_corr) * delta;
@@ -1159,6 +1378,8 @@ void Cmfd::constructMatrices(int moc_iteration) {
     }
   }
 
+  /* Mark correction diffusion coefficient as valid for relaxation purposes */
+  _old_dif_surf_valid = true;
   log_printf(INFO, "Done constructing matrices...");
 }
 
@@ -1181,6 +1402,7 @@ void Cmfd::updateMOCFlux() {
 #pragma omp parallel for
   for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
 
+    CMFD_PRECISION thread_max_update_ratio = 1;
     std::vector<long>::iterator iter;
 
     /* Loop over CMFD groups */
@@ -1199,14 +1421,11 @@ void Cmfd::updateMOCFlux() {
         if (update_ratio < 0.05)
           update_ratio = 0.05;
 
-        if (_convergence_data != NULL) {
-#pragma omp critical
-          {
+        /* Save max update ratio among fsrs and groups in a cell */
+        if (_convergence_data != NULL)
             if (std::abs(log(update_ratio)) > 
-                std::abs(log(_convergence_data->pf)))
-              _convergence_data->pf = update_ratio;
-          }
-        }
+                std::abs(log(thread_max_update_ratio)))
+              thread_max_update_ratio = update_ratio;
 
         for (int h = _group_indices[e]; h < _group_indices[e + 1]; h++) {
 
@@ -1227,7 +1446,19 @@ void Cmfd::updateMOCFlux() {
         }
       }
     }
+
+    /* Save maximum update ratio among CMFD cells, for output purposes */
+    if (_convergence_data != NULL) {
+#pragma omp critical
+      {
+        if (std::abs(log(thread_max_update_ratio)) > 
+            std::abs(log(_convergence_data->pf)))
+              _convergence_data->pf = thread_max_update_ratio;
+      }
+    }
   }
+
+  /* Compare maximum update ratios between domains and keep the maximum */
 #ifdef MPIx
   if (_domain_communicator != NULL && _convergence_data != NULL) {
     double max_pf = _convergence_data->pf;
@@ -1361,9 +1592,9 @@ void Cmfd::setSORRelaxationFactor(double SOR_factor) {
 void Cmfd::setCMFDRelaxationFactor(double relaxation_factor) {
 
   if (relaxation_factor <= 0.0 || relaxation_factor > 1.0)
-    log_printf(ERROR, "The successive over-relaxation relaxation factor "
-                      "must be greater than 0 and less than or equal to 1. "
-                      "Input value: %6.4f", relaxation_factor);
+    log_printf(ERROR, "The CMFD relaxation factor must be greater than 0 and "
+                      "less than or equal to 1. Input value: %6.4f",
+                      relaxation_factor);
 
   _relaxation_factor = relaxation_factor;
 }
@@ -1798,12 +2029,13 @@ void Cmfd::splitVertexCurrents() {
             /* Look for the CMFD cell on-domain */
             int local_cell = getLocalCMFDCell(cell);
 
-            /* Add face contributions */
             if (local_cell != -1) {
+              /* Add face contributions */
               if (surface < NUM_FACES) {
                 _surface_currents->incrementValue(local_cell,
                                                   surface * ncg + g, current);
               }
+              /* Add edges contributions */
               else {
 
                 /* Map is accessed directly at new index, if the key doesn't
@@ -1811,7 +2043,9 @@ void Cmfd::splitVertexCurrents() {
                 int new_ind = (local_cell * NUM_SURFACES + surface) * ncg + g;
 
                 /* Add the contribution */
+                omp_set_lock(&_edge_corner_lock);
                 _edge_corner_currents[new_ind] += current;
+                omp_unset_lock(&_edge_corner_lock);
               }
             }
 
@@ -1829,8 +2063,11 @@ void Cmfd::splitVertexCurrents() {
                   int idx = it->second;
 
                   /* Add the current to the off-domain split currents cell */
+                  // Comment out this line to check for MOC neutron balance
+                  omp_set_lock(&_edge_corner_lock);
                   _off_domain_split_currents[s][idx][surface * ncg + g] +=
                     current;
+                  omp_unset_lock(&_edge_corner_lock);
                   break;
                 }
               }
@@ -1932,8 +2169,11 @@ void Cmfd::splitEdgeCurrents() {
                   int idx = it->second;
 
                   /* Add the current to the off-domain split currents cell */
+                  // Comment out this line to check for MOC neutron balance
+                  omp_set_lock(&_edge_corner_lock);
                   _off_domain_split_currents[s][idx][surface * ncg + g] +=
                     current;
+                  omp_unset_lock(&_edge_corner_lock);
                   break;
                 }
               }
@@ -2010,16 +2250,18 @@ void Cmfd::getVertexSplitSurfaces(int cell, int vertex,
     int cell_next = getCellNext(cell, partial_surface);
     if ((cell_indexes[i] == 0 && direction[i] == -1) ||
         (cell_indexes[i] == cell_limits[i] - 1 && direction[i] == +1)) {
-      if (_boundaries[partial_surface] == REFLECTIVE) {
+
+      if (_boundaries[partial_surface] == REFLECTIVE)
         surfaces->push_back(cell * ns + remainder_surface);
-      }
-      else if (_boundaries[partial_surface] == PERIODIC) {
+        //NOTE Comment out this line to check MOC neutron balance
+
+      else if (_boundaries[partial_surface] == PERIODIC)
         surfaces->push_back(cell_next * ns + remainder_surface);
-      }
+
     }
-    else {
+    else
       surfaces->push_back(cell_next * ns + remainder_surface);
-    }
+
   }
 }
 
@@ -2080,16 +2322,17 @@ void Cmfd::getEdgeSplitSurfaces(int cell, int edge,
       int cell_next = getCellNext(cell, partial_surface);
       if ((cell_indexes[i] == 0 && direction[i] == -1) ||
           (cell_indexes[i] == cell_limits[i] - 1 && direction[i] == +1)) {
-        if (_boundaries[partial_surface] == REFLECTIVE) {
+
+        if (_boundaries[partial_surface] == REFLECTIVE)
           surfaces->push_back(cell * ns + other_surface);
-        }
-        else if (_boundaries[partial_surface] == PERIODIC) {
+          //NOTE Comment out this line to check MOC neutron balance
+
+        else if (_boundaries[partial_surface] == PERIODIC)
           surfaces->push_back(cell_next * ns + other_surface);
-        }
       }
-      else {
+      else
         surfaces->push_back(cell_next * ns + other_surface);
-      }
+
       ind++;
     }
   }
@@ -2343,9 +2586,8 @@ void Cmfd::useAxialInterpolation(int interpolate) {
                " meaning No interpolation, FSR axially averaged value or"
                " centroid z-coordinate evaluted value");
   if(interpolate==1 || interpolate==2)
-    log_printf(NORMAL, "WARNING: Axial interpolation CMFD prolongation may only"
+    log_printf(WARNING_ONCE, "Axial interpolation CMFD prolongation may only"
                " be effective when all the FSRs are axially homogeneous");
-  //FIXME Use a log level that prints the warning once for all nodes, without NORMAL
   _use_axial_interpolation = interpolate;
 }
 
@@ -2835,11 +3077,13 @@ CMFD_PRECISION Cmfd::getUpdateRatio(int cell_id, int group, long fsr) {
  */
 CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, long fsr) {
 
-  double* interpolants;
   double ratio = 1.0;
-  if (_use_axial_interpolation)
-    interpolants = _axial_interpolants.at(fsr);
+
   if (_use_axial_interpolation && _local_num_z >= 3) {
+
+    /* Get pre-computed interpolation ratios */
+    double* interpolants = _axial_interpolants.at(fsr);
+
     int z_ind = cell_id / (_local_num_x * _local_num_y);
     int cell_mid = cell_id;
 
@@ -3023,6 +3267,9 @@ void Cmfd::setKNearest(int k_nearest) {
                "must be between 1 and 9.", k_nearest);
   else
     _k_nearest = k_nearest;
+
+  /* Enables use of centroids for K-nearest */
+  _centroid_update_on = true;
 }
 
 
@@ -3281,10 +3528,10 @@ void Cmfd::initialize() {
 
           _off_domain_split_currents[s][idx] =
             &_send_split_current_data[start];
-          memset(_off_domain_split_currents[s][idx], 0.0, vec_size);
+          memset(_off_domain_split_currents[s][idx], 0, vec_size);
           _received_split_currents[s][idx] =
             &_receive_split_current_data[start];
-          memset(_received_split_currents[s][idx], 0.0, vec_size);
+          memset(_received_split_currents[s][idx], 0, vec_size);
 
           start += ns*ncg;
         }
@@ -3389,10 +3636,23 @@ void Cmfd::initialize() {
  * @brief Initialize the CMFD lattice and compute mesh dimensions, considering
  *        both uniform/non-uniform and 2D/3D cases.
  * @param offset the offset point of the CMFD Lattice
+ * @param whether CMFD will be used in a 2D simulation (true) or 3D
  */
-void Cmfd::initializeLattice(Point* offset) {
+void Cmfd::initializeLattice(Point* offset, bool is_2D) {
 
-  if(_non_uniform) {
+  /* Deal with 2D case, set all widths Z to 1 */
+  if (is_2D || _width_z == std::numeric_limits<double>::infinity()) {
+    _num_z = 1;
+    _local_num_z = 1;
+    _width_z = 1.0;
+    _cell_width_z = 1.0;
+    _cell_widths_z.resize(_num_z);
+    _cell_widths_z[0] = _cell_width_z;
+    setBoundary(SURFACE_Z_MIN, REFLECTIVE);
+    setBoundary(SURFACE_Z_MAX, REFLECTIVE);
+  }
+
+  if (_non_uniform) {
     setNumX(_cell_widths_x.size());
     setNumY(_cell_widths_y.size());
     setNumZ(_cell_widths_z.size());
@@ -3402,39 +3662,27 @@ void Cmfd::initializeLattice(Point* offset) {
     _cell_width_y = _width_y / _num_y;
     _cell_width_z = _width_z / _num_z;
 
-    /* 2D case, set the axial width 1.0 */
-    if(_width_z == std::numeric_limits<double>::infinity())
-      _cell_width_z = 1.0;
-
-    _cell_widths_x.resize(_num_x,_cell_width_x);
-    _cell_widths_y.resize(_num_y,_cell_width_y);
-    _cell_widths_z.resize(_num_z,_cell_width_z);
+    _cell_widths_x.resize(_num_x, _cell_width_x);
+    _cell_widths_y.resize(_num_y, _cell_width_y);
+    _cell_widths_z.resize(_num_z, _cell_width_z);
   }
 
-  /* 2D case */
-  bool is_2D = false;
-  if(_width_z == std::numeric_limits<double>::infinity()) {
-    _width_z = 1.0;
-    setBoundary(SURFACE_Z_MIN, REFLECTIVE);
-    setBoundary(SURFACE_Z_MAX, REFLECTIVE);
-    is_2D = true;
-  }
-  _accumulate_x.resize(_num_x+1,0.0);
-  _accumulate_y.resize(_num_y+1,0.0);
-  _accumulate_z.resize(_num_z+1,0.0);
+  _accumulate_x.resize(_num_x+1, 0.0);
+  _accumulate_y.resize(_num_y+1, 0.0);
+  _accumulate_z.resize(_num_z+1, 0.0);
 
-  for(int i=0; i<_num_x; i++)
+  for (int i=0; i<_num_x; i++)
     _accumulate_x[i+1] = _accumulate_x[i] + _cell_widths_x[i];
 
-  for(int i=0; i<_num_y; i++)
-    _accumulate_y[i+1] = _accumulate_y[i] + _cell_widths_y[i];  
+  for (int i=0; i<_num_y; i++)
+    _accumulate_y[i+1] = _accumulate_y[i] + _cell_widths_y[i];
 
-  for(int i=0; i<_num_z; i++)
+  for (int i=0; i<_num_z; i++)
     _accumulate_z[i+1] = _accumulate_z[i] + _cell_widths_z[i];
 
-  if(fabs(_width_x - _accumulate_x[_num_x]) > FLT_EPSILON ||
+  if (fabs(_width_x - _accumulate_x[_num_x]) > FLT_EPSILON ||
      fabs(_width_y - _accumulate_y[_num_y]) > FLT_EPSILON ||
-     (!is_2D && fabs(_width_z - _accumulate_z[_num_z]) > FLT_EPSILON))
+     fabs(_width_z - _accumulate_z[_num_z]) > FLT_EPSILON)
     log_printf(ERROR, "The sum of non-uniform mesh widths are not consistent "
       "with geometry dimensions. width_x = %20.17E, width_y = %20.17E, "
       "width_z = %20.17E, sum_x = %20.17E, sum_y = %20.17E, sum_z = %20.17E, "
@@ -3457,16 +3705,9 @@ void Cmfd::initializeLattice(Point* offset) {
 
   if (_non_uniform)
     _lattice->setWidths(_cell_widths_x, _cell_widths_y, _cell_widths_z);
-  else {
-    if (is_2D)
-      _lattice->setWidth(_cell_width_x, _cell_width_y, 
-                         std::numeric_limits<double>::infinity());
-    else
-      _lattice->setWidth(_cell_width_x, _cell_width_y, _cell_width_z);
-  }
-
+  else
+    _lattice->setWidth(_cell_width_x, _cell_width_y, _cell_width_z);
   _lattice->setOffset(offset->getX(), offset->getY(), offset->getZ());
-
   _lattice->computeSizes();
 }
 
@@ -3511,7 +3752,7 @@ void Cmfd::initializeBackupCmfdSolver() {
   _backup_cmfd->setWidthY(_width_y);
   _backup_cmfd->setWidthZ(_width_z);
 
-  /* Intialize CMFD Maps */
+  /* Initialize CMFD Maps */
   _backup_cmfd->initializeCellMap();
 
   /* Initialize the CMFD lattice */
@@ -3533,13 +3774,13 @@ void Cmfd::initializeBackupCmfdSolver() {
   /* Initialize the backup CMFD solver */
   _backup_cmfd->initialize();
 
-  /* Intialize the CMFD energy group structure */
+  /* Initialize the CMFD energy group structure */
   _backup_cmfd->setSourceConvergenceThreshold(_source_convergence_threshold);
   _backup_cmfd->setNumMOCGroups(_num_moc_groups);
   _backup_cmfd->initializeGroupMap();
 
   /* Give CMFD number of FSRs and FSR property arrays */
-  _backup_cmfd->setSolve3D(_solve_3D);
+  _backup_cmfd->setSolve3D(_SOLVE_3D);
   _backup_cmfd->setNumFSRs(_num_FSRs);
   _backup_cmfd->setFSRVolumes(_FSR_volumes);
   _backup_cmfd->setFSRMaterials(_FSR_materials);
@@ -3654,6 +3895,7 @@ CMFD_PRECISION Cmfd::getSurfaceWidth(int surface, int global_ind) {
 /**
  * @brief Returns the width of the surface perpendicular to a given surface
  * @param surface A surface index, from 0 to NUM_FACES - 1
+ * @paran global_ind The CMFD cell global index
  * @return The perpendicular surface width
  */
 CMFD_PRECISION Cmfd::getPerpendicularSurfaceWidth(int surface, int global_ind) {
@@ -3699,7 +3941,7 @@ int Cmfd::getSense(int surface) {
  */
 void Cmfd::setSolve3D(bool solve_3D) {
 #ifndef THREED
-  _solve_3D = solve_3D;
+  _SOLVE_3D = solve_3D;
 #endif
 }
 
@@ -3826,6 +4068,12 @@ void Cmfd::printTimerReport() {
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), xs_collapse_time);
 
+  /* Get the total matrix construction time */
+  double matrix_construction_time = _timer->getSplit("Matrix construction time");
+  msg_string = "    Matrix construction time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), matrix_construction_time);
+
   /* Get the MPI communication time */
   double comm_time = _timer->getSplit("CMFD MPI communication time");
   msg_string = "    MPI communication time";
@@ -3837,6 +4085,12 @@ void Cmfd::printTimerReport() {
   msg_string = "    Total CMFD solver time";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), solver_time);
+
+  /* Get the total MOC flux update time */
+  double update_time = _timer->getSplit("Total MOC flux update time");
+  msg_string = "    Total flux update time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), update_time);
 }
 
 
@@ -3885,11 +4139,33 @@ void Cmfd::copyFullSurfaceCurrents() {
  * @brief Computes the neutron balance over each CMFD cell for both MOC and CMFD
  * @details This routine can be used once the CMFD matrices have been formed to
  *          compute the neutron balance in the CMFD cell. With regards to MOC,
- *          it loops over all fsrs in the cell to compute all reaction rates and
- *          currents.
+ *          it loops over all fsrs in the cell to compute all reaction rates
+ *          and currents.
+ * //NOTE : Expect a neutron imbalance : - in CMFD if there is CMFD relaxation
+ *          - in MOC (and CMFD) if using the newly computed source, which
+ *          is not converged with regards to group-to-group scattering
+ *          - in MOC at the boundaries, as the incoming currents are not
+ *          tallied (except at ite 0, they are null)
+ *          - in MOC at the reflective boundaries when tracks hit edges and
+ *          corners as the contributions are double tallied (not a bug, only 
+ *          a problem for this routine, see NOTE for where to modify code)
  * @param pre_split whether edge currents are not split (default true)
+ * @param moc_balance whether to check the MOC balance over the cell or
+ *        compare the MOC and CMFD imbalance (due to group to group scattering)
  */
-void Cmfd::checkNeutronBalance(bool pre_split) {
+void Cmfd::checkNeutronBalance(bool pre_split, bool moc_balance) {
+
+  /* Print a few warnings on routine limitations (exhaustive in docstring) */
+  if (_geometry->isDomainDecomposed() && pre_split)
+    log_printf(WARNING_ONCE, "MOC neutron balance is currently not checked "
+               "correctly for domain decomposed geometries.");
+  if (_relaxation_factor != 1.0)
+    log_printf(WARNING_ONCE, "CMFD relaxation factor is not 1.0, expect CMFD "
+               "vs MOC neutron imbalance after iteration 0.");
+  if (moc_balance)
+    log_printf(WARNING_ONCE, "MOC neutron imbalance is expected at the "
+               "boundaries past the first iteration as incoming currents are "
+               "not tallied.");
 
   /* Initialize variables */
   omp_lock_t* cell_locks = _old_flux->getCellLocks();
@@ -3910,31 +4186,33 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
   CMFD_PRECISION* a_phi_array = a_phi.getArray();
 
 #ifdef MPIx
-  int* coupling_sizes = NULL;
-  int** coupling_indexes = NULL;
-  CMFD_PRECISION** coupling_coeffs = NULL;
-  CMFD_PRECISION** coupling_fluxes = NULL;
-  int offset = 0;
-  for (int color=0; color < 2; color++) {
+  if (_geometry->isDomainDecomposed()) {
+    int* coupling_sizes = NULL;
+    int** coupling_indexes = NULL;
+    CMFD_PRECISION** coupling_coeffs = NULL;
+    CMFD_PRECISION** coupling_fluxes = NULL;
+    int offset = 0;
+    for (int color=0; color < 2; color++) {
 
-    getCouplingTerms(_domain_communicator, color, coupling_sizes,
-                     coupling_indexes, coupling_coeffs, coupling_fluxes,
-                     _old_flux->getArray(), offset);
+      getCouplingTerms(_domain_communicator, color, coupling_sizes,
+                       coupling_indexes, coupling_coeffs, coupling_fluxes,
+                       _old_flux->getArray(), offset);
 
 #pragma omp parallel for collapse(2)
-    for (int iz=0; iz < _local_num_z; iz++) {
-      for (int iy=0; iy < _local_num_y; iy++) {
-        for (int ix=(iy+iz+color+offset)%2; ix < _local_num_x; ix+=2) {
-          int cell = (iz*_local_num_y + iy)*_local_num_x + ix;
-          for (int g=0; g < _num_cmfd_groups; g++) {
+      for (int iz=0; iz < _local_num_z; iz++) {
+        for (int iy=0; iy < _local_num_y; iy++) {
+          for (int ix=(iy+iz+color+offset)%2; ix < _local_num_x; ix+=2) {
+            int cell = (iz*_local_num_y + iy)*_local_num_x + ix;
+            for (int g=0; g < _num_cmfd_groups; g++) {
 
-            int row = cell * _num_cmfd_groups + g;
+              int row = cell * _num_cmfd_groups + g;
 
-            for (int i = 0; i < coupling_sizes[row]; i++) {
-              int idx = coupling_indexes[row][i] * _num_cmfd_groups + g;
-              int domain = _domain_communicator->domains[color][row][i];
-              CMFD_PRECISION flux = coupling_fluxes[domain][idx];
-              a_phi_array[row] += coupling_coeffs[row][i] * flux;
+              for (int i = 0; i < coupling_sizes[row]; i++) {
+                int idx = coupling_indexes[row][i] * _num_cmfd_groups + g;
+                int domain = _domain_communicator->domains[color][row][i];
+                CMFD_PRECISION flux = coupling_fluxes[domain][idx];
+                a_phi_array[row] += coupling_coeffs[row][i] * flux;
+              }
             }
           }
         }
@@ -3943,7 +4221,9 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
   }
 #endif
 
+  int num_imbalanced = 0;
   double max_imbalance = 0.0;
+  double max_imbalance_moc, max_imbalance_cmfd;
   int max_imbalance_cell = -1;
   int max_imbalance_grp = -1;
 
@@ -3951,6 +4231,7 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
   /* Loop over CMFD cells */
   for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
 
+    bool imbalance_reported = false;
     int x = (i % (_local_num_x * _local_num_y)) % _local_num_x;
     int y = (i % (_local_num_x * _local_num_y)) / _local_num_x;
     int z = i / (_local_num_x * _local_num_y);
@@ -3979,21 +4260,29 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
         for (int h = _group_indices[e]; h < _group_indices[e+1]; h++)
           chi += fsr_material->getChiByGroup(h+1);
 
-        /* Calculate total fission and in-scattering in the FSR */
-        double tot_fission = 0.0;
-        for (int g = 0; g < _num_moc_groups; g++) {
+        /* Use new fluxes to compute the source terms */
+        if (!moc_balance) {
+          /* Calculate total fission and in-scattering in the FSR */
+          double tot_fission = 0.0;
+          for (int g = 0; g < _num_moc_groups; g++) {
 
-          /* Tally total fission */
-          double nu_fis = fsr_material->getNuSigmaFByGroup(g+1);
-          tot_fission += nu_fis * flux[g] * volume;
+            /* Tally total fission */
+            double nu_fis = fsr_material->getNuSigmaFByGroup(g+1);
+            tot_fission += nu_fis * flux[g] * volume;
 
-          /* Loop over MOC energy groups within this CMFD coarse group */
-          for (int h = _group_indices[e]; h < _group_indices[e+1]; h++)
-            in_scattering += scat[h*_num_moc_groups + g] * flux[g] * volume;
+            /* Loop over MOC energy groups within this CMFD coarse group */
+            for (int h = _group_indices[e]; h < _group_indices[e+1]; h++)
+              in_scattering += scat[h*_num_moc_groups + g] * flux[g] * volume;
+          }
+
+          /* Calculate fission contribution to this CMFD coarse group */
+          fission += chi * tot_fission / _k_eff;
         }
-
-        /* Calculate fission contribution to this CMFD coarse group */
-        fission += chi * tot_fission / _k_eff;
+        /* Use the old MOC source to check neutron balance */
+        else {
+          in_scattering = 0.0;  // for convenience
+          fission += _FSR_sources[fsr_id*_num_moc_groups + e] * volume * FOUR_PI;
+        }
 
         /* Calculate total reaction rate in this CMFD coarse group */
         for (int h = _group_indices[e]; h < _group_indices[e+1]; h++) {
@@ -4080,9 +4369,8 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
             }
 
             /* For vacuum boundaries, tally the leakage */
-            if (vacuum) {
+            if (vacuum)
               net_current += _full_surface_currents->getValue(i, idx);
-            }
 
             /* For reflective boundaries, find the appropriate cell to
                deliver current if available */
@@ -4111,24 +4399,35 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
         /* Tally current only over surface faces */
         for (int s = 0; s < NUM_FACES; s++) {
           int idx = s * _num_cmfd_groups + e;
-          int cmfd_cell_next = getCellNext(i, s);
+          int cmfd_cell_next = getCellNext(i, s, false);
           int surface_next = (s + NUM_FACES / 2) % NUM_FACES;
           int idx_next = surface_next * _num_cmfd_groups + e;
+
+          /* Out of domain currents */
           if (cmfd_cell_next == -1) {
-            if (_boundaries[s] == VACUUM) {
+
+            int i_global = getGlobalCMFDCell(i);
+            int global_cmfd_cell_next = getCellNext(i_global, s);
+
+            /* Currents at the geometry outer boundaries */
+            if ((global_cmfd_cell_next == -1 && _boundaries[s] == VACUUM) ||
+                (moc_balance))
               net_current += _surface_currents->getValue(i, idx);
-              int direction[3];
-              convertSurfaceToDirection(s, direction);
+            //FIXME For moc_balance, this is correct at iteration 0 only
+
+            /* Currents from other domains */
+            else if (global_cmfd_cell_next != -1) {
+              int idx_off =
+                   _boundary_index_map.at(s)[global_cmfd_cell_next];
+              net_current += _surface_currents->getValue(i, idx) -
+                   _boundary_surface_currents[s][idx_off][surface_next*
+                                                         _num_cmfd_groups+e];
             }
           }
-          else {
+          /* In-domain currents */
+          else
             net_current += _surface_currents->getValue(i, idx) -
-                _surface_currents->getValue(cmfd_cell_next,idx_next);
-            int direction[3];
-            int op_direction[3];
-            convertSurfaceToDirection(s, direction);
-            convertSurfaceToDirection(surface_next, op_direction);
-          }
+                _surface_currents->getValue(cmfd_cell_next, idx_next);
         }
       }
 
@@ -4138,28 +4437,68 @@ void Cmfd::checkNeutronBalance(bool pre_split) {
       double cmfd_balance = m_phi.getValue(i, e) / _k_eff -
             a_phi.getValue(i, e);
 
-      double tmp_imbalance = std::max(std::abs(moc_balance),
-                                      std::abs(cmfd_balance));
-      if (tmp_imbalance > max_imbalance){
+      double tmp_imbalance = std::abs(moc_balance);
+      if (!moc_balance)
+        tmp_imbalance = std::abs(moc_balance - cmfd_balance);
+
+      if (tmp_imbalance > max_imbalance) {
         max_imbalance = tmp_imbalance;
+        max_imbalance_moc = moc_balance;
+        max_imbalance_cmfd = cmfd_balance;
         max_imbalance_cell = i;
         max_imbalance_grp = e;
       }
 
-      if (std::abs(moc_balance - cmfd_balance) > 1e-14) {
-        log_printf(NORMAL, "MOC neutron balance in cell (%d, %d, %d) for CMFD "
-                   "group %d = %g", x, y, z, e, moc_balance);
+      /* Select appropriate level of numerical tolerance */
+      //NOTE Track angular fluxes being in single precision, double precision
+      //     neutron balance is not expected.
+#ifdef SINGLE
+      FP_PRECISION tol = 5e-6;
+#else
+      FP_PRECISION tol = 5e-7;
+#endif
 
-        log_printf(NORMAL, "CMFD neutron balance in cell (%d, %d, %d) for CMFD "
-                   "group %d = %g", x, y, z, e, cmfd_balance);
+      /* Report an abnormal neutron imbalance */
+      if (tmp_imbalance > tol) {
 
-        log_printf(NORMAL, "Net neutron balance in cell (%d, %d, %d) for CMFD "
-                   "group %d = %g", x, y, z, e, moc_balance - cmfd_balance);
+        /* Output an imbalance only once for all groups on log level INFO */
+        if (!imbalance_reported) {
+          num_imbalanced++;
+          log_printf(INFO, "Neutron imbalance in cell (%d, %d, %d) for CMFD "
+                     "group %d = MOC %g, CMFD %g, diff %g", x, y, z, e,
+                     moc_balance, cmfd_balance, moc_balance - cmfd_balance);
+        }
+        /* Output an imbalance for every group at log level DEBUG */
+        else
+          log_printf(DEBUG, "Neutron imbalance in cell (%d, %d, %d) for CMFD "
+                     "group %d = MOC %g, CMFD %g, diff %g", x, y, z, e,
+                     moc_balance, cmfd_balance, moc_balance - cmfd_balance);
+        imbalance_reported = true;
       }
     }
   }
-  log_printf(NORMAL, "Maximum neutron imbalance of %g at cell %i and group "
-             "%d.", max_imbalance, max_imbalance_cell, max_imbalance_grp);
+
+  /* Output max imbalance in CMFD mesh */
+  int x = (max_imbalance_cell % (_local_num_x * _local_num_y)) % _local_num_x;
+  int y = (max_imbalance_cell % (_local_num_x * _local_num_y)) / _local_num_x;
+  int z = max_imbalance_cell / (_local_num_x * _local_num_y);
+  if (moc_balance) {
+    log_printf(NODAL, "Maximum neutron imbalance MOC %f (CMFD %f) at cell %i "
+               "(%d %d %d) and group %d.", max_imbalance_moc,
+               max_imbalance_cmfd, max_imbalance_cell, x, y, z,
+               max_imbalance_grp);
+    log_printf(NODAL, "%d CMFD cells report a MOC neutron imbalance",
+               num_imbalanced);
+  }
+  else {
+    log_printf(NODAL, "Maximum neutron imbalance between MOC and CMFD : %f "
+               "(MOC %f CMFD %f) at cell %i (%d %d %d) and group %d.",
+               max_imbalance_moc - max_imbalance_cmfd, max_imbalance_moc,
+               max_imbalance_cmfd, max_imbalance_cell, x, y, z,
+               max_imbalance_grp);
+    log_printf(NODAL, "%d CMFD cells report a neutron imbalance between MOC "
+               "and CMFD", num_imbalanced);
+  }
 }
 
 
@@ -4177,7 +4516,8 @@ int Cmfd::getCellColor(int cmfd_cell) {
 
 
 /**
- * @brief Packs reaction rates and currents into buffers for communication
+ * @brief Packs reaction rates and currents into buffers for communication.
+ * @details Buffer description is found in ghostCellExchange's docstring
  */
 void Cmfd::packBuffers() {
 
@@ -4189,6 +4529,8 @@ void Cmfd::packBuffers() {
       for (int x=0; x < _local_num_x; x++) {
         for (int s=0; s < NUM_FACES; s++)
           found_surfaces[s] = false;
+
+        /* Check that cell is at a boundary */
         if (x == 0)
           found_surfaces[SURFACE_X_MIN] = true;
         if (x == _local_num_x-1)
@@ -4201,6 +4543,8 @@ void Cmfd::packBuffers() {
           found_surfaces[SURFACE_Z_MIN] = true;
         if (z == _local_num_z-1)
           found_surfaces[SURFACE_Z_MAX] = true;
+
+        /* Fill buffers with tallies */
         for (int s=0; s < NUM_FACES; s++) {
           if (found_surfaces[s]) {
             int idx = current_idx[s];
@@ -4225,16 +4569,16 @@ void Cmfd::packBuffers() {
 
 /**
  * @brief Exchanges ghost cell buffers in 3D cartesian (i.e., 6 directions)
- * @param comm The cartesian MPI domain communicator object that is configured
- *        for the CMFD exchange
- * @param send_buffers A 2D array of floating point data. The outer dimension
- *        corresponds to each face of the domain,
- *        while the inner dimension is the serialized buffer corresponding to
- *        the number of 2D cells to exchange times the number of energy groups.
- * @param recv_buffers A 2D array of floating point data. The outer dimension
- *        corresponds to each face of the domain,
- *        while the inner dimension is the serialized buffer corresponding to
- *        the number of 2D cells to exchange times the number of energy groups.
+ * @details comm The cartesian MPI domain communicator object that is
+ *          configured for the CMFD exchange
+ *          send_buffers A 2D array of floating point data. The outer dimension
+ *          corresponds to each face of the domain, while the inner dimension 
+ *          is the serialized buffer corresponding to the number of 2D cells 
+ *          to exchange times the number of energy groups.
+ *          recv_buffers A 2D array of floating point data. The outer dimension
+ *          corresponds to each face of the domain,  while the inner dimension
+ *          is the serialized buffer corresponding to the number of 2D cells to
+ *          exchange times the number of energy groups.
  */
 #ifdef MPIx
 void Cmfd::ghostCellExchange() {
@@ -4283,7 +4627,10 @@ void Cmfd::ghostCellExchange() {
 
       sizes[surf] = size;
 
-      MPI_Cart_shift(_domain_communicator->_MPI_cart, coord, dir, &source, &dest);
+      /* Get ranks of source and destination domains, using the cartesian
+         structure of the domain decomposition */
+      MPI_Cart_shift(_domain_communicator->_MPI_cart, coord, dir, &source,
+                     &dest);
 
       // Post send
       MPI_Isend(_send_data_by_surface[surf], size, precision,
@@ -4370,28 +4717,7 @@ void Cmfd::communicateSplits(bool faces) {
   }
 
   // Block for communication round to complete
-  bool round_complete = false;
-  while (!round_complete) {
-
-    round_complete = true;
-    int flag;
-    MPI_Status send_stat;
-    MPI_Status recv_stat;
-
-    for (int coord=0; coord < 3; coord++) {
-      for (int d=0; d<2; d++) {
-        int surf = coord + 3*d;
-
-        MPI_Test(&requests[2*surf], &flag, &send_stat);
-        if (flag == 0)
-          round_complete = false;
-
-        MPI_Test(&requests[2*surf+1], &flag, &recv_stat);
-        if (flag == 0)
-          round_complete = false;
-      }
-    }
-  }
+  MPI_Waitall(12, requests, MPI_STATUSES_IGNORE);
 
   unpackSplitCurrents(faces);
 }
