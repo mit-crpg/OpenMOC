@@ -731,7 +731,7 @@ void Universe::calculateBoundaries() {
 
   /* If a x-min boundary was not found, get the x-min from the bounding boxes
    * of the cells */
-  if (min_x == std::numeric_limits<double>::infinity()) {
+  if (min_x > FLT_INFINITY) {
     for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
       min_x = std::min(min_x, c_iter->second->getMinX());
   }
@@ -772,7 +772,7 @@ void Universe::calculateBoundaries() {
 
   /* If a x-max boundary was not found, get the x-max from the bounding boxes
    * of the cells */
-  if (max_x == -std::numeric_limits<double>::infinity()) {
+  if (max_x < -FLT_INFINITY) {
     for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
       max_x = std::max(max_x, c_iter->second->getMaxX());
   }
@@ -814,7 +814,7 @@ void Universe::calculateBoundaries() {
 
   /* If a y-min boundary was not found, get the y-min from the bounding boxes
    * of the cells */
-  if (min_y == std::numeric_limits<double>::infinity()) {
+  if (min_y > FLT_INFINITY) {
     for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
       min_y = std::min(min_y, c_iter->second->getMinY());
   }
@@ -855,7 +855,7 @@ void Universe::calculateBoundaries() {
 
   /* If a y-max boundary was not found, get the y-max from the bounding boxes
    * of the cells */
-  if (max_y == -std::numeric_limits<double>::infinity()) {
+  if (max_y < -FLT_INFINITY) {
     for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
       max_y = std::max(max_y, c_iter->second->getMaxY());
   }
@@ -896,7 +896,7 @@ void Universe::calculateBoundaries() {
 
   /* If a z-min boundary was not found, get the z-min from the bounding boxes
    * of the cells */
-  if (min_z == std::numeric_limits<double>::infinity()) {
+  if (min_z > FLT_INFINITY) {
     for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
       min_z = std::min(min_z, c_iter->second->getMinZ());
   }
@@ -937,7 +937,7 @@ void Universe::calculateBoundaries() {
 
   /* If a z-max boundary was not found, get the z-max from the bounding boxes
    * of the cells */
-  if (max_z == -std::numeric_limits<double>::infinity()) {
+  if (max_z < -FLT_INFINITY) {
     for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
       max_z = std::max(max_z, c_iter->second->getMaxZ());
   }
@@ -2254,9 +2254,9 @@ void Lattice::computeSizes(){
   }
 
   /* Compute the accumulated lengths along each axis */
-  _accumulate_x.resize(_num_x+1,0.0);
-  _accumulate_y.resize(_num_y+1,0.0);
-  _accumulate_z.resize(_num_z+1,0.0);
+  _accumulate_x.resize(_num_x+1, 0.0);
+  _accumulate_y.resize(_num_y+1, 0.0);
+  _accumulate_z.resize(_num_z+1, 0.0);
 
   for(int i=0; i<_num_x; i++)
     _accumulate_x[i+1] = _accumulate_x[i] + _widths_x[i];
@@ -2277,7 +2277,7 @@ void Lattice::printLatticeSizes() {
   printf("non_uniform=%d, \nNum_XYZ: %2d, %2d, %2d\n", _non_uniform, 
          _num_x, _num_y, _num_z);
   printf("offset: %f, %f, %f\n", _offset.getX(),_offset.getY(),_offset.getZ());
-  printf("cell_width_XYZ: %f, %f, %f\n", _width_x,_width_y,_width_z);
+  printf("cell_width_XYZ: %f, %f, %f\n", _width_x, _width_y, _width_z);
   printf("cell_widths_XYZ:\n");
   for(i=0; i<_num_x; i++)
     printf("i=%d, %f; ",i, _widths_x[i]);

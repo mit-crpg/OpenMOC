@@ -533,25 +533,33 @@ void CPUSolver::setupMPIBuffers() {
 #pragma omp parallel for
     for (long t=0; t<_tot_num_tracks; t++) {
 
+      Track* track;
       /* Get 3D Track data */
-      TrackStackIndexes tsi;
-      Track3D track;
-      TrackGenerator3D* track_generator_3D =
-        dynamic_cast<TrackGenerator3D*>(_track_generator);
-      track_generator_3D->getTSIByIndex(t, &tsi);
-      track_generator_3D->getTrackOTF(&track, &tsi);
+      if (_SOLVE_3D) {
+        TrackStackIndexes tsi;
+        track = new Track3D();
+        TrackGenerator3D* track_generator_3D =
+          dynamic_cast<TrackGenerator3D*>(_track_generator);
+        track_generator_3D->getTSIByIndex(t, &tsi);
+        track_generator_3D->getTrackOTF(dynamic_cast<Track3D*>(track), &tsi);
+      }
+      /* Get 2D Track data */
+      else {
+        Track** tracks = _track_generator->get2DTracksArray();
+        track = tracks[t];
+      }
 
       /* Save the index of the forward and backward connecting Tracks */
-      _track_connections.at(0).at(t) = track.getTrackNextFwd();
-      _track_connections.at(1).at(t) = track.getTrackNextBwd();
+      _track_connections.at(0).at(t) = track->getTrackNextFwd();
+      _track_connections.at(1).at(t) = track->getTrackNextBwd();
 
       /* Determine the indexes of connecting domains */
       int domains[2];
-      domains[0] = track.getDomainFwd();
-      domains[1] = track.getDomainBwd();
+      domains[0] = track->getDomainFwd();
+      domains[1] = track->getDomainBwd();
       bool interface[2];
-      interface[0] = track.getBCFwd() == INTERFACE;
-      interface[1] = track.getBCBwd() == INTERFACE;
+      interface[0] = track->getBCFwd() == INTERFACE;
+      interface[1] = track->getBCBwd() == INTERFACE;
       for (int d=0; d < 2; d++) {
         if (domains[d] != -1 && interface[d]) {
           int neighbor = neighbor_connections.at(domains[d]);
@@ -559,6 +567,9 @@ void CPUSolver::setupMPIBuffers() {
           num_tracks[neighbor]++;
         }
       }
+      if (_SOLVE_3D)
+        delete track;
+
     }
 
     /* Resize the buffers for the counted number of Tracks */
@@ -571,21 +582,29 @@ void CPUSolver::setupMPIBuffers() {
 #pragma omp parallel for
     for (long t=0; t<_tot_num_tracks; t++) {
 
+      Track* track;
       /* Get 3D Track data */
-      TrackStackIndexes tsi;
-      Track3D track;
-      TrackGenerator3D* track_generator_3D =
-        dynamic_cast<TrackGenerator3D*>(_track_generator);
-      track_generator_3D->getTSIByIndex(t, &tsi);
-      track_generator_3D->getTrackOTF(&track, &tsi);
+      if (_SOLVE_3D) {
+        TrackStackIndexes tsi;
+        track = new Track3D();
+        TrackGenerator3D* track_generator_3D =
+          dynamic_cast<TrackGenerator3D*>(_track_generator);
+        track_generator_3D->getTSIByIndex(t, &tsi);
+        track_generator_3D->getTrackOTF(dynamic_cast<Track3D*>(track), &tsi);
+      }
+      /* Get 2D Track data */
+      else {
+        Track** tracks = _track_generator->get2DTracksArray();
+        track = tracks[t];
+      }
 
       /* Determine the indexes of connecting domains */
       int domains[2];
-      domains[0] = track.getDomainFwd();
-      domains[1] = track.getDomainBwd();
+      domains[0] = track->getDomainFwd();
+      domains[1] = track->getDomainBwd();
       bool interface[2];
-      interface[0] = track.getBCFwd() == INTERFACE;
-      interface[1] = track.getBCBwd() == INTERFACE;
+      interface[0] = track->getBCFwd() == INTERFACE;
+      interface[1] = track->getBCBwd() == INTERFACE;
       for (int d=0; d < 2; d++) {
         if (domains[d] != -1 && interface[d]) {
           int neighbor = neighbor_connections.at(domains[d]);
@@ -600,6 +619,8 @@ void CPUSolver::setupMPIBuffers() {
           _boundary_tracks.at(neighbor).at(slot) = 2*t + d;
         }
       }
+      if (_SOLVE_3D)
+        delete track;
     }
 
     log_printf(NORMAL, "Finished setting up MPI buffers...");
@@ -891,10 +912,6 @@ void CPUSolver::transferAllInterfaceFluxes() {
     bool communication_complete = true;
     for (int i=0; i < num_domains; i++) {
 
-      /* Initialize MPI request */
-      _MPI_requests[i*2] = MPI_REQUEST_NULL;
-      _MPI_requests[i*2+1] = MPI_REQUEST_NULL;
-
       /* Get the communicating neighbor domain */
       int domain = _neighbor_domains.at(i);
 
@@ -918,6 +935,10 @@ void CPUSolver::transferAllInterfaceFluxes() {
 
         /* Mark communication as ongoing */
         communication_complete = false;
+      }
+      else {
+        _MPI_requests[i*2] = MPI_REQUEST_NULL;
+        _MPI_requests[i*2+1] = MPI_REQUEST_NULL;
       }
     }
 
@@ -981,6 +1002,8 @@ void CPUSolver::transferAllInterfaceFluxes() {
  *          the connecting track - specifically its angles, and its location.
  *          When the information is returned, it is checked by the requesting
  *          domain for consistency.
+ *          //NOTE : This routine may only be called after the track fluxes
+ *          have been exchanged.
  */
 void CPUSolver::boundaryFluxChecker() {
 
@@ -999,6 +1022,8 @@ void CPUSolver::boundaryFluxChecker() {
   while (tester < num_ranks) {
 
     if (tester == my_rank) {
+
+      log_printf(NODAL, "Checking boundary fluxes for process %d", tester);
 
       /* Loop over all tracks */
       for (long t=0; t < _tot_num_tracks; t++) {
@@ -1039,7 +1064,7 @@ void CPUSolver::boundaryFluxChecker() {
             /* Check for a valid destination */
             if (dest == -1)
               log_printf(ERROR, "Track %d on domain %d has been found to have "
-                         "a INTERFACE boundary but no connecting domain", t,
+                         "an INTERFACE boundary but no connecting domain", t,
                          my_rank);
 
             /* Send a request for info */
@@ -1050,7 +1075,7 @@ void CPUSolver::boundaryFluxChecker() {
             float buffer[receive_size];
             MPI_Recv(buffer, receive_size, MPI_FLOAT, dest, 0, MPI_cart, &stat);
 
-            /* Unpack received infomrmation */
+            /* Unpack received information */
             float angular_fluxes[_fluxes_per_track];
             for (int i=0; i < _fluxes_per_track; i++)
               angular_fluxes[i] = buffer[i];
@@ -1124,8 +1149,6 @@ void CPUSolver::boundaryFluxChecker() {
                            "in the -- direction is %f", t, my_rank,
                            dir_string.c_str(), pe, _boundary_flux(t, dir, pe),
                            connection[0], dest, angular_fluxes[pe]);
-                //FIXME Include track direction in track_info when debugging, 
-                //      but not in production mode
               }
             }
           }
@@ -1170,6 +1193,11 @@ void CPUSolver::boundaryFluxChecker() {
             }
             double phi = connecting_track.getPhi();
             double theta = connecting_track.getTheta();
+
+            /* Check for a vacuum boundary condition */
+            if (bc == VACUUM)
+              memset(&_boundary_flux(t, dir, 0), 0, sizeof(float) *
+                                                    _fluxes_per_track);
 
             /* Check angular fluxes */
             for (int pe=0; pe < _fluxes_per_track; pe++) {
@@ -1231,7 +1259,7 @@ void CPUSolver::boundaryFluxChecker() {
                            " angle %f and polar angle %f", t, track.getPhi(),
                            track.getTheta(), connecting_idx, phi, theta);
 
-              /* Check that the periodic Track has a does not share the same
+              /* Check that the periodic Track does not share the same
                  connecting point */
               if (fabs(point->getX() - x) < 1e-5 &&
                   fabs(point->getY() - y) < 1e-5 &&
@@ -1272,7 +1300,7 @@ void CPUSolver::boundaryFluxChecker() {
         long connection[2];
         MPI_Recv(connection, 2, MPI_LONG, tester, 0, MPI_cart, &stat);
 
-        /* Check for a broadcast */
+        /* Check for a broadcast of the new tester rank */
         if (connection[0] == -1) {
           tester = connection[1];
         }
@@ -1290,6 +1318,24 @@ void CPUSolver::boundaryFluxChecker() {
             dynamic_cast<TrackGenerator3D*>(_track_generator);
           track_generator_3D->getTSIByIndex(t, &tsi);
           track_generator_3D->getTrackOTF(&track, &tsi);
+
+          /* Check that the track should be transfered */
+          boundaryType bc_transfer;
+          int dest_transfer;
+          if (dir) {
+            bc_transfer = track.getBCFwd();
+            dest_transfer = track.getDomainFwd();
+          }
+          else {
+            bc_transfer = track.getBCBwd();
+            dest_transfer = track.getDomainBwd();
+          }
+          if (bc_transfer != INTERFACE)
+            log_printf(NODAL, "Node %d requested track %ld that doesn't end at"
+                              "an interface boundary condition.", tester, t);
+          if (dest_transfer != tester)
+            log_printf(NODAL, "Node %d requested track %ld that connects with "
+                              "domain %d.", tester, t, dest_transfer);
 
           /* Fill the information */
           int send_size = _fluxes_per_track + 2 * 5;
@@ -1670,12 +1716,12 @@ double CPUSolver::computeResidual(residualType res_type) {
 
   /* Error check residual componenets */
   if (residual < 0.0) {
-    log_printf(WARNING, "MOC Residual mean square error %6.4f less than zero", 
+    log_printf(WARNING, "MOC residual mean square error %6.4f less than zero", 
                residual);
     residual = 0.0;
   }
   if (norm <= 0) {
-    log_printf(WARNING, "MOC resdiual norm %d less than one", norm);
+    log_printf(WARNING, "MOC residual norm %d less than one", norm);
     norm = 1;
   }
 
@@ -1832,7 +1878,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
   ExpEvaluator* exp_evaluator = _exp_evaluators[azim_index][polar_index];
 
-  if (_solve_3D) {
+  if (_SOLVE_3D) {
 
     FP_PRECISION length_2D = exp_evaluator->convertDistance3Dto2D(length);
 
@@ -1958,13 +2004,11 @@ void CPUSolver::transferBoundaryFlux(Track* track,
   /* Extract boundary conditions for this Track and the pointer to the
    * outgoing reflective Track, and index into the leakage array */
   boundaryType bc_out;
-  boundaryType bc_in;
   long track_out_id;
   int start_out;
 
   /* For the "forward" direction */
   if (direction) {
-    bc_in = track->getBCBwd();
     bc_out = track->getBCFwd();
     track_out_id = track->getTrackNextFwd();
     start_out = _fluxes_per_track * (!track->getNextFwdFwd());
@@ -1972,7 +2016,6 @@ void CPUSolver::transferBoundaryFlux(Track* track,
 
   /* For the "reverse" direction */
   else {
-    bc_in = track->getBCFwd();
     bc_out = track->getBCBwd();
     track_out_id = track->getTrackNextBwd();
     start_out = _fluxes_per_track * (!track->getNextBwdFwd());
@@ -1983,11 +2026,7 @@ void CPUSolver::transferBoundaryFlux(Track* track,
     float* track_out_flux = &_start_flux(track_out_id, 0, start_out);
     memcpy(track_out_flux, track_flux, _fluxes_per_track * sizeof(float));
   }
-  if (bc_in == VACUUM) {
-    long track_id = track->getUid();
-    float* track_in_flux = &_start_flux(track_id, !direction, 0);
-    memset(track_in_flux, 0, _fluxes_per_track * sizeof(float));
-  }
+  /* For vacuum boundary conditions, losing the flux is enough */
 
   /* Tally leakage if applicable */
   if (_cmfd == NULL) {
@@ -2202,22 +2241,24 @@ void CPUSolver::stabilizeFlux() {
 
 
 /**
- * @brief Computes the volume-averaged, energy-integrated nu-fission rate in
- *        each FSR and stores them in an array indexed by FSR ID.
+ * @brief Computes the volume-averaged, energy-integrated fission or nu-fission
+ *        rate in each FSR and stores them in an array indexed by FSR ID.
  * @details This is a helper method for SWIG to allow users to retrieve
- *          FSR nu-fission rates as a NumPy array. An example of how this
- *          method can be called from Python is as follows:
+ *          FSR fission or nu-fission rates as a NumPy array. An example of
+ *          how this method can be called from Python is as follows:
  *
  * @code
  *          num_FSRs = geometry.getNumFSRs()
  *          fission_rates = solver.computeFSRFissionRates(num_FSRs)
  * @endcode
  *
- * @param fission_rates an array to store the nu-fission rates (implicitly
+ * @param fission_rates an array to store the fission rates (implicitly
  *                      passed in as a NumPy array from Python)
  * @param num_FSRs the number of FSRs passed in from Python
+ * @param nu whether return nu-fission (true) or fission (default, false) rates
  */
-void CPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs) {
+void CPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs,
+                                       bool nu) {
 
   if (_scalar_flux == NULL)
     log_printf(ERROR, "Unable to compute FSR fission rates since the "
@@ -2225,7 +2266,7 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs) {
 
   log_printf(INFO, "Computing FSR fission rates...");
 
-  FP_PRECISION* nu_sigma_f;
+  FP_PRECISION* sigma_f;
   FP_PRECISION vol;
 
   /* Initialize fission rates to zero */
@@ -2233,13 +2274,18 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs) {
     fission_rates[r] = 0.0;
 
   /* Loop over all FSRs and compute the volume-weighted fission rate */
-#pragma omp parallel for private (nu_sigma_f, vol) schedule(static)
+#pragma omp parallel for private (sigma_f, vol) schedule(static)
   for (long r=0; r < _num_FSRs; r++) {
-    nu_sigma_f = _FSR_materials[r]->getNuSigmaF();
+    if (nu) {
+      sigma_f = _FSR_materials[r]->getNuSigmaF();
+    } 
+    else {
+      sigma_f = _FSR_materials[r]->getSigmaF();
+    }
     vol = _FSR_volumes[r];
 
     for (int e=0; e < _num_groups; e++)
-      fission_rates[r] += nu_sigma_f[e] * _scalar_flux(r,e) * vol;
+      fission_rates[r] += sigma_f[e] * _scalar_flux(r,e) * vol;
   }
 
   /* Reduce domain data for domain decomposition */

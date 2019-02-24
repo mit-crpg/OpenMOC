@@ -19,23 +19,22 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <malloc.h>
 #endif
 
 #ifdef ICPC
-/** Word-aligned memory allocation for Intel's compiler */
-#define MM_FREE(array) _mm_free(array)
-
-/** Word-aligned memory allocation for Intel's compiler */
+/** Aligned memory allocation for Intel's compiler */
 #define MM_MALLOC(size,alignment) _mm_malloc(size, alignment)
 
+/** Aligned memory deallocation for Intel's compiler */
+#define MM_FREE(array) _mm_free(array)
+
 #else
+/** Aligned memory allocation for GNU's compiler */
+#define MM_MALLOC(size,alignment) memalign(alignment, size)
 
-/** Word-aligned memory deallocation for GNU's compiler */
+/** Aligned memory deallocation for GNU's compiler */
 #define MM_FREE(array) free(array)
-
-/** Word-aligned memory allocation for GNU's compiler */
-#define MM_MALLOC(size,alignment) malloc(size)
-
 #endif
 
 

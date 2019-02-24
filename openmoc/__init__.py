@@ -6,6 +6,7 @@ import signal
 # For Python 2.X.X
 if (sys.version_info[0] == 2):
     from openmoc import *
+    from subdivider import Subdivider
     import log
     import options
     import materialize
@@ -15,6 +16,7 @@ if (sys.version_info[0] == 2):
 # For Python 3.X.X
 else:
     from openmoc.openmoc import *
+    from openmoc.subdivider import Subdivider
     import openmoc.log
     import openmoc.options
     import openmoc.materialize
