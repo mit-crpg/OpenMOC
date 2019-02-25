@@ -44,6 +44,7 @@ enum QuadratureType {
 typedef std::vector<double> DoubleVec;
 typedef DoubleVec::const_iterator DVCI;
 
+/** Template function for writing vectors to a stream */
 template <typename T>
   std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
   if (vec.size() == 0) {
@@ -304,8 +305,8 @@ inline double Quadrature::getSinThetaInline(size_t azim, size_t polar) const {
  * @brief Returns the total weight for Tracks with the given azimuthal and
  *        polar indexes without error checking and inlined
  * @details Angular weights are multiplied by Track spacings
- * @param azim index of the azimuthal angle of size_terest
- * @param polar index of the polar angle of size_terest
+ * @param azim index of the azimuthal angle of interest
+ * @param polar index of the polar angle of interest
  * @return the total weight of each Track with the given indexes
  */
 inline double Quadrature::getWeightInline(size_t azim, size_t polar) const {

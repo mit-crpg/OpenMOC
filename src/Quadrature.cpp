@@ -321,7 +321,7 @@ const DoubleVec& Quadrature::getAzimSpacings() const {
 /**
  * @brief Returns the adjusted azimuthal spacing at the requested azimuthal
  *        angle index.
- * @details The aziumthal spacing depends on the azimuthal angle. This function
+ * @details The azimuthal spacing depends on the azimuthal angle. This function
  *          returns the azimuthal spacing used at the desired azimuthal angle
  *          index.
  * @param azim the requested azimuthal angle index
@@ -417,7 +417,6 @@ void Quadrature::setThetas(const DoubleVec& thetas) {
                " in each octant", thetas.size(), _num_polar/2,
                _num_azim/4);
 
-  _thetas.resize(_num_azim/2);
   resize2D(_thetas, _num_azim/2, _num_polar);
 
   /* Extract sin thetas from user input */
@@ -652,13 +651,14 @@ void Quadrature::initialize() {
   }
 
   if (_num_azim == 0) {
-    log_printf(ERROR, "Unable to initialize Quadrature with zero azimuthal angles. "
-               "Set the number of azimuthal angles before initialization.");
+    log_printf(ERROR, "Unable to initialize Quadrature with zero azimuthal "
+               "angles. Set the number of azimuthal angles before "
+               "initialization.");
   }
 
   _phis.resize(_num_azim/2);
 
-  /* Compute a desired azimuthal angles */
+  /* Compute a desired set of azimuthal angles */
   for (size_t a = 0; a < _num_azim/2; ++a) {
     _phis[a] = 2.0 * M_PI / _num_azim * (0.5 + a);
   }
@@ -713,9 +713,6 @@ void Quadrature::precomputeWeights(bool solve_3D) {
 
     setAzimuthalValues(_azim_weights, a, double((x1 + x2) / M_PI));
   }
-
-  /* Allocate memory if it was not allocated previously */
-  resize2D(_sin_thetas, _num_azim/2, _num_polar);
 
   /* Allocate memory if it was not allocated previously */
   resize2D(_sin_thetas, _num_azim/2, _num_polar);
@@ -1093,7 +1090,7 @@ double GLPolarQuad::legendrePolynomial(size_t n, double x) {
 
 
 /**
- * @brief the first logarithmic derivative of a Legendre polynomial
+ * @brief The first logarithmic derivative of a Legendre polynomial
  * @param m the order of the polynomial
  * @param x point at which to evaluate the logarithmic derivative
  * @return the value of the logarithmic derivative at x
@@ -1106,7 +1103,7 @@ double GLPolarQuad::logDerivLegendre(size_t n, double x) {
 
 
 /**
- * @brief the second logarithmic derivative of a Legendre polynomial
+ * @brief The second logarithmic derivative of a Legendre polynomial
  * @param m the order of the polynomial
  * @param x point at which to evaluate the logarithmic derivative
  * @return the value of the logarithmic derivative at x
@@ -1120,8 +1117,8 @@ double GLPolarQuad::secondLogDerivLegendre(size_t n, double x) {
 
 
 /**
- * @brief finds the roots of Legendre polynomial of order n
- * @detail guesses for positive roots are set at logarithmic intervals.
+ * @brief Finds the roots of Legendre polynomial of order n.
+ * @detail Guesses for positive roots are set at logarithmic intervals.
  *         Positive roots are found simultaneously using an
  *         Alberth-Householder-n method. Each guess is successively nudged
  *         towards a true root. Only the positive roots are calculated
@@ -1171,8 +1168,8 @@ DoubleVec GLPolarQuad::getLegendreRoots(size_t n) {
           if (j != i) {
             double diff = (roots[i] - roots[j]);
             if (fabs(diff) > FLT_EPSILON) {
-                sum1 += 1/(roots[i] - roots[j]);
-                sum2 += -1/((roots[i] - roots[j])*(roots[i] - roots[j]));
+              sum1 += 1. / diff;
+              sum2 += -1. / (diff*diff);
             }
           }
         }
@@ -1236,7 +1233,7 @@ DoubleVec GLPolarQuad::getLegendreRoots(size_t n) {
 
 
 /**
- * @brief calculates the weights to be used in Gauss-Legendre Quadrature
+ * @brief Calculates the weights to be used in Gauss-Legendre Quadrature.
  * @param roots a vector containing the roots of the Legendre polynomial
  * @param n the order of the Legendre Polynomial
  * @return a vector of weights matched by index to the vector of roots
@@ -1288,10 +1285,8 @@ DoubleVec GLPolarQuad::getCorrectedWeights(size_t azim) const {
   std::vector<double> weights;
 
   // declare a vector to store the elements of the augmented-matrix
-  std::vector< std::vector<long double> > A(n);
-  for (size_t i=0; i < n; ++i) {
-      A[i].resize(n+1);
-  }
+  std::vector< std::vector<long double> > A;
+  resize2D(n, n);
 
   // the solution vector
   std::vector<long double> x(n);
@@ -1362,8 +1357,9 @@ DoubleVec GLPolarQuad::getCorrectedWeights(size_t azim) const {
   for (size_t i=0; i<n; ++i)
     weights[index[i]] = double(x[i]);
 
-   return weights;
+  return weights;
 }
+
 
 /**
  * @brief Dummy constructor calls the parent constructor.
