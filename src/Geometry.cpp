@@ -630,6 +630,9 @@ void Geometry::setNumDomainModules(int num_x, int num_y, int num_z) {
   _num_modules_x = num_x;
   _num_modules_y = num_y;
   _num_modules_z = num_z;
+
+  log_printf(NORMAL, "Using a [%d %d %d] inner domain structure for track "
+             "laydown.", num_x, num_y, num_z);
 }
 
 
@@ -2212,7 +2215,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
     /* Check if stuck in loop */
     find_cell_count++;
     if (find_cell_count > 1e6)
-      log_printf(ERROR, "Caught in inifinite loop finding next cell");
+      log_printf(ERROR, "Caught in infinite loop finding next cell");
 
     /* Records the minimum length to a 2D intersection */
     double min_length = std::numeric_limits<double>::infinity();
@@ -3006,7 +3009,10 @@ void Geometry::initializeCmfd() {
   Point offset;
   offset.setX(min_x + (max_x - min_x)/2.0);
   offset.setY(min_y + (max_y - min_y)/2.0);
-  offset.setZ(min_z + (max_z - min_z)/2.0);
+  if (std::abs(min_z + (max_z - min_z)/2.0) < FLT_INFINITY)
+    offset.setZ(min_z + (max_z - min_z)/2.0);
+  else
+    offset.setZ(0.);
 
   _cmfd->initializeLattice(&offset);
 
@@ -3020,7 +3026,7 @@ void Geometry::initializeCmfd() {
     _cmfd->setDomainIndexes(_domain_index_x, _domain_index_y, _domain_index_z);
   }
 #endif
-  /* Intialize CMFD Maps */
+  /* Initialize CMFD Maps */
   _cmfd->initializeCellMap();
 }
 
@@ -3063,7 +3069,7 @@ void Geometry::initializeSpectrumCalculator(Cmfd* spectrum_calculator) {
   spectrum_calculator->setWidthY(max_y - min_y);
   spectrum_calculator->setWidthZ(max_z - min_z);
 
-  /* Intialize CMFD Maps */
+  /* Initialize CMFD Maps */
   spectrum_calculator->initializeCellMap();
 
   /* Initialize the CMFD lattice */
@@ -4237,6 +4243,7 @@ void Geometry::loadFromFile(std::string filename, bool non_uniform_lattice,
       universes[i] = all_universes[array[i]];
     }
     lattice->setUniverses(num_z, num_y, num_x, universes);
+    delete [] lattice_iter->second;
   }
 
   /* Set root universe */

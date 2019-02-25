@@ -197,7 +197,7 @@ void CPULSSolver::computeFSRSources(int iteration) {
   CPUSolver::computeFSRSources(iteration);
 
   int num_coeffs = 3;
-  if (_solve_3D)
+  if (_SOLVE_3D)
     num_coeffs = 6;
 
 #pragma omp parallel
@@ -292,7 +292,7 @@ void CPULSSolver::computeFSRSources(int iteration) {
         src_z = scatter_source_z + chi[g] * fission_source_z;
 
         /* Compute total (scatter+fission) reduced source moments */
-        if (_solve_3D) {
+        if (_SOLVE_3D) {
           if (_reduced_sources(r,g) > 1e-15 || iteration > 29) {
             _reduced_sources_xyz(r,g,0) = ONE_OVER_FOUR_PI / 2 *
                  (_FSR_lin_exp_matrix[r*num_coeffs  ] * src_x +
@@ -363,7 +363,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   FP_PRECISION* position = curr_segment->_starting_position;
   ExpEvaluator* exp_evaluator = _exp_evaluators[azim_index][polar_index];
 
-  if (_solve_3D) {
+  if (_SOLVE_3D) {
 
     /* Compute the segment midpoint (with factor 2 for LS) */
     FP_PRECISION center_x2[3];
@@ -558,7 +558,7 @@ void CPULSSolver::accumulateLinearFluxContribution(long fsr_id,
 void CPULSSolver::addSourceToScalarFlux() {
 
   int nc = 3;
-  if (_solve_3D)
+  if (_SOLVE_3D)
     nc = 6;
 
 #pragma omp parallel
@@ -594,7 +594,7 @@ void CPULSSolver::addSourceToScalarFlux() {
         _scalar_flux_xyz(r,e,1) += flux_const * _reduced_sources_xyz(r,e,1)
             * _FSR_source_constants[r*_num_groups*nc + nc*e + 1];
 
-        if (_solve_3D) {
+        if (_SOLVE_3D) {
           _scalar_flux_xyz(r,e,0) += flux_const * _reduced_sources_xyz(r,e,2)
               * _FSR_source_constants[r*_num_groups*nc + nc*e + 3];
           _scalar_flux_xyz(r,e,1) += flux_const * _reduced_sources_xyz(r,e,2)
@@ -611,7 +611,7 @@ void CPULSSolver::addSourceToScalarFlux() {
 
         _scalar_flux_xyz(r,e,0) /= sigma_t[e];
         _scalar_flux_xyz(r,e,1) /= sigma_t[e];
-        if (_solve_3D)
+        if (_SOLVE_3D)
           _scalar_flux_xyz(r,e,2) /= sigma_t[e];
       }
     }
@@ -836,7 +836,7 @@ FP_PRECISION CPULSSolver::getFluxByCoords(LocalCoords* coords, int group) {
   double flux_y = 0.0;
   double flux_z = 0.0;
 
-  if (_solve_3D) {
+  if (_SOLVE_3D) {
     flux_x = (x - xc) *
         (_FSR_lin_exp_matrix[fsr*6  ] * _scalar_flux_xyz(fsr, group, 0) +
          _FSR_lin_exp_matrix[fsr*6+2] * _scalar_flux_xyz(fsr, group, 1) +
@@ -903,7 +903,7 @@ void CPULSSolver::initializeLinearSourceConstants() {
   {
     /* Initialize linear source constant component */
     long size = 3 * _geometry->getNumEnergyGroups() * _geometry->getNumFSRs();
-    if (_solve_3D)
+    if (_SOLVE_3D)
       size *= 2;
 
     long max_size = size;
@@ -921,7 +921,7 @@ void CPULSSolver::initializeLinearSourceConstants() {
 
     /* Initialize linear source matrix coefficients */
     size = _geometry->getNumFSRs() * 3;
-    if (_solve_3D)
+    if (_SOLVE_3D)
       size *= 2;
     _FSR_lin_exp_matrix = new double[size]();
   }

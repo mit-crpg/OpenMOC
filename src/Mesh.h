@@ -17,13 +17,6 @@
 /* A Vector3D is simply a 3-dimensional std::vector of floats */
 typedef std::vector<std::vector<std::vector<FP_PRECISION> > > Vector3D;
 
-/* Define a floating point type for domain communication of reaction rates */
-#ifndef SINGLE
-#define MPI_FP (MPI_DOUBLE)
-#else
-#define MPI_FP (MPI_FLOAT)
-#endif
-
 /**
  * @enum RxType
  * @brief The type of reaction to be tallied

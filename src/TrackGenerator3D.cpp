@@ -1888,7 +1888,7 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
       tci_refl._polar = pc;
       tci_refl._lz    = nl + 2 * nz - lz - 1;
 
-      /* PERIODIC BC */
+      /* PERIODIC or INTERFACE BC */
       if (_geometry->getMaxZBoundaryType() == PERIODIC ||
           _geometry->getMaxZBoundaryType() == INTERFACE)
         tci_next._lz    = lz - nz;
@@ -1946,7 +1946,7 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
       tci_refl._lz    = nl - lz - 1;
       tci_refl._link = getNum3DTrackChainLinks(&tci_refl) - 1;
 
-      /* PERIODIC BC */
+      /* PERIODIC or INTERFACE BC */
       if (_geometry->getMinZBoundaryType() == PERIODIC ||
           _geometry->getMinZBoundaryType() == INTERFACE) {
         tci_next._lz    = lz + nz;
@@ -2098,7 +2098,7 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
       tci_refl._lz    = nl + 2 * nz - lz - 1;
       tci_refl._link = getNum3DTrackChainLinks(&tci_refl) - 1;
 
-      /* PERIODIC BC */
+      /* PERIODIC or INTERFACE BC */
       if (_geometry->getMaxZBoundaryType() == PERIODIC ||
           _geometry->getMaxZBoundaryType() == INTERFACE) {
         tci_next._lz    = lz - nz;
@@ -2156,7 +2156,7 @@ void TrackGenerator3D::setLinkingTracks(TrackStackIndexes* tsi,
       tci_refl._polar = pc;
       tci_refl._lz    = nl - lz - 1;
 
-      /* PERIODIC BC */
+      /* PERIODIC or INTERFACE BC */
       if (_geometry->getMinZBoundaryType() == PERIODIC ||
           _geometry->getMinZBoundaryType() == INTERFACE)
         tci_next._lz    = lz + nz;

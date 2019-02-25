@@ -134,12 +134,12 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
     /* Copy the new source to the old source */
     new_source.copyTo(&old_source);
 
-    log_printf(INFO, "Matrix-Vector eigenvalue iter: %d, keff: %f, residual: "
+    log_printf(INFO_ONCE, "Matrix-Vector eigenvalue iter: %d, keff: %f, residual: "
                "%3.2e", iter, k_eff, residual);
 
     /* Check for convergence */
-    if ((residual / initial_residual < 0.03) &&
-        iter > MIN_LINALG_POWER_ITERATIONS) {
+    if ((residual / initial_residual < 0.03 || residual < MIN_LINALG_TOLERANCE)
+        && iter > MIN_LINALG_POWER_ITERATIONS) {
       if (convergence_data != NULL) {
         convergence_data->cmfd_res_end = residual;
         convergence_data->cmfd_iters = iter;
@@ -148,7 +148,7 @@ double eigenvalueSolve(Matrix* A, Matrix* M, Vector* X, double k_eff,
     }
   }
 
-  log_printf(INFO, "Matrix-Vector eigenvalue solve iterations: %d", iter);
+  log_printf(INFO_ONCE, "Matrix-Vector eigenvalue solve iterations: %d", iter);
   if (iter == MAX_LINALG_POWER_ITERATIONS)
     log_printf(ERROR, "Eigenvalue solve failed to converge in %d iterations",
                iter);
@@ -261,10 +261,11 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
             int cell = (iz*num_y + iy)*num_x + ix;
             int row_start = cell*num_groups;
 
+            /* Contribution of off-diagonal terms, hard to SIMD vectorize */
             for (int g=0; g < num_groups; g++) {
 
               int row = row_start + g;
-              x[row] = (1.0 - SOR_factor) * x[row];
+              x[row] = (1.0 - SOR_factor) * x[row] * (DIAG[row] / SOR_factor);
 
               if (fabs(DIAG[row]) < FLT_EPSILON )
                   log_printf(ERROR, "A zero has been found on the diagonal of "
@@ -275,10 +276,10 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 
                 // Get the column index
                 int col = JA[i];
-                if (row == col)
-                  x[row] += SOR_factor * b[row] / DIAG[row];
+                if (row != col)
+                  x[row] -= a[i] * x[col];
                 else
-                  x[row] -= SOR_factor * a[i] * x[col] / DIAG[row];
+                  x[row] += b[row];
               }
 
               // Contribution of off node fluxes
@@ -287,10 +288,12 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
                   int idx = coupling_indexes[row][i] * num_groups + g;
                   int domain = comm->domains[color][row][i];
                   CMFD_PRECISION flux = coupling_fluxes[domain][idx];
-                  x[row] -= SOR_factor * coupling_coeffs[row][i] * flux
-                            / DIAG[row];
+                  x[row] -= coupling_coeffs[row][i] * flux;
                 }
               }
+
+              // Perform these operations separately, for performance
+              x[row] *= (SOR_factor / DIAG[row]);
             }
           }
         }
@@ -328,7 +331,7 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
     // Increment the interations counter
     iter++;
 
-    log_printf(INFO, "SOR iter: %d, residual: %3.2e, initial residual: %3.2e"
+    log_printf(DEBUG, "SOR iter: %d, residual: %3.2e, initial residual: %3.2e"
                ", ratio = %3.2e, tolerance: %3.2e, end? %d", iter, residual,
                initial_residual, residual / initial_residual, tol,
                (residual / initial_residual < 0.1 || residual < tol) &&
@@ -343,7 +346,7 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
     }
   }
 
-  log_printf(INFO, "linear solve iterations: %d", iter);
+  log_printf(DEBUG, "linear solve iterations: %d", iter);
 
   // Check if the maximum iterations were reached
   if (iter == MAX_LINEAR_SOLVE_ITERATIONS) {
@@ -397,6 +400,7 @@ void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
 
     int ng = comm->num_groups;
 
+    // Get numerical precision for communication
     MPI_Datatype flux_type;
     if (sizeof(CMFD_PRECISION) == 4)
       flux_type = MPI_FLOAT;
@@ -858,7 +862,7 @@ bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
   CMFD_PRECISION* dd_array = dd.getArray();
   CMFD_PRECISION* x = X->getArray();
 
-  /* Stabalize matrix A to be diagonally dominant */
+  /* Stabilize matrix A to be diagonally dominant */
   CMFD_PRECISION* a = A->getA();
   CMFD_PRECISION* a_diag = A->getDiag();
   int* IA = A->getIA();
@@ -953,7 +957,7 @@ bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
     bool converged = linearSolve(A, M, X, &RHS, tol, SOR_factor,
                                  convergence_data, comm);
     if (!converged)
-      log_printf(ERROR, "Stabalized linear solver inner iteration failed"
+      log_printf(ERROR, "Stabilized linear solver inner iteration failed"
                  " to converge");
 
     // Compute the new source
