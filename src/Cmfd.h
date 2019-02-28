@@ -288,7 +288,7 @@ private:
 
   /* Buffer to contain sent data from domain */
   CMFD_PRECISION* _send_domain_data;
- 
+
   /* For each face (1st dimension of the array), will contain data received */
   CMFD_PRECISION** _domain_data_by_surface;
 
@@ -453,9 +453,10 @@ public:
   void setQuadrature(Quadrature* quadrature);
   void setKNearest(int k_nearest);
   void setSolve3D(bool solve_3d);
-  void setAzimSpacings(double* azim_spacings, int num_azim);
-  void setPolarSpacings(double** polar_spacings, int num_azim,
-                        int num_polar);
+  void setAzimSpacings(const std::vector<double>& azim_spacings,
+                       int num_azim);
+  void setPolarSpacings(const std::vector< std::vector<double> >&
+                        polar_spacings, int num_azim, int num_polar);
   void setKeff(double k_eff);
   void setBackupGroupStructure(std::vector< std::vector<int> > group_indices);
 

@@ -42,8 +42,6 @@ Solver::Solver(TrackGenerator* track_generator) {
 
   /* Initialize pointers to NULL */
   _tracks = NULL;
-  _azim_spacings = NULL;
-  _polar_spacings = NULL;
   _boundary_flux = NULL;
   _start_flux = NULL;
   _boundary_leakage = NULL;
@@ -413,7 +411,6 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
   _segment_formation = _track_generator->getSegmentFormation();
   _num_azim = _track_generator->getNumAzim();
   _quad = _track_generator->getQuadrature();
-  _azim_spacings = _quad->getAzimSpacings();
   _num_polar = _quad->getNumPolarAngles();
   _tracks = _track_generator->getTracksArray();
 
@@ -421,7 +418,6 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
   if (track_generator_3D != NULL) {
     _fluxes_per_track = _num_groups;
     _tot_num_tracks = track_generator_3D->getNum3DTracks();
-    _polar_spacings = _quad->getPolarSpacings();
     _tracks_per_stack = track_generator_3D->getTracksPerStack();
 #ifndef THREED
     _SOLVE_3D = true;
@@ -609,7 +605,7 @@ void Solver::correctXS() {
  * @param stabilization_factor The factor applied to the stabilizing correction
  * @param stabilizaiton_type The type of stabilization to use
  */
-void Solver::stabilizeTransport(double stabilization_factor, 
+void Solver::stabilizeTransport(double stabilization_factor,
                                 stabilizationType stabilization_type) {
   _stabilize_transport = true;
   _stabilization_factor = stabilization_factor;
@@ -842,10 +838,10 @@ void Solver::checkLimitXS(int iteration) {
 /**
  * @brief Instructs MOC to limit negative cross-sections for early iterations.
  * @param material_ids The material IDs of the cross-sections to limit
- * @param reset_iteration The iteration to reset cross-sections to their 
+ * @param reset_iteration The iteration to reset cross-sections to their
  *        defaults
  */
-void Solver::setLimitingXSMaterials(std::vector<int> material_ids, 
+void Solver::setLimitingXSMaterials(std::vector<int> material_ids,
                                     int reset_iteration) {
   _limit_xs_materials = material_ids;
   _reset_iteration = reset_iteration;
@@ -1078,7 +1074,7 @@ void Solver::initializeCmfd() {
  */
 void Solver::calculateInitialSpectrum(double threshold) {
 
-  log_printf(NORMAL, "Calculating initial spectrum with threshold %3.2e", 
+  log_printf(NORMAL, "Calculating initial spectrum with threshold %3.2e",
              threshold);
 
   /* Setup the spectrum calclator as a CMFD solver in MOC group structure */
@@ -1537,7 +1533,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     }
     else {
       log_printf(NORMAL, "Iteration %d:  k_eff = %1.6f   "
-                 "res = %1.3E  delta-k (pcm) = %d D.R. = %1.2f", i, _k_eff, 
+                 "res = %1.3E  delta-k (pcm) = %d D.R. = %1.2f", i, _k_eff,
                  residual, dk, dr);
     }
 
@@ -1899,7 +1895,7 @@ void Solver::loadFSRFluxes(std::string fname, bool assign_k_eff,
   /* Determine the FSR fluxes file name */
   std::string filename = fname;
   if (_geometry->isDomainDecomposed()) {
-    int indexes[3]; 
+    int indexes[3];
     filename += "/node";
     _geometry->getDomainIndexes(indexes);
     for (int i=0; i < 3; i++) {
@@ -1986,7 +1982,7 @@ void Solver::loadFSRFluxes(std::string fname, bool assign_k_eff,
   long ny = max_ind[1] - min_ind[1] + 1;
   long nz = max_ind[2] - min_ind[2] + 1;
   for (long r=0; r < num_FSRs; r++) {
-    long index = (cell_z[r] - min_ind[2]) * nx * ny + 
+    long index = (cell_z[r] - min_ind[2]) * nx * ny +
                 (cell_y[r] - min_ind[1]) * nx + cell_x[r] - min_ind[0];
     if (hashed_lookup.find(index) == hashed_lookup.end())
       hashed_lookup.insert(std::make_pair(index, std::vector<long>()));
@@ -1995,7 +1991,7 @@ void Solver::loadFSRFluxes(std::string fname, bool assign_k_eff,
 
   /* Generate centroids if they have not been generated yet */
   double max_centroid_error = 0.0;
-  if (!_geometry->containsFSRCentroids()) 
+  if (!_geometry->containsFSRCentroids())
     _track_generator->generateFSRCentroids(_FSR_volumes);
 
   /* Assign starting fluxes to the scalar fluxes array */
@@ -2030,15 +2026,15 @@ void Solver::loadFSRFluxes(std::string fname, bool assign_k_eff,
           }
 
           /* Calculate index */
-          long index = (new_cell_xyz[2] - min_ind[2]) * nx * ny + 
-                       (new_cell_xyz[1] - min_ind[1]) * nx + 
+          long index = (new_cell_xyz[2] - min_ind[2]) * nx * ny +
+                       (new_cell_xyz[1] - min_ind[1]) * nx +
                        new_cell_xyz[0] - min_ind[0];
 
           /* Lookup all FSRs in the cell and check for distance to centroid */
           if (hashed_lookup.find(index) != hashed_lookup.end()) {
             for (int j =0; j < hashed_lookup[index].size(); j++) {
               long fsr_id = hashed_lookup[index].at(j);
-              long dist = centroid->distance(x_coord[fsr_id], y_coord[fsr_id], 
+              long dist = centroid->distance(x_coord[fsr_id], y_coord[fsr_id],
                                              z_coord[fsr_id]);
               if (dist < min_dist) {
                 min_dist = dist;
@@ -2057,7 +2053,7 @@ void Solver::loadFSRFluxes(std::string fname, bool assign_k_eff,
     /* Check to ensure the loaded FSR is positive */
     if (load_fsr < 0)
       log_printf(ERROR, "Loaded FSR %d with location (%3.2f, %3.2f, %3.2f) "
-                 "and cell (%d, %d, %d)", load_fsr, centroid_xyz[0], 
+                 "and cell (%d, %d, %d)", load_fsr, centroid_xyz[0],
                  centroid_xyz[1], centroid_xyz[2], cell_xyz[0], cell_xyz[1],
                  cell_xyz[2]);
 
@@ -2114,7 +2110,7 @@ void Solver::printInputParamsSummary() {
     else if (_stabilization_type == GLOBAL)
       stabilization_str = "GLOBAL";
 
-    log_printf(NORMAL, "MOC Damping = %s (%3.2f)", stabilization_str.c_str(), 
+    log_printf(NORMAL, "MOC Damping = %s (%3.2f)", stabilization_str.c_str(),
                _stabilization_factor);
   }
   else {

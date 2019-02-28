@@ -695,7 +695,7 @@ void VectorizedSolver::computeExponentials(segment* curr_segment,
   else {
 
     int tid = omp_get_thread_num();
-    FP_PRECISION* sin_thetas = _polar_quad->getSinThetas();
+    const std::vector<double>& sin_thetas = _polar_quad->getSinThetas();
     FP_PRECISION* taus = &_thread_taus[tid*_polar_times_groups];
 
     /* Initialize the tau argument for the exponentials */
