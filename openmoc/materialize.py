@@ -447,7 +447,8 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
 def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
                         fix_src_tol=1E-5, num_azim=4, azim_spacing=0.1,
                         zcoord=0.0, num_threads=1, throttle_output=True,
-                        geometry=None, track_generator=None, solver=None):
+                        geometry=None, track_generator=None, solver=None,
+                        sph_domains=None):
     """Compute SPH factors for an OpenMC multi-group cross section library.
 
     This routine coputes SuPerHomogenisation (SPH) factors for an OpenMC MGXS
@@ -483,6 +484,15 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
         The number of OpenMP threads (default is 1)
     throttle_output : bool
         Whether to suppress output from fixed source calculations (default is True)
+    geometry : openmoc.Geometry
+        An optional openmoc geometry to compute SPH factors on
+    track_generator : openmoc.TrackGenerator
+        An optional track generator to avoid initializing it in this routine
+    solver : openmoc.Solver
+        An optional openmoc solver to compute SPH factors with
+    sph_domains : list
+        A list of domain (cell or material, based on mgxs_lib domain type) ids,
+        in which SPH factors should be computed. Default is only fissonable FSRs
 
     Returns
     -------
@@ -491,7 +501,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     sph_mgxs_lib : openmc.mgxs.Library
         An OpenMC MGXS library with the SPH factors applied to each MGXS
     sph_to_fsrs_indices : numpy.ndarray of Integral
-        A NumPy array of all fissionable FSRs to which SPH factors were applied
+        A NumPy array of all FSRs to which SPH factors were applied
 
     """
 
@@ -556,7 +566,8 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
         fsrs_to_domains[fsr] = domain.getId()
         domains_to_fsrs[domain.getId()].append(fsr)
 
-        if domain.isFissionable():
+        if (sph_domains == None and domain.isFissionable()) or \
+             domain.getId() in sph_domains:
             sph_to_fsr_indices.append(fsr)
 
     # Get all OpenMOC domains
@@ -573,7 +584,8 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     for i, openmc_domain in enumerate(mgxs_lib.domains):
         if openmc_domain.id in openmoc_domains:
             openmoc_domain = openmoc_domains[openmc_domain.id]
-            if openmoc_domain.isFissionable():
+            if (sph_domains == None and openmoc_domain.isFissionable()) or \
+                 openmoc_domain.getId() in sph_domains:
                 sph_to_domain_indices.append(i)
 
     py_printf('NORMAL', 'Computing SPH factors for %d "%s" domains',
@@ -593,6 +605,10 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
         # Run fixed source calculation with suppressed output
         if throttle_output:
             openmoc.set_log_level('WARNING')
+
+        # Disable flux resets between SPH iterations for speed
+        if (i == 1):
+            solver.setRestartStatus(True)
 
         # Fixed source calculation
         solver.computeFlux()
@@ -644,7 +660,8 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     for i, openmc_domain in enumerate(mgxs_lib.domains):
         if openmc_domain.id in openmoc_domains:
             openmoc_domain = openmoc_domains[openmc_domain.id]
-            if openmoc_domain.isFissionable():
+            if (sph_domains == None and openmoc_domain.isFissionable()) or \
+                 openmoc_domain.getId() in sph_domains:
                 fsr_ids = domains_to_fsrs[openmc_domain.id]
                 fsrs_to_sph[fsr_ids,:] = sph[i,:]
 

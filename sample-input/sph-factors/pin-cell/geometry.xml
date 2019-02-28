@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+<geometry>
+  <cell id="1" material="1" name="fuel" region="-1" universe="1" />
+  <cell id="2" material="2" name="gap" region="1 -2" universe="1" />
+  <cell id="3" material="3" name="clad" region="2 -3" universe="1" />
+  <cell id="4" material="4" name="water" region="3" universe="1" />
+  <cell fill="1" id="5" name="root" region="4 -5 6 -7 8 -9" universe="0" />
+  <surface coeffs="0 0 0.39218" id="1" name="Fuel OR" type="z-cylinder" />
+  <surface coeffs="0 0 0.40005" id="2" name="Clad IR" type="z-cylinder" />
+  <surface coeffs="0 0 0.4572" id="3" name="Clad OR" type="z-cylinder" />
+  <surface boundary="reflective" coeffs="-0.62992" id="4" name="min x" type="x-plane" />
+  <surface boundary="reflective" coeffs="0.62992" id="5" name="max x" type="x-plane" />
+  <surface boundary="reflective" coeffs="-0.62992" id="6" name="min y" type="y-plane" />
+  <surface boundary="reflective" coeffs="0.62992" id="7" name="max y" type="y-plane" />
+  <surface boundary="reflective" coeffs="-0.62992" id="8" name="min z" type="z-plane" />
+  <surface boundary="reflective" coeffs="0.62992" id="9" name="max z" type="z-plane" />
+</geometry>
