@@ -1286,7 +1286,7 @@ DoubleVec GLPolarQuad::getCorrectedWeights(size_t azim) const {
 
   // declare a vector to store the elements of the augmented-matrix
   std::vector< std::vector<long double> > A;
-  resize2D(n, n);
+  resize2D(A, n, n);
 
   // the solution vector
   std::vector<long double> x(n);
