@@ -124,8 +124,7 @@ protected:
   }
 
   template <typename T>
-  static void setAzimuthalValues(std::vector<T>& vec, size_t azim_index,
-                                 T value) {
+  void setAzimuthalValues(std::vector<T>& vec, size_t azim_index, T value) {
     vec.at(azim_index)                   = value;
     vec.at(_num_azim/2 - azim_index - 1) = value;
   }
