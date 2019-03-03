@@ -61,8 +61,9 @@ public:
   std::vector<FP_PRECISION> getReactionRates(RxType rx,
                                              bool volume_average=false);
   Vector3D getFormattedReactionRates(RxType rx, bool volume_average=false);
-  Vector3D getFormattedReactionRates(std::vector<std::vector<double> > 
-                                     widths_offsets, RxType rx);
+  Vector3D getNonUniformFormattedReactionRates(std::vector<std::vector<double> > 
+                                               widths_offsets, RxType rx,
+                                               bool volume_average=false);
 
 
 };

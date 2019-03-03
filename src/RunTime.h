@@ -31,7 +31,7 @@
 #endif
 
 /* A Vector3D is simply a 3-dimensional std::vector of doubles */
-typedef std::vector<std::vector<std::vector<double> > > Vector3D;
+typedef std::vector<std::vector<std::vector<double> > > DoubleVector3D;
 
 /**
  * @brief Structure for run time options.
@@ -131,7 +131,7 @@ struct RuntimeParameters {
   std::vector<std::vector<int> > _output_mesh_lattices;
 
   /* widths and offsets of multiple output meshes with non-uniform lattice */
-  Vector3D _non_uniform_mesh_lattices;
+  DoubleVector3D _non_uniform_mesh_lattices;
 
   /* output reaction types for both uniform and non-uniform */
   std::vector<int> _output_types;
