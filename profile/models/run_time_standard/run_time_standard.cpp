@@ -9,8 +9,12 @@
 int main(int argc, char* argv[]) {
 
 #ifdef MPIx
-  MPI_Init(&argc, &argv);
+  int provided;
+  MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
   log_set_ranks(MPI_COMM_WORLD);
+  if (provided < MPI_THREAD_SERIALIZED) {
+    log_printf(ERROR, "Not enough thread support level in the MPI library");  
+  }
 #endif
   
   int arg_index = 0;
@@ -158,7 +162,7 @@ int main(int argc, char* argv[]) {
 
   for(int m=0; m<runtime._non_uniform_mesh_lattices.size(); m++) {
     Mesh mesh(solver);
-    Vector3D rx_rates = mesh.getFormattedReactionRates
+    Vector3D rx_rates = mesh.getNonUniformFormattedReactionRates
         (runtime._non_uniform_mesh_lattices[m], 
         (RxType)runtime._output_types[m+runtime._output_mesh_lattices.size()]);
     if (my_rank == 0) {

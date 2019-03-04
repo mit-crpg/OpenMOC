@@ -239,8 +239,9 @@ Vector3D Mesh::getFormattedReactionRates(RxType rx, bool volume_average) {
  * @return The reaction rates in a 3D vector indexed by the lattice cell
  *         x, y, and z indexes
  */
-Vector3D Mesh::getFormattedReactionRates
-                 (std::vector<std::vector<double> > widths_offsets, RxType rx) {
+Vector3D Mesh::getNonUniformFormattedReactionRates
+                 (std::vector<std::vector<double> > widths_offsets, RxType rx,
+                  bool volume_average) {
   Vector3D rx_rates;
 
   /* Get the root universe */
@@ -322,7 +323,7 @@ Vector3D Mesh::getFormattedReactionRates
   setLattice(&wrap_lattice);
 
   /* get reaction rates of the whole geometry Lattice */
-  rx_rates = getFormattedReactionRates(rx);
+  rx_rates = getFormattedReactionRates(rx, volume_average);
 
   /* Truncate the reaction rates for user defined output_lattice */
   if(surface[0]) rx_rates.erase(rx_rates.begin());
