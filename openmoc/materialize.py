@@ -490,7 +490,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
         An optional track generator to avoid initializing it in this routine
     solver : openmoc.Solver
         An optional openmoc solver to compute SPH factors with
-    sph_domains : list
+    sph_domains : list of int
         A list of domain (cell or material, based on mgxs_lib domain type) ids,
         in which SPH factors should be computed. Default is only fissonable FSRs
 
@@ -520,29 +520,49 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
 
     py_printf('NORMAL', 'Computing SPH factors...')
 
-    if geometry == None:
+    if not geometry:
         # Create an OpenMOC Geometry from the OpenMC Geometry
         geometry = get_openmoc_geometry(mgxs_lib.geometry)
 
         # Load the MGXS library data into the OpenMOC geometry
         load_openmc_mgxs_lib(mgxs_lib, geometry)
 
-    if track_generator == None:
+    if not track_generator:
         # Initialize an OpenMOC TrackGenerator
         track_generator = openmoc.TrackGenerator(geometry, num_azim, 
                                                  azim_spacing)
         track_generator.setZCoord(zcoord)
         track_generator.generateTracks()
-        py_printf('WARNING', 'Using provided track generator, ignoring argument'
-                  'track generation settings')
+        track_generator.initializeVolumes()
+    else:
+        track_generator.initializeVolumes()
+        py_printf('WARNING', 'Using provided track generator, ignoring '
+                  'arguments for track generation settings')
 
-    if solver == None:
+    if not solver:
         # Initialize an OpenMOC Solver
         solver = openmoc.CPUSolver(track_generator)
         solver.setConvergenceThreshold(fix_src_tol)
         solver.setNumThreads(num_threads)
-        py_printf('WARNING', 'Using provided solver, ignoring argument'
+    else:
+        py_printf('WARNING', 'Using provided solver, ignoring arguments for '
                   'solver settings')
+
+    # Get all OpenMOC domains
+    if mgxs_lib.domain_type == 'material':
+        openmoc_domains = geometry.getAllMaterials()
+    elif mgxs_lib.domain_type == 'cell':
+        openmoc_domains = geometry.getAllMaterialCells()
+    else:
+        py_printf('ERROR', 'SPH factors cannot be applied for an OpenMC MGXS '
+                  'library of domain type %s', mgxs_lib.domain_type)
+
+    if not sph_domains:
+        sph_domains = []
+        # If unspecified, apply sph factors in fissionable regions
+        for openmoc_domain in openmoc_domains.values():
+            if openmoc_domain.isFissionable():
+                sph_domains.append(openmoc_domain.getId())
 
     openmc_fluxes = _load_openmc_src(mgxs_lib, solver)
 
@@ -566,26 +586,15 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
         fsrs_to_domains[fsr] = domain.getId()
         domains_to_fsrs[domain.getId()].append(fsr)
 
-        if (sph_domains == None and domain.isFissionable()) or \
-             domain.getId() in sph_domains:
+        if domain.getId() in sph_domains:
             sph_to_fsr_indices.append(fsr)
-
-    # Get all OpenMOC domains
-    if mgxs_lib.domain_type == 'material':
-        openmoc_domains = geometry.getAllMaterials()
-    elif mgxs_lib.domain_type == 'cell':
-        openmoc_domains = geometry.getAllMaterialCells()
-    else:
-        py_printf('ERROR', 'SPH factors cannot be applied for an OpenMC MGXS '
-                  'library of domain type %s', mgxs_lib.domain_type)
 
     # Build a list of indices into the SPH array for fissionable domains
     sph_to_domain_indices = []
     for i, openmc_domain in enumerate(mgxs_lib.domains):
         if openmc_domain.id in openmoc_domains:
             openmoc_domain = openmoc_domains[openmc_domain.id]
-            if (sph_domains == None and openmoc_domain.isFissionable()) or \
-                 openmoc_domain.getId() in sph_domains:
+            if openmoc_domain.getId() in sph_domains:
                 sph_to_domain_indices.append(i)
 
     py_printf('NORMAL', 'Computing SPH factors for %d "%s" domains',
@@ -607,7 +616,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
             openmoc.set_log_level('WARNING')
 
         # Disable flux resets between SPH iterations for speed
-        if (i == 1):
+        if i == 1:
             solver.setRestartStatus(True)
 
         # Fixed source calculation
@@ -615,7 +624,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
 
         # Restore log output level
         if throttle_output:
-            openmoc.set_log_level('NORMAL') #FIXME log_level causes a segfault
+            openmoc.set_log_level('NORMAL')
 
         # Extract the FSR scalar fluxes
         fsr_fluxes = get_scalar_fluxes(solver)
@@ -642,7 +651,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
         py_printf('NORMAL', 'SPH Iteration %d:\tres = %1.3e', i, res.max())
 
         # Create a new MGXS library with cross sections updated by SPH factors
-        sph_mgxs_lib = _apply_sph_factors(mgxs_lib, geometry, sph)
+        sph_mgxs_lib = _apply_sph_factors(mgxs_lib, geometry, sph, sph_domains)
 
         # Load the new MGXS library data into the OpenMOC geometry
         load_openmc_mgxs_lib(sph_mgxs_lib, geometry)
@@ -660,8 +669,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     for i, openmc_domain in enumerate(mgxs_lib.domains):
         if openmc_domain.id in openmoc_domains:
             openmoc_domain = openmoc_domains[openmc_domain.id]
-            if (sph_domains == None and openmoc_domain.isFissionable()) or \
-                 openmoc_domain.getId() in sph_domains:
+            if openmoc_domain.getId() in sph_domains:
                 fsr_ids = domains_to_fsrs[openmc_domain.id]
                 fsrs_to_sph[fsr_ids,:] = sph[i,:]
 
@@ -775,14 +783,15 @@ def _load_openmc_src(mgxs_lib, solver):
             source = np.sum(in_scatter) + np.sum(fission)
 
             # Assign the source to this domain
-            fsr_ids = domains_to_fsrs[openmoc_domain.getId()]
-            for fsr_id in fsr_ids:
-                solver.setFixedSourceByFSR(fsr_id, group+1, source)
+            if mgxs_lib.domain_type == 'material':
+                solver.setFixedSourceByMaterial(openmoc_domain, group+1, source)
+            else:
+                solver.setFixedSourceByCell(openmoc_domain, group+1, source)
 
     return openmc_fluxes
 
 
-def _apply_sph_factors(mgxs_lib, geometry, sph):
+def _apply_sph_factors(mgxs_lib, geometry, sph, sph_domains):
     """Apply SPH factors to an OpenMC MGXS library.
 
     This is a helper routine for the compute_sph_factors(...) routine.
@@ -823,7 +832,7 @@ def _apply_sph_factors(mgxs_lib, geometry, sph):
         openmoc_domain = openmoc_domains[openmc_domain.id]
 
         # Ignore non-fissionable domains
-        if not openmoc_domain.isFissionable():
+        if openmoc_domain.getId() not in sph_domains:
             continue
 
         # Loop over all cross section types in the MGXS library

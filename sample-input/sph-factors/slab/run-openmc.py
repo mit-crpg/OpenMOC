@@ -11,9 +11,9 @@ import openmc.openmoc_compatible
 # Instantiate some Materials and register the appropriate Nuclides
 fuel = openmc.Material(name='3.1 w/o enriched UO2')
 fuel.set_density('sum')
-fuel.add_nuclide('U-235', 7.18132E-4,)
-fuel.add_nuclide('U-238', 2.21546E-2)
-fuel.add_nuclide('O-16', 4.57642E-2)
+fuel.add_nuclide('U235', 7.18132E-4,)
+fuel.add_nuclide('U238', 2.21546E-2)
+fuel.add_nuclide('O16', 4.57642E-2)
 
 clad = openmc.Material(name='Cladding')
 clad.set_density('sum')
@@ -21,10 +21,10 @@ clad.add_element('Zr', 4.98349e-2)
 
 water = openmc.Material(name='Borated Water')
 water.set_density('sum')
-water.add_nuclide('H-1', 4.41459E-2)
-water.add_nuclide('O-16', 2.20729E-2)
-water.add_nuclide('B-10', 9.52537E-6)
-water.add_nuclide('B-11', 3.83408E-5)
+water.add_nuclide('H1', 4.41459E-2)
+water.add_nuclide('O16', 2.20729E-2)
+water.add_nuclide('B10', 9.52537E-6)
+water.add_nuclide('B11', 3.83408E-5)
 water.add_s_alpha_beta(name='HH2O')
 
 # Instantiate a MaterialsFile, add Materials

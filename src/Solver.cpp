@@ -992,6 +992,8 @@ void Solver::checkXS() {
  */
 void Solver::initializeFixedSources() {
 
+  log_printf(INFO, "Transferring fixed sources from cells/materials to FSRs");
+
   Cell* fsr_cell;
   Material* fsr_material;
   int group;
@@ -1213,7 +1215,7 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   _timer->startTimer();
   _timer->startTimer();
 
-  /* Initialize keff to 1 for FSR source calcualtions */
+  /* Initialize keff to 1 for FSR source calculations */
   _k_eff = 1.;
 
   double residual = 0.;
@@ -1227,9 +1229,10 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   /* Initialize new flux arrays if a) the user requested the use of
    * only fixed sources or b) no previous simulation was performed which
    * initialized and computed the flux (e.g., an eigenvalue calculation) */
-  if (!_is_restart && (only_fixed_source || _num_iterations == 0)) {
-    initializeFluxArrays();
-    flattenFSRFluxes(0.0);
+  if (only_fixed_source || _num_iterations == 0) {
+    if (!_is_restart)
+      initializeFluxArrays();
+    flattenFSRFluxes(0.);
     storeFSRFluxes();
   }
 
