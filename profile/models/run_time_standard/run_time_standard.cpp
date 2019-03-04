@@ -10,10 +10,10 @@ int main(int argc, char* argv[]) {
 
 #ifdef MPIx
   int provided;
-  MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
+  MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
   log_set_ranks(MPI_COMM_WORLD);
-  if (provided < MPI_THREAD_MULTIPLE) {
-    log_printf(ERROR, "Not enough thread support");  
+  if (provided < MPI_THREAD_SERIALIZED) {
+    log_printf(ERROR, "Not enough thread support level in the MPI library");  
   }
 #endif
   
