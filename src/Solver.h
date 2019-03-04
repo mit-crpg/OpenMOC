@@ -187,6 +187,9 @@ protected:
   bool _SOLVE_3D;
 #endif
 
+  /** Boolean to indicate a restart, in which all fluxes should not be reset */
+  bool _is_restart;
+
   /** Boolean to indicate whether there are any fixed sources */
   bool _fixed_sources_on;
 
@@ -442,6 +445,7 @@ public:
   void setExpPrecision(double precision);
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
+  void setRestartStatus(bool is_restart);
   void correctXS();
   void stabilizeTransport(double stabilization_factor,
                           stabilizationType stabilization_type=DIAGONAL);
