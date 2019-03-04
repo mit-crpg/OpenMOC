@@ -980,8 +980,11 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
   double dist;
   double min_dist = std::numeric_limits<double>::infinity();
 
-  /* Get lowest level coords */
-  coords = coords->getLowestLevel();
+  /* Save coords and angles in case of a rotated cell */
+  double old_position[3] = {coords->getX(), coords->getY(), coords->getZ()};
+
+  /* Get highest level coords */
+  coords = coords->getHighestLevel();
 
   /* Get the current Cell */
   cell = coords->getCell();
@@ -1000,9 +1003,9 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
   /* If the current coords is inside a Cell, look for next Cell */
   else {
 
-    /* Ascend universes until at the highest level.
+    /* Descend universes/coord until at the lowest level.
      * At each universe/lattice level get distance to next
-     * universe or lattice cell. Recheck min_dist. */
+     * universe or lattice cell. Compare to get new min_dist. */
     while (coords != NULL) {
 
       /* If we reach a LocalCoord in a Lattice, find the distance to the
@@ -1015,19 +1018,46 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
        * nearest cell surface */
       else {
         Cell* cell = coords->getCell();
+
+        /* Apply translation to position */
+        if (cell->isTranslated()) {
+          double* translation = cell->getTranslation();
+          double new_x = coords->getX() - translation[0];
+          double new_y = coords->getY() - translation[1];
+          double new_z = coords->getZ() - translation[2];
+          coords->setX(new_x);
+          coords->setY(new_y);
+          coords->setZ(new_z);
+        }
+
+        /* Apply rotation to position and direction */
+        if (cell->isRotated()) {
+          double x = coords->getX();
+          double y = coords->getY();
+          double z = coords->getZ();
+          double* matrix = cell->getRotationMatrix();
+          double new_x = matrix[0] * x + matrix[1] * y + matrix[2] * z;
+          double new_y = matrix[3] * x + matrix[4] * y + matrix[5] * z;
+          double new_z = matrix[6] * x + matrix[7] * y + matrix[8] * z;
+          coords->setX(new_x);
+          coords->setY(new_y);
+          coords->setZ(new_z);
+
+          polar = 
+          azim = 
+        }
+
         dist = cell->minSurfaceDist(coords->getPoint(), azim, polar);
       }
 
       /* Recheck min distance */
       min_dist = std::min(dist, min_dist);
 
-      /* Ascend one level */
-      if (coords->getUniverse() == _root_universe)
+      /* Descend one level, exit if found the lowest level cell */
+      if (cell->getType() == MATERIAL)
         break;
-      else {
-        coords = coords->getPrev();
-        coords->prune();
-      }
+      else
+        coords = coords->getNext();
     }
 
     /* Check for distance to an overlaid mesh */
@@ -1052,6 +1082,9 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
         domain_boundary = true;
       }
     }
+
+    /* Reset coords position in case there was a rotated cell */
+    coords->setXYZ(old_position[0], old_position[1], old_position[2]);
 
     /* Move point and get next cell */
     double delta_x = cos(azim) * sin(polar) * (min_dist + TINY_MOVE);
@@ -3775,7 +3808,7 @@ void Geometry::dumpToFile(std::string filename, bool non_uniform_lattice) {
       fwrite(&width_y, sizeof(double), 1, out);
       fwrite(&width_z, sizeof(double), 1, out);
       fwrite(offset, sizeof(double), 3, out);
-      if(non_uniform_lattice) {
+      if (non_uniform_lattice) {
         bool non_uniform = lattice->getNonUniform();
         const std::vector<double> widths_x = lattice->getWidthsX();
         const std::vector<double> widths_y = lattice->getWidthsY();
@@ -4171,12 +4204,12 @@ void Geometry::loadFromFile(std::string filename, bool non_uniform_lattice,
       ret = twiddleRead(&width_y, sizeof(double), 1, in);
       ret = twiddleRead(&width_z, sizeof(double), 1, in);
       ret = twiddleRead(offset, sizeof(double), 3, in);
-      
+
       std::vector<double> widths_x(num_x), widths_y(num_y), widths_z(num_z);
       bool non_uniform = false;
-      
+
       /* Check if the .geo file is in non_uniform_lattice format */
-      if(non_uniform_lattice) {
+      if (non_uniform_lattice) {
         ret = twiddleRead(&non_uniform, sizeof(bool), 1, in);
         ret = twiddleRead(&widths_x[0], sizeof(double), num_x, in);
         ret = twiddleRead(&widths_y[0], sizeof(double), num_y, in);
@@ -4189,7 +4222,7 @@ void Geometry::loadFromFile(std::string filename, bool non_uniform_lattice,
       new_lattice->setNumX(num_x);
       new_lattice->setNumY(num_y);
       new_lattice->setNumZ(num_z);
-      if(non_uniform) {
+      if (non_uniform) {
         new_lattice->setWidths(widths_x, widths_y, widths_z);
         new_lattice->setWidth(1, 1, 1);
       }

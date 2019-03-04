@@ -1215,8 +1215,6 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
     storeFSRFluxes();
   }
 
-  zeroTrackFluxes();
-
   /* Compute the sum of fixed, total and scattering sources */
   computeFSRSources(0);
 
