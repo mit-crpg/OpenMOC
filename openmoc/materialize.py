@@ -831,7 +831,7 @@ def _apply_sph_factors(mgxs_lib, geometry, sph, sph_domains):
         # Get OpenMOC domain corresponding to the OpenMC domain
         openmoc_domain = openmoc_domains[openmc_domain.id]
 
-        # Ignore non-fissionable domains
+        # Ignore domains with no SPH factors
         if openmoc_domain.getId() not in sph_domains:
             continue
 
