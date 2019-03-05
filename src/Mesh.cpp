@@ -135,6 +135,7 @@ std::vector<FP_PRECISION> Mesh::getReactionRates(RxType rx,
         break;
       case NUFISSION_RX:
         xs_array = mat->getNuSigmaF();
+        break;
       case TOTAL_RX:
         xs_array = mat->getSigmaT();
         break;

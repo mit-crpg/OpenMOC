@@ -961,7 +961,7 @@ Material* Geometry::findFSRMaterial(long fsr_id) {
 
 /**
  * @brief Finds the next Cell for a LocalCoords object along a trajectory
- *        defined by some angle (in radians from 0 to Pi).
+ *        defined by two angles : azimuthal from 0 to 2Pi, polar from 0 to Pi.
  * @details The method will update the LocalCoords passed in as an argument
  *          to be the one at the boundary of the next Cell crossed along the
  *          given trajectory. It will do this by finding the minimum distance
@@ -980,24 +980,23 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
   double dist;
   double min_dist = std::numeric_limits<double>::infinity();
 
-  /* Save coords and angles in case of a rotated cell */
+  /* Save coords and angles in case of a translated/rotated cell */
   double old_position[3] = {coords->getX(), coords->getY(), coords->getZ()};
+  double old_azim = azim;
+  double old_polar = polar;
 
   /* Get highest level coords */
   coords = coords->getHighestLevel();
 
-  /* Get the current Cell */
-  cell = coords->getCell();
-
   /* If the current coords is outside the domain, return NULL */
   if (_domain_decomposed) {
-    Point* point = coords->getHighestLevel()->getPoint();
+    Point* point = coords->getPoint();
     if (!_domain_bounds->containsPoint(point))
       return NULL;
   }
 
   /* If the current coords is not in any Cell, return NULL */
-  if (cell == NULL)
+  if (coords->getLowestLevel()->getCell() == NULL)
     return NULL;
 
   /* If the current coords is inside a Cell, look for next Cell */
@@ -1043,8 +1042,17 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
           coords->setY(new_y);
           coords->setZ(new_z);
 
-          polar = 
-          azim = 
+          double uvw[3] = {sin(polar)*cos(azim), sin(polar)*sin(azim),
+                           cos(polar)};
+          double rot_uvw[3] = {matrix[0]*uvw[0] + matrix[1]*uvw[1] +
+                               matrix[2]*uvw[2], matrix[3]*uvw[0] +
+                               matrix[4]*uvw[1] + matrix[5]*uvw[2],
+                               matrix[6]*uvw[0] + matrix[7]*uvw[1] +
+                               matrix[8]*uvw[2]};
+          polar = acos(rot_uvw[2]);
+          double sin_p = sqrt(1 - rot_uvw[2]*rot_uvw[2]);
+          int sgn = (asin(rot_uvw[1]/sin_p) > 0) - (asin(rot_uvw[1]/sin_p) < 0);
+          azim = acos(rot_uvw[0]/sin_p) * sgn;
         }
 
         dist = cell->minSurfaceDist(coords->getPoint(), azim, polar);
@@ -1053,12 +1061,21 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
       /* Recheck min distance */
       min_dist = std::min(dist, min_dist);
 
-      /* Descend one level, exit if found the lowest level cell */
-      if (cell->getType() == MATERIAL)
+      /* Descend one level, exit if at the lowest level of coordinates */
+      if (coords->getNext() == NULL)
         break;
       else
         coords = coords->getNext();
     }
+
+    /* Reset coords position in case there was a translated or rotated cell */
+    coords = coords->getHighestLevel();
+    coords->prune();
+    coords->setX(old_position[0]);
+    coords->setY(old_position[1]);
+    coords->setZ(old_position[2]);
+    azim = old_azim;
+    polar = old_polar;
 
     /* Check for distance to an overlaid mesh */
     if (_overlaid_mesh != NULL) {
@@ -1082,9 +1099,6 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
         domain_boundary = true;
       }
     }
-
-    /* Reset coords position in case there was a rotated cell */
-    coords->setXYZ(old_position[0], old_position[1], old_position[2]);
 
     /* Move point and get next cell */
     double delta_x = cos(azim) * sin(polar) * (min_dist + TINY_MOVE);
