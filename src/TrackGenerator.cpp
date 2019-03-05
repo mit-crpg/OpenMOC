@@ -122,6 +122,41 @@ omp_lock_t* TrackGenerator::getFSRLocks() {
 
 
 /**
+ * @brief Computes the volumes/areas of each Cell and Material in the Geometry.
+ * @details This computes the volumes/areas of each Cell and Material in the
+ *          Geometry from the length of track segments crossing each Cell. This
+ *          routine assigns the volume and number of instances to each Cell and
+ *          Material. This is a helper routine that is called after track
+ *          segmentation is complete in TrackGenerator::generateTracks().
+ */
+void TrackGenerator::initializeVolumes() {
+
+  if (!containsTracks())
+    log_printf(ERROR, "Unable to initialize volumes since tracks "
+               "have not yet been generated");
+
+  Cell* cell;
+  Material* material;
+  int num_FSRs = _geometry->getNumFSRs();
+
+  /* Initialize a volume buffer and compute volumes */
+  initializeFSRVolumesBuffer();
+  FP_PRECISION* fsr_volumes = getFSRVolumes();
+
+  /* Compute volume and number of instances for each Cell and Material */
+  for (int i=0; i < num_FSRs; i++) {
+    cell = _geometry->findCellContainingFSR(i);
+    cell->incrementVolume(fsr_volumes[i]);
+    cell->incrementNumInstances();
+
+    material = cell->getFillMaterial();
+    material->incrementVolume(fsr_volumes[i]);
+    material->incrementNumInstances();
+  }
+}
+
+
+/**
  * @brief Initialize an array to contain the FSR volumes.
  */
 void TrackGenerator::initializeFSRVolumesBuffer() {

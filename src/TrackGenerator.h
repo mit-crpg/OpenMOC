@@ -161,6 +161,7 @@ public:
   int getNumX(int azim);
   int getNumY(int azim);
   void exportFSRVolumes(double* out_volumes, int num_fsrs);
+  void initializeVolumes();
   void initializeFSRVolumesBuffer();
   FP_PRECISION* getFSRVolumesBuffer();
   FP_PRECISION* getFSRVolumes();

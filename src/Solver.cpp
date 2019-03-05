@@ -67,6 +67,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _timer = new Timer();
 
   /* Default settings */
+  _is_restart = false;
   _fixed_sources_on = false;
   _correct_xs = false;
   _stabilize_transport = false;
@@ -567,6 +568,19 @@ void Solver::useExponentialIntrinsic() {
 
 
 /**
+ * @brief Informs the Solver that this is a 'restart' calculation and therefore
+ *        k_eff, track angular and region scalar fluxes should not be reset.
+ * @param is_restart whether solver run is a restart run
+ */
+void Solver::setRestartStatus(bool is_restart) {
+
+  if (is_restart)
+    log_printf(NORMAL, "Solver is in restart mode, no fluxes will be reset.");
+  _is_restart = is_restart;
+}
+
+
+/**
  * @brief Directs OpenMOC to correct unphysical cross-sections.
  * @details If a material is found with greater total scattering cross-section
  *          than total cross-section, the total cross-section is set to the
@@ -974,6 +988,8 @@ void Solver::checkXS() {
  */
 void Solver::initializeFixedSources() {
 
+  log_printf(INFO, "Transferring fixed sources from cells/materials to FSRs");
+
   Cell* fsr_cell;
   Material* fsr_material;
   int group;
@@ -1195,7 +1211,7 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   _timer->startTimer();
   _timer->startTimer();
 
-  /* Initialize keff to 1 for FSR source calcualtions */
+  /* Initialize keff to 1 for FSR source calculations */
   _k_eff = 1.;
 
   double residual = 0.;
@@ -1210,8 +1226,9 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
    * only fixed sources or b) no previous simulation was performed which
    * initialized and computed the flux (e.g., an eigenvalue calculation) */
   if (only_fixed_source || _num_iterations == 0) {
-    initializeFluxArrays();
-    flattenFSRFluxes(0.0);
+    if (!_is_restart)
+      initializeFluxArrays();
+    flattenFSRFluxes(0.);
     storeFSRFluxes();
   }
 
@@ -1306,14 +1323,17 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
   /* Initialize data structures */
   initializeFSRs();
   initializeExpEvaluators();
-  initializeFluxArrays();
+  if (!_is_restart)
+    initializeFluxArrays();
   initializeSourceArrays();
 
   /* Guess flat spatial scalar flux for each region */
-  if (_chi_spectrum_material == NULL)
-    flattenFSRFluxes(1.0);
-  else
-    flattenFSRFluxesChiSpectrum();
+  if (!_is_restart) {
+    if (_chi_spectrum_material == NULL)
+      flattenFSRFluxes(1.0);
+    else
+      flattenFSRFluxesChiSpectrum();
+  }
 
   /* Start the timer to record the total time to converge the flux */
   _timer->startTimer();
@@ -1388,13 +1408,15 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   /* Clear convergence data from a previous simulation run */
   double previous_residual = 1.0;
   double residual = 0.;
-  _k_eff = 1.;
+  if (!_is_restart)
+    _k_eff = 1.;
 
   /* Initialize data structures */
   initializeFSRs();
   countFissionableFSRs();
   initializeExpEvaluators();
-  initializeFluxArrays();
+  if (!_is_restart)
+    initializeFluxArrays();
   initializeSourceArrays();
   initializeCmfd();
   _geometry->fixFSRMaps();
@@ -1413,11 +1435,13 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
   }
 
   /* Guess flat spatial scalar flux for each region */
-  if (_chi_spectrum_material == NULL)
-    flattenFSRFluxes(1.0);
-  else
-    flattenFSRFluxesChiSpectrum();
-  normalizeFluxes();
+  if (!_is_restart) {
+    if (_chi_spectrum_material == NULL)
+      flattenFSRFluxes(1.0);
+    else
+      flattenFSRFluxesChiSpectrum();
+    normalizeFluxes();
+  }
   storeFSRFluxes();
 
   /* Load initial FSR fluxes from file if requested */
