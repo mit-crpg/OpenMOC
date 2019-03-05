@@ -1921,7 +1921,7 @@ std::string Lattice::toString() {
          << ", # cells along z = " << _num_z;
 
   if (_non_uniform) {
-    string << "This lattice is non-uniform.\nx widths: ";
+    string << "\nThis lattice is non-uniform.\nx widths: ";
     for (int i=0; i<_num_x; i++)
       string << _widths_x[i] << "  ";
     string << "\ny widths: ";

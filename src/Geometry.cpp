@@ -1017,6 +1017,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
        * nearest cell surface */
       else {
         Cell* cell = coords->getCell();
+        dist = cell->minSurfaceDist(coords->getPoint(), azim, polar);
 
         /* Apply translation to position */
         if (cell->isTranslated()) {
@@ -1054,8 +1055,6 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
           int sgn = (asin(rot_uvw[1]/sin_p) > 0) - (asin(rot_uvw[1]/sin_p) < 0);
           azim = acos(rot_uvw[0]/sin_p) * sgn;
         }
-
-        dist = cell->minSurfaceDist(coords->getPoint(), azim, polar);
       }
 
       /* Recheck min distance */

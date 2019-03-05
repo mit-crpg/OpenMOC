@@ -577,7 +577,7 @@ void Material::setNumEnergyGroups(const int num_groups) {
  *          might be called in Python is as follows:
  *
  * @code
- *          sigma_t = numpy.array([0.05, 0.1, 0.15, ... ])
+ *          sigma_t = numpy.array([0.05, 0.1, 0.15, ...])
  *          material = openmoc.Material(openmoc.material_id())
  *          material.setSigmaT(sigma_t)
  * @endcode
