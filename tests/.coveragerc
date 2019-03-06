@@ -1,10 +1,7 @@
 # .coveragerc to control coverage.py
 
 [report]
-omit = openmoc/openmoc.py
-       openmoc/openmoc_wrap*
-       build/temp.linux*/src/openmoc_wrap*
-
+omit = openmoc/openmoc/openmoc.py
 
 # Regexes for lines to exclude from consideration
 exclude_lines =
