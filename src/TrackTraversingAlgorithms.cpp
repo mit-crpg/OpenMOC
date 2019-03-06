@@ -26,6 +26,7 @@ MaxOpticalLength::MaxOpticalLength(TrackGenerator* track_generator)
 void MaxOpticalLength::execute() {
   FP_PRECISION infinity = std::numeric_limits<FP_PRECISION>::max();
   _track_generator->setMaxOpticalLength(infinity);
+
 #pragma omp parallel
   {
     MOCKernel* kernel = getKernel<SegmentationKernel>();
@@ -54,16 +55,10 @@ void MaxOpticalLength::onTrack(Track* track, segment* segments) {
     FP_PRECISION _max_sigma_t = material->getMaxSigmaT();
     FP_PRECISION tau = length * _max_sigma_t;
 
-//TODO Optimize this by having a _max_tau per thread
-//FIXME This is an ad-hoc fix for this Kernel being quite slow. We don't care
-// about the max tau unless it's above MAX_OPTICAL_LENGTH, in which case
-// segments need to be split.
-    if (tau > MAX_OPTICAL_LENGTH) {
+    //FIXME Potential but inexistent race condition
+    if (tau > _max_tau) {
 #pragma omp critical
-      {
-        if (tau > _max_tau)
-          _max_tau = std::max(_max_tau, tau);
-      }
+      _max_tau = std::max(_max_tau, tau);
     }
   }
 }
@@ -767,7 +762,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
     }
 
     /* Set the source constants for all groups and coefficients */
-#pragma omp simd //aligned(thread_src_constants)
+#pragma omp simd
     for (int g=0; g < _num_groups; g++) {
       for (int i=0; i < _NUM_COEFFS; i++)
         _src_constants[fsr*_num_groups*_NUM_COEFFS + i*_num_groups + g] +=

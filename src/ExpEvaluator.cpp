@@ -7,7 +7,7 @@
  *          for computing exponentials.
  */
 ExpEvaluator::ExpEvaluator() {
-  _interpolate = true;
+  _interpolate = false;
   _exp_table = NULL;
   _quadrature = NULL;
   _max_optical_length = MAX_OPTICAL_LENGTH;
@@ -217,10 +217,10 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
   _inverse_sin_theta_no_offset = 1.0 / _sin_theta_no_offset;
 
   /* If no exponential table is needed, return */
-  //if (_interpolate)
-  //  log_printf(WARNING, "Interpolation tables are commented out in source code"
-  //              " for optimization purposes");
-  //  return;
+  if (_interpolate)
+    log_printf(WARNING_ONCE, "Interpolation tables are commented out in source"
+                " code for optimization purposes");
+    return;
 
   log_printf(DEBUG, "Initializing exponential interpolation table...");
 

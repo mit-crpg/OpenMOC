@@ -684,8 +684,6 @@ void Solver::initializeExpEvaluators() {
     /* For non explicit ray tracing, segments are split on-the-fly */
     else
       _track_generator->countSegments();
-
-    first_evaluator->setMaxOpticalLength(max_tau_b);
   }
 
   /* Delete old exponential evaluators */

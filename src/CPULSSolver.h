@@ -60,12 +60,14 @@ public:
   CPULSSolver(TrackGenerator* track_generator=NULL);
   virtual ~CPULSSolver();
 
+  /* Initialization routines */
   void initializeFluxArrays();
   void initializeSourceArrays();
   void initializeCmfd();
   void initializeExpEvaluators();
   void initializeFSRs();
 
+  /* Worker routines */
   void flattenFSRFluxes(FP_PRECISION value);
   double normalizeFluxes();
   void computeFSRSources(int iteration);
@@ -85,10 +87,13 @@ public:
   void stabilizeFlux();
   void checkLimitXS(int iteration);
 
-  FP_PRECISION getFluxByCoords(LocalCoords* coords, int group);
+  /* Linear source constant term computation routines */
   void initializeLinearSourceConstants();
   double* getLinearExpansionCoeffsBuffer();
   FP_PRECISION* getSourceConstantsBuffer();
+
+  /* Getter routine */
+  FP_PRECISION getFluxByCoords(LocalCoords* coords, int group);
 };
 
 

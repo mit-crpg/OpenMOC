@@ -275,4 +275,59 @@ inline void expH_fractional(FP_PRECISION x, FP_PRECISION* expH) {
   *expH = num/den;
 }
 
+
+/**
+ * @brief Evaluates the function 1 - exp(tau) for tau negative.  Vectorises well.
+ *        Accurate to 6.18 digits (single precision) for entire domain (including
+ *        near zero, unlike intrinsic)
+ *
+ *        Valid for tau ~= [-1.5e6, 0]
+ * @param tau input
+ * @param expv output
+ * @param length length of vector
+ */
+inline void cram7(float x, FP_PRECISION* expv) {
+
+  /* Generated in Mathematica, accurate to 6.18 digits (single precision), tau [-1.5e6,0] */
+  const FP_PRECISION c1n = -1.00000014302666667201396424463;
+  const FP_PRECISION c2n = 0.234841040052684510704433796447;
+  const FP_PRECISION c3n = -0.0624785939603762121316592924635;
+  const FP_PRECISION c4n = 0.0100434102711342948752684759736;
+  const FP_PRECISION c5n = -0.00135724435934263932676353754751;
+  const FP_PRECISION c6n = 0.0000951474224366003625378414851577;
+  const FP_PRECISION c7n = -0.0000160076055315534285575266516209;
+
+  const FP_PRECISION c0d = 1.;
+  const FP_PRECISION c1d = -0.734847118148952339633322706422;
+  const FP_PRECISION c2d = 0.263193362386411901729092564316;
+  const FP_PRECISION c3d = -0.0609467155163113059870970359654;
+  const FP_PRECISION c4d = 0.0100863490579686697359577926719;
+  const FP_PRECISION c5d = -0.00135667018708833025497446407598;
+  const FP_PRECISION c6d = 0.0000951502816434275317085698085885;
+  const FP_PRECISION c7d = -0.0000160076032420105715765981718742;
+
+  FP_PRECISION num, den;
+
+  den = c7d;
+  den = den * x + c6d;
+  den = den * x + c5d;
+  den = den * x + c4d;
+  den = den * x + c3d;
+  den = den * x + c2d;
+  den = den * x + c1d;
+  den = den * x + c0d;
+
+  num = c7n;
+  num = num * x + c6n;
+  num = num * x + c5n;
+  num = num * x + c4n;
+  num = num * x + c3n;
+  num = num * x + c2n;
+  num = num * x + c1n;
+  num = num * x;
+
+  *expv = num / den;
+}
+
+
 #endif // EXPONENTIALS_H_

@@ -323,23 +323,20 @@ inline FP_PRECISION ExpEvaluator::computeExponentialH(int index,
  */
 inline FP_PRECISION ExpEvaluator::computeExponentialG2(FP_PRECISION tau) {
 
-  /* Limit range of tau to avoid numerical errors */
-  tau = std::max(FP_PRECISION(5e-4), tau);
+  FP_PRECISION exp_mx;
+  cram7(-tau, &exp_mx);
 
-   FP_PRECISION expF1;
-   expF1_fractional(tau, &expF1);
- 
-   return 2.0f / 3.0f - (1.0f + 2.0f / tau) * (1.0f / tau + 0.5f -
-          (1.0f + 1.0f / tau) * expF1);
-//  if (fabs(tau) < FLT_EPSILON)
-//    return 0.0;
-
-  //if (tau < 0.01)
-    //return 7.0 * tau * tau / 120.0 - tau / 12.0;
-  //else
-    //return 2.0 / 3.0 - (1 + 2.0 / tau)
-      //  * (1.0 / tau + 0.5 - (1.0 + 1.0 / tau) *
-        //  (1.0 - exp(- tau)) / tau);
+  /* Handle loss of numerical accuracy for small taus */
+  // This form keeps the relative error below 5E-03 and the absolute error
+  // below 5E-05 for tau in [0, 20]. Max error is at tau=0.14
+  // Max relative error can be reduced to 2E-05 by using standard exp(), and
+  // placing the transition at tau=0.01
+  //TODO Fit a rational fraction to G2 directly
+  FP_PRECISION full_expr = 2.0f / 3.0f - (1.0f + 2.0f / tau) * 
+                           (1.0f / tau + 0.5f - (1.0f + 1.0f / tau) *
+                           (exp_mx) / tau);
+  FP_PRECISION simp_expr = 7.0f * tau * tau / 120.0f - tau / 12.0f;
+  return (tau >= 0.14f) * full_expr + (tau < 0.14f) * simp_expr;
 }
 
 
@@ -382,15 +379,6 @@ inline void ExpEvaluator::retrieveExponentialComponents(FP_PRECISION tau,
   /* Limit range of tau to avoid numerical errors */
   tau = std::max(FP_PRECISION(1e-6), tau * inv_sin_theta);
 
-  /* Compute exponentials */    //4e
-   expF1_fractional(tau, exp_F1);
-   *exp_F1 *= inv_sin_theta;
-   expF2_fractional(tau, exp_F2);
-   *exp_F2 *= inv_sin_theta*inv_sin_theta;
-   expH_fractional(tau, exp_H);
-   *exp_H *= inv_sin_theta;
-   log_printf(NORMAL, "m1 tau = %f : %f %f %f", tau, *exp_F1, *exp_F2, *exp_H);
-
   /* Compute exponentials from a common exponential */
    FP_PRECISION exp_G;
    expG_fractional(tau, &exp_G);
@@ -402,25 +390,22 @@ inline void ExpEvaluator::retrieveExponentialComponents(FP_PRECISION tau,
    *exp_F2 *= inv_sin_theta;
 
    *exp_H = *exp_F1 - exp_G;
-   log_printf(NORMAL, "m2 tau = %f : %f %f %f", tau, *exp_F1, *exp_F2, *exp_H);
 
     /* Quadratic exponential interpolation tables */
-    __builtin_assume_aligned(_exp_table, VEC_ALIGNMENT);
-
-    tau /= inv_sin_theta;
-    int exp_index = getExponentialIndex(tau);
-    FP_PRECISION dt = getDifference(exp_index, tau);
-    FP_PRECISION dt2 = dt * dt;
-    int full_index = (exp_index * _num_polar_terms + polar_offset)
-      * _num_exp_terms;
-    *exp_F1 = _exp_table[full_index] + _exp_table[full_index + 1] * dt +
-        _exp_table[full_index + 2] * dt2;
-    *exp_F2 = _exp_table[full_index + 3] + _exp_table[full_index + 4] * dt +
-        _exp_table[full_index + 5] * dt2;
-    *exp_H = _exp_table[full_index + 6] + _exp_table[full_index + 7] * dt +
-        _exp_table[full_index + 8] * dt2;
-   log_printf(NORMAL, "in tau = %f : %f %f %f", tau*inv_sin_theta, *exp_F1, *exp_F2, *exp_H);
-   abort();
+//     __builtin_assume_aligned(_exp_table, VEC_ALIGNMENT);
+// 
+//     tau /= inv_sin_theta;
+//     int exp_index = getExponentialIndex(tau);
+//     FP_PRECISION dt = getDifference(exp_index, tau);
+//     FP_PRECISION dt2 = dt * dt;
+//     int full_index = (exp_index * _num_polar_terms + polar_offset)
+//       * _num_exp_terms;
+//     *exp_F1 = _exp_table[full_index] + _exp_table[full_index + 1] * dt +
+//         _exp_table[full_index + 2] * dt2;
+//     *exp_F2 = _exp_table[full_index + 3] + _exp_table[full_index + 4] * dt +
+//         _exp_table[full_index + 5] * dt2;
+//     *exp_H = _exp_table[full_index + 6] + _exp_table[full_index + 7] * dt +
+//         _exp_table[full_index + 8] * dt2;
 }
 
 
