@@ -99,17 +99,6 @@ class LinearFixedSourceTestHarness(TestHarness):
         solver.setFixedSourceMomentsByCell(self.source_cell, 2, -0.1, 0, -0.04)
         solver.setFixedSourceMomentsByCell(self.source_cell, 3, 0.02, 0, 0)
 
-        # To debug the test
-        if False:
-            geometry = self.input_set.geometry
-            track_generator = self.track_generator
-            import openmoc.plotter as plotter
-            plotter.plot_cells(geometry)
-            import time
-            time.sleep(1000)
-            #plotter.plot_flat_source_regions(geometry, gridsize=500, plane='xy', offset=0.)
-            #plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7], plane='xy', offset=0.)
-            #plotter.plot_energy_fluxes(solver, fsrs=range(geometry.getNumFSRs()))
 
 if __name__ == '__main__':
     harness = LinearFixedSourceTestHarness()
