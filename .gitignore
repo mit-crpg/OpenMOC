@@ -106,6 +106,31 @@ openmoc/cuda/double/openmoc_cuda_double.py
 openmoc/cuda/double/openmoc_cuda_double_wrap.cpp
 
 
+# Tests generated files
+results_error.dat
+tests/test_geometry_dump/geometry_file.geo
+tests/test_geometry_dump/geometry_file_second.geo
+tests/test_geometry_load/geometry_file.geo
+tests/test_geometry_print/geometry.txt
+.pytest_cache/
+
+
+# Built C++ executables
+profile/models/run_time_standard/run_time_standard
+profile/models/c5g7/c5g7-3d-cmfd
+profile/models/c5g7/c5g7-3d
+profile/models/c5g7/c5g7-rodded-B-2x2
+profile/models/c5g7/c5g7-rodded-B
+profile/models/c5g7/c5g7-ws
+profile/models/fixed-source/pin-cell-fixed-3d
+profile/models/homogeneous/homogeneous
+profile/models/pin-cell/pin-cell-3d
+profile/models/simple-lattice/simple-lattice-3d
+profile/models/single-assembly/quarter-c5g7-assembly
+profile/models/single-assembly/single-c5g7-assembly
+profile/models/Takeda/Takeda-unrodded
+
+
 #Documentation
 docs/build
 docs/build/*
