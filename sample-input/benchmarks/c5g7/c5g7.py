@@ -11,11 +11,11 @@ from openmoc.options import Options
 
 options = Options()
 
-num_threads = options.getNumThreads()
-track_spacing = options.getTrackSpacing()
-num_azim = options.getNumAzimAngles()
-tolerance = options.getTolerance()
-max_iters = options.getMaxIterations()
+num_threads = options.num_omp_threads
+azim_spacing = options.azim_spacing
+num_azim = options.num_azim
+tolerance = options.tolerance
+max_iters = options.max_iters
 
 log.set_log_level('NORMAL')
 
@@ -28,7 +28,7 @@ log.py_printf('TITLE', 'Simulating the OECD\'s C5G7 Benchmark Problem...')
 
 log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
-materials = materialize.materialize('../../c5g7-materials.h5')
+materials = openmoc.materialize.load_from_hdf5('c5g7-mgxs.h5', '../../')
 
 
 ###############################################################################
@@ -60,7 +60,7 @@ log.py_printf('NORMAL', 'Creating cells...')
 # Moderator rings
 moderator = Cell()
 moderator.setNumSectors(8)
-moderator.setNumRings(2)
+moderator.setNumRings(3)
 moderator.setFill(materials['Water'])
 moderator.addSurface(+1, fuel_radius)
 
@@ -73,9 +73,7 @@ uo2_cell.addSurface(-1, fuel_radius)
 
 uo2 = Universe(name='UO2')
 uo2.addCell(uo2_cell)
-uo2.addCell(moderator_ring1)
-uo2.addCell(moderator_ring2)
-uo2.addCell(moderator_ring3)
+uo2.addCell(moderator)
 
 # 4.3% MOX pin cell
 mox43_cell = Cell()
@@ -86,9 +84,7 @@ mox43_cell.addSurface(-1, fuel_radius)
 
 mox43 = Universe(name='MOX-4.3%')
 mox43.addCell(mox43_cell)
-mox43.addCell(moderator_ring1)
-mox43.addCell(moderator_ring2)
-mox43.addCell(moderator_ring3)
+mox43.addCell(moderator)
 
 # 7% MOX pin cell
 mox7_cell = Cell()
@@ -99,9 +95,7 @@ mox7_cell.addSurface(-1, fuel_radius)
 
 mox7 = Universe(name='MOX-7%')
 mox7.addCell(mox7_cell)
-mox7.addCell(moderator_ring1)
-mox7.addCell(moderator_ring2)
-mox7.addCell(moderator_ring3)
+mox7.addCell(moderator)
 
 # 8.7% MOX pin cell
 mox87_cell = Cell()
@@ -112,9 +106,7 @@ mox87_cell.addSurface(-1, fuel_radius)
 
 mox87 = Universe(name='MOX-8.7%')
 mox87.addCell(mox87_cell)
-mox87.addCell(moderator_ring1)
-mox87.addCell(moderator_ring2)
-mox87.addCell(moderator_ring3)
+mox87.addCell(moderator)
 
 # Fission chamber pin cell
 fission_chamber_cell = Cell()
@@ -125,9 +117,7 @@ fission_chamber_cell.addSurface(-1, fuel_radius)
 
 fission_chamber = Universe(name='Fission Chamber')
 fission_chamber.addCell(fission_chamber_cell)
-fission_chamber.addCell(moderator_ring1)
-fission_chamber.addCell(moderator_ring2)
-fission_chamber.addCell(moderator_ring3)
+fission_chamber.addCell(moderator)
 
 # Guide tube pin cell
 guide_tube_cell = Cell()
@@ -138,9 +128,7 @@ guide_tube_cell.addSurface(-1, fuel_radius)
 
 guide_tube = Universe(name='Guide Tube')
 guide_tube.addCell(guide_tube_cell)
-guide_tube.addCell(moderator_ring1)
-guide_tube.addCell(moderator_ring2)
-guide_tube.addCell(moderator_ring3)
+guide_tube.addCell(moderator)
 
 # Reflector
 reflector_cell = Cell(name='moderator')
@@ -303,7 +291,7 @@ geometry.initializeFlatSourceRegions()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = TrackGenerator(geometry, num_azim, track_spacing)
+track_generator = TrackGenerator(geometry, num_azim, azim_spacing)
 track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
 

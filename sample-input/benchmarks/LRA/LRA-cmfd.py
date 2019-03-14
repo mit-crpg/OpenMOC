@@ -32,7 +32,7 @@ openmoc.log.py_printf('NORMAL', 'Creating geometry...')
 geometry = openmoc.Geometry()
 geometry.setCmfd(cmfd)
 geometry.setRootUniverse(universes['Root'])
-
+geometry.initializeFlatSourceRegions()
 
 ###############################################################################
 #                          Creating the TrackGenerator
