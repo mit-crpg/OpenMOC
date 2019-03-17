@@ -389,15 +389,12 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     // Compute the exponential term G, intermediate step to F1, F2, H
     FP_PRECISION exp_G[_num_groups] __attribute__ ((aligned(VEC_ALIGNMENT)));
     FP_PRECISION tau[_num_groups] __attribute__ ((aligned(VEC_ALIGNMENT)));
-    FP_PRECISION inv_sin_theta = exp_evaluator->getInverseSinTheta();
-    FP_PRECISION length_2D = exp_evaluator->convertDistance3Dto2D(length);
 
 #pragma omp simd aligned(sigma_t, tau, exp_G)
     for (int e=0; e < _num_groups; e++) {
-      /* Bound tau by 1e-6 to limit error on the F2 term */
-      tau[e] = std::max(FP_PRECISION(1e-6), length_2D * sigma_t[e]);
-      expG_fractional(inv_sin_theta * tau[e], &exp_G[e]);
-      exp_G[e] *= inv_sin_theta;
+      /* Bound tau by 1e-8 to limit error on the F2 term */
+      tau[e] = std::max(FP_PRECISION(1e-8), length * sigma_t[e]);
+      expG_fractional(tau[e], &exp_G[e]);
     }
 
     FP_PRECISION wgt = _quad->getWeightInline(azim_index, polar_index);
@@ -409,15 +406,13 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
 
       /* Compute exponential F1, F2 and H from G */
       FP_PRECISION exp_F1 = 1.f - tau[e]*exp_G[e];
-      exp_F1 *= inv_sin_theta;
       FP_PRECISION exp_F2 = 2.f*exp_G[e] - exp_F1;
-      exp_F2 *= inv_sin_theta;
       FP_PRECISION exp_H = exp_F1 - exp_G[e];
       exp_H *= length * track_flux[e] * tau[e] * wgt;
 
       /* Compute the change in flux across the segment */
-      FP_PRECISION delta_psi = (tau[e] * track_flux[e] - length_2D * src_flat[e])
-           * exp_F1 - src_linear[e] * length_2D * length_2D * exp_F2;
+      FP_PRECISION delta_psi = (tau[e] * track_flux[e] - length * src_flat[e])
+           * exp_F1 - src_linear[e] * length * length * exp_F2;
       track_flux[e] -= delta_psi;
       delta_psi *= wgt;
 

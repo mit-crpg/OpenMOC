@@ -377,7 +377,7 @@ inline void ExpEvaluator::retrieveExponentialComponents(FP_PRECISION tau,
 #endif
 
   /* Limit range of tau to avoid numerical errors */
-  tau = std::max(FP_PRECISION(1e-6), tau * inv_sin_theta);
+  tau = std::max(FP_PRECISION(1e-8), tau * inv_sin_theta);
 
   /* Compute exponentials from a common exponential */
    FP_PRECISION exp_G;
