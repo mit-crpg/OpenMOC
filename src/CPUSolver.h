@@ -108,6 +108,8 @@ protected:
   void flattenFSRFluxesChiSpectrum();
   void storeFSRFluxes();
   virtual double normalizeFluxes();
+  void computeFSRFissionSources();
+  void computeFSRScatterSources();
   virtual void computeFSRSources(int iteration);
   void transportSweep();
   virtual void computeStabilizingFlux();
@@ -122,6 +124,7 @@ public:
 
   int getNumThreads();
   void setNumThreads(int num_threads);
+  void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes);
   void setFixedSourceByFSR(long fsr_id, int group, FP_PRECISION source);
   void computeFSRFissionRates(double* fission_rates, long num_FSRs, 
                               bool nu = false);

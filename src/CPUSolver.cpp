@@ -158,6 +158,39 @@ void CPUSolver::setNumThreads(int num_threads) {
 
 
 /**
+ * @brief Set the flux array for use in transport sweep source calculations.
+ * @detail This is a helper method for the checkpoint restart capabilities,
+ *         as well as the IRAMSolver in the openmoc.krylov submodule. This
+ *         routine may be used as follows from within Python:
+ *
+ * @code
+ *          fluxes = numpy.random.rand(num_FSRs * num_groups, dtype=np.float)
+ *          solver.setFluxes(fluxes)
+ * @endcode
+ *
+ *          NOTE: This routine stores a pointer to the fluxes for the Solver
+ *          to use during transport sweeps and other calculations. Hence, the
+ *          flux array pointer is shared between NumPy and the Solver.
+ *
+ * @param in_fluxes an array with the fluxes to use
+ * @param num_fluxes the number of flux values (# groups x # FSRs)
+ */
+void CPUSolver::setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) {
+  if (num_fluxes != _num_groups * _num_FSRs)
+    log_printf(ERROR, "Unable to set an array with %d flux values for %d "
+               " groups and %d FSRs", num_fluxes, _num_groups, _num_FSRs);
+
+  /* Allocate array if flux arrays have not yet been initialized */
+  if (_scalar_flux == NULL)
+    initializeFluxArrays();
+
+  /* Set the scalar flux array pointer to the array passed in from NumPy */
+  _scalar_flux = in_fluxes;
+  _user_fluxes = true;
+}
+
+
+/**
  * @brief Assign a fixed source for a flat source region and energy group.
  * @details Fixed sources should be scaled to reflect the fact that OpenMOC
  *          normalizes the scalar flux such that the total energy- and
@@ -1584,6 +1617,85 @@ void CPUSolver::computeFSRSources(int iteration) {
 
 
 /**
+ * @brief Computes the total fission source in each FSR.
+ * @details This method is a helper routine for the openmoc.krylov submodule.
+ */
+void CPUSolver::computeFSRFissionSources() {
+
+#pragma omp parallel default(none)
+  {
+    Material* material;
+    FP_PRECISION* sigma_t;
+    FP_PRECISION fiss_mat;
+    FP_PRECISION fission_source;
+    FP_PRECISION fission_sources[_num_groups];
+
+    /* Compute the total source for each FSR */
+#pragma omp for schedule(guided)
+    for (int r=0; r < _num_FSRs; r++) {
+
+      material = _FSR_materials[r];
+
+      /* Compute fission source for group g */
+      //NOTE use full fission matrix instead of chi because of transpose
+      for (int g=0; g < _num_groups; g++) {
+        for (int g_prime=0; g_prime < _num_groups; g_prime++) {
+          fiss_mat = material->getFissionMatrixByGroup(g_prime+1,g+1);
+          fission_sources[g_prime] = fiss_mat * _scalar_flux(r,g_prime);
+        }
+
+        fission_source = pairwise_sum<FP_PRECISION>(fission_sources,
+                                                    _num_groups);
+
+        /* Compute total (fission) reduced source */
+        _reduced_sources(r,g) = fission_source;
+        _reduced_sources(r,g) *= ONE_OVER_FOUR_PI;
+      }
+    }
+  }
+}
+
+
+/**
+ * @brief Computes the total scattering source in each FSR.
+ * @details This method is a helper routine for the openmoc.krylov submodule.
+ */
+void CPUSolver::computeFSRScatterSources() {
+
+#pragma omp parallel default(none)
+  {
+    Material* material;
+    FP_PRECISION* sigma_t;
+    FP_PRECISION sigma_s;
+    FP_PRECISION scatter_source;
+    FP_PRECISION scatter_sources[_num_groups];
+
+    /* Compute the total source for each FSR */
+#pragma omp for schedule(guided)
+    for (int r=0; r < _num_FSRs; r++) {
+
+      material = _FSR_materials[r];
+
+      /* Compute scatter source for group g */
+      for (int g=0; g < _num_groups; g++) {
+        for (int g_prime=0; g_prime < _num_groups; g_prime++) {
+          sigma_s = material->getSigmaSByGroup(g_prime+1,g+1);
+          scatter_sources[g_prime] = sigma_s * _scalar_flux(r,g_prime);
+        }
+
+        scatter_source = pairwise_sum<FP_PRECISION>(scatter_sources,
+                                                    _num_groups);
+
+        /* Compute total (scatter) reduced source */
+        _reduced_sources(r,g) = scatter_source;
+        _reduced_sources(r,g) *= ONE_OVER_FOUR_PI;
+      }
+    }
+  }
+}
+
+
+/**
  * @brief Computes the residual between source/flux iterations.
  * @param res_type the type of residuals to compute
  *        (SCALAR_FLUX, FISSION_SOURCE, TOTAL_SOURCE)
@@ -2059,12 +2171,17 @@ void CPUSolver::addSourceToScalarFlux() {
 
     for (int e=0; e < _num_groups; e++) {
       _scalar_flux(r, e) /= (sigma_t[e] * volume);
+
       _scalar_flux(r, e) += FOUR_PI * _reduced_sources(r, e) / sigma_t[e];
+      //if (e==0 && r==100000)
+      //  log_printf(NORMAL, "%d %e %e", r, _reduced_sources(r, e), _scalar_flux(r, e));
+
       if (_scalar_flux(r, e) < 0.0) {
-        _scalar_flux(r, e) = 1.0e-20;
 #pragma omp atomic update
         num_negative_fluxes++;
       }
+
+
     }
   }
 

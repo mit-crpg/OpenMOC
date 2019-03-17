@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
 
   /* Define simulation parameters */
   #ifdef OPENMP
-  int num_threads = omp_get_num_procs();
+  int num_threads = omp_get_num_threads();
   #else
   int num_threads = 1;
   #endif
@@ -717,7 +717,7 @@ int main(int argc, char* argv[]) {
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);
   track_generator.setSegmentFormation(OTF_STACKS);
-  std::vector<FP_PRECISION> seg_zones {-32.13, -10.71, 10.71, 32.13};
+  std::vector<double> seg_zones {-32.13, -10.71, 10.71, 32.13};
   track_generator.setSegmentationZones(seg_zones);
   track_generator.generateTracks();
 

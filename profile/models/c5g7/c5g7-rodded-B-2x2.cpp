@@ -502,7 +502,7 @@ int main(int argc, char* argv[]) {
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);
   track_generator.setSegmentFormation(OTF_STACKS);
-  std::vector<FP_PRECISION> seg_zones {-7.14*axial_zones/2, 0,
+  std::vector<double> seg_zones {-7.14*axial_zones/2, 0,
                                         7.14*axial_zones/2};
   track_generator.setSegmentationZones(seg_zones);
   track_generator.generateTracks();

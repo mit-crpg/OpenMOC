@@ -187,8 +187,11 @@ protected:
   bool _SOLVE_3D;
 #endif
 
-  /** Boolean to indicate a restart, in which all fluxes should not be reset */
+  /** Indicator of whether the flux array has been defined by the user */
   bool _is_restart;
+
+  /** Boolean to indicate whether a user loaded his own fluxes */
+  bool _user_fluxes;
 
   /** Boolean to indicate whether there are any fixed sources */
   bool _fixed_sources_on;
@@ -320,7 +323,12 @@ protected:
    */
   virtual void initializeSourceArrays() =0;
 
+  /* Initialize interp. tables, constants for computing source exponentials */
   virtual void initializeExpEvaluators();
+
+  /* Build fission matrices, transpose production for adjoint calculations */
+  void initializeMaterials(solverMode mode);
+
   virtual void initializeFSRs();
   void countFissionableFSRs();
   void checkXS();
@@ -372,6 +380,16 @@ protected:
   virtual void computeFSRSources(int iteration) =0;
 
   /**
+   * @brief Computes the total fission source for each FSR and energy group.
+   */
+  virtual void computeFSRFissionSources() =0;
+
+  /**
+   * @brief Computes the total scattering source for each FSR and energy group.
+   */
+  virtual void computeFSRScatterSources() =0;
+
+  /**
    * @brief Computes the residual between successive flux/source iterations.
    * @param res_type the type of residual (FLUX, FISSIOn_SOURCE, TOTAL_SOURCE)
    * @return the total residual summed over FSRs and energy groups
@@ -419,7 +437,9 @@ public:
   FP_PRECISION getMaxOpticalLength();
   bool isUsingDoublePrecision();
   bool isUsingExponentialInterpolation();
+  bool is3D();
 
+  void initializeSolver(solverMode solver_mode);
   virtual void initializeFixedSources();
 
   void printFissionRates(std::string fname, int nx, int ny, int nz);
@@ -437,6 +457,7 @@ public:
 
   void setTrackGenerator(TrackGenerator* track_generator);
   void setConvergenceThreshold(double threshold);
+  virtual void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) = 0;
   virtual void setFixedSourceByFSR(long fsr_id, int group, double source);
   void setFixedSourceByCell(Cell* cell, int group, double source);
   void setFixedSourceByMaterial(Material* material, int group,
@@ -452,12 +473,16 @@ public:
   void setInitialSpectrumCalculation(double threshold);
   void setCheckXSLogLevel(logLevel log_level);
   void setChiSpectrumMaterial(Material* material);
+  void resetMaterials(solverMode mode);
 
+  void fissionTransportSweep();
+  void scatterTransportSweep();
   void computeFlux(int max_iters=1000, bool only_fixed_source=true);
   void computeSource(int max_iters=1000, double k_eff=1.0,
                      residualType res_type=TOTAL_SOURCE);
   void computeEigenvalue(int max_iters=1000,
                          residualType res_type=FISSION_SOURCE);
+
   void printBGQMemory();
 
  /**

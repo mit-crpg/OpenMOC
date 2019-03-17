@@ -4,7 +4,10 @@
 #include <array>
 #include <iostream>
 
-int main() {
+int main(int argc, char* argv[]) {
+
+  MPI_Init(&argc, &argv);
+  log_set_ranks(MPI_COMM_WORLD); //FIXME
 
   /* Define simulation parameters */
   #ifdef OPENMP
@@ -513,7 +516,7 @@ int main() {
   track_generator.setQuadrature(quad);
 
   track_generator.setSegmentFormation(OTF_TRACKS);
-  std::vector<FP_PRECISION> seg_heights {-7.14, 7.14};
+  std::vector<double> seg_heights {-7.14, 7.14};
   track_generator.setSegmentationZones(seg_heights);
 
   track_generator.generateTracks();

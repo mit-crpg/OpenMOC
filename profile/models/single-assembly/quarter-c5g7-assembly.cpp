@@ -248,8 +248,11 @@ int main() {
   Cmfd* cmfd = new Cmfd();
   cmfd->setSORRelaxationFactor(1.5);
   cmfd->setLatticeStructure(9, 9, 3);
-  int cmfd_group_structure[3] = {1,4,8};
-  cmfd->setGroupStructure(cmfd_group_structure, 3);
+  std::vector<std::vector<int> > cmfd_group_structure;
+  cmfd_group_structure.resize(7);
+  for (int g=0; g<7; g++)
+    cmfd_group_structure.at(g).push_back(g+1);
+  cmfd->setGroupStructure(cmfd_group_structure);
   cmfd->setCentroidUpdateOn(false);
 
   /* Create the geometry */
@@ -268,8 +271,8 @@ int main() {
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);
   track_generator.setSegmentFormation(OTF_STACKS);
-  std::vector<FP_PRECISION> seg_heights {0.0};
-  track_generator.setSegmentationHeights(seg_heights);
+  std::vector<double> seg_heights {0.0};
+  track_generator.setSegmentationZones(seg_heights);
   track_generator.generateTracks();
 
   /* Run simulation */

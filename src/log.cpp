@@ -585,7 +585,9 @@ void log_printf(logLevel level, const char* format, ...) {
     }
     else {
       printf("%s", &msg_string[0]);
+#ifndef SWIG
       fflush(stdout);
+#endif
     }
   }
 }

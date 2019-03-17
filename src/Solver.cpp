@@ -68,6 +68,7 @@ Solver::Solver(TrackGenerator* track_generator) {
 
   /* Default settings */
   _is_restart = false;
+  _user_fluxes = false;
   _fixed_sources_on = false;
   _correct_xs = false;
   _stabilize_transport = false;
@@ -104,7 +105,7 @@ Solver::~Solver() {
   if (_start_flux != NULL)
     delete [] _start_flux;
 
-  if (_scalar_flux != NULL)
+  if (_scalar_flux != NULL && !_user_fluxes)
     delete [] _scalar_flux;
 
   if (_old_scalar_flux != NULL)
@@ -273,6 +274,15 @@ bool Solver::isUsingDoublePrecision() {
  */
 bool Solver::isUsingExponentialInterpolation() {
   return _exp_evaluators[0][0]->isUsingInterpolation();
+}
+
+
+/**
+ * @brief Returns whether the Solver is tackling a 3D problem.
+ * @return true if the solver is set up with a 3D track generator
+ */
+bool Solver::is3D() {
+  return _SOLVE_3D;
 }
 
 
@@ -464,6 +474,13 @@ void Solver::setConvergenceThreshold(double threshold) {
  * @param source the volume-averaged source in this group
  */
 void Solver::setFixedSourceByFSR(long fsr_id, int group, double source) {
+
+  /* Initialize part of the solver to be able to set FSR fixed sources */
+  if (_num_groups == 0)
+    _num_groups = _geometry->getNumEnergyGroups();
+
+  if (_num_FSRs == 0)
+    _num_FSRs = _geometry->getNumFSRs();
 
   if (group <= 0 || group > _num_groups)
     log_printf(ERROR,"Unable to set fixed source for group %d in "
@@ -728,6 +745,29 @@ void Solver::initializeExpEvaluators() {
 
 
 /**
+ * @brief Initializes the Material's production matrices.
+ * @details In an adjoint calculation, this routine will transpose the
+ *          scattering and fission matrices in each material.
+ * @param mode the solution type (FORWARD or ADJOINT)
+ */
+void Solver::initializeMaterials(solverMode mode) {
+
+  log_printf(INFO, "Initializing materials...");
+
+  std::map<int, Material*> materials = _geometry->getAllMaterials();
+  std::map<int, Material*>::iterator m_iter;
+
+
+  for (m_iter = materials.begin(); m_iter != materials.end(); ++m_iter) {
+    m_iter->second->buildFissionMatrix();
+
+    if (mode == ADJOINT)
+      m_iter->second->transposeProductionMatrices();
+  }
+}
+
+
+/**
  * @brief Initializes the FSR volumes and Materials array.
  * @details This method assigns each FSR a unique, monotonically increasing
  *          ID, sets the Material for each FSR, and assigns a volume based on
@@ -984,6 +1024,22 @@ void Solver::checkXS() {
 
 
 /**
+ * @brief Initializes most components of Solver. Mostly needed from the
+ *        Python side.
+ */
+void Solver::initializeSolver(solverMode solver_mode) {
+
+  initializeFSRs();
+  initializeSourceArrays();
+  initializeExpEvaluators();
+  initializeMaterials(solver_mode);
+  initializeFluxArrays();
+  countFissionableFSRs();
+  zeroTrackFluxes();
+}
+
+
+/**
  * @brief Assigns fixed sources assigned by Cell, Material to FSRs.
  */
 void Solver::initializeFixedSources() {
@@ -1141,6 +1197,51 @@ void Solver::calculateInitialSpectrum(double threshold) {
     _cmfd->setKeff(_k_eff);
 
   log_printf(NORMAL, "Calculated initial spectrum with k-eff = %6.6f", _k_eff);
+}
+
+
+/**
+ * @brief Returns the Material data to its original state.
+ * @details In an adjoint calculation, the scattering and fission matrices
+ *          in each material are transposed during initialization. This
+ *          routine returns both matrices to their original (FORWARD)
+ *          state at the end of a calculation.
+ * @param mode the solution type (FORWARD or ADJOINT)
+ */
+void Solver::resetMaterials(solverMode mode) {
+
+  if (mode == FORWARD)
+    return;
+
+  log_printf(INFO, "Resetting materials...");
+
+  std::map<int, Material*> materials = _geometry->getAllMaterials();
+  std::map<int, Material*>::iterator m_iter;
+
+  for (m_iter = materials.begin(); m_iter != materials.end(); ++m_iter)
+    m_iter->second->transposeProductionMatrices();
+}
+
+
+/**
+ * @brief This method performs one transport sweep using the fission source.
+ * @details This is a helper routine used for Krylov subspace methods.
+ */
+void Solver::fissionTransportSweep() {
+  computeFSRFissionSources();
+  transportSweep();
+  addSourceToScalarFlux();
+}
+
+
+/**
+ * @brief This method performs one transport sweep using the scatter source.
+ * @details This is a helper routine used for Krylov subspace methods.
+ */
+void Solver::scatterTransportSweep() {
+  computeFSRScatterSources();
+  transportSweep();
+  addSourceToScalarFlux();
 }
 
 

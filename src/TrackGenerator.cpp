@@ -446,7 +446,7 @@ void TrackGenerator::setNumThreads(int num_threads) {
   MPI_Query_thread(&provided);
   if (num_threads > 1 && provided < MPI_THREAD_SERIALIZED)
     log_printf(WARNING, "Not enough thread support level in the MPI library, "
-               "re-compile with another library. Thread support level should"
+               "re-compile with another library. Thread support level should "
                "be at least MPI_THREAD_SERIALIZED.");
 #endif
 
@@ -1216,7 +1216,7 @@ void TrackGenerator::segmentize() {
   /* Check to ensure the Geometry is infinite in axial direction */
   double max_z = _geometry->getRootUniverse()->getMaxZ();
   double min_z = _geometry->getRootUniverse()->getMinZ();
-  if ((max_z - min_z) != std::numeric_limits<double>::infinity()) {
+  if ((max_z - min_z) < FLT_INFINITY) {
     log_printf(WARNING_ONCE, "The Geometry was set with non-inifinite "
                "z-boundaries and supplied to a 2D TrackGenerator. The min-z "
                "boundary wasset to %5.2f and the max-z boundary was set to "

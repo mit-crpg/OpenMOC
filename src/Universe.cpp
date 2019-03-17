@@ -1461,9 +1461,9 @@ void Lattice::setAccumulateZ(std::vector<double> accumulatez) {
  *                                   [u2, u3, u2, u3]])
  * @endcode
  *
- * @param num_x the number of Lattice cells along z
+ * @param num_z the number of Lattice cells along z
  * @param num_y the number of Lattice cells along y
- * @param num_z the number of Lattice cells along x
+ * @param num_x the number of Lattice cells along x
  * @param universes the array of Universes for each Lattice cell
  */
 void Lattice::setUniverses(int num_z, int num_y, int num_x,

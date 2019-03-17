@@ -2201,9 +2201,9 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
     double min_z = getMinZ();
     double max_z = getMaxZ();
     log_printf(ERROR, "Could not find a Cell containing the start Point "
-               "of this Track: %s on domain %d with bounds (%f, %f) x (%f, %f)"
-               "(%f, %f)", flattened_track->toString().c_str(), dom, min_x, max_x,
-               min_y, max_y, min_z, max_z);
+               "of this Track: %s on domain %d with bounds [%f, %f] x [%f, %f]"
+               " x [%f, %f]", flattened_track->toString().c_str(), dom, min_x,
+               max_x, min_y, max_y, min_z, max_z);
   }
 
   /* While the end of the segment's LocalCoords is still within the Geometry,

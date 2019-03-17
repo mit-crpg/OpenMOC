@@ -108,9 +108,7 @@ int main(int argc,  char* argv[]) {
   //solver.loadInitialFSRFluxes("fluxes-70-group");
   //solver.setResidualByReference("ref-fluxes-70-group-flat");
   //solver.setResidualByReference("ref-fluxes-70-group-flat-trunc");
-  //solver.stabalizeTransport(1.0, YAMAMOTO);
-  //solver.stabalizeTransport(1.0/16.0);
-  solver.stabalizeTransport(0.25);
+  solver.stabilizeTransport(0.25);
   solver.computeEigenvalue(max_iters);
   solver.printTimerReport();
 

@@ -146,8 +146,7 @@ int main(int argc,  char* argv[]) {
 
   /* Run simulation */
   CPULSSolver solver(&track_generator); //FIXME LS / FS
-  //solver.stabalizeTransport(1.0, YAMAMOTO);
-  solver.stabalizeTransport(0.25);
+  solver.stabilizeTransport(0.25);
   //solver.setResidualByReference("ref-fluxes-fc");
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();

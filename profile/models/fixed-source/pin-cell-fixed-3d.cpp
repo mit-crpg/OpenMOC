@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
   int num_azim = 4;
   double polar_spacing = 0.1;
   int num_polar = 6;
-  double tolerance = 1e-6;
+  double tolerance = 1e-5;
   int max_iters = 1000;
 
   /* Define material properties */
@@ -126,7 +126,6 @@ int main(int argc, char* argv[]) {
 
   TrackGenerator3D track_generator(geometry, num_azim, num_polar, azim_spacing,
                                    polar_spacing);
-  track_generator.setTrackGenerationMethod(MODULAR_RAY_TRACING);
   track_generator.setNumThreads(num_threads);
   track_generator.setSegmentFormation(OTF_TRACKS);
   track_generator.generateTracks();

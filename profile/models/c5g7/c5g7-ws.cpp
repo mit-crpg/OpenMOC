@@ -4,6 +4,8 @@
 #include <array>
 #include <iostream>
 
+// FIXME This input file fails at 2D track generation time
+
 int main(int argc, char* argv[]) {
 
 #ifdef MPIx
@@ -23,7 +25,7 @@ int main(int argc, char* argv[]) {
   int num_polar = 12;
   double tolerance = 1e-5;
   int max_iters = 50;
-  int axial_refines = 3;
+  int axial_refines = 1;
 
   /* Set logging information */
   set_log_level("NORMAL");
@@ -311,7 +313,7 @@ int main(int argc, char* argv[]) {
   guide_tube->addCell(moderator);
 
   /* Control rod pin cell */
-  Cell* control_rod_cell = new Cell(8, "gtc");
+  Cell* control_rod_cell = new Cell(9, "crc");
   control_rod_cell->setNumRings(5);
   control_rod_cell->setNumSectors(4);
   control_rod_cell->setFill(materials["Control Rod"]);
@@ -322,7 +324,7 @@ int main(int argc, char* argv[]) {
   control_rod->addCell(moderator);
 
   /* Reflector */
-  Cell* reflector_cell = new Cell(9, "rc");
+  Cell* reflector_cell = new Cell(110, "rc");
   reflector_cell->setFill(materials["Water"]);
 
   Universe* reflector = new Universe();
@@ -796,7 +798,7 @@ int main(int argc, char* argv[]) {
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);
   track_generator.setSegmentFormation(OTF_STACKS);
-  std::vector<FP_PRECISION> seg_zones {-42.84, -14.28, 14.28, 42.84};
+  std::vector<double> seg_zones {-42.84, -14.28, 14.28, 42.84};
   track_generator.setSegmentationZones(seg_zones);
   track_generator.generateTracks();
 
