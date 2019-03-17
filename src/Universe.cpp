@@ -539,9 +539,9 @@ Cell* Universe::findCell(LocalCoords* coords) {
 
         /* Apply rotation to position in the next coords */
         if (cell->isRotated()) {
-          double x = coords->getX();
-          double y = coords->getY();
-          double z = coords->getZ();
+          double x = next_coords->getX();
+          double y = next_coords->getY();
+          double z = next_coords->getZ();
           double* matrix = cell->getRotationMatrix();
           double new_x = matrix[0] * x + matrix[1] * y + matrix[2] * z;
           double new_y = matrix[3] * x + matrix[4] * y + matrix[5] * z;

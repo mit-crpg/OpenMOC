@@ -140,7 +140,7 @@ class FindCellTestHarness(TestHarness):
         assembly_c = openmoc.Cell(name='translated cell containing a lattice')
         assembly_c.setFill(assembly)
         assembly_c.setRotation((0,0,-90), 'degrees')
-        #assembly_c.setTranslation((-1,0,0)) # doesn't seem to be supported
+        assembly_c.setTranslation((-0.05,0,0))
         assembly_rt = openmoc.Universe(name='translate and rotated lattice')
         assembly_rt.addCell(assembly_c)
 
@@ -152,13 +152,6 @@ class FindCellTestHarness(TestHarness):
 
         self.geometry = openmoc.Geometry()
         self.geometry.setRootUniverse(root_universe)
-
-        # To debug the test
-        if False:
-            import openmoc.plotter as plotter
-            plotter.plot_cells(self.geometry, gridsize=500, plane='xy')
-            import time
-            time.sleep(1000)
 
     def _create_solver(self):
         pass
