@@ -166,28 +166,34 @@ void CPULSSolver::initializeFixedSources() {
 
   /* Fill the fixed source moments with the user defined values */
   Cell* fsr_cell;
+  Cell* cell;
   long cell_id, fsr_id;
   int group;
   double source_x, source_y, source_z;
   std::map< std::pair<Cell*, int>, std::vector<double> >::iterator cell_iter;
   std::map< std::pair<int, int>, std::vector<double> >::iterator fsr_iter;
+  std::vector<long>::iterator iter;
 
-  /* Fixed sources assigned by Cell */
-  for (cell_iter = _fix_src_xyz_cell_map.begin();
-       cell_iter != _fix_src_xyz_cell_map.end(); ++cell_iter) {
+  if (!_fix_src_xyz_cell_map.empty()) {
+    /* Get the map from fsr to cells */
+    std::map< Cell*, std::vector<long> > cells_to_fsrs =
+         _geometry->getCellsToFSRs();
 
-    /* Get the Cell with an assigned fixed source */
-    cell_id = (cell_iter->first).first->getId();
-    group = cell_iter->first.second;
-    source_x = cell_iter->second[0];
-    source_y = cell_iter->second[1];
-    source_z = cell_iter->second[2];
+    /* Transfer fixed sources assigned by Cell */
+    for (cell_iter = _fix_src_xyz_cell_map.begin();
+         cell_iter != _fix_src_xyz_cell_map.end(); ++cell_iter) {
 
-    /* Search for this Cell in all FSRs */
-    for (long r=0; r < _num_FSRs; r++) {
-      fsr_cell = _geometry->findCellContainingFSR(r);
-      if (cell_id == fsr_cell->getId())
-        setFixedSourceMomentByFSR(r, group+1, source_x, source_y, source_z);
+      /* Get the Cell with an assigned fixed source */
+      cell = cell_iter->first.first;
+      group = cell_iter->first.second;
+      source_x = cell_iter->second[0];
+      source_y = cell_iter->second[1];
+      source_z = cell_iter->second[2];
+
+      /* Search for this Cell in all FSRs */
+      for (iter = cells_to_fsrs[cell].begin(); iter != cells_to_fsrs[cell].end();
+           ++iter)
+        setFixedSourceMomentByFSR(*iter, group+1, source_x, source_y, source_z);
     }
   }
 

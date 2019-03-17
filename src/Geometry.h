@@ -337,6 +337,7 @@ public:
 #endif
   std::vector<double> getGlobalFSRCentroidData(long global_fsr_id);
   int getDomainByCoords(LocalCoords* coords);
+  std::map<Cell*, std::vector<long> > getCellsToFSRs();
 
   /* Input/output of geometries from/to .geo files */
   void dumpToFile(std::string filename, bool non_uniform_lattice=false);

@@ -468,8 +468,6 @@ void Geometry::manipulateXS() {
 
   std::map<int, Material*> all_materials = getAllMaterials();
   std::map<int, Material*>::iterator mat_iter;
-  std::map<int, Cell*> all_material_cells = getAllMaterialCells();
-  std::map<int, Cell*>::iterator cell_iter;
 
   for (mat_iter = all_materials.begin(); mat_iter != all_materials.end();
        ++mat_iter) {
@@ -1254,6 +1252,33 @@ int Geometry::getDomainByCoords(LocalCoords* coords) {
   }
 #endif
   return domain;
+}
+
+
+/**
+ * @brief Returns a map from cells to FSRs.
+ * @return a map from cells to FSRs contained in those cells
+ */
+std::map<Cell*, std::vector<long> > Geometry::getCellsToFSRs() {
+
+  std::map<int, Cell*> all_cells = _root_universe->getAllCells();
+  std::map<int, Cell*>::iterator cell_iter;
+  Cell* fsr_cell;
+  std::map<Cell*, std::vector<long> > cells_to_fsrs;
+  size_t num_FSRs = _FSR_keys_map.size();
+
+  for (cell_iter = all_cells.begin(); cell_iter != all_cells.end();
+       ++cell_iter) {
+
+    /* Search for this Cell in all FSRs */
+    for (long r=0; r < num_FSRs; r++) {
+      fsr_cell = findCellContainingFSR(r);
+      if (cell_iter->first == fsr_cell->getId())
+        cells_to_fsrs[cell_iter->second].push_back(r);
+    }
+  }
+
+  return cells_to_fsrs;
 }
 
 
