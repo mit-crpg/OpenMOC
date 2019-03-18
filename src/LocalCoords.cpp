@@ -424,9 +424,8 @@ LocalCoords* LocalCoords::getLowestLevel() {
   LocalCoords* curr = this;
 
   /* Traverse linked list */
-  while (curr->getNext() != NULL) {
+  while (curr->getNext() != NULL)
     curr = curr->getNext();
-  }
 
   return curr;
 }
@@ -444,9 +443,8 @@ LocalCoords* LocalCoords::getHighestLevel() {
   LocalCoords* curr = this;
 
   /* Traverse linked list */
-  while (curr->getPrev() != NULL) {
+  while (curr->getPrev() != NULL)
     curr = curr->getPrev();
-  }
 
   return curr;
 }

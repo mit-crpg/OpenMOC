@@ -30,7 +30,7 @@ CMFD_PRECISION ?= single
 #case = models/non-uniform-lattice/non-uniform-lattice.cpp
 case ?= models/run_time_standard/run_time_standard.cpp
 #case ?= models/assembly_1/load-assembly.cpp
-#case ?= models/core_2/load-core.cpp
+#case ?= models/core/load-core.cpp
 
 source = \
 Cell.cpp \
@@ -138,6 +138,7 @@ endif
 ifeq ($(DEBUG),yes)
   CFLAGS += -O0
   CFLAGS += -g
+  CFLAGS += -fno-omit-frame-pointer
 endif
 
 # Profiling Flags

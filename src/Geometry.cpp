@@ -468,8 +468,6 @@ void Geometry::manipulateXS() {
 
   std::map<int, Material*> all_materials = getAllMaterials();
   std::map<int, Material*>::iterator mat_iter;
-  std::map<int, Cell*> all_material_cells = getAllMaterialCells();
-  std::map<int, Cell*>::iterator cell_iter;
 
   for (mat_iter = all_materials.begin(); mat_iter != all_materials.end();
        ++mat_iter) {
@@ -961,7 +959,7 @@ Material* Geometry::findFSRMaterial(long fsr_id) {
 
 /**
  * @brief Finds the next Cell for a LocalCoords object along a trajectory
- *        defined by some angle (in radians from 0 to Pi).
+ *        defined by two angles : azimuthal from 0 to 2Pi, polar from 0 to Pi.
  * @details The method will update the LocalCoords passed in as an argument
  *          to be the one at the boundary of the next Cell crossed along the
  *          given trajectory. It will do this by finding the minimum distance
@@ -980,29 +978,31 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
   double dist;
   double min_dist = std::numeric_limits<double>::infinity();
 
-  /* Get lowest level coords */
-  coords = coords->getLowestLevel();
+  /* Save coords and angles in case of a translated/rotated cell */
+  double old_position[3] = {coords->getX(), coords->getY(), coords->getZ()};
+  double old_azim = azim;
+  double old_polar = polar;
 
-  /* Get the current Cell */
-  cell = coords->getCell();
+  /* Get highest level coords */
+  coords = coords->getHighestLevel();
 
   /* If the current coords is outside the domain, return NULL */
   if (_domain_decomposed) {
-    Point* point = coords->getHighestLevel()->getPoint();
+    Point* point = coords->getPoint();
     if (!_domain_bounds->containsPoint(point))
       return NULL;
   }
 
   /* If the current coords is not in any Cell, return NULL */
-  if (cell == NULL)
+  if (coords->getLowestLevel()->getCell() == NULL)
     return NULL;
 
   /* If the current coords is inside a Cell, look for next Cell */
   else {
 
-    /* Ascend universes until at the highest level.
+    /* Descend universes/coord until at the lowest level.
      * At each universe/lattice level get distance to next
-     * universe or lattice cell. Recheck min_dist. */
+     * universe or lattice cell. Compare to get new min_dist. */
     while (coords != NULL) {
 
       /* If we reach a LocalCoord in a Lattice, find the distance to the
@@ -1016,19 +1016,63 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
       else {
         Cell* cell = coords->getCell();
         dist = cell->minSurfaceDist(coords->getPoint(), azim, polar);
+
+        /* Apply translation to position */
+        if (cell->isTranslated()) {
+          double* translation = cell->getTranslation();
+          double new_x = coords->getX() - translation[0];
+          double new_y = coords->getY() - translation[1];
+          double new_z = coords->getZ() - translation[2];
+          coords->setX(new_x);
+          coords->setY(new_y);
+          coords->setZ(new_z);
+        }
+
+        /* Apply rotation to position and direction */
+        if (cell->isRotated()) {
+          double x = coords->getX();
+          double y = coords->getY();
+          double z = coords->getZ();
+          double* matrix = cell->getRotationMatrix();
+          double new_x = matrix[0] * x + matrix[1] * y + matrix[2] * z;
+          double new_y = matrix[3] * x + matrix[4] * y + matrix[5] * z;
+          double new_z = matrix[6] * x + matrix[7] * y + matrix[8] * z;
+          coords->setX(new_x);
+          coords->setY(new_y);
+          coords->setZ(new_z);
+
+          double uvw[3] = {sin(polar)*cos(azim), sin(polar)*sin(azim),
+                           cos(polar)};
+          double rot_uvw[3] = {matrix[0]*uvw[0] + matrix[1]*uvw[1] +
+                               matrix[2]*uvw[2], matrix[3]*uvw[0] +
+                               matrix[4]*uvw[1] + matrix[5]*uvw[2],
+                               matrix[6]*uvw[0] + matrix[7]*uvw[1] +
+                               matrix[8]*uvw[2]};
+          polar = acos(rot_uvw[2]);
+          double sin_p = sqrt(1 - rot_uvw[2]*rot_uvw[2]);
+          int sgn = (asin(rot_uvw[1]/sin_p) > 0) - (asin(rot_uvw[1]/sin_p) < 0);
+          azim = acos(rot_uvw[0]/sin_p) * sgn;
+        }
       }
 
       /* Recheck min distance */
       min_dist = std::min(dist, min_dist);
 
-      /* Ascend one level */
-      if (coords->getUniverse() == _root_universe)
+      /* Descend one level, exit if at the lowest level of coordinates */
+      if (coords->getNext() == NULL)
         break;
-      else {
-        coords = coords->getPrev();
-        coords->prune();
-      }
+      else
+        coords = coords->getNext();
     }
+
+    /* Reset coords position in case there was a translated or rotated cell */
+    coords = coords->getHighestLevel();
+    coords->prune();
+    coords->setX(old_position[0]);
+    coords->setY(old_position[1]);
+    coords->setZ(old_position[2]);
+    azim = old_azim;
+    polar = old_polar;
 
     /* Check for distance to an overlaid mesh */
     if (_overlaid_mesh != NULL) {
@@ -1254,6 +1298,33 @@ int Geometry::getDomainByCoords(LocalCoords* coords) {
   }
 #endif
   return domain;
+}
+
+
+/**
+ * @brief Returns a map from cells to FSRs.
+ * @return a map from cells to FSRs contained in those cells
+ */
+std::map<Cell*, std::vector<long> > Geometry::getCellsToFSRs() {
+
+  std::map<int, Cell*> all_cells = _root_universe->getAllCells();
+  std::map<int, Cell*>::iterator cell_iter;
+  Cell* fsr_cell;
+  std::map<Cell*, std::vector<long> > cells_to_fsrs;
+  size_t num_FSRs = _FSR_keys_map.size();
+
+  for (cell_iter = all_cells.begin(); cell_iter != all_cells.end();
+       ++cell_iter) {
+
+    /* Search for this Cell in all FSRs */
+    for (long r=0; r < num_FSRs; r++) {
+      fsr_cell = findCellContainingFSR(r);
+      if (cell_iter->first == fsr_cell->getId())
+        cells_to_fsrs[cell_iter->second].push_back(r);
+    }
+  }
+
+  return cells_to_fsrs;
 }
 
 
@@ -3775,7 +3846,7 @@ void Geometry::dumpToFile(std::string filename, bool non_uniform_lattice) {
       fwrite(&width_y, sizeof(double), 1, out);
       fwrite(&width_z, sizeof(double), 1, out);
       fwrite(offset, sizeof(double), 3, out);
-      if(non_uniform_lattice) {
+      if (non_uniform_lattice) {
         bool non_uniform = lattice->getNonUniform();
         const std::vector<double> widths_x = lattice->getWidthsX();
         const std::vector<double> widths_y = lattice->getWidthsY();
@@ -4171,12 +4242,12 @@ void Geometry::loadFromFile(std::string filename, bool non_uniform_lattice,
       ret = twiddleRead(&width_y, sizeof(double), 1, in);
       ret = twiddleRead(&width_z, sizeof(double), 1, in);
       ret = twiddleRead(offset, sizeof(double), 3, in);
-      
+
       std::vector<double> widths_x(num_x), widths_y(num_y), widths_z(num_z);
       bool non_uniform = false;
-      
+
       /* Check if the .geo file is in non_uniform_lattice format */
-      if(non_uniform_lattice) {
+      if (non_uniform_lattice) {
         ret = twiddleRead(&non_uniform, sizeof(bool), 1, in);
         ret = twiddleRead(&widths_x[0], sizeof(double), num_x, in);
         ret = twiddleRead(&widths_y[0], sizeof(double), num_y, in);
@@ -4189,7 +4260,7 @@ void Geometry::loadFromFile(std::string filename, bool non_uniform_lattice,
       new_lattice->setNumX(num_x);
       new_lattice->setNumY(num_y);
       new_lattice->setNumZ(num_z);
-      if(non_uniform) {
+      if (non_uniform) {
         new_lattice->setWidths(widths_x, widths_y, widths_z);
         new_lattice->setWidth(1, 1, 1);
       }

@@ -231,7 +231,7 @@ double Cell::getPhi(std::string units) {
 
   /* Return phi in degrees or radians */
   if (degrees.compare(units) == 0)
-    return _rotation[0] * M_PI / 180.;
+    return _rotation[0] / M_PI * 180.;
   else if (radians.compare(units) == 0)
     return _rotation[0];
 
@@ -251,7 +251,7 @@ double Cell::getTheta(std::string units) {
 
   /* Return theta in degrees or radians */
   if (degrees.compare(units) == 0)
-    return _rotation[1] * M_PI / 180.;
+    return _rotation[1] / M_PI * 180.;
   else if (radians.compare(units) == 0)
     return _rotation[1];
 
@@ -271,7 +271,7 @@ double Cell::getPsi(std::string units) {
 
   /* Return psi in degrees or radians */
   if (degrees.compare(units) == 0)
-    return _rotation[2] * M_PI / 180.;
+    return _rotation[2] / M_PI * 180.;
   else if (radians.compare(units) == 0)
     return _rotation[2];
 
@@ -382,6 +382,10 @@ int Cell::getNumSectors() {
  */
 double Cell::getMinX() {
 
+  if (_rotated || _translated)
+    log_printf(WARNING, "Cell rotations and translations are ignored, minX may "
+               "be inaccurate");
+
   double min_x = -std::numeric_limits<double>::infinity();
 
   /* Look in region for minimum */
@@ -403,6 +407,10 @@ double Cell::getMinX() {
  * @return the maximum x-coordinate
  */
 double Cell::getMaxX() {
+
+  if (_rotated || _translated)
+    log_printf(WARNING, "Cell rotations and translations are ignored, maxX may "
+               "be inaccurate");
 
   double max_x = +std::numeric_limits<double>::infinity();
 
@@ -426,6 +434,10 @@ double Cell::getMaxX() {
  */
 double Cell::getMinY() {
 
+  if (_rotated || _translated)
+    log_printf(WARNING, "Cell rotations and translations are ignored, minY may "
+               "be inaccurate");
+
   double min_y = -std::numeric_limits<double>::infinity();
 
   /* Look in region for minimum */
@@ -447,6 +459,10 @@ double Cell::getMinY() {
  * @return the maximum y-coordinate
  */
 double Cell::getMaxY() {
+
+  if (_rotated || _translated)
+    log_printf(WARNING, "Cell rotations and translations are ignored, maxY may "
+               "be inaccurate");
 
   double max_y = +std::numeric_limits<double>::infinity();
 
@@ -470,6 +486,10 @@ double Cell::getMaxY() {
  */
 double Cell::getMinZ() {
 
+  if (_rotated || _translated)
+    log_printf(DEBUG, "Cell rotations and translations are ignored, minZ may "
+               "be inaccurate");
+
   double min_z = -std::numeric_limits<double>::infinity();
 
   /* Look in region for minimum */
@@ -491,6 +511,10 @@ double Cell::getMinZ() {
  * @return the maximum z-coordinate
  */
 double Cell::getMaxZ() {
+
+  if (_rotated || _translated)
+    log_printf(DEBUG, "Cell rotations and translations are ignored, maxZ may "
+               "be inaccurate");
 
   double max_z = +std::numeric_limits<double>::infinity();
 
@@ -515,6 +539,7 @@ double Cell::getMaxZ() {
  */
 boundaryType Cell::getMinXBoundaryType() {
 
+  //FIXME Cell rotations are not taken into account
   boundaryType boundary = BOUNDARY_NONE;
 
   /* Look in region for min x boundary */
@@ -537,6 +562,7 @@ boundaryType Cell::getMinXBoundaryType() {
  */
 boundaryType Cell::getMaxXBoundaryType() {
 
+  //FIXME Cell rotations are not taken into account
   boundaryType boundary = BOUNDARY_NONE;
 
   /* Look in region for max x boundary */
@@ -559,6 +585,7 @@ boundaryType Cell::getMaxXBoundaryType() {
  */
 boundaryType Cell::getMinYBoundaryType() {
 
+  //FIXME Cell rotations are not taken into account
   boundaryType boundary = BOUNDARY_NONE;
 
   /* Look in region for min y boundary */
@@ -581,6 +608,7 @@ boundaryType Cell::getMinYBoundaryType() {
  */
 boundaryType Cell::getMaxYBoundaryType() {
 
+  //FIXME Cell rotations are not taken into account
   boundaryType boundary = BOUNDARY_NONE;
 
   /* Look in region for max y boundary */
@@ -603,6 +631,7 @@ boundaryType Cell::getMaxYBoundaryType() {
  */
 boundaryType Cell::getMinZBoundaryType() {
 
+  //FIXME Cell rotations are not taken into account
   boundaryType boundary = BOUNDARY_NONE;
 
   /* Look in region for min z boundary */
@@ -625,6 +654,7 @@ boundaryType Cell::getMinZBoundaryType() {
  */
 boundaryType Cell::getMaxZBoundaryType() {
 
+  //FIXME Cell rotations are not taken into account
   boundaryType boundary = BOUNDARY_NONE;
 
   /* Look in region for max z boundary */
@@ -904,7 +934,7 @@ void Cell::setRotation(double* rotation, int num_axes, std::string units) {
   _rotation_matrix[0] = cos(theta) * cos(phi);
   _rotation_matrix[1] = cos(theta) * sin(phi);
   _rotation_matrix[2] = -sin(theta);
-  _rotation_matrix[3] = sin(psi) * sin(theta) * cos(psi) -
+  _rotation_matrix[3] = sin(psi) * sin(theta) * cos(phi) -
                         cos(psi) * sin(phi);
   _rotation_matrix[4] = sin(psi) * sin(theta) * sin(phi) +
                         cos(psi) * cos(phi);

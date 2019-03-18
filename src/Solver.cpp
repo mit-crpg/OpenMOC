@@ -750,7 +750,7 @@ void Solver::initializeFSRs() {
   _FSR_volumes = _track_generator->getFSRVolumes();
 
 #ifdef NGROUPS
-  if (_geometry->getNumEnergyGroups() != _geometry->getNumEnergyGroups())
+  if (_geometry->getNumEnergyGroups() != NGROUPS)
     log_printf(ERROR, "OpenMOC has been compiled for %d groups, and the "
                "current case is in %d groups, please re-compile with the right "
                "number of groups for the -DNGROUPS flag or without that flag.",
@@ -1235,9 +1235,6 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
     flattenFSRFluxes(0.);
     storeFSRFluxes();
   }
-
-  if (!_is_restart)
-    zeroTrackFluxes();
 
   /* Compute the sum of fixed, total and scattering sources */
   computeFSRSources(0);

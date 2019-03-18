@@ -204,10 +204,6 @@ private:
   /* Function to find the cell containing the coordinates */
   Cell* findFirstCell(LocalCoords* coords, double azim, double polar=M_PI_2);
 
-  /* Function to find the next cell, starting at some coordinate with a given
-   * angle */
-  Cell* findNextCell(LocalCoords* coords, double azim, double polar=M_PI_2);
-
 public:
 
   Geometry();
@@ -299,6 +295,7 @@ public:
   long findFSRId(LocalCoords* coords);
   int findExtrudedFSR(LocalCoords* coords);
   Cell* findCellContainingFSR(long fsr_id);
+  Cell* findNextCell(LocalCoords* coords, double azim, double polar=M_PI_2);
 
   /* Other worker methods */
   void reserveKeyStrings(int num_threads);
@@ -337,6 +334,7 @@ public:
 #endif
   std::vector<double> getGlobalFSRCentroidData(long global_fsr_id);
   int getDomainByCoords(LocalCoords* coords);
+  std::map<Cell*, std::vector<long> > getCellsToFSRs();
 
   /* Input/output of geometries from/to .geo files */
   void dumpToFile(std::string filename, bool non_uniform_lattice=false);
