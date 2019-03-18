@@ -1219,7 +1219,7 @@ void TrackGenerator::segmentize() {
   if ((max_z - min_z) != std::numeric_limits<double>::infinity()) {
     log_printf(WARNING_ONCE, "The Geometry was set with non-inifinite "
                "z-boundaries and supplied to a 2D TrackGenerator. The min-z "
-               "boundary wasset to %5.2f and the max-z boundary was set to "
+               "boundary was set to %5.2f and the max-z boundary was set to "
                "%5.2f. Z-boundaries are assumed to be infinite in 2D "
                "TrackGenerators.", min_z, max_z);
 

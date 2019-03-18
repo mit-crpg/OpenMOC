@@ -135,6 +135,7 @@ std::vector<FP_PRECISION> Mesh::getReactionRates(RxType rx,
         break;
       case NUFISSION_RX:
         xs_array = mat->getNuSigmaF();
+        break;
       case TOTAL_RX:
         xs_array = mat->getSigmaT();
         break;
@@ -264,7 +265,7 @@ Vector3D Mesh::getNonUniformFormattedReactionRates
                            widths_offsets[2]);
 
   /* If no offset coordinates is provided, use the geometry center */
-  if(widths_offsets.size() == 3) 
+  if (widths_offsets.size() == 3) 
     output_lattice.setOffset(offset_x, offset_y, offset_z);
   else
     output_lattice.setOffset(widths_offsets[3][0], widths_offsets[3][1], 
@@ -283,30 +284,30 @@ Vector3D Mesh::getNonUniformFormattedReactionRates
   /* 6 booleans to indicate the truncations in six surfaces */
   std::vector<bool> surface(6, false);
 
-  if(fabs(output_lattice.getMinX() - root_universe->getMinX()) > FLT_EPSILON) {
+  if (fabs(output_lattice.getMinX() - root_universe->getMinX()) > FLT_EPSILON) {
     widths_x.insert(widths_x.begin(),
                     fabs(output_lattice.getMinX() - root_universe->getMinX()));
     surface[0]=true;
   }
-  if(fabs(output_lattice.getMinY() - root_universe->getMinY()) > FLT_EPSILON) {
+  if (fabs(output_lattice.getMinY() - root_universe->getMinY()) > FLT_EPSILON) {
     widths_y.insert(widths_y.begin(),
                     fabs(output_lattice.getMinY() - root_universe->getMinY()));
     surface[1]=true;
   }
-  if(fabs(output_lattice.getMinZ() - root_universe->getMinZ()) > FLT_EPSILON) {
+  if (fabs(output_lattice.getMinZ() - root_universe->getMinZ()) > FLT_EPSILON) {
     widths_z.insert(widths_z.begin(),
                     fabs(output_lattice.getMinZ() - root_universe->getMinZ()));
     surface[2]=true;
   }
-  if(fabs(output_lattice.getMaxX() - root_universe->getMaxX()) > FLT_EPSILON) {
+  if (fabs(output_lattice.getMaxX() - root_universe->getMaxX()) > FLT_EPSILON) {
     widths_x.push_back(fabs(output_lattice.getMaxX() - root_universe->getMaxX()));
     surface[3]=true;
   }
-  if(fabs(output_lattice.getMaxY() - root_universe->getMaxY()) > FLT_EPSILON) {
+  if (fabs(output_lattice.getMaxY() - root_universe->getMaxY()) > FLT_EPSILON) {
     widths_y.push_back(fabs(output_lattice.getMaxY() - root_universe->getMaxY()));
     surface[4]=true;
   }
-  if(fabs(output_lattice.getMaxZ() - root_universe->getMaxZ()) > FLT_EPSILON) {
+  if (fabs(output_lattice.getMaxZ() - root_universe->getMaxZ()) > FLT_EPSILON) {
     widths_z.push_back(fabs(output_lattice.getMaxZ() - root_universe->getMaxZ()));
     surface[5]=true;
   }
@@ -326,23 +327,23 @@ Vector3D Mesh::getNonUniformFormattedReactionRates
   rx_rates = getFormattedReactionRates(rx, volume_average);
 
   /* Truncate the reaction rates for user defined output_lattice */
-  if(surface[0]) rx_rates.erase(rx_rates.begin());
-  if(surface[3]) rx_rates.pop_back();
+  if (surface[0]) rx_rates.erase(rx_rates.begin());
+  if (surface[3]) rx_rates.pop_back();
 
-  if(surface[1]) 
-    for(int i=0; i<rx_rates.size(); i++)
+  if (surface[1]) 
+    for (int i=0; i<rx_rates.size(); i++)
       rx_rates[i].erase(rx_rates[i].begin());
-  if(surface[4]) 
-    for(int i=0; i<rx_rates.size(); i++)
+  if (surface[4]) 
+    for (int i=0; i<rx_rates.size(); i++)
       rx_rates[i].pop_back();
 
-  if(surface[2]) 
-    for(int i=0; i<rx_rates.size(); i++)
-      for(int j=0; j<rx_rates[i].size(); j++)
+  if (surface[2]) 
+    for (int i=0; i<rx_rates.size(); i++)
+      for (int j=0; j<rx_rates[i].size(); j++)
       rx_rates[i][j].erase(rx_rates[i][j].begin());
-  if(surface[5]) 
-    for(int i=0; i<rx_rates.size(); i++)
-      for(int j=0; j<rx_rates[i].size(); j++)
+  if (surface[5]) 
+    for (int i=0; i<rx_rates.size(); i++)
+      for (int j=0; j<rx_rates[i].size(); j++)
         rx_rates[i][j].pop_back();
 
   return rx_rates;

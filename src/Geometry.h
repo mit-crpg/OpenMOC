@@ -204,10 +204,6 @@ private:
   /* Function to find the cell containing the coordinates */
   Cell* findFirstCell(LocalCoords* coords, double azim, double polar=M_PI_2);
 
-  /* Function to find the next cell, starting at some coordinate with a given
-   * angle */
-  Cell* findNextCell(LocalCoords* coords, double azim, double polar=M_PI_2);
-
 public:
 
   Geometry();
@@ -299,6 +295,7 @@ public:
   long findFSRId(LocalCoords* coords);
   int findExtrudedFSR(LocalCoords* coords);
   Cell* findCellContainingFSR(long fsr_id);
+  Cell* findNextCell(LocalCoords* coords, double azim, double polar=M_PI_2);
 
   /* Other worker methods */
   void reserveKeyStrings(int num_threads);

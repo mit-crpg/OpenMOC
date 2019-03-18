@@ -201,7 +201,7 @@ Cmfd::~Cmfd() {
   /* De-allocate domain communicator */
   int num_cells_local = _local_num_x * _local_num_y * _local_num_z;
   if (_domain_communicator != NULL) {
-    if(_domain_communicator_allocated) {
+    if (_domain_communicator_allocated) {
       for (int rb=0; rb<2; rb++) {
         for (int f=0; f < NUM_FACES; f++) {
           delete [] _domain_communicator->indexes[rb][f];
@@ -408,61 +408,61 @@ void Cmfd::setNumDomains(int num_x, int num_y, int num_z) {
   /* Find the position of domain decomposition interfaces among the non-uniform
      CMFD mesh cell boundaries, in the X direction */
   int j, j_prev;
-  for(int i=0; i<num_x; i++) {
+  for (int i=0; i<num_x; i++) {
     double coord = (i + 1) * _width_x / num_x;
-    for(j=1; j<_num_x+1; j++) {
+    for (j=1; j<_num_x+1; j++) {
 
       /* Keep track of index in mesh before domain boundary */
       if (_accumulate_x[j] < coord)
         j_prev = j;
 
       /* Exit loop if division is found */
-      if(fabs(coord - _accumulate_x[j]) < FLT_EPSILON) {
+      if (fabs(coord - _accumulate_x[j]) < FLT_EPSILON) {
         _accumulate_lmx[i+1] = j;
         break;
       }
     }
-    if(j == _num_x+1)
+    if (j == _num_x+1)
       divisions_missing_x.push_back(std::make_pair(j_prev, coord));
   }
 
   /* Find the position of domain decomposition interfaces among the non-uniform
      CMFD mesh cell boundaries, in the Y direction */
-  for(int i=0; i<num_y; i++) {
+  for (int i=0; i<num_y; i++) {
     double coord = (i + 1) * _width_y / num_y;
-    for(j=1; j<_num_y+1; j++) {
+    for (j=1; j<_num_y+1; j++) {
 
       /* Keep track of index in mesh before domain boundary */
       if (_accumulate_y[j] < coord)
         j_prev = j;
 
       /* Exit loop if division is found */
-      if(fabs(coord - _accumulate_y[j]) < FLT_EPSILON) {
+      if (fabs(coord - _accumulate_y[j]) < FLT_EPSILON) {
         _accumulate_lmy[i+1] = j;
         break;
       }
     }
-    if(j == _num_y+1)
+    if (j == _num_y+1)
       divisions_missing_y.push_back(std::make_pair(j_prev, coord));
   }
 
   /* Find the position of domain decomposition interfaces among the non-uniform
      CMFD mesh cell boundaries, in the Z direction */
-  for(int i=0; i<num_z; i++) {
+  for (int i=0; i<num_z; i++) {
     double coord = (i + 1) * _width_z / num_z;
-    for(j=1; j<_num_z+1; j++) {
+    for (j=1; j<_num_z+1; j++) {
 
       /* Keep track of index in mesh before domain boundary */
       if (_accumulate_z[j] < coord)
         j_prev = j;
 
       /* Exit loop if division is found */
-      if(fabs(coord - _accumulate_z[j]) < FLT_EPSILON) {
+      if (fabs(coord - _accumulate_z[j]) < FLT_EPSILON) {
         _accumulate_lmz[i+1] = j;
         break;
       }
     }
-    if(j == _num_z+1)
+    if (j == _num_z+1)
       divisions_missing_z.push_back(std::make_pair(j_prev, coord));
   }
 
@@ -849,8 +849,7 @@ void Cmfd::collapseXS() {
           }
 
           /* Condense diffusion coefficient (with homogenized transport XS) */
-          if (fabs(rxn_tally_group) > FLT_EPSILON && 
-              fabs(trans_tally_group) > FLT_EPSILON) {
+          if (fabs(trans_tally_group) > fabs(rxn_tally_group) * FLT_EPSILON) {
             CMFD_PRECISION flux_avg_sigma_t = trans_tally_group /
                 rxn_tally_group;
             _diffusion_tally[i][e] += rxn_tally_group / 
@@ -861,7 +860,7 @@ void Cmfd::collapseXS() {
         /* Save cross-sections to material */
         double rxn_tally = _reaction_tally[i][e];
 
-        if (rxn_tally < FLT_EPSILON) {
+        if (rxn_tally < FLT_EPSILON / 1e3) {
           log_printf(WARNING, "Negative or zero reaction tally calculated in "
                      "CMFD cell %d in CMFD group %d", i, e);
           rxn_tally = ZERO_SIGMA_T;
@@ -994,7 +993,7 @@ void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
   CMFD_PRECISION delta = getPerpendicularSurfaceWidth(surface, global_cmfd_cell);
 
   CMFD_PRECISION delta_next = 0.0;
-  if(global_cmfd_cell_next != -1)
+  if (global_cmfd_cell_next != -1)
     delta_next = getPerpendicularSurfaceWidth(surface, global_cmfd_cell_next);
 
   int sense = getSense(surface);
@@ -2581,11 +2580,11 @@ void Cmfd::setConvergenceData(ConvergenceData* convergence_data) {
  */
 void Cmfd::useAxialInterpolation(int interpolate) {
 
-  if(interpolate<0 || interpolate>2)
+  if (interpolate<0 || interpolate>2)
     log_printf(ERROR, "interpolate can only has value 0, 1, or 2, respectively"
                " meaning No interpolation, FSR axially averaged value or"
                " centroid z-coordinate evaluted value");
-  if(interpolate==1 || interpolate==2)
+  if (interpolate==1 || interpolate==2)
     log_printf(WARNING_ONCE, "Axial interpolation CMFD prolongation may only"
                " be effective when all the FSRs are axially homogeneous");
   _use_axial_interpolation = interpolate;
@@ -2832,7 +2831,7 @@ void Cmfd::generateKNearestStencils() {
 
       /* Starting z number of CMFD mesh in this domain */
       int z_start = 0;
-      if(_domain_communicator != NULL)
+      if (_domain_communicator != NULL)
         z_start = _accumulate_lmz[_domain_communicator->_domain_idx_z];
 
       /* Calculate the CMFD cell z-coordinate */
@@ -2844,13 +2843,13 @@ void Cmfd::generateKNearestStencils() {
       /* The z coordinate of the mesh center of the middle-CMFD cell  */
       double z_cmfd;
 
-      if(z_ind == 0) {
+      if (z_ind == 0) {
         h0 = _cell_widths_z[z_start + z_ind];
         h1 = _cell_widths_z[z_start + z_ind + 1];
         h2 = _cell_widths_z[z_start + z_ind + 2];
         z_cmfd = _accumulate_z[z_start + z_ind+1] + h1/2. + _lattice->getMinZ();
       }
-      else if(z_ind == _local_num_z - 1) {
+      else if (z_ind == _local_num_z - 1) {
         h0 = _cell_widths_z[z_start + z_ind - 2];
         h1 = _cell_widths_z[z_start + z_ind - 1];
         h2 = _cell_widths_z[z_start + z_ind];
@@ -2882,7 +2881,7 @@ void Cmfd::generateKNearestStencils() {
 
         /* Calculate components for quadratic interpolation of the FSR axially
            averaged value */
-        if(_use_axial_interpolation ==1) {
+        if (_use_axial_interpolation ==1) {
           _axial_interpolants.at(fsr_id)[0] = (h1*(h1+h1*zc*4.0+h2*zc*8.0-
             h1*(zc*zc)*1.6E1-h1*(zs*zs)*4.0+h1*zc*zs*8.0)*(-1.0/4.0))
                                               /((h0+h1)*(h0+h1+h2));
@@ -2907,7 +2906,7 @@ void Cmfd::generateKNearestStencils() {
 
       /* Calculate components for quadratic interpolation of the centroid
          z-coordinate evaluated value. */
-        else if(_use_axial_interpolation == 2) {
+        else if (_use_axial_interpolation == 2) {
           _axial_interpolants.at(fsr_id)[0] = -(h1*(h1+h1*zc*4.0+h2*zc*8.0-h1*
           (zc*zc)*1.2E1))/((h0*4.0+h1*4.0)*(h0+h1+h2));
 
@@ -5254,9 +5253,9 @@ void Cmfd::recordNetCurrents() {
  */
 void Cmfd::setWidths(std::vector< std::vector<double> > widths) {
 
-  if(widths.size() == 3)
+  if (widths.size() == 3)
     _cell_widths_z = widths[2];
-  else if(widths.size() == 2)
+  else if (widths.size() == 2)
     _cell_widths_z.push_back(1.0);
   else
     log_printf(ERROR, "CMFD lattice widths must have dimension 2 or 3.");
@@ -5281,24 +5280,24 @@ void Cmfd::printCmfdCellSizes() {
   printf("cell_width_XYZ: %f, %f, %f\n", _cell_width_x,
          _cell_width_y,_cell_width_z);
   printf("cell_widths_XYZ:\n");
-  for(i=0; i<_num_x; i++)
+  for (i=0; i<_num_x; i++)
     printf("i=%d, %f; ",i, _cell_widths_x[i]);
   printf("\n");
-  for(i=0; i<_num_y; i++)
+  for (i=0; i<_num_y; i++)
     printf("i=%d, %f; ",i, _cell_widths_y[i]);
   printf("\n");
-  for(i=0; i<_num_z; i++)
+  for (i=0; i<_num_z; i++)
     printf("i=%d, %f; ",i, _cell_widths_z[i]);
   printf("\n");
 
   printf("accumulates_XYZ:\n");
-  for(i=0; i<_num_x+1; i++)
+  for (i=0; i<_num_x+1; i++)
     printf("i=%d, %f; ",i, _accumulate_x[i]);
   printf("\n");
-  for(i=0; i<_num_y+1; i++)
+  for (i=0; i<_num_y+1; i++)
     printf("i=%d, %f; ",i, _accumulate_y[i]);
   printf("\n");
-  for(i=0; i<_num_z+1; i++)
+  for (i=0; i<_num_z+1; i++)
     printf("i=%d, %f; ",i, _accumulate_z[i]);
   printf("\n");
 }

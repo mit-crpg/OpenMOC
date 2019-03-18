@@ -37,7 +37,7 @@ class MeshReactionRateTallyTestHarness(TestHarness):
         mesh.lower_left = [-2., -2.]
         mesh.upper_right = [2., 2.]
         mesh.width = [1., 1.]
-        
+
         outstr = ""
         for rxn in ('fission', 'flux', 'total', 'nu-fission', 'scatter'):
             # Tally OpenMOC reaction rates on the Mesh

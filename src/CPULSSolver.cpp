@@ -708,7 +708,7 @@ void CPULSSolver::computeStabilizingFlux() {
  */
 void CPULSSolver::stabilizeFlux() {
 
-  /* Stabalize the flat scalar flux */
+  /* Stabilize the flat scalar flux */
   CPUSolver::stabilizeFlux();
 
   /* Check whether moment stabilization is requested */ 
