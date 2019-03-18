@@ -6,11 +6,11 @@
 int main() {
 
   /* Define simulation parameters */
-  #ifdef OPENMP
+#ifdef OPENMP
   int num_threads = omp_get_num_procs();
-  #else
+#else
   int num_threads = 1;
-  #endif
+#endif
   double azim_spacing = 0.1;
   int num_azim = 4;
   double polar_spacing = 1.0;

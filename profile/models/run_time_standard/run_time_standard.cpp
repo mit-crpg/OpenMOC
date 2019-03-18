@@ -32,11 +32,11 @@ int main(int argc, char* argv[]) {
   while (runtime._debug_flag) ;
   
   /* Define simulation parameters */
-  #ifdef OPENMP
+#ifdef OPENMP
   int num_threads = runtime._num_threads;
-  #else
+#else
   int num_threads = 1;
-  #endif
+#endif
 
   /* Set logging information */
   if(runtime._log_filename)

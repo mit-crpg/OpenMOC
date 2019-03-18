@@ -8,16 +8,17 @@
 int main(int argc, char* argv[]) {
 
 #ifdef MPIx
-  MPI_Init(&argc, &argv);
+  int provided;
+  MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
   log_set_ranks(MPI_COMM_WORLD);
 #endif
 
   /* Define simulation parameters */
-  #ifdef OPENMP
+#ifdef OPENMP
   int num_threads = omp_get_num_threads();
-  #else
+#else
   int num_threads = 1;
-  #endif
+#endif
   double azim_spacing = 0.05;
   int num_azim = 64;
   double polar_spacing = 0.75;

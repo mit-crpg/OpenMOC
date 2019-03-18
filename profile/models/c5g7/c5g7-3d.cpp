@@ -5,18 +5,22 @@
 
 int main(int argc, char* argv[]) {
 
-  MPI_Init(&argc, &argv);
-  log_set_ranks(MPI_COMM_WORLD); //FIXME
+#ifdef MPIx
+  int provided;
+  MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
+  log_set_ranks(MPI_COMM_WORLD);
+#endif
 
   /* Define simulation parameters */
-  #ifdef OPENMP
+#ifdef OPENMP
   int num_threads = omp_get_num_threads();
-  #else
+#else
   int num_threads = 1;
-  #endif
+#endif
+
   double azim_spacing = 0.1;
   int num_azim = 4;
-  double polar_spacing = 0.1;
+  double polar_spacing = 1.;
   int num_polar = 6;
   double tolerance = 1e-5;
   int max_iters = 1000;

@@ -9,16 +9,17 @@
 int main(int argc, char* argv[]) {
 
 #ifdef MPIx
-  MPI_Init(&argc, &argv);
+  int provided;
+  MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
   log_set_ranks(MPI_COMM_WORLD);
 #endif
 
   /* Define simulation parameters */
-  #ifdef OPENMP
-  int num_threads = omp_get_num_procs();
-  #else
+#ifdef OPENMP
+  int num_threads = omp_get_num_threads();
+#else
   int num_threads = 1;
-  #endif
+#endif
   double azim_spacing = 0.1;
   int num_azim = 16;
   double polar_spacing = 1.5;
@@ -245,7 +246,7 @@ int main(int argc, char* argv[]) {
   log_printf(NORMAL, "Creating cells...");
 
   /* Moderator rings */
-  Cell* moderator = new Cell();
+  Cell* moderator = new Cell(2, "mod");
   moderator->setFill(materials["Water"]);
   moderator->addSurface(+1, &fuel_radius);
   moderator->setNumSectors(8);
@@ -783,7 +784,9 @@ int main(int argc, char* argv[]) {
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.setRootUniverse(root_universe);
+#ifdef MPIx
   geometry.setDomainDecomposition(2, 2, 2, MPI_COMM_WORLD);
+#endif
   geometry.setNumDomainModules(4,4,4);
   geometry.setCmfd(cmfd);
   geometry.initializeFlatSourceRegions();

@@ -9,7 +9,8 @@
 int main(int argc,  char* argv[]) {
 
 #ifdef MPIx
-  MPI_Init(&argc, &argv);
+  int provided;
+  MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
   log_set_ranks(MPI_COMM_WORLD);
 #endif
 
@@ -23,11 +24,11 @@ int main(int argc,  char* argv[]) {
   std::string file = "single-assembly.geo";
 
   /* Define simulation parameters */
-  #ifdef OPENMP
-  int num_threads = omp_get_num_procs();
-  #else
+#ifdef OPENMP
+  int num_threads = omp_get_num_threads();
+#else
   int num_threads = 1;
-  #endif
+#endif
  
   double azim_spacing = 0.1;
   int num_azim = 4;

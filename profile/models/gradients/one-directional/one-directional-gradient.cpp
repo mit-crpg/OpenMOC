@@ -5,15 +5,18 @@
 
 int main(int argc, char* argv[]) {
 
-  MPI_Init(&argc, &argv);
+#ifdef MPIx
+  int provided;
+  MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
   log_set_ranks(MPI_COMM_WORLD);
+#endif
 
   /* Define simulation parameters */
-  #ifdef OPENMP
-  int num_threads = omp_get_num_procs();
-  #else
+#ifdef OPENMP
+  int num_threads = omp_get_num_threads();
+#else
   int num_threads = 1;
-  #endif
+#endif
   double azim_spacing = 0.1;
   int num_azim = 4;
   double tolerance = 1e-5;
@@ -103,5 +106,8 @@ int main(int argc, char* argv[]) {
   solver.computeEigenvalue(max_iters);
   solver.printTimerReport();
 
+#ifdef MPIx
+  MPI_Finalize();
+#endif
   return 0;
 }
