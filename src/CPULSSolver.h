@@ -109,8 +109,6 @@ public:
   void stabilizeFlux();
   void checkLimitXS(int iteration);
 
-  FP_PRECISION getFluxByCoords(LocalCoords* coords, int group);
-
   /* Routines to handle constant part of linear source */
   void initializeLinearSourceConstants();
   double* getLinearExpansionCoeffsBuffer();
