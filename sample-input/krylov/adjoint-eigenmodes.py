@@ -4,7 +4,7 @@ import openmoc
 #                          Main Simulation Parameters
 ###############################################################################
 
-options = openmoc.options.Options()
+opts = openmoc.options.Options()
 num_modes = 5
 
 openmoc.log.set_log_level('NORMAL')

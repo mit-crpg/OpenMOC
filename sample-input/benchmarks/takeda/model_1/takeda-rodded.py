@@ -65,7 +65,6 @@ track_generator = openmoc.TrackGenerator3D(geometry, opts.num_azim,
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(opts.num_omp_threads)
 track_generator.setSegmentFormation(openmoc.OTF_STACKS)
-#track_generator.setSegmentationHeights([0.0])
 track_generator.generateTracks()
 
 ###############################################################################
