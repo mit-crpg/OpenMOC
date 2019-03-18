@@ -1951,6 +1951,7 @@ void CPUSolver::transportSweep() {
 
   /* Tracks are traversed and the MOC equations from this CPUSolver are applied
      to all Tracks and corresponding segments */
+  _timer->startTimer();
   if (_OTF_transport) {
     TransportSweepOTF sweep_tracks(_track_generator);
     sweep_tracks.setCPUSolver(this);
@@ -1960,6 +1961,10 @@ void CPUSolver::transportSweep() {
     TransportSweep sweep_tracks(this);
     sweep_tracks.execute();
   }
+
+  /* Record sweep time */
+  _timer->stopTimer();
+  _timer->recordSplit("Transport Sweep");
 
 #ifdef MPIx
   /* Transfer all interface fluxes after the transport sweep */

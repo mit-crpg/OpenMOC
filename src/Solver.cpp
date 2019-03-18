@@ -1624,10 +1624,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
     /* Perform the source iteration */
     computeFSRSources(i);
-    _timer->startTimer();
     transportSweep();
-    _timer->stopTimer();
-    _timer->recordSplit("Transport Sweep");
     addSourceToScalarFlux();
 
     /* Solve CMFD diffusion problem and update MOC flux */
