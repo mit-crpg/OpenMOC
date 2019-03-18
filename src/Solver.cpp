@@ -77,6 +77,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _initial_spectrum_thresh = 1.0;
   _load_initial_FSR_fluxes = false;
   _calculate_residuals_by_reference = false;
+  _negative_fluxes_allowed = false;
 
   _xs_log_level = ERROR;
 
@@ -594,6 +595,16 @@ void Solver::setRestartStatus(bool is_restart) {
   if (is_restart)
     log_printf(NORMAL, "Solver is in restart mode, no fluxes will be reset.");
   _is_restart = is_restart;
+}
+
+
+/**
+ * @brief Informs the Solver that this calculation may involve negative fluxes
+ *        for computing higher eigenmodes for example.
+ * @param negative_fluxes_on whether to allow negative fluxes
+ */
+void Solver::allowNegativeFluxes(bool negative_fluxes_on) {
+  _negative_fluxes_allowed = negative_fluxes_on;
 }
 
 

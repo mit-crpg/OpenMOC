@@ -52,6 +52,9 @@ class IRAMSolver(object):
         else:
             self._with_cuda = False
 
+        # Allow solver to compute negative fluxes
+        self._moc_solver.allowNegativeFluxes(True)
+
         # Compute the size of the LinearOperators used in the eigenvalue problem
         geometry = self._moc_solver.getGeometry()
         num_FSRs = geometry.getNumFSRs()
@@ -255,14 +258,13 @@ class IRAMSolver(object):
             flux, x = linalg.gmres(self._A_op, flux, tol=self._inner_tol)
         elif self._inner_method == 'lgmres':
             flux, x = linalg.lgmres(self._A_op, flux, tol=self._inner_tol)
+        # Note bicgstab requires A to be hermitian, not true for most cases
         elif self._inner_method == 'bicgstab':
             flux, x = linalg.bicgstab(self._A_op, flux, tol=self._inner_tol)
         elif self._inner_method == 'cgs':
             flux, x = linalg.cgs(self._A_op, flux, tol=self._inner_tol)
         else:
             py_printf('ERROR', 'Unable to use %s to solve Ax=b', self._inner_method)
-
-        stop
 
         # Check that solve completed without error before returning new flux
         if x != 0:

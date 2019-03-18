@@ -219,6 +219,9 @@ protected:
   /** Boolean for whether to calculate residuals from reference flux */
   bool _calculate_residuals_by_reference;
 
+  /** Boolean for whether the solver allows negative fluxes */
+  bool _negative_fluxes_allowed;
+
   /** File to load initial FSR fluxes from */
   std::string _initial_FSR_fluxes_file;
 
@@ -467,6 +470,7 @@ public:
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
   void setRestartStatus(bool is_restart);
+  void allowNegativeFluxes(bool negative_fluxes_on);
   void correctXS();
   void stabilizeTransport(double stabilization_factor,
                           stabilizationType stabilization_type=DIAGONAL);

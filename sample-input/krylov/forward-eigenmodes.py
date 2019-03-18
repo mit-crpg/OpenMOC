@@ -5,7 +5,7 @@ import openmoc
 ###############################################################################
 
 opts = openmoc.options.Options()
-num_modes = 1
+num_modes = 5
 
 openmoc.log.set_log_level('NORMAL')
 openmoc.log.py_printf('TITLE', 'Computing %d forward eigenmodes', num_modes)
@@ -32,7 +32,6 @@ track_generator.generateTracks()
 # Initialize a CPUSolver to perform forward fixed source calculations
 cpu_solver = openmoc.CPUSolver(track_generator)
 cpu_solver.setNumThreads(opts.num_omp_threads)
-cpu_solver.computeEigenvalue(2000)
 
 # Initialize IRAMSolver to perform forward eigenmode calculation
 iram_solver = openmoc.krylov.IRAMSolver(cpu_solver)

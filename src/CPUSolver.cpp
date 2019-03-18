@@ -1583,7 +1583,7 @@ void CPUSolver::computeFSRSources(int iteration) {
       if (_reduced_sources(r,G) < 0.0) {
 #pragma omp atomic
         num_negative_sources++;
-        if (iteration < 30)
+        if (iteration < 30 && !_negative_fluxes_allowed)
           _reduced_sources(r,G) = 1.0e-20;
       }
     }
@@ -1604,7 +1604,7 @@ void CPUSolver::computeFSRSources(int iteration) {
 #endif
 
   /* Report negative sources */
-  if (total_num_negative_sources > 0) {
+  if (total_num_negative_sources > 0 && !_negative_fluxes_allowed) {
     if (_geometry->isRootDomain()) {
       log_printf(WARNING, "Computed %ld negative sources on %d domains",
                  total_num_negative_sources,
@@ -1946,7 +1946,7 @@ void CPUSolver::transportSweep() {
       tallyStartingCurrents();
 
   /* Zero boundary leakage tally */
-  if (_cmfd == NULL)
+  if (_boundary_leakage != NULL)
     memset(_boundary_leakage, 0, _tot_num_tracks * sizeof(float));
 
   /* Tracks are traversed and the MOC equations from this CPUSolver are applied
@@ -2171,17 +2171,12 @@ void CPUSolver::addSourceToScalarFlux() {
 
     for (int e=0; e < _num_groups; e++) {
       _scalar_flux(r, e) /= (sigma_t[e] * volume);
-
       _scalar_flux(r, e) += FOUR_PI * _reduced_sources(r, e) / sigma_t[e];
-      //if (e==0 && r==100000)
-      //  log_printf(NORMAL, "%d %e %e", r, _reduced_sources(r, e), _scalar_flux(r, e));
 
-      if (_scalar_flux(r, e) < 0.0) {
+      if (_scalar_flux(r, e) < 0.0 && !_negative_fluxes_allowed) {
 #pragma omp atomic update
         num_negative_fluxes++;
       }
-
-
     }
   }
 
@@ -2200,7 +2195,7 @@ void CPUSolver::addSourceToScalarFlux() {
 #endif
 
   /* Report negative fluxes */
-  if (total_num_negative_fluxes > 0) {
+  if (total_num_negative_fluxes > 0  && !_negative_fluxes_allowed) {
     if (_geometry->isRootDomain()) {
       log_printf(WARNING, "Computed %ld negative fluxes on %d domains",
                  total_num_negative_fluxes,
