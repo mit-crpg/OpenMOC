@@ -14,6 +14,7 @@
 #include "Quadrature.h"
 #include <malloc.h>
 #include <math.h>
+#include "exponentials.h"
 #endif
 
 
@@ -96,6 +97,7 @@ public:
   int getExponentialIndex(FP_PRECISION tau);
   FP_PRECISION getDifference(int index, FP_PRECISION tau);
   FP_PRECISION convertDistance3Dto2D(FP_PRECISION length);
+  FP_PRECISION getInverseSinTheta();
 
   void initialize(int azim_index, int polar_index, bool solve_3D);
   FP_PRECISION computeExponential(FP_PRECISION tau, int polar_offset);
@@ -149,21 +151,33 @@ inline FP_PRECISION ExpEvaluator::convertDistance3Dto2D(FP_PRECISION length) {
 
 
 /**
+ * @brief Get the inverse of sin theta from the ExpEvaluator
+ * @return inverse sin theta for the first angle
+ */
+inline FP_PRECISION ExpEvaluator::getInverseSinTheta() {
+  return _inverse_sin_theta_no_offset;
+}
+
+
+/**
  * @brief Computes the F1 exponential term.
- * @param tau the optical distance
+ * @param tau the optical distance (2D)
  * @param polar_offset an offset to the index in the look-up table
  * @return the F1 exponential term
  */
 inline FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau,
                                                      int polar_offset) {
 
-  /* Extract exponential indexes and differences */
-  int exp_index = getExponentialIndex(tau);
-  FP_PRECISION dt = getDifference(exp_index, tau);
-  FP_PRECISION dt2 = dt * dt;
+#ifndef THREED
+  FP_PRECISION inv_sin_theta = 1.f / _quadrature->getSinThetaInline(_azim_index,
+                                                   _polar_index + polar_offset);
+#else
+  FP_PRECISION inv_sin_theta = _inverse_sin_theta_no_offset;
+#endif
+  FP_PRECISION exp_F1;
+  expF1_fractional(tau * inv_sin_theta, &exp_F1);
 
-  /* Compute the exponential */
-  return computeExponentialF1(exp_index, polar_offset, dt, dt2);
+  return inv_sin_theta * exp_F1;
 }
 
 
@@ -174,7 +188,7 @@ inline FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau,
  *          of optical length) from the corresponding table value and the
  *          requested tau, and that distance squared. This method uses either a
  *          linear interpolation table (default) or the exponential intrinsic
- *          exp(...) function.
+ *          exp(...) function. //DEPRECATED
  *
  *            [1] R. Ferrer and J. Rhodes III, "A Linear Source Approximation
  *                Scheme for the Method of Characteristics", Nuclear Science and
@@ -194,17 +208,17 @@ inline FP_PRECISION ExpEvaluator::computeExponentialF1(int index,
   /* Calculate full index */
   int full_index = (index * _num_polar_terms + polar_offset) * _num_exp_terms;
 
-  //if (_interpolate) {
+  if (_interpolate) {
     return _exp_table[full_index] + _exp_table[full_index + 1] * dt +
         _exp_table[full_index + 2] * dt2;
-  //}
-  //else {
-  //  int polar_index = _polar_index + polar_offset;
-  //  FP_PRECISION tau = index * _exp_table_spacing + dt;
-  //  FP_PRECISION inv_sin_theta = 1.0 / _quadrature->getSinTheta(_azim_index,
-  //                                                              polar_index);
-  //  return (1.0 - exp(- tau * inv_sin_theta)) / tau;
-  //}
+  }
+  else {
+    int polar_index = _polar_index + polar_offset;
+    FP_PRECISION tau = index * _exp_table_spacing + dt;
+    FP_PRECISION inv_sin_theta = 1.0 / _quadrature->getSinTheta(_azim_index,
+                                                                polar_index);
+    return (1.0 - exp(- tau * inv_sin_theta)) / tau;
+  }
 }
 
 
@@ -215,7 +229,7 @@ inline FP_PRECISION ExpEvaluator::computeExponentialF1(int index,
  *          of optical length) from the corresponding table value and the
  *          requested tau, and that distance squared. This method uses either a
  *          linear interpolation table (default) or the exponential intrinsic
- *          exp(...) function.
+ *          exp(...) function. //DEPRECATED
  *
  *            [1] R. Ferrer and J. Rhodes III, "A Linear Source Approximation
  *                Scheme for the Method of Characteristics", Nuclear Science and
@@ -257,7 +271,7 @@ inline FP_PRECISION ExpEvaluator::computeExponentialF2(int index,
  *          of optical length) from the corresponding table value and the
  *          requested tau, and that distance squared. This method uses either a
  *          linear interpolation table (default) or the exponential intrinsic
- *          exp(...) function.
+ *          exp(...) function. //DEPRECATED
  *
  *            [1] R. Ferrer and J. Rhodes III, "A Linear Source Approximation
  *                Scheme for the Method of Characteristics", Nuclear Science and
@@ -293,6 +307,40 @@ inline FP_PRECISION ExpEvaluator::computeExponentialH(int index,
 
 
 /**
+ * @brief Computes the G2 exponential term for a optical length and polar angle.
+ * @details This method computes the G2 exponential term from Ferrer [1]
+ *          for some optical path length and polar angle. This method
+ *          uses either a linear interpolation table (default) or the
+ *          exponential intrinsic exp(...) function.
+ *
+ *            [1] R. Ferrer and J. Rhodes III, "A Linear Source Approximation
+ *                Scheme for the Method of Characteristics", Nuclear Science and
+ *                Engineering, Volume 182, February 2016.
+ *
+ * @param tau the optical path length (e.g., sigma_t times length)
+ * @param polar the polar angle index
+ * @return the evaluated exponential
+ */
+inline FP_PRECISION ExpEvaluator::computeExponentialG2(FP_PRECISION tau) {
+
+  FP_PRECISION exp_mx;
+  cram7(-tau, &exp_mx);
+
+  /* Handle loss of numerical accuracy for small taus */
+  // This form keeps the relative error below 5E-03 and the absolute error
+  // below 5E-05 for tau in [0, 20]. Max error is at tau=0.14
+  // Max relative error can be reduced to 2E-05 by using standard exp(), and
+  // placing the transition at tau=0.01
+  //TODO Fit a rational fraction to G2 directly
+  FP_PRECISION full_expr = 2.0f / 3.0f - (1.0f + 2.0f / tau) * 
+                           (1.0f / tau + 0.5f - (1.0f + 1.0f / tau) *
+                           (exp_mx) / tau);
+  FP_PRECISION simp_expr = 7.0f * tau * tau / 120.0f - tau / 12.0f;
+  return (tau >= 0.14f) * full_expr + (tau < 0.14f) * simp_expr;
+}
+
+
+/**
  * @brief Computes the F1, F2, H exponential term.
  * @details This method computes F1, F2, H exponential from Ferrer [1] given the
  *          requested tau. This method uses either a linear interpolation table
@@ -310,42 +358,54 @@ inline FP_PRECISION ExpEvaluator::computeExponentialH(int index,
  */
 inline void ExpEvaluator::retrieveExponentialComponents(FP_PRECISION tau,
                                                         int polar_offset,
+#ifdef SWIG  //FIXME Find out how to use restrict with SWIG
                                                         FP_PRECISION* exp_F1,
                                                         FP_PRECISION* exp_F2,
                                                         FP_PRECISION* exp_H) {
-  //FIXME declare exponentials to be non-aliasing (restrict keyword)
+#else
+                                              FP_PRECISION* __restrict__ exp_F1,
+                                              FP_PRECISION* __restrict__ exp_F2,
+                                              FP_PRECISION* __restrict__ exp_H) {
+#endif
 
-  __builtin_assume_aligned(exp_F1, VEC_ALIGNMENT);
-  __builtin_assume_aligned(exp_F2, VEC_ALIGNMENT);
-  __builtin_assume_aligned(exp_H, VEC_ALIGNMENT);
-  //if (_interpolate) {
 
-    __builtin_assume_aligned(_exp_table, VEC_ALIGNMENT);
+#ifndef THREED
+  FP_PRECISION inv_sin_theta = 1.f / _quadrature->getSinThetaInline(_azim_index,
+                                                   _polar_index + polar_offset);
+#else
+  FP_PRECISION inv_sin_theta = _inverse_sin_theta_no_offset;
+#endif
 
-    int exp_index = getExponentialIndex(tau);
-    FP_PRECISION dt = getDifference(exp_index, tau);
-    FP_PRECISION dt2 = dt * dt;
-    int full_index = (exp_index * _num_polar_terms + polar_offset)
-      * _num_exp_terms;
-    *exp_F1 = _exp_table[full_index] + _exp_table[full_index + 1] * dt +
-        _exp_table[full_index + 2] * dt2;
-    *exp_F2 = _exp_table[full_index + 3] + _exp_table[full_index + 4] * dt +
-        _exp_table[full_index + 5] * dt2;
-    *exp_H = _exp_table[full_index + 6] + _exp_table[full_index + 7] * dt +
-        _exp_table[full_index + 8] * dt2;
-  //}
-  //else {
-  //  int polar_index = _polar_index + polar_offset;
-  //  FP_PRECISION inv_sin_theta = 1.0 / _quadrature->getSinTheta(_azim_index,
-  //                                                              polar_index);
-  //  FP_PRECISION tau_m = tau * inv_sin_theta;
-  //  int exp_index = getExponentialIndex(tau);
-  //  FP_PRECISION dt = getDifference(exp_index, tau);
-  //  FP_PRECISION dt2 = dt * dt;
-  //  *exp_F1 = computeExponentialF1(tau, polar_offset, dt, dt2);
-  //  *exp_F2 = computeExponentialF2(tau, polar_offset, dt, dt2);
-  //  *exp_H = computeExponentialH(tau, polar_offset, dt, dt2);
-  //}
+  /* Limit range of tau to avoid numerical errors */
+  tau = std::max(FP_PRECISION(1e-8), tau * inv_sin_theta);
+
+  /* Compute exponentials from a common exponential */
+   FP_PRECISION exp_G;
+   expG_fractional(tau, &exp_G);
+   *exp_F1 = 1.f - tau*exp_G;
+   *exp_F1 *= inv_sin_theta;
+
+   exp_G *= inv_sin_theta;
+   *exp_F2 = 2.f*exp_G - *exp_F1;
+   *exp_F2 *= inv_sin_theta;
+
+   *exp_H = *exp_F1 - exp_G;
+
+    /* Quadratic exponential interpolation tables */
+//     __builtin_assume_aligned(_exp_table, VEC_ALIGNMENT);
+// 
+//     tau /= inv_sin_theta;
+//     int exp_index = getExponentialIndex(tau);
+//     FP_PRECISION dt = getDifference(exp_index, tau);
+//     FP_PRECISION dt2 = dt * dt;
+//     int full_index = (exp_index * _num_polar_terms + polar_offset)
+//       * _num_exp_terms;
+//     *exp_F1 = _exp_table[full_index] + _exp_table[full_index + 1] * dt +
+//         _exp_table[full_index + 2] * dt2;
+//     *exp_F2 = _exp_table[full_index + 3] + _exp_table[full_index + 4] * dt +
+//         _exp_table[full_index + 5] * dt2;
+//     *exp_H = _exp_table[full_index + 6] + _exp_table[full_index + 7] * dt +
+//         _exp_table[full_index + 8] * dt2;
 }
 
 

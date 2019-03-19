@@ -15,10 +15,10 @@ class SimpleLatticeTestHarness(TestHarness):
     def __init__(self):
         super(SimpleLatticeTestHarness, self).__init__()
         self.input_set = SimpleLatticeInput(num_dimensions=3)
-        self.num_polar = 4
-        self.azim_spacing = 0.12
-        self.z_spacing = 0.5
-        self.tolerance = 1E-4
+        self.num_polar = 2
+        self.azim_spacing = 0.24
+        self.z_spacing = 0.9
+
 
 
     def _create_trackgenerator(self):

@@ -68,6 +68,7 @@ Material::Material(int id, const char* name) {
   _num_groups = -1;
 
   _sigma_t = NULL;
+  _max_sigma_t = -1;
   _sigma_s = NULL;
   _sigma_a = NULL;
   _sigma_f = NULL;
@@ -197,6 +198,15 @@ FP_PRECISION* Material::getSigmaT() {
                "cross-section since it has not yet been set", _id);
 
   return _sigma_t;
+}
+
+
+/**
+ * @brief Return the maximum of the Material's total cross-sections.
+ * @return the maximum of the Material's total cross-sections.
+ */
+FP_PRECISION Material::getMaxSigmaT() {
+  return _max_sigma_t;
 }
 
 
@@ -606,6 +616,9 @@ void Material::setSigmaT(double* xs, int num_groups) {
     }
     else
       _sigma_t[i] = FP_PRECISION(xs[i]);
+
+    /* Update the maximum total cross-section */
+    _max_sigma_t = std::max(_max_sigma_t, _sigma_t[i]);
   }
 }
 
@@ -629,6 +642,9 @@ void Material::setSigmaTByGroup(double xs, int group) {
     }
     else
       _sigma_t[group-1] = FP_PRECISION(xs);
+
+  /* Update the maximum total cross-section */
+  _max_sigma_t = std::max(_max_sigma_t, _sigma_t[group-1]);
 }
 
 

@@ -47,7 +47,7 @@
 #define POLAR_WEIGHT_SUM_TOL 1E-5
 
 /** The default maximum optical path length */
-#define MAX_OPTICAL_LENGTH FP_PRECISION(10.)
+#define MAX_OPTICAL_LENGTH FP_PRECISION(100.)
 
 /** A small amount to increment the tau, the max optical path length, to ensure
  *  that tracks with the max optical path length are not split. */
@@ -150,12 +150,6 @@
 
 /** Least common multiple tolerance */
 #define LCM_TOLERANCE 1.e-8
-
-/** The options for 3D track generation */
-#define GLOBAL_TRACKING 0
-#define MODULAR_RAY_TRACING 1
-#define SIMPLIFIED_MODULAR_RAY_TRACING 2
-
 
 #ifdef NVCC
 

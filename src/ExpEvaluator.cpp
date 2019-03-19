@@ -7,7 +7,7 @@
  *          for computing exponentials.
  */
 ExpEvaluator::ExpEvaluator() {
-  _interpolate = true;
+  _interpolate = false;
   _exp_table = NULL;
   _quadrature = NULL;
   _max_optical_length = MAX_OPTICAL_LENGTH;
@@ -217,11 +217,10 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
   _inverse_sin_theta_no_offset = 1.0 / _sin_theta_no_offset;
 
   /* If no exponential table is needed, return */
-  if (!_interpolate) {
-    log_printf(ERROR, "Intrinsic exponential is commented out in source code" 
-               " for optimization purposes");
+  if (_interpolate)
+    log_printf(WARNING_ONCE, "Interpolation tables are commented out in source"
+                " code for optimization purposes");
     return;
-  }
 
   log_printf(DEBUG, "Initializing exponential interpolation table...");
 
@@ -343,35 +342,6 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
       }
     }
   }
-}
-
-
-/**
- * @brief Computes the G2 exponential term for a optical length and polar angle.
- * @details This method computes the H exponential term from Ferrer [1]
- *          for some optical path length and polar angle. This method
- *          uses either a linear interpolation table (default) or the
- *          exponential intrinsic exp(...) function.
- *
- *            [1] R. Ferrer and J. Rhodes III, "A Linear Source Approximation
- *                Scheme for the Method of Characteristics", Nuclear Science and
- *                Engineering, Volume 182, February 2016.
- *
- * @param tau the optical path length (e.g., sigma_t times length)
- * @param polar the polar angle index
- * @return the evaluated exponential
- */
-FP_PRECISION ExpEvaluator::computeExponentialG2(FP_PRECISION tau) {
-
-  if (fabs(tau) < FLT_EPSILON)
-    return 0.0;
-
-  if (tau < 0.01)
-    return 7.0 * tau * tau / 120.0 - tau / 12.0;
-  else
-    return 2.0 / 3.0 - (1 + 2.0 / tau)
-        * (1.0 / tau + 0.5 - (1.0 + 1.0 / tau) *
-          (1.0 - exp(- tau)) / tau);
 }
 
 

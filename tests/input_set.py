@@ -245,7 +245,6 @@ class LatticeGridInput(InputSet):
         super(LatticeGridInput, self).create_geometry()
 
 
-
 class SimpleLatticeInput(InputSet):
     """A 4x4 pin cell lattice problem from sample-input/simple-lattice."""
 

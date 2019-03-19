@@ -70,6 +70,9 @@ private:
   /** An array of the total cross-sections for each energy group */
   FP_PRECISION* _sigma_t;
 
+  /** Max total cross section */
+  FP_PRECISION _max_sigma_t;
+
   /** A 2D array of the scattering cross-section matrix from/into each group */
   FP_PRECISION* _sigma_s;
 
@@ -110,6 +113,7 @@ public:
   int getNumInstances();
   int getNumEnergyGroups() const;
   FP_PRECISION* getSigmaT();
+  FP_PRECISION getMaxSigmaT();
   FP_PRECISION* getSigmaS();
   FP_PRECISION* getSigmaA();
   FP_PRECISION* getSigmaF();

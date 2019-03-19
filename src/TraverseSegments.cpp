@@ -338,15 +338,11 @@ void TraverseSegments::traceSegmentsOTF(Track* flattened_track, Point* start,
   /* For very short tracks, it's possible no significant segments will be
    * traversed */
   if (seg_start == flattened_track->getNumSegments()) {
-#pragma omp critical
-    {
-      log_printf(WARNING, "Track of zero length encountered at starting point "
-                 "%s traveling on 2D Track: %s at polar angle cos %3.2f "
-                 "degrees on domain with z-bounds %3.2f and %3.2f", 
-                 start->toString().c_str(),
-                 flattened_track->toString().c_str(), cos(theta), 
-                 geometry->getMinZ(), geometry->getMaxZ());
-    }
+    log_printf(WARNING, "Track of zero length encountered at starting point "
+               "%s traveling on 2D Track: %s at polar angle cos %3.2f "
+               "degrees on domain with z-bounds %3.2f and %3.2f", 
+               start->toString().c_str(), flattened_track->toString().c_str(),
+               cos(theta), geometry->getMinZ(), geometry->getMaxZ());
     return;
   }
 

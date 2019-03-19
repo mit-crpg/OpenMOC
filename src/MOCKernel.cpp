@@ -103,7 +103,7 @@ void VolumeKernel::newTrack(Track* track) {
         * _quadrature->getPolarWeight(azim_index, polar_index);
   }
 
-  /* Reset the count */
+  /* Reset the count //NOTE Segment cuts arent counted. */
   _count = 0;
 }
 
@@ -162,20 +162,8 @@ void VolumeKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
   /* Unset lock */
   omp_unset_lock(&_FSR_locks[fsr_id]);
 
-  /* Determine the number of cuts on the segment */
-  FP_PRECISION sin_theta = sin(theta);
-  FP_PRECISION* sigma_t = mat->getSigmaT();
-  FP_PRECISION max_sigma_t = 0;
-  for (int e=0; e < _num_groups; e++)
-    if (sigma_t[e] > max_sigma_t)
-      max_sigma_t = sigma_t[e];
-
-  int num_cuts = 1;
-  if (length * max_sigma_t * sin(theta) > _max_tau)
-    num_cuts = length * max_sigma_t * sin_theta / _max_tau + 1;
-
-  /* Increment count */
-  _count += num_cuts;
+  /* Increment the count of the number of times the kernel is executed */
+  _count++;
 }
 
 
@@ -198,17 +186,13 @@ void CounterKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
 
   /* Determine the number of cuts on the segment */
   FP_PRECISION sin_theta = sin(theta);
-  FP_PRECISION* sigma_t = mat->getSigmaT();
-  FP_PRECISION max_sigma_t = 0;
-  for (int e=0; e < _num_groups; e++)
-    if (sigma_t[e] > max_sigma_t)
-      max_sigma_t = sigma_t[e];
+  FP_PRECISION max_sigma_t = mat->getMaxSigmaT();
 
   int num_cuts = 1;
   if (length * max_sigma_t * sin_theta > _max_tau)
     num_cuts = length * max_sigma_t * sin_theta / _max_tau + 1;
 
-  /* Increment count */
+  /* Increment segment count */
   _count += num_cuts;
 }
 
@@ -246,19 +230,15 @@ void SegmentationKernel::execute(FP_PRECISION length, Material* mat, long fsr_id
 
   /* Determine the number of cuts on the segment */
   FP_PRECISION sin_theta = sin(theta);
-  FP_PRECISION* sigma_t = mat->getSigmaT();
-  FP_PRECISION max_sigma_t = 0;
-  for (int e=0; e < _num_groups; e++)
-    if (sigma_t[e] > max_sigma_t)
-      max_sigma_t = sigma_t[e];
+  FP_PRECISION max_sigma_t = mat->getMaxSigmaT();
 
   int num_cuts = 1;
   if (length * max_sigma_t * sin_theta > _max_tau)
     num_cuts = length * max_sigma_t * sin_theta / _max_tau + 1;
+  FP_PRECISION temp_length = _max_tau / (max_sigma_t * sin_theta);
 
   /* Add segment information */
   for (int i=0; i < num_cuts-1; i++) {
-    FP_PRECISION temp_length = _max_tau / (max_sigma_t * sin_theta);
     _segments[_count]._length = temp_length;
     _segments[_count]._material = mat;
     _segments[_count]._region_id = fsr_id;
@@ -272,8 +252,8 @@ void SegmentationKernel::execute(FP_PRECISION length, Material* mat, long fsr_id
     else
       _segments[_count]._cmfd_surface_bwd = -1;
     length -= temp_length;
-    x_start += temp_length * sin(theta) * cos(phi);
-    y_start += temp_length * sin(theta) * sin(phi);
+    x_start += temp_length * sin_theta * cos(phi);
+    y_start += temp_length * sin_theta * sin(phi);
     z_start += temp_length * cos(theta);
     _count++;
   }
@@ -372,6 +352,7 @@ void TransportKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
                               FP_PRECISION y_start, FP_PRECISION z_start,
                               FP_PRECISION phi, FP_PRECISION theta) {
 
+  /* Update lower and upper bounds for this track */
   if (track_idx < _min_track_idx)
     _min_track_idx = track_idx;
   else if (track_idx > _max_track_idx)
@@ -379,58 +360,58 @@ void TransportKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
 
   /* Determine the number of cuts on the segment */
   FP_PRECISION sin_theta = sin(theta);
-  FP_PRECISION* sigma_t = mat->getSigmaT();
-  FP_PRECISION max_sigma_t = 0;
-  for (int e=0; e < _num_groups; e++)
-    if (sigma_t[e] > max_sigma_t)
-      max_sigma_t = sigma_t[e];
+  FP_PRECISION max_sigma_t = mat->getMaxSigmaT();
 
   int num_cuts = 1;
   if (length * max_sigma_t * sin_theta > _max_tau)
     num_cuts = length * max_sigma_t * sin_theta / _max_tau + 1;
 
-  /* Determine common length */
-  FP_PRECISION fp_length = length;
-  FP_PRECISION temp_length = std::min(_max_tau / (sin_theta * max_sigma_t), 
-                                      fp_length);
+  /* Handle the length of possible cuts of segment */
+  FP_PRECISION remain_length = length;
+  FP_PRECISION segment_length = std::min(_max_tau / (sin_theta * max_sigma_t),
+                                         length);
+
+  /* Get the track flux */
+  long curr_track_id = _track_id + track_idx;
+  float* track_flux = _cpu_solver->getBoundaryFlux(curr_track_id,
+                                                   _direction);
+
+  /* Allocate a buffer to store flux contribution of all cuts in this fsr */
+  FP_PRECISION fsr_flux[_num_groups] __attribute__ ((aligned (VEC_ALIGNMENT)))
+       = {0.0};
 
   /* Apply MOC equations to segments */
   for (int i=0; i < num_cuts; i++) {
 
     /* Copy data into segment */
-    segment curr_segment;
-    curr_segment._length = temp_length;
+    segment curr_segment;  //FIXME Consider allocating segment beforehand
+    curr_segment._length = std::min(segment_length, remain_length);
     curr_segment._material = mat;
     curr_segment._region_id = fsr_id;
-    curr_segment._track_idx = track_idx;
 
-    /* Set CMFD surface if segment is at the edge of the Track */
+    /* Set CMFD surface if cut is at one end of the Segment */
+    curr_segment._cmfd_surface_bwd = -1;
+    curr_segment._cmfd_surface_fwd = -1;
     if (i == 0)
       curr_segment._cmfd_surface_bwd = cmfd_surface_bwd;
-    else
-      curr_segment._cmfd_surface_bwd = -1;
     if (i == num_cuts - 1)
       curr_segment._cmfd_surface_fwd = cmfd_surface_fwd;
-    else
-      curr_segment._cmfd_surface_fwd = -1;
-
-    /* Get the backward track flux */
-    long curr_track_id = _track_id + track_idx;
-    float* track_flux = _cpu_solver->getBoundaryFlux(curr_track_id,
-                                                     _direction);
-
-    FP_PRECISION fsr_flux[_num_groups] = {0.0};
 
     /* Apply MOC equations */
     _cpu_solver->tallyScalarFlux(&curr_segment, _azim_index, _polar_index,
                                  fsr_flux, track_flux);
-    _cpu_solver->accumulateScalarFluxContribution(fsr_id, fsr_flux);
-    _cpu_solver->tallyCurrent(&curr_segment, _azim_index, _polar_index,
-                                     track_flux, true);
+
+    /* CMFD surfaces can only be on the segment ends */
+    if (i == 0 || i == num_cuts - 1)
+      _cpu_solver->tallyCurrent(&curr_segment, _azim_index, _polar_index,
+                                track_flux, true);
 
     /* Shorten remaining 3D length */
-    length -= temp_length;
+    remain_length -= segment_length;
   }
+
+  /* Accumulate contribution of all cuts to FSR scalar flux */
+  _cpu_solver->accumulateScalarFluxContribution(fsr_id, fsr_flux);
 }
 
 
@@ -447,6 +428,8 @@ void TransportKernel::post() {
     _cpu_solver->transferBoundaryFlux(&track, _azim_index, _polar_index,
                                       _direction, track_flux);
   }
+
+  /* Reset track indexes */
   _min_track_idx = 0;
   _max_track_idx = 0;
 }

@@ -1563,7 +1563,7 @@ void TrackGenerator3D::allocateTemporarySegments() {
  
   log_printf(NORMAL, "Max temporary segment storage per domain = %6.2f MB",
              max_size_mb);
-  
+
   /* Allocate new temporary segments */
   for (int t = 0; t < _num_threads; t++)
     _temporary_segments.at(t) = new segment[_num_seg_matrix_columns];
