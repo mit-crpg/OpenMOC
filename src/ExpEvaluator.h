@@ -309,9 +309,8 @@ inline FP_PRECISION ExpEvaluator::computeExponentialH(int index,
 /**
  * @brief Computes the G2 exponential term for a optical length and polar angle.
  * @details This method computes the G2 exponential term from Ferrer [1]
- *          for some optical path length and polar angle. This method
- *          uses either a linear interpolation table (default) or the
- *          exponential intrinsic exp(...) function.
+ *          for some optical path length and polar angle. This methoduses a
+ *          rational fraction approximation to compute the exponential term.
  *
  *            [1] R. Ferrer and J. Rhodes III, "A Linear Source Approximation
  *                Scheme for the Method of Characteristics", Nuclear Science and
@@ -323,20 +322,10 @@ inline FP_PRECISION ExpEvaluator::computeExponentialH(int index,
  */
 inline FP_PRECISION ExpEvaluator::computeExponentialG2(FP_PRECISION tau) {
 
-  FP_PRECISION exp_mx;
-  cram7(-tau, &exp_mx);
+  FP_PRECISION exp_G2;
+  expG2_fractional(tau, &exp_G2);
 
-  /* Handle loss of numerical accuracy for small taus */
-  // This form keeps the relative error below 5E-03 and the absolute error
-  // below 5E-05 for tau in [0, 20]. Max error is at tau=0.14
-  // Max relative error can be reduced to 2E-05 by using standard exp(), and
-  // placing the transition at tau=0.01
-  //TODO Fit a rational fraction to G2 directly
-  FP_PRECISION full_expr = 2.0f / 3.0f - (1.0f + 2.0f / tau) * 
-                           (1.0f / tau + 0.5f - (1.0f + 1.0f / tau) *
-                           (exp_mx) / tau);
-  FP_PRECISION simp_expr = 7.0f * tau * tau / 120.0f - tau / 12.0f;
-  return (tau >= 0.14f) * full_expr + (tau < 0.14f) * simp_expr;
+  return exp_G2;
 }
 
 
