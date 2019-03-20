@@ -55,7 +55,7 @@ public:
   Mesh(Solver* solver, Lattice* lattice=NULL);
   virtual ~Mesh();
 
-  void createLattice(int num_x, int num_y, int num_z);
+  void createLattice(int num_x, int num_y, int num_z=1);
   void setLattice(Lattice* lattice);
   std::vector<FP_PRECISION> getReactionRates(RxType rx,
                                              bool volume_average=false);
