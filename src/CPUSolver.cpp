@@ -1900,7 +1900,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   }
   else {
 
-    int num_polar_2 = _num_polar / 2;
+    const int num_polar_2 = _num_polar / 2;
 
     /* Compute tau in advance to simplify attenuation loop */
     FP_PRECISION tau[_num_groups * num_polar_2] 

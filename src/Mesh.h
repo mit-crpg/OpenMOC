@@ -5,7 +5,6 @@
  * @author Geoffrey Gunow, MIT, Course 22 (geogunow@mit.edu)
  */
 
-#ifndef SWIG
 #ifndef MESH_H
 #define MESH_H
 
@@ -68,5 +67,4 @@ public:
 
 };
 
-#endif
 #endif

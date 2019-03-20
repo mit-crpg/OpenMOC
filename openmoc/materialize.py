@@ -739,9 +739,15 @@ def _load_openmc_src(mgxs_lib, solver):
         tot_volume = openmoc_domain.getVolume()
 
         # Extract an openmc.mgxs.MGXS object for the scattering matrix
-        if 'nu-scatter matrix' in mgxs_lib.mgxs_types:
+        if 'consistent nu-scatter matrix' in mgxs_lib.mgxs_types:
+            scatter = mgxs_lib.get_mgxs(openmoc_domain.getId(),
+                                        'consistent nu-scatter matrix')
+        elif 'nu-scatter matrix' in mgxs_lib.mgxs_types:
             scatter = mgxs_lib.get_mgxs(openmoc_domain.getId(),
                                         'nu-scatter matrix')
+        elif 'consistent scatter matrix' in mgxs_lib.mgxs_types:
+            scatter = mgxs_lib.get_mgxs(openmoc_domain.getId(),
+                                        'consistent scatter matrix')
         elif 'scatter matrix' in mgxs_lib.mgxs_types:
             scatter = mgxs_lib.get_mgxs(openmoc_domain.getId(),
                                         'scatter matrix')
