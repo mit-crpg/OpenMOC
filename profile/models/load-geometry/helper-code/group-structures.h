@@ -1,5 +1,6 @@
 #include <vector>
 #include <iostream>
+#include "../../../../src/log.h"
 
 std::vector<std::vector<int> > get_group_structure(int num_groups, 
                                                    int num_cmfd_groups);
@@ -53,27 +54,6 @@ inline std::vector<std::vector<int> > get_group_structure(int num_groups,
       for (int g=60; g<70; g++)
         cmfd_group_structure.at(7).push_back(g+1);
     }
-    /*
-    else if (num_cmfd_groups == 8) {
-      for (int g=0; g<7; g++)
-        cmfd_group_structure.at(0).push_back(g+1);
-      for (int g=7; g<13; g++)
-        cmfd_group_structure.at(1).push_back(g+1);
-      for (int g=13; g<20; g++)
-        cmfd_group_structure.at(2).push_back(g+1);
-      for (int g=20; g<25; g++)
-        cmfd_group_structure.at(3).push_back(g+1);
-      for (int g=25; g<34; g++)
-        cmfd_group_structure.at(4).push_back(g+1);
-      for (int g=34; g<54; g++)
-        cmfd_group_structure.at(5).push_back(g+1);
-      for (int g=54; g<62; g++)
-        cmfd_group_structure.at(6).push_back(g+1);
-      for (int g=62; g<70; g++)
-        cmfd_group_structure.at(7).push_back(g+1);
-    }
-    */
-
     else if (num_cmfd_groups == 11) {
       for (int g=0; g<5; g++)
         cmfd_group_structure.at(0).push_back(g+1);
@@ -230,12 +210,8 @@ inline std::vector<std::vector<int> > get_group_structure(int num_groups,
       for (int g=64; g<70; g++)
         cmfd_group_structure.at(24).push_back(g+1);
     }
- 
-
-    else {
-      std::cout << "ERROR: CMFD group structure not found" << std::endl;
-      exit(1);
-    }
+    else
+      log_printf(ERROR, "ERROR: CMFD group structure not found");
   }
   else if (num_groups == 40) {
     if (num_cmfd_groups == 2) {
@@ -254,10 +230,8 @@ inline std::vector<std::vector<int> > get_group_structure(int num_groups,
       for (int g=28; g<40; g++)
         cmfd_group_structure.at(3).push_back(g+1);
     }
-    else {
-      std::cout << "ERROR: CMFD group structure not found" << std::endl;
-      exit(1);
-    }
+    else
+      log_printf(ERROR, "ERROR: CMFD group structure not found");
   }
 
   else if (num_groups == 16) {
@@ -277,10 +251,8 @@ inline std::vector<std::vector<int> > get_group_structure(int num_groups,
       for (int g=12; g<16; g++)
         cmfd_group_structure.at(3).push_back(g+1);
     }
-    else {
-      std::cout << "ERROR: CMFD group structure not found" << std::endl;
-      exit(1);
-    }
+    else
+      log_printf(ERROR, "ERROR: CMFD group structure not found");
   }
   else if (num_groups == 8) {
     if (num_cmfd_groups == 2) {
@@ -299,14 +271,30 @@ inline std::vector<std::vector<int> > get_group_structure(int num_groups,
       for (int g=5; g<8; g++)
         cmfd_group_structure.at(3).push_back(g+1);
     }
-    else {
-      std::cout << "ERROR: CMFD group structure not found" << std::endl;
-      exit(1);
-    }
+    else
+      log_printf(ERROR, "CMFD group structure not found");
   }
+  else if (num_groups < num_cmfd_groups)
+    log_printf(ERROR, "Number of CMFD groups must be lower than the number of"
+               "MOC groups.");
   else {
-    std::cout << "ERROR: CMFD group structure not found" << std::endl;
-    exit(1);
+    log_printf(WARNING, "CMFD group structure requested is unknown, "
+               "creating a condensed structure with a constant number of "
+               "MOC groups in each CMFD group");
+
+    int group = 0;
+    int last_index = 0;
+
+    for (int cg=0; cg<num_cmfd_groups; cg++) {
+
+      /* Keep track of last index */
+      int next_bound = std::min(int((cg+1) * float(num_groups) / num_cmfd_groups
+                            - last_index), num_groups - group);
+      last_index += next_bound;
+
+      for (int i=0; i<next_bound; i++)
+        cmfd_group_structure.at(cg).push_back(++group);
+    }
   }
 
   return cmfd_group_structure;
