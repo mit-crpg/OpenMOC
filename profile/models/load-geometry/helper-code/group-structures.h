@@ -288,8 +288,8 @@ inline std::vector<std::vector<int> > get_group_structure(int num_groups,
     for (int cg=0; cg<num_cmfd_groups; cg++) {
 
       /* Keep track of last index */
-      int next_bound = std::min(int((cg+1) * float(num_groups) / num_cmfd_groups
-                            - last_index), num_groups - group);
+      int next_bound = std::min(int((cg+1) * float(num_groups + 1) /
+           num_cmfd_groups - last_index), num_groups + 1 - group);
       last_index += next_bound;
 
       for (int i=0; i<next_bound; i++)
