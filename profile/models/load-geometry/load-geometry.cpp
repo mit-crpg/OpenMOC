@@ -9,7 +9,8 @@
 int main(int argc,  char* argv[]) {
 
 #ifdef MPIx
-  MPI_Init(&argc, &argv);
+  int provided;
+  MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
   log_set_ranks(MPI_COMM_WORLD);
 #endif
 
@@ -23,11 +24,11 @@ int main(int argc,  char* argv[]) {
   std::string file = "single-assembly.geo";
 
   /* Define simulation parameters */
-  #ifdef OPENMP
-  int num_threads = omp_get_num_procs();
-  #else
+#ifdef OPENMP
+  int num_threads = omp_get_num_threads();
+#else
   int num_threads = 1;
-  #endif
+#endif
  
   double azim_spacing = 0.1;
   int num_azim = 4;
@@ -133,7 +134,6 @@ int main(int argc,  char* argv[]) {
   log_printf(NORMAL, "Initializing the track generator...");
   TrackGenerator3D track_generator(&geometry, num_azim, num_polar, azim_spacing,
                                    polar_spacing);
-  track_generator.setTrackGenerationMethod(MODULAR_RAY_TRACING);
   track_generator.setNumThreads(num_threads);
   track_generator.setSegmentFormation(OTF_STACKS);
   double z_arr[] = {20., 34., 36., 38., 40., 98., 104., 150., 156., 202., 208.,

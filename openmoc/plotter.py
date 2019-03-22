@@ -1060,7 +1060,9 @@ def plot_fission_rates(solver, nu=False, norm=False, transparent_zeros=True,
 
 def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
                           norm=False, gridsize=250, xlim=None, ylim=None,
-                          get_figure=False, library='matplotlib'):
+                          zlim=None, plane='xy', offset=0, get_figure=False,
+                          library='matplotlib'):
+
     """Plot the color-coded 2D surface plot of FSR scalar fluxes for one or
     more eigenmodes from an IRAMSolver.
 
@@ -1148,7 +1150,8 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
 
         # Plot this eigenmode's spatial fluxes
         fig = plot_spatial_fluxes(moc_solver, energy_groups, norm, gridsize,
-                                  xlim, ylim, get_figure, library)
+                                  xlim, ylim, zlim, plane, offset, get_figure,
+                                  library)
 
         if get_figure:
             figures.append(fig[0])

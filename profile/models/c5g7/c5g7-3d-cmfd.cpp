@@ -6,18 +6,21 @@
 
 int main(int argc, char* argv[]) {
 
-  MPI_Init(&argc, &argv);
-  log_set_ranks(MPI_COMM_WORLD); //FIXME
+#ifdef MPIx
+  int provided;
+  MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
+  log_set_ranks(MPI_COMM_WORLD);
+#endif
 
   /* Define simulation parameters */
-  #ifdef OPENMP
-  int num_threads = omp_get_num_procs();
-  #else
+#ifdef OPENMP
+  int num_threads = omp_get_num_threads();
+#else
   int num_threads = 1;
-  #endif
+#endif
   double azim_spacing = 0.1;
   int num_azim = 16;
-  double polar_spacing = 0.1;
+  double polar_spacing = 1.;
   int num_polar = 14;
   double tolerance = 1e-5;
   int max_iters = 40;
@@ -542,7 +545,9 @@ int main(int argc, char* argv[]) {
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.setRootUniverse(root_universe);
+#ifdef MPIx
   geometry.setDomainDecomposition(3, 3, 3, MPI_COMM_WORLD);
+#endif
   geometry.setNumDomainModules(3,3,3);
   geometry.setCmfd(cmfd);
   geometry.initializeFlatSourceRegions();
@@ -556,8 +561,8 @@ int main(int argc, char* argv[]) {
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);
   track_generator.setSegmentFormation(OTF_STACKS);
-  std::vector<FP_PRECISION> seg_heights {-20.0, 0.0, 20.0};
-  track_generator.setSegmentationHeights(seg_heights);
+  std::vector<double> seg_heights {-32.13, 0.0, 32.13};
+  track_generator.setSegmentationZones(seg_heights);
   track_generator.generateTracks();
 
   /* Run simulation */

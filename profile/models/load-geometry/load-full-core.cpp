@@ -10,7 +10,8 @@
 int main(int argc,  char* argv[]) {
 
 #ifdef MPIx
-  MPI_Init(&argc, &argv);
+  int provided;
+  MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
   log_set_ranks(MPI_COMM_WORLD);
 #endif
 
@@ -28,11 +29,11 @@ int main(int argc,  char* argv[]) {
   double start_time = omp_get_wtime();
 
   /* Define simulation parameters */
-  #ifdef OPENMP
-  int num_threads = omp_get_num_procs();
-  #else
+#ifdef OPENMP
+  int num_threads = omp_get_num_threads();
+#else
   int num_threads = 1;
-  #endif
+#endif
  
   double azim_spacing = 0.05;
   int num_azim = 8; // 8
@@ -149,8 +150,8 @@ int main(int argc,  char* argv[]) {
   track_generator.generateTracks();
 
   /* Run simulation */
-  CPULSSolver solver(&track_generator); //FIXME LS / FS
-  solver.stabalizeTransport(0.25);
+  CPULSSolver solver(&track_generator);
+  solver.stabilizeTransport(0.25);
   solver.setNumThreads(num_threads);
   solver.setVerboseIterationReport();
   solver.setConvergenceThreshold(tolerance);

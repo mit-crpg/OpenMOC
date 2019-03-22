@@ -4,14 +4,20 @@
 #include <array>
 #include <iostream>
 
-int main() {
+int main(int argc, char* argv[]) {
+
+#ifdef MPIx
+  int provided;
+  MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
+  log_set_ranks(MPI_COMM_WORLD);
+#endif
 
   /* Define simulation parameters */
-  #ifdef OPENMP
-  int num_threads = omp_get_num_procs();
-  #else
+#ifdef OPENMP
+  int num_threads = omp_get_num_threads();
+#else
   int num_threads = 1;
-  #endif
+#endif
   double azim_spacing = 0.25;
   int num_azim = 4;
   double polar_spacing = 1.0;
@@ -513,7 +519,7 @@ int main() {
   track_generator.setQuadrature(quad);
 
   track_generator.setSegmentFormation(OTF_TRACKS);
-  std::vector<FP_PRECISION> seg_heights {-7.14, 7.14};
+  std::vector<double> seg_heights {-7.14, 7.14};
   track_generator.setSegmentationZones(seg_heights);
 
   track_generator.generateTracks();
@@ -526,5 +532,8 @@ int main() {
   solver.printTimerReport();
 
   log_printf(TITLE, "Finished");
+#ifdef MPIx
+  MPI_Finalize();
+#endif
   return 0;
 }

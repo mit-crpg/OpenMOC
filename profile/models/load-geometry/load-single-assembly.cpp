@@ -11,7 +11,8 @@
 int main(int argc,  char* argv[]) {
 
 #ifdef MPIx
-  MPI_Init(&argc, &argv);
+  int provided;
+  MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
   log_set_ranks(MPI_COMM_WORLD);
 #endif
 
@@ -38,11 +39,11 @@ int main(int argc,  char* argv[]) {
   */
 
   /* Define simulation parameters */
-  #ifdef OPENMP
-  int num_threads = omp_get_max_threads();
-  #else
+#ifdef OPENMP
+  int num_threads = omp_get_num_threads();
+#else
   int num_threads = 1;
-  #endif
+#endif
 
   double azim_spacing = 0.05;
   int num_azim = 8; // 32
@@ -108,9 +109,7 @@ int main(int argc,  char* argv[]) {
   //solver.loadInitialFSRFluxes("fluxes-70-group");
   //solver.setResidualByReference("ref-fluxes-70-group-flat");
   //solver.setResidualByReference("ref-fluxes-70-group-flat-trunc");
-  //solver.stabalizeTransport(1.0, YAMAMOTO);
-  //solver.stabalizeTransport(1.0/16.0);
-  solver.stabalizeTransport(0.25);
+  solver.stabilizeTransport(0.25);
   solver.computeEigenvalue(max_iters);
   solver.printTimerReport();
 

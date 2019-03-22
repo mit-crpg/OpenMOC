@@ -5063,6 +5063,7 @@ void Cmfd::printProlongationFactors(int iteration) {
       fname += iter_num;
       fname += ".txt";
       std::ofstream out(fname);
+      out<< std::setprecision(5);
 
       out << "[NORMAL]  Spatial distribution of prolongation factors:"
           << std::endl;

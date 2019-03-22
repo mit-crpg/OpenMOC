@@ -405,11 +405,11 @@ void TrackGenerator3D::setSegmentationZones(std::vector<double> zones) {
   if (zones.size() >= 2) {
     if (fabs(zones.at(0) - z_min) > TINY_MOVE)
       log_printf(ERROR, "Segmentation zones must contain the Geometry minimum."
-                 " The first value of the segmentaiton heights is %f and the "
+                 " The first value of the segmentation heights is %f and the "
                  "Geometry minimum is %f.", zones.at(0), z_min);
     if (fabs(zones.at(zones.size()-1) - z_max) > TINY_MOVE)
       log_printf(ERROR, "Segmentation zones must contain the Geometry maximum."
-                 " The last value of the segmentaiton heights is %f and the "
+                 " The last value of the segmentation heights is %f and the "
                  "Geometry maximum is %f.", zones.at(zones.size()-1), z_max);
   }
   else {

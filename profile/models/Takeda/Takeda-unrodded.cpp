@@ -7,23 +7,24 @@
 int main(int argc, char* argv[]) {
 
 #ifdef MPIx
-  MPI_Init(&argc, &argv);
+  int provided;
+  MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
   log_set_ranks(MPI_COMM_WORLD);
 #endif
 
   /* Define simulation parameters */
-  #ifdef OPENMP
-  int num_threads = omp_get_num_procs();
-  #else
+#ifdef OPENMP
+  int num_threads = omp_get_num_threads();
+#else
   int num_threads = 1;
-  #endif
+#endif
   double azim_spacing = 0.1;
-  int num_azim = 4;
+  int num_azim = 16;
   double polar_spacing = 0.75;
-  int num_polar = 2;
-  double tolerance = 1e-7;
+  int num_polar = 6;
+  double tolerance = 1e-6;
   int max_iters = 1000;
-  int refines = 2;
+  int refines = 1;
 
   /* Set logging information */
   set_log_level("NORMAL");
@@ -200,7 +201,7 @@ int main(int argc, char* argv[]) {
   /* Create CMFD mesh */
   log_printf(NORMAL, "Creating Cmfd mesh...");
   Cmfd* cmfd = new Cmfd();
-  cmfd->setSORRelaxationFactor(1.5);
+  cmfd->setCMFDRelaxationFactor(0.7);
   cmfd->setLatticeStructure(5, 5, 5);
   cmfd->setKNearest(1);
 
@@ -220,7 +221,7 @@ int main(int argc, char* argv[]) {
   TrackGenerator3D track_generator(&geometry, num_azim, num_polar, azim_spacing,
                                    polar_spacing);
   track_generator.setSegmentFormation(OTF_TRACKS);
-  std::vector<FP_PRECISION> seg_zones {-12.5, 12.5};
+  std::vector<double> seg_zones {-12.5, 12.5};
   track_generator.setSegmentationZones(seg_zones);
   track_generator.setNumThreads(num_threads);
   track_generator.setQuadrature(quad);

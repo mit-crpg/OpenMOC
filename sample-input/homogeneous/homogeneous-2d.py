@@ -26,8 +26,7 @@ max_iters = options.max_iters
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = openmoc.TrackGenerator(geometry, num_azim, num_polar,
-                                         azim_spacing)
+track_generator = openmoc.TrackGenerator(geometry, num_azim, azim_spacing)
 track_generator.setNumThreads(num_threads)
 track_generator.setZCoord(0.1)
 track_generator.generateTracks()
@@ -49,9 +48,7 @@ solver.printTimerReport()
 
 log.py_printf('NORMAL', 'Plotting data...')
 
-plotter.plot_periodic_cycles_2D(track_generator)
-plotter.plot_reflective_cycles_2D(track_generator)
-plotter.plot_tracks_2D(track_generator)
+plotter.plot_tracks(track_generator)
 plotter.plot_materials(geometry, gridsize=500, plane='xy', offset=0.)
 plotter.plot_cells(geometry, gridsize=500, plane='xy', offset=0.)
 plotter.plot_flat_source_regions(geometry, gridsize=500, plane='xy', offset=0.)

@@ -244,6 +244,9 @@ private:
   /** Flag indicating whether to check neutron balance on every CMFD solve */
   bool _check_neutron_balance;
 
+  /** Whether to allow the CMFD solver to work with / return negative fluxes */
+  bool _negative_fluxes_allowed;
+
   /** Number of cells to used in updating MOC flux */
   int _k_nearest;
 

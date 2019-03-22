@@ -3,7 +3,7 @@ import openmoc
 import openmoc.log as log
 import openmoc.plotter as plotter
 from openmoc.options import Options
-from geometry import geometry
+from geometry import geometry, source_cell
 
 ###############################################################################
 #                          Main Simulation Parameters
@@ -26,8 +26,7 @@ max_iters = options.max_iters
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = openmoc.TrackGenerator(geometry, num_azim, num_polar,
-                                         azim_spacing)
+track_generator = openmoc.TrackGenerator(geometry, num_azim, azim_spacing)
 track_generator.setNumThreads(num_threads)
 track_generator.setZCoord(1e-5)
 track_generator.generateTracks()

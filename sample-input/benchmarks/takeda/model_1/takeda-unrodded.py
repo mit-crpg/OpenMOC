@@ -22,12 +22,14 @@ v = universes['Void']
 a = universes['Control Rod']
 r = universes['Reflector']
 
-lattices['Root'].setWidth(width_x=5.0/refines, width_y=5.0/refines, width_z=5.0/refines)
-lattices['Root'].setUniverses([[np.repeat([r, r, r, r, r], refines).tolist()] * 4 * refines +
-                                 [np.repeat([r, r, r, v, r], refines).tolist()] * refines] * 2 * refines +
-                                [[np.repeat([r, r, r, r, r], refines).tolist()] * 2 * refines +
-                                 [np.repeat([c, c, c, r, r], refines).tolist()] * 2 * refines +
-                                 [np.repeat([c, c, c, v, r], refines).tolist()] * refines] * 3 * refines)
+lattices['Root'].setWidth(width_x=5.0/refines, width_y=5.0/refines,
+                          width_z=5.0/refines)
+lattices['Root'].setUniverses(
+    [[np.repeat([r, r, r, r, r], refines).tolist()] * 4 * refines +
+     [np.repeat([r, r, r, v, r], refines).tolist()] * refines] * 2 * refines +
+    [[np.repeat([r, r, r, r, r], refines).tolist()] * 2 * refines +
+     [np.repeat([c, c, c, r, r], refines).tolist()] * 2 * refines +
+     [np.repeat([c, c, c, v, r], refines).tolist()] * refines] * 3 * refines)
 
 ###############################################################################
 ##########################     Creating Cmfd mesh    ##########################
@@ -47,7 +49,6 @@ geometry.setRootUniverse(universes['Root'])
 geometry.setCmfd(cmfd)
 geometry.initializeFlatSourceRegions()
 
-
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
 ###############################################################################
@@ -56,13 +57,11 @@ quad = openmoc.EqualAnglePolarQuad()
 quad.setNumPolarAngles(opts.num_polar)
 
 track_generator = openmoc.TrackGenerator3D(geometry, opts.num_azim,
-                                           opts.num_polar,
-                                           opts.azim_spacing,
+                                           opts.num_polar, opts.azim_spacing,
                                            opts.polar_spacing)
 track_generator.setQuadrature(quad)
 track_generator.setNumThreads(opts.num_omp_threads)
 track_generator.setSegmentFormation(openmoc.OTF_STACKS)
-track_generator.setSegmentationHeights([0.1])
 track_generator.generateTracks()
 
 ###############################################################################
@@ -80,7 +79,6 @@ solver.printTimerReport()
 ###############################################################################
 
 process.compute_fission_rates(solver, use_hdf5=False)
-process.compute_material_fluxes(solver, use_hdf5=False)
 
 plotter.plot_materials(geometry, gridsize=500, plane='xy')
 plotter.plot_materials(geometry, gridsize=500, plane='xz', offset=-10.0)

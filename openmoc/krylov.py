@@ -52,6 +52,9 @@ class IRAMSolver(object):
         else:
             self._with_cuda = False
 
+        # Allow solver to compute negative fluxes
+        self._moc_solver.allowNegativeFluxes(True)
+
         # Compute the size of the LinearOperators used in the eigenvalue problem
         geometry = self._moc_solver.getGeometry()
         num_FSRs = geometry.getNumFSRs()
@@ -71,8 +74,9 @@ class IRAMSolver(object):
         self._eigenvalues = None
         self._eigenvectors = None
 
+
     def computeEigenmodes(self, solver_mode=openmoc.FORWARD, num_modes=5,
-                          inner_method='gmres', outer_tol=1e-5,
+                          inner_method='lgmres', outer_tol=1e-5,
                           inner_tol=1e-6, interval=10):
         """Compute all eigenmodes in the problem using the scipy.linalg package.
 
@@ -97,7 +101,10 @@ class IRAMSolver(object):
         if (geometry.getMinXBoundaryType() != openmoc.VACUUM or
             geometry.getMaxXBoundaryType() != openmoc.VACUUM or
             geometry.getMinYBoundaryType() != openmoc.VACUUM or
-            geometry.getMaxYBoundaryType() != openmoc.VACUUM):
+            geometry.getMaxYBoundaryType() != openmoc.VACUUM or
+            (self._moc_solver.is3D() and 
+             (geometry.getMinZBoundaryType() != openmoc.VACUUM or
+              geometry.getMaxZBoundaryType() != openmoc.VACUUM))):
             py_printf('ERROR', 'All boundary conditions must be ' + \
                       'VACUUM for the IRAMSolver')
 
@@ -116,14 +123,7 @@ class IRAMSolver(object):
         self._a_count = 0
 
         # Initialize MOC solver
-        self._moc_solver.initializePolarQuadrature()
-        self._moc_solver.initializeExpEvaluator()
-        self._moc_solver.initializeMaterials(solver_mode)
-        self._moc_solver.initializeFluxArrays()
-        self._moc_solver.initializeSourceArrays()
-        self._moc_solver.initializeFSRs()
-        self._moc_solver.countFissionableFSRs()
-        self._moc_solver.zeroTrackFluxes()
+        self._moc_solver.initializeSolver(solver_mode)
 
         # Initialize SciPy operators
         op_shape = (self._op_size, self._op_size)
@@ -155,6 +155,7 @@ class IRAMSolver(object):
 
         # Restore the material data
         self._moc_solver.resetMaterials(solver_mode)
+
 
     def _A(self, flux):
         """Private routine for inner Ax=b solves with the scattering source.
@@ -194,6 +195,7 @@ class IRAMSolver(object):
         # Return flux residual
         return flux_old - flux
 
+
     def _M(self, flux):
         """Private routine for inner Ax=b solves with the fission source.
 
@@ -226,6 +228,7 @@ class IRAMSolver(object):
 
         # Return new flux
         return flux
+
 
     def _F(self, flux):
         """Private routine for outer eigenvalue solver method.

@@ -1,7 +1,6 @@
 import openmoc
 import openmoc.log as log
 import openmoc.plotter as plotter
-import openmoc.materialize as materialize
 
 log.set_log_level('NORMAL')
 
@@ -12,7 +11,7 @@ log.set_log_level('NORMAL')
 
 log.py_printf('NORMAL', 'Importing materials data from HDF5...')
 
-materials = materialize.materialize('../c5g7-materials.py')
+materials = openmoc.materialize.load_from_hdf5('c5g7-mgxs.h5', '../')
 
 
 ###############################################################################
@@ -77,9 +76,9 @@ root_universe.addCell(root_cell)
 ###############################################################################
 
 # Number of lattice cells
-num_x = 200
-num_y = 200
-num_z = 200
+num_x = 100
+num_y = 100
+num_z = 50
 
 # Compute widths of each lattice cell
 width_x = (root_universe.getMaxX() - root_universe.getMinX()) / num_x

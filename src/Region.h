@@ -167,7 +167,7 @@ class RectangularPrism : public Intersection {
 
 public:
   RectangularPrism(double width_x, double width_y, double origin_x=0.,
-                   double origin_y=0., double width_z=1E100,
+                   double origin_y=0., double width_z=3E300,
                    double origin_z=0.);
   void setBoundaryType(boundaryType boundary_type);
 };

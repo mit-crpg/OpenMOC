@@ -120,6 +120,7 @@ log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 
 cmfd = openmoc.Cmfd()
 cmfd.setLatticeStructure(2,2,4)
+cmfd.setCMFDRelaxationFactor(0.7)
 cmfd.setKNearest(3)
 
 ###############################################################################

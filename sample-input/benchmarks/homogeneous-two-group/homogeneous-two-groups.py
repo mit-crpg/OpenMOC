@@ -99,8 +99,7 @@ geometry.initializeFlatSourceRegions()
 
 log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = openmoc.TrackGenerator(geometry, num_azim, num_polar,
-                                         azim_spacing)
+track_generator = openmoc.TrackGenerator(geometry, num_azim, azim_spacing)
 track_generator.setNumThreads(num_threads)
 track_generator.generateTracks()
 

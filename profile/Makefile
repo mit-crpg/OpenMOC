@@ -80,14 +80,9 @@ single-assembly/quarter-c5g7-assembly.cpp \
 single-assembly/single-c5g7-assembly.cpp \
 load-geometry/load-geometry.cpp \
 load-geometry/load-single-assembly.cpp \
-load-geometry/load-few-assm.cpp \
 load-geometry/load-2D-full-core.cpp \
-load-geometry/trunc-core-2D.cpp \
-load-geometry/load-corner.cpp \
-load-geometry/load-assembly-lattice.cpp \
-load-geometry/load-tc-study.cpp \
 load-geometry/load-full-core.cpp \
-non-uniform-lattice/non-uniform-lattice.cpp \
+non-uniform-lattice/non-uniform-lattice.cpp
 
 #===============================================================================
 # Sets Flags
