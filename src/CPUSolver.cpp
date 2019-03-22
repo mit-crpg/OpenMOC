@@ -745,16 +745,24 @@ void CPUSolver::deleteMPIBuffers() {
  */
 void CPUSolver::resetBoundaryFluxes() {
 
-  log_printf(INFO, "Setting incoming vaccum boundary fluxes to 0 for %ld "
-             "tracks", _tracks_from_vacuum.size());
+  if (_geometry->isDomainDecomposed()) {
+    log_printf(INFO, "Setting incoming vaccum boundary fluxes to 0 for %ld "
+               "tracks", _tracks_from_vacuum.size());
 
 #pragma omp parallel for
-  for (long i=0; i< _tracks_from_vacuum.size(); i++) {
+    for (long i=0; i< _tracks_from_vacuum.size(); i++) {
 
-    long t_id = _tracks_from_vacuum.at(i) / 2;
-    int dir = _tracks_from_vacuum.at(i) - 2 * t_id;
-    for (int pe=0; pe<_fluxes_per_track; pe++)
-      _boundary_flux(t_id, dir, pe) = 0.;
+      long t_id = _tracks_from_vacuum.at(i) / 2;
+      int dir = _tracks_from_vacuum.at(i) - 2 * t_id;
+      for (int pe=0; pe<_fluxes_per_track; pe++)
+        _boundary_flux(t_id, dir, pe) = 0.;
+    }
+  }
+  else {
+    for (long t=0; t < _tot_num_tracks; t++)
+      for (int d=0; d < 2; d++)
+        for (int pe=0; pe < _fluxes_per_track; pe++)
+          _boundary_flux(t,d,pe) = 0.;
   }
 }
 #endif
@@ -1040,7 +1048,7 @@ void CPUSolver::transferAllInterfaceFluxes() {
     _timer->stopTimer();
     _timer->recordSplit("Packing time");
 
-//#ifdef ONLYVACUUMBC
+#ifdef ONLYVACUUMBC
     /* Check if any rank needs to send buffers : because of the pre-filling
        some nodes might have sent all their fluxes before others */
     int need_to_send = 0;
@@ -1053,14 +1061,13 @@ void CPUSolver::transferAllInterfaceFluxes() {
         need_to_send = 1;
     }
 
-    //log_printf(NODAL, "%d", need_to_send);
     int num_send_domains;
     MPI_Allreduce(&need_to_send, &num_send_domains, 1, MPI_INT, MPI_SUM,
                   MPI_cart);
     if (round_counter % 20 == 0)
-      log_printf(NORMAL, "Communication round %d : %d domains sending track ",    ///////////////
+      log_printf(NORMAL, "Communication round %d : %d domains sending track ",
                  "fluxes.", round_counter, num_send_domains);
-//#endif
+#endif
 
     /* Send and receive from all neighboring domains */
     _timer->startTimer();
@@ -1680,7 +1687,7 @@ double CPUSolver::normalizeFluxes() {
   long total_num_FSRs = _num_FSRs;
 
 #ifdef MPIx
-  /* Reduce total fission rates across domians */
+  /* Reduce total fission rates across domains */
   if (_geometry->isDomainDecomposed()) {
 
     /* Get the communicator */
@@ -2061,7 +2068,7 @@ void CPUSolver::transportSweep() {
       tallyStartingCurrents();
 
   /* Zero boundary leakage tally */
-  if (_cmfd == NULL)
+  if (_boundary_leakage != NULL)
     memset(_boundary_leakage, 0, _tot_num_tracks * sizeof(float));
 
   /* Tracks are traversed and the MOC equations from this CPUSolver are applied
@@ -2289,7 +2296,13 @@ void CPUSolver::addSourceToScalarFlux() {
     sigma_t = _FSR_materials[r]->getSigmaT();
 
     for (int e=0; e < _num_groups; e++) {
-      _scalar_flux(r, e) /= (sigma_t[e] * volume);
+
+      /* Handle zero volume regions */
+      if (volume > FLT_EPSILON)
+        _scalar_flux(r, e) /= (sigma_t[e] * volume);
+      else
+        _scalar_flux(r, e) = 0;
+
       _scalar_flux(r, e) += FOUR_PI * _reduced_sources(r, e) / sigma_t[e];
       if (_scalar_flux(r, e) < 0.0) {
         _scalar_flux(r, e) = 1.0e-20;
