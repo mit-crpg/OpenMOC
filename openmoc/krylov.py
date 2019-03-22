@@ -258,7 +258,6 @@ class IRAMSolver(object):
             flux, x = linalg.gmres(self._A_op, flux, tol=self._inner_tol)
         elif self._inner_method == 'lgmres':
             flux, x = linalg.lgmres(self._A_op, flux, tol=self._inner_tol)
-        # Note bicgstab requires A to be hermitian, not true for most cases
         elif self._inner_method == 'bicgstab':
             flux, x = linalg.bicgstab(self._A_op, flux, tol=self._inner_tol)
         elif self._inner_method == 'cgs':

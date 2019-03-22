@@ -24,11 +24,12 @@ r = universes['Reflector']
 
 lattices['Root'].setWidth(width_x=5.0/refines, width_y=5.0/refines,
                           width_z=5.0/refines)
-lattices['Root'].setUniverses([[np.repeat([r, r, r, r, r], refines).tolist()] * 4 * refines +
-                                 [np.repeat([r, r, r, v, r], refines).tolist()] * refines] * 2 * refines +
-                                [[np.repeat([r, r, r, r, r], refines).tolist()] * 2 * refines +
-                                 [np.repeat([c, c, c, r, r], refines).tolist()] * 2 * refines +
-                                 [np.repeat([c, c, c, v, r], refines).tolist()] * refines] * 3 * refines)
+lattices['Root'].setUniverses(
+    [[np.repeat([r, r, r, r, r], refines).tolist()] * 4 * refines +
+     [np.repeat([r, r, r, v, r], refines).tolist()] * refines] * 2 * refines +
+    [[np.repeat([r, r, r, r, r], refines).tolist()] * 2 * refines +
+     [np.repeat([c, c, c, r, r], refines).tolist()] * 2 * refines +
+     [np.repeat([c, c, c, v, r], refines).tolist()] * refines] * 3 * refines)
 
 ###############################################################################
 ##########################     Creating Cmfd mesh    ##########################
@@ -47,7 +48,6 @@ geometry = openmoc.Geometry()
 geometry.setRootUniverse(universes['Root'])
 geometry.setCmfd(cmfd)
 geometry.initializeFlatSourceRegions()
-
 
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################
