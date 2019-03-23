@@ -230,6 +230,13 @@ boundaryType Universe::getMinXBoundaryType() {
   if (!_boundaries_inspected)
     calculateBoundaries();
 
+#ifdef ONLYVACUUMBC
+  if (_min_x_bound != VACUUM && _min_x_bound != INTERFACE)
+    log_printf(ERROR, "OpenMOC was compiled specially for cases with only "
+               "vacuum boundary conditions and a reflective or periodic "
+               "boundary condition was found in universe %d.", _id);
+#endif
+
   return _min_x_bound;
 }
 
@@ -243,6 +250,13 @@ boundaryType Universe::getMaxXBoundaryType() {
 
   if (!_boundaries_inspected)
     calculateBoundaries();
+
+#ifdef ONLYVACUUMBC
+  if (_max_x_bound != VACUUM && _max_x_bound != INTERFACE)
+    log_printf(ERROR, "OpenMOC was compiled specially for cases with only "
+               "vacuum boundary conditions and a reflective or periodic "
+               "boundary condition was found in universe %d.", _id);
+#endif
 
   return _max_x_bound;
 }
@@ -258,6 +272,13 @@ boundaryType Universe::getMinYBoundaryType() {
   if (!_boundaries_inspected)
     calculateBoundaries();
 
+#ifdef ONLYVACUUMBC
+  if (_min_y_bound != VACUUM && _min_y_bound != INTERFACE)
+    log_printf(ERROR, "OpenMOC was compiled specially for cases with only "
+               "vacuum boundary conditions and a reflective or periodic "
+               "boundary condition was found in universe %d.", _id);
+#endif
+
   return _min_y_bound;
 }
 
@@ -271,6 +292,13 @@ boundaryType Universe::getMaxYBoundaryType() {
 
   if (!_boundaries_inspected)
     calculateBoundaries();
+
+#ifdef ONLYVACUUMBC
+  if (_max_y_bound != VACUUM && _max_y_bound != INTERFACE)
+    log_printf(ERROR, "OpenMOC was compiled specially for cases with only "
+               "vacuum boundary conditions and a reflective or periodic "
+               "boundary condition was found in universe %d.", _id);
+#endif
 
   return _max_y_bound;
 }
@@ -286,6 +314,13 @@ boundaryType Universe::getMinZBoundaryType() {
   if (!_boundaries_inspected)
     calculateBoundaries();
 
+#ifdef ONLYVACUUMBC
+  if (_min_z_bound != VACUUM && _min_z_bound != INTERFACE)
+    log_printf(ERROR, "OpenMOC was compiled specially for cases with only "
+               "vacuum boundary conditions and a reflective or periodic "
+               "boundary condition was found in universe %d.", _id);
+#endif
+
   return _min_z_bound;
 }
 
@@ -299,6 +334,13 @@ boundaryType Universe::getMaxZBoundaryType() {
 
   if (!_boundaries_inspected)
     calculateBoundaries();
+
+#ifdef ONLYVACUUMBC
+  if (_max_z_bound != VACUUM && _max_z_bound != INTERFACE)
+    log_printf(ERROR, "OpenMOC was compiled specially for cases with only "
+               "vacuum boundary conditions and a reflective or periodic "
+               "boundary condition was found in universe %d.", _id);
+#endif
 
   return _max_z_bound;
 }

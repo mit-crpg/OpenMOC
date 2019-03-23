@@ -746,8 +746,8 @@ void CPUSolver::deleteMPIBuffers() {
 void CPUSolver::resetBoundaryFluxes() {
 
   if (_geometry->isDomainDecomposed()) {
-    log_printf(INFO, "Setting incoming vaccum boundary fluxes to 0 for %ld "
-               "tracks", _tracks_from_vacuum.size());
+    log_printf(INFO, "Setting %ld incoming vaccum boundary fluxes to 0.",
+               _tracks_from_vacuum.size());
 
 #pragma omp parallel for
     for (long i=0; i< _tracks_from_vacuum.size(); i++) {
@@ -1065,7 +1065,7 @@ void CPUSolver::transferAllInterfaceFluxes() {
     MPI_Allreduce(&need_to_send, &num_send_domains, 1, MPI_INT, MPI_SUM,
                   MPI_cart);
     if (round_counter % 20 == 0)
-      log_printf(NORMAL, "Communication round %d : %d domains sending track ",
+      log_printf(NORMAL, "Communication round %d : %d domains sending track "
                  "fluxes.", round_counter, num_send_domains);
 #endif
 
