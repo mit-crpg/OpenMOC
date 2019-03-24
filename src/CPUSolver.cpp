@@ -614,8 +614,7 @@ void CPUSolver::setupMPIBuffers() {
     }
 
     /* Determine which Tracks communicate with each neighbor domain */
-//#pragma omp parallel for
-//FIXME Find bug that makes threaded result different (in ONLYVACUUMBC mode)
+#pragma omp parallel for
     for (long t=0; t<_tot_num_tracks; t++) {
 
       Track* track;
@@ -690,8 +689,10 @@ void CPUSolver::setupMPIBuffers() {
     _max_buffer_fill = TRACKS_PER_BUFFER;
 #else
     //TODO Optimize the size of the buffer, either by performing a round
-    // of track transfers to estimate overflow issues, or by adapting how
-    // much the send_buffers are filled at every communication round.
+    // of track transfers to estimate overflow issues
+    // -or by adapting how much the send_buffers are filled at every
+    // communication round.
+    // -or by dynamically resizing buffers to handle overflows
     int domains_xyz[3];
     _geometry->getDomainStructure(domains_xyz);
 
@@ -700,14 +701,10 @@ void CPUSolver::setupMPIBuffers() {
         (domains_xyz[1] > 1 && domains_xyz[0] == 1 && domains_xyz[2] == 1) ||
         (domains_xyz[2] > 1 && domains_xyz[0] == 1 && domains_xyz[1] == 1))
       _max_buffer_fill = TRACKS_PER_BUFFER;
-    /* Communication in two direction + diagonals */
-    else if ((domains_xyz[0] > 1 && domains_xyz[1] > 1 && domains_xyz[2] == 1) ||
-        (domains_xyz[0] > 1 && domains_xyz[2] > 1 && domains_xyz[1] == 1) ||
-        (domains_xyz[1] > 1 && domains_xyz[2] > 1 && domains_xyz[0] == 1))
-      _max_buffer_fill = TRACKS_PER_BUFFER / 3;
-    /* Communication in all directions + diagonals */
+    /* Communication in more than two directions + diagonals */
     else
-      _max_buffer_fill = TRACKS_PER_BUFFER / 10;
+      _max_buffer_fill = TRACKS_PER_BUFFER / std::max(domains_xyz[0],
+           std::max(domains_xyz[1], domains_xyz[2]));
 #endif
   }
 }
@@ -1065,8 +1062,8 @@ void CPUSolver::transferAllInterfaceFluxes() {
     MPI_Allreduce(&need_to_send, &num_send_domains, 1, MPI_INT, MPI_SUM,
                   MPI_cart);
     if (round_counter % 20 == 0)
-      log_printf(NORMAL, "Communication round %d : %d domains sending track "
-                 "fluxes.", round_counter, num_send_domains);
+      log_printf(INFO_ONCE, "Communication round %d : %d domains sending track"
+                 " fluxes.", round_counter, num_send_domains);
 #endif
 
     /* Send and receive from all neighboring domains */

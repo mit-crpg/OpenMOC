@@ -330,7 +330,10 @@ void log_printf(logLevel level, const char* format, ...) {
         std::string msg = std::string(message);
         std::stringstream ss;
 #ifdef MPIx
-        ss << "[  INFO " << rank << " ]  ";
+        if (rank < 10)
+          ss << "[  INFO " << rank << " ]  ";
+        else
+          ss << "[  INFO " << rank << "]  ";
 #else
         ss << "[  INFO   ]  ";
 #endif
@@ -387,7 +390,14 @@ void log_printf(logLevel level, const char* format, ...) {
 
         std::string msg = std::string(message);
         std::stringstream ss;
-        ss << "[  NODE " << rank << " ]  ";
+#ifdef MPIx
+        if (rank < 10)
+          ss << "[  INFO " << rank << " ]  ";
+        else
+          ss << "[  INFO " << rank << "]  ";
+#else
+        ss << "[  INFO   ]  ";
+#endif
         std::string level_prefix = ss.str();
 
         /* If message is too long for a line, split into many lines */
