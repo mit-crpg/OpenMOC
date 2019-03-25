@@ -885,7 +885,8 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
 
   int num_groups_aligned = (_num_groups / VEC_ALIGNMENT + 1) * VEC_ALIGNMENT;
   FP_PRECISION fsr_flux[4 * num_groups_aligned * num_polar] __attribute__
-       ((aligned (VEC_ALIGNMENT))) = {0.0};
+       ((aligned (VEC_ALIGNMENT)));
+  memset(&fsr_flux[0], 0, 4 * num_groups_aligned * sizeof(FP_PRECISION));
   FP_PRECISION* fsr_flux_x = &fsr_flux[num_groups_aligned];
   FP_PRECISION* fsr_flux_y = &fsr_flux[2*num_groups_aligned];
   FP_PRECISION* fsr_flux_z = &fsr_flux[3*num_groups_aligned];
