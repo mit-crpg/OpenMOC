@@ -1046,8 +1046,30 @@ void CPUSolver::transferAllInterfaceFluxes() {
                  " fluxes.", round_counter, num_send_domains);
 #endif
 
-    /* Send and receive from all neighboring domains */
+    /* Set size of received messages, adjust buffer if needed */
     _timer->startTimer();
+    for (int i=0; i < num_domains; i++) {
+
+      /* Size of received message, in number of tracks */
+      _receive_size.at(i) = TRACKS_PER_BUFFER;
+
+#ifdef ONLYVACUUMBC
+      int domain = _neighbor_domains.at(i);
+      if (num_send_domains > 0) {
+        /* Communicate _send_buffers' sizes to adapt _receive_buffers' sizes */
+        MPI_Sendrecv(&_send_size.at(i), 1, MPI_INT, domain, 0,
+                     &_receive_size.at(i), 1, MPI_INT, domain, 0, MPI_cart,
+                     MPI_STATUS_IGNORE);
+
+        /* Adjust receiving buffer if incoming message is large */
+        if (_receive_size.at(i) > _receive_buffers.at(i).size() / _track_message_size)
+          _receive_buffers.at(i).resize(
+               _receive_size.at(i) * _track_message_size);
+      }
+#endif
+    }
+
+    /* Send and receive from all neighboring domains */
     bool communication_complete = true;
     for (int i=0; i < num_domains; i++) {
 
@@ -1059,25 +1081,10 @@ void CPUSolver::transferAllInterfaceFluxes() {
         reinterpret_cast<long*>(&_send_buffers.at(i)[_fluxes_per_track+1]);
       long first_track = first_track_idx[0];
 
-      /* Size of received message, in number of tracks */
-      _receive_size.at(i) = TRACKS_PER_BUFFER;
-
 #ifndef ONLYVACUUMBC
       if (first_track != -1) {
 #else
       if (num_send_domains > 0) {
-
-        /* Communicate _send_buffers' sizes to adapt _receive_buffers' sizes */
-        MPI_Sendrecv(&_send_size.at(i), 1, MPI_INT, domain, 0,
-                     &_receive_size.at(i), 1, MPI_INT, domain, 0, MPI_cart,
-                     MPI_STATUS_IGNORE);
-
-        /* Adjust receiving buffer if incoming message is large */
-        if (_receive_size.at(i) > _receive_buffers.at(i).size() / _track_message_size) {
-          _receive_buffers.at(i).resize(
-               _receive_size.at(i) * _track_message_size);
-        }
-
 #endif
 
         /* Send outgoing flux */
