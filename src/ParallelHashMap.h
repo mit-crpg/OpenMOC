@@ -489,7 +489,7 @@ bool ParallelHashMap<K,V>::contains(K& key) {
   do {
     table_ptr = _table;
     _announce[tid].value = table_ptr;
-#pragma omp flush(_announce)
+#pragma omp flush
   } while (table_ptr != _table);
 
   /* see if current table contains the thread */
@@ -530,7 +530,7 @@ V ParallelHashMap<K,V>::at(K& key) {
   do {
     table_ptr = _table;
     _announce[tid].value = table_ptr;
-#pragma omp flush(_announce)
+#pragma omp flush
   } while (table_ptr != _table);
 
   /* get value associated with the key in the underlying table */
@@ -695,7 +695,7 @@ void ParallelHashMap<K,V>::resize() {
 
   /* reassign pointer */
   _table = new_map;
-#pragma omp flush(_table)
+#pragma omp flush
 
   /* release all locks */
   for (size_t i=0; i<_num_locks; i++)
@@ -767,7 +767,7 @@ K* ParallelHashMap<K,V>::keys() {
   do {
     table_ptr = _table;
     _announce[tid].value = table_ptr;
-#pragma omp flush(_announce)
+#pragma omp flush
   } while (table_ptr != _table);
 
   /* get key list */
@@ -802,7 +802,7 @@ V* ParallelHashMap<K,V>::values() {
   do {
     table_ptr = _table;
     _announce[tid].value = table_ptr;
-#pragma omp flush(_announce)
+#pragma omp flush
   } while (table_ptr != _table);
 
   /* get value list */
@@ -863,7 +863,7 @@ void ParallelHashMap<K,V>::print_buckets() {
   do {
     table_ptr = _table;
     _announce[tid].value = table_ptr;
-#pragma omp flush(_announce)
+#pragma omp flush
   } while (table_ptr != _table);
 
   /* print buckets */
