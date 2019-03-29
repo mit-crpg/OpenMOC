@@ -22,7 +22,7 @@
 #include <malloc.h>
 #endif
 
-#ifdef ICPC
+#ifdef INTEL
 /** Aligned memory allocation for Intel's compiler */
 #define MM_MALLOC(size,alignment) _mm_malloc(size, alignment)
 

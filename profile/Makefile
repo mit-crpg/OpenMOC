@@ -182,7 +182,7 @@ ifeq ($(OPTIMIZE),yes)
     CFLAGS += -O3 -ffast-math -fpic -march=native
   endif
   ifeq ($(COMPILER),intel)
-    CFLAGS += -O3 -xhost -fast -ansi-alias -no-prec-div -ipo
+    CFLAGS += -O3 -xhost -ansi-alias -no-prec-div -ipo
   endif
   ifeq ($(COMPILER),impi)
     CFLAGS += -O3 -xhost -ansi-alias -no-prec-div -ipo
