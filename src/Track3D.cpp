@@ -2,10 +2,19 @@
 
 
 /**
- * @brief Constructor initializes an empty Track3D.
+ * @brief Constructor initializes Track3D with negative values and indexes.
  */
-Track3D::Track3D() : Track() { }
+Track3D::Track3D() : Track() {
 
+  _theta = -1.;
+  _polar_index = -1;
+  _z_index = -1;
+  _lz_index = -1;
+  _cycle_index = -1;
+  _cycle_track_index = -1;
+  _train_index = -1;
+  _cycle_fwd = false;
+}
 
 
 /**

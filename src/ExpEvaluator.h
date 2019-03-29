@@ -22,8 +22,8 @@
  * @class ExpEvaluator ExpEvaluator.h "src/ExpEvaluator.h"
  * @brief This is a class for evaluating exponentials.
  * @details The ExpEvaluator includes different algorithms to evaluate
- *          exponentials with varying degrees of accuracy and speed. This
- *          is a helper class for the Solver and its subclasses and it not
+ *          exponentials with varying degrees of accuracy and speed. This is a
+ *          helper class for the Solver and its subclasses and it is not
  *          intended to be initialized as a standalone object.
  */
 class ExpEvaluator {
@@ -309,7 +309,7 @@ inline FP_PRECISION ExpEvaluator::computeExponentialH(int index,
 /**
  * @brief Computes the G2 exponential term for a optical length and polar angle.
  * @details This method computes the G2 exponential term from Ferrer [1]
- *          for some optical path length and polar angle. This methoduses a
+ *          for some optical path length and polar angle. This method uses a
  *          rational fraction approximation to compute the exponential term.
  *
  *            [1] R. Ferrer and J. Rhodes III, "A Linear Source Approximation
@@ -317,7 +317,6 @@ inline FP_PRECISION ExpEvaluator::computeExponentialH(int index,
  *                Engineering, Volume 182, February 2016.
  *
  * @param tau the optical path length (e.g., sigma_t times length)
- * @param polar the polar angle index
  * @return the evaluated exponential
  */
 inline FP_PRECISION ExpEvaluator::computeExponentialG2(FP_PRECISION tau) {
