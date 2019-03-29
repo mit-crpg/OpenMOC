@@ -23,6 +23,7 @@
   #include "../src/log.h"
   #include "../src/Material.h"
   #include "../src/Matrix.h"
+  #include "../src/Mesh.h"
   #include "../src/LocalCoords.h"
   #include "../src/Point.h"
   #include "../src/Progress.h"
@@ -156,6 +157,7 @@ namespace std {
 %include ../src/log.h
 %include ../src/Material.h
 %include ../src/Matrix.h
+%include ../src/Mesh.h
 %include ../src/LocalCoords.h
 %include ../src/Point.h
 %include ../src/Progress.h

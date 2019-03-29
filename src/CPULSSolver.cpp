@@ -585,7 +585,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   }
   else {
 
-    int num_polar_2 = _num_polar / 2;
+    const int num_polar_2 = _num_polar / 2;
 
     /* Compute the segment midpoint (with factor 2 for LS) */
     FP_PRECISION center[2];

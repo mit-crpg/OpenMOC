@@ -5,7 +5,6 @@
  * @author Geoffrey Gunow, MIT, Course 22 (geogunow@mit.edu)
  */
 
-#ifndef SWIG
 #ifndef MESH_H
 #define MESH_H
 
@@ -56,7 +55,7 @@ public:
   Mesh(Solver* solver, Lattice* lattice=NULL);
   virtual ~Mesh();
 
-  void createLattice(int num_x, int num_y, int num_z);
+  void createLattice(int num_x, int num_y, int num_z=1);
   void setLattice(Lattice* lattice);
   std::vector<FP_PRECISION> getReactionRates(RxType rx,
                                              bool volume_average=false);
@@ -68,5 +67,4 @@ public:
 
 };
 
-#endif
 #endif

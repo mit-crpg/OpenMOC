@@ -1,7 +1,5 @@
 #include "Mesh.h"
 
-#ifndef SWIG
-
 /**
  * @brief The Mesh constructor.
  * @details If no lattice is given, a default lattice can be constructed with
@@ -348,5 +346,3 @@ Vector3D Mesh::getNonUniformFormattedReactionRates
 
   return rx_rates;
 }
-
-#endif

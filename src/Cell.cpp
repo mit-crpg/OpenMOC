@@ -910,6 +910,11 @@ void Cell::setRotation(double* rotation, int num_axes, std::string units) {
     log_printf(ERROR, "Unable to set rotation with %d axes for Cell %d. "
                "The rotation array should be length 3.", num_axes, _id);
 
+  if (_cell_type == MATERIAL)
+    log_printf(ERROR, "Rotations cannot be defined on material cells, "
+               "create a rotated cell, containing a universe, containing "
+               "the material cell.");
+
   std::string degrees("degrees");
   std::string radians("radians");
 
@@ -981,6 +986,11 @@ void Cell::setTranslation(double* translation, int num_axes) {
   if (num_axes != 3)
     log_printf(ERROR, "Unable to set translation for %d axes for Cell %d. "
                "The translation array should be length 3.", num_axes, _id);
+
+  if (_cell_type == MATERIAL)
+    log_printf(ERROR, "Translations cannot be defined on material cells, "
+               "create a translated cell, containing a universe, containing "
+               "the current material cell ID %d.", _id);
 
   for (int i=0; i < 3; i++)
     _translation[i] = translation[i];

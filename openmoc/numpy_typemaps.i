@@ -70,3 +70,16 @@
 
 /* The typemap used to match the method signature for Solver::setFluxes */
 %apply (FP_PRECISION* INPLACE_ARRAY1, int DIM1) {(FP_PRECISION* in_fluxes, int num_fluxes)}
+
+/* The typemap used to match the method signature for Mesh::getFormattedReactionRates */
+%typemap(out) std::vector<std::vector<std::vector<FP_PRECISION> > >& 
+{
+  for(int i = 0; i < $1->size(); ++i) {
+    for(int j = 0; j < $1->data()[i].size(); ++j) {
+      int subLength = $1->data()[i]->data()[j].size();
+      npy_doublep dims[] = { subLength };
+      PyObject* temp = PyArray_SimpleNewFromData(1, dims, NPY_DOUBLE, $1->data()[i]->data()[j].data());
+      $result = SWIG_Python_AppendOutput($result, temp);
+    }
+  }
+}
