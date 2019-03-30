@@ -109,10 +109,17 @@ endif
 # intel Compiler
 ifeq ($(COMPILER),intel)
   CC = icpc
-  source += VectorizedSolver.cpp
+  #source += VectorizedSolver.cpp
   CFLAGS += -DINTEL
-  CFLAGS += -I/opt/intel/composer_xe_2013_sp1.3.174/mkl/include
-  LDFLAGS += -mkl
+  #CFLAGS += -I/your/path/to/mkl/include
+  #LDFLAGS += -mkl
+endif
+
+# MPI wrapped intel Compiler
+ifeq ($(COMPILER),impi)
+  CC = mpiicpc
+  CFLAGS += -DINTEL
+  CFLAGS += -DMPIx
 endif
 
 # Clang Compiler
@@ -175,7 +182,10 @@ ifeq ($(OPTIMIZE),yes)
     CFLAGS += -O3 -ffast-math -fpic -march=native
   endif
   ifeq ($(COMPILER),intel)
-    CFLAGS += -O3 -xhost -fast -ansi-alias -no-prec-div -ipo
+    CFLAGS += -O3 -xhost -ansi-alias -no-prec-div -ipo
+  endif
+  ifeq ($(COMPILER),impi)
+    CFLAGS += -O3 -xhost -ansi-alias -no-prec-div -ipo
   endif
   ifeq ($(COMPILER),bluegene)
     CFLAGS += -O3 -ffast-math -fpic
@@ -196,6 +206,9 @@ ifeq ($(INFO),yes)
   ifeq ($(COMPILER),intel)
     CFLAGS += -qopt-report n=5 -qopt-report-phase=all
   endif
+  ifeq ($(COMPILER),impi)
+    CFLAGS += -qopt-report n=5 -qopt-report-phase=all
+  endif
   ifeq ($(COMPILER),gnu)
     CFLAGS += -fopt-info-all
   endif
@@ -209,21 +222,7 @@ endif
 
 # OpenMP flags
 ifeq ($(OPENMP),yes)
-  ifeq ($(COMPILER), gnu)
-    CFLAGS += -fopenmp
-  endif
-  ifeq ($(COMPILER), mpi)
-    CFLAGS += -fopenmp
-  endif
-  ifeq ($(COMPILER), bluegene)
-    CFLAGS += -fopenmp
-  endif
-  ifeq ($(COMPILER), intel)
-    CFLAGS += -openmp
-  endif
-  ifeq ($(COMPILER), clang)
-    CFLAGS += -fopenmp
-  endif
+  CFLAGS += -fopenmp
   CFLAGS += -DOPENMP
 endif
 

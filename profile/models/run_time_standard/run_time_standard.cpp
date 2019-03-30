@@ -130,8 +130,10 @@ int main(int argc, char* argv[]) {
     solver->printTimerReport();
 
   /* Extract reaction rates */
-  int my_rank;
+  int my_rank = 0;
+#ifdef MPIx
   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+#endif
   std::string rxtype[4] = {"FISSION_RX", "TOTAL_RX", "ABSORPTION_RX", "FLUX_RX"};
                           
 

@@ -377,8 +377,8 @@ void TransportKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
                                                    _direction);
 
   /* Allocate a buffer to store flux contribution of all cuts in this fsr */
-  FP_PRECISION fsr_flux[_num_groups] __attribute__ ((aligned (VEC_ALIGNMENT)))
-       = {0.0};
+  FP_PRECISION fsr_flux[_num_groups] __attribute__ ((aligned (VEC_ALIGNMENT)));
+  memset(&fsr_flux[0], 0, _num_groups * sizeof(FP_PRECISION));
 
   /* Apply MOC equations to segments */
   for (int i=0; i < num_cuts; i++) {
