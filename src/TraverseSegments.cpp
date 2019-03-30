@@ -270,12 +270,20 @@ void TraverseSegments::loopOverTracksByStackOTF(MOCKernel* kernel) {
  * @param kernel The kernel to apply to all segments
  */
 void TraverseSegments::traceSegmentsExplicit(Track* track, MOCKernel* kernel) {
+
+  /* Get direction of the track */
+  double phi = track->getPhi();
+  double theta = M_PI_2;
+  Track3D* track_3D = dynamic_cast<Track3D*>(track);
+  if (track_3D != NULL)
+    theta = track_3D->getTheta();
+
   for (int s=0; s < track->getNumSegments(); s++) {
     segment* seg = track->getSegment(s);
     kernel->execute(seg->_length, seg->_material, seg->_region_id, 0,
                     seg->_cmfd_surface_fwd, seg->_cmfd_surface_bwd,
                     seg->_starting_position[0], seg->_starting_position[1],
-                    seg->_starting_position[2], 0, M_PI_2);
+                    seg->_starting_position[2], phi, theta);
   }
 }
 

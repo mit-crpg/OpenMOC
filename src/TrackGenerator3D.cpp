@@ -1647,7 +1647,6 @@ void TrackGenerator3D::getTrackOTF(Track3D* track, TrackStackIndexes* tsi) {
 
   try {
     Track* track_2D = &_tracks_2D[tsi->_azim][tsi->_xy];
-    double x1, x2, y1, y2, z1, z2;
     TrackChainIndexes tci;
     convertTSItoTCI(tsi, &tci);
 
@@ -1660,12 +1659,12 @@ void TrackGenerator3D::getTrackOTF(Track3D* track, TrackStackIndexes* tsi) {
       Point* start_3d_2 = track->getStart();
       Point* end_3d_2 = track->getEnd();
 
-      x1 = start_3d_1->getX();
-      y1 = start_3d_1->getY();
-      z1 = start_3d_1->getZ();
-      x2 = end_3d_1->getX();
-      y2 = end_3d_1->getY();
-      z2 = end_3d_1->getZ();
+      double x1 = start_3d_1->getX();
+      double y1 = start_3d_1->getY();
+      double z1 = start_3d_1->getZ();
+      double x2 = end_3d_1->getX();
+      double y2 = end_3d_1->getY();
+      double z2 = end_3d_1->getZ();
 
       start_3d_2->setCoords(x1, y1, z1);
       end_3d_2->setCoords(x2, y2, z2);
