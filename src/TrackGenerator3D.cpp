@@ -1266,17 +1266,17 @@ void TrackGenerator3D::segmentize() {
 
   int tracks_segmented = 0;
   long num_3D_tracks = getNum3DTracks();
+  Progress progress(_num_3D_tracks, "Segmenting 3D Tracks", 0.1, _geometry,
+                    true);
 
   /* Loop over all Tracks */
   for (int a=0; a < _num_azim/2; a++) {
-
-    log_printf(NORMAL, "segmenting 3D tracks - Percent complete: %5.2f %%",
-               double(tracks_segmented) / num_3D_tracks * 100.0);
 
 #pragma omp parallel for
     for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
       for (int p=0; p < _num_polar; p++) {
         for (int z=0; z < _tracks_per_stack[a][i][p]; z++){
+          progress.incrementCounter();
           _geometry->segmentize3D(&_tracks_3D[a][i][p][z]);
           TrackStackIndexes tsi;
           tsi._azim = a;

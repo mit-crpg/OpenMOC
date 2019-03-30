@@ -1948,8 +1948,8 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
     /* Checks that segment does not have the same start and end Points */
     if (fabs(start.getX() - end.getX()) < FLT_EPSILON
         && fabs(start.getY() - end.getY()) < FLT_EPSILON)
-      log_printf(ERROR, "Created 2D segment with same start and end "
-                 "point: x = %f, y = %f, z=%f", start.getX(), start.getY(),
+      log_printf(ERROR, "Created 2D segment with same start and end point: "
+                 "x = %f, y = %f, z = %f", start.getX(), start.getY(),
                  start.getZ());
 
     /* Find the segment length, Material and FSR ID */
@@ -2080,15 +2080,6 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
 
   /* Vector to fill coordinates if necessary */
   std::vector<LocalCoords*> fsr_coords;
-  LocalCoords* preallocation;
-  int preallocation_size = 0;
-  if (setup) {
-    if (_overlaid_mesh != NULL && false) {
-      preallocation_size = _overlaid_mesh->getNumZ();
-      preallocation = new LocalCoords[preallocation_size];
-      fsr_coords.reserve(preallocation_size);
-    }
-  }
 
   /* If starting Point was outside the bounds of the Geometry */
   if (curr == NULL)
@@ -2121,19 +2112,7 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
     material = prev->getFillMaterial();
 
     /* Get the FSR ID or save the coordinates */
-    long fsr_id = -1;
-    if (setup && false) {
-      LocalCoords* new_fsr_coords;
-      if (fsr_coords.size() >= preallocation_size)
-        new_fsr_coords = new LocalCoords(0, 0, 0, true);
-      else
-        new_fsr_coords = &preallocation[fsr_coords.size()];
-      start.copyCoords(new_fsr_coords);
-      fsr_coords.push_back(new_fsr_coords);
-    }
-    else {
-      fsr_id = findFSRId(&start);
-    }
+    long fsr_id = findFSRId(&start);
 
     /* Create a new Track segment */
     segment new_segment;
@@ -2188,24 +2167,6 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
 
   log_printf(DEBUG, "Created %d segments for Track3D: %s",
              track->getNumSegments(), track->toString().c_str());
-
-  /* Search FSR IDs if necessary */
-  if (setup && false) {
-#pragma omp critical
-    {
-      for (int s=0; s < track->getNumSegments(); s++) {
-        long fsr_id = findFSRId(fsr_coords.at(s));
-        track->getSegment(s)->_region_id = fsr_id;
-      }
-    }
-
-    for (int s=0; s < fsr_coords.size(); s++)
-      fsr_coords.at(s)->prune();
-
-    if (preallocation_size > 0)
-      delete [] preallocation;
-  }
-
 
   /* Truncate the linked list for the LocalCoords */
   start.prune();

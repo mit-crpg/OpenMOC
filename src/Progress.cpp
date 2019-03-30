@@ -24,7 +24,7 @@ Progress::Progress(long num_iterations, std::string name, double interval,
    * each interval value in _intervals */
   int num_intervals = 1. / interval + 1;
   _intervals.resize(num_intervals);
-  int interval_stride = interval * num_iterations;
+  long interval_stride = interval * num_iterations;
   if (interval_stride == 0)
     interval_stride = 1;
   for (int i=0; i < num_intervals; i++)
