@@ -1373,8 +1373,6 @@ void TrackGenerator3D::create3DTracksArrays() {
     _tracks_per_azim[a] = tracks_per_azim;
   }
 
-  log_printf(NORMAL, "Total number of Tracks = %ld", num_tracks);
-
   /* Allocate tracks arrays if using explicit ray tracing */
   if (_segment_formation == EXPLICIT_3D) {
     _tracks_3D = new Track3D***[_num_azim/2];

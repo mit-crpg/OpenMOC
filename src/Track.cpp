@@ -196,7 +196,7 @@ int Track::getDomainBwd() {
 
 
 /**
- * @brief Adds a segment pointer to this Track's list of segments.
+ * @brief Adds a segment to this Track's list of segments.
  * @details This method assumes that segments are added in order of their
  *          starting location from the Track's start point.
  * @param segment A pointer to the segment
@@ -228,7 +228,7 @@ void Track::removeSegment(int index) {
 
 
 /**
- * @brief Inserts a segment pointer into this Track's list of segments.
+ * @brief Inserts a segment struct into this Track's list of segments.
  * @details This method appends the new segment directly behind another
  *          segment in the Track. This is a helper method for the
  *          TrackGenerator::splitTracks(...) routine.

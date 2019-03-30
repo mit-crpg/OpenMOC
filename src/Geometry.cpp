@@ -1958,10 +1958,10 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
     fsr_id = findFSRId(&start);
 
     /* Create a new Track segment */
-    segment* new_segment = new segment;
-    new_segment->_material = material;
-    new_segment->_length = length;
-    new_segment->_region_id = fsr_id;
+    segment new_segment;
+    new_segment._material = material;
+    new_segment._length = length;
+    new_segment._region_id = fsr_id;
 
     log_printf(DEBUG, "segment start x = %f, y = %f; end x = %f, y = %f",
                start.getX(), start.getY(), end.getX(), end.getY());
@@ -2009,8 +2009,8 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
       }
 
       /* Save CMFD surfaces */
-      new_segment->_cmfd_surface_fwd = cmfd_surfaces[0];
-      new_segment->_cmfd_surface_bwd = cmfd_surfaces[1];
+      new_segment._cmfd_surface_fwd = cmfd_surfaces[0];
+      new_segment._cmfd_surface_bwd = cmfd_surfaces[1];
 
       /* Re-nudge segments from surface. */
       start.adjustCoords(delta_x, delta_y);
@@ -2020,19 +2020,18 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
     /* Calculate the local centroid of the segment if available */
     //FIXME Consider reversing nudge
     Point* starting_point = start.getHighestLevel()->getPoint();
-    new_segment->_starting_position[0] = starting_point->getX();
-    new_segment->_starting_position[1] = starting_point->getY();
+    new_segment._starting_position[0] = starting_point->getX();
+    new_segment._starting_position[1] = starting_point->getY();
     if (_contains_FSR_centroids) {
       Point* centroid = getFSRCentroid(fsr_id);
       double x_start = starting_point->getX() - centroid->getX();
       double y_start = starting_point->getY() - centroid->getY();
-      new_segment->_starting_position[0] = x_start;
-      new_segment->_starting_position[1] = y_start;
+      new_segment._starting_position[0] = x_start;
+      new_segment._starting_position[1] = y_start;
     }
 
     /* Add the segment to the Track */
-    track->addSegment(new_segment);
-    delete new_segment;
+    track->addSegment(&new_segment);
   }
 
   log_printf(DEBUG, "Created %d segments for Track: %s",
@@ -2137,10 +2136,10 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
     }
 
     /* Create a new Track segment */
-    segment* new_segment = new segment;
-    new_segment->_material = material;
-    new_segment->_length = length;
-    new_segment->_region_id = fsr_id;
+    segment new_segment;
+    new_segment._material = material;
+    new_segment._length = length;
+    new_segment._region_id = fsr_id;
 
     log_printf(DEBUG, "segment start x = %f, y = %f, z = %f; "
                "end x = %f, y = %f, z = %f",
@@ -2161,9 +2160,9 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
       start.adjustCoords(-delta_x, -delta_y, -delta_z);
       end.adjustCoords(-delta_x, -delta_y, -delta_z);
 
-      new_segment->_cmfd_surface_fwd =
+      new_segment._cmfd_surface_fwd =
         _cmfd->findCmfdSurface(cmfd_cell, &end);
-      new_segment->_cmfd_surface_bwd =
+      new_segment._cmfd_surface_bwd =
         _cmfd->findCmfdSurface(cmfd_cell, &start);
 
       /* Re-nudge segments from surface. */
@@ -2178,14 +2177,13 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
       double x_start = starting_point->getX();
       double y_start = starting_point->getY();
       double z_start = starting_point->getZ();
-      new_segment->_starting_position[0] = x_start;
-      new_segment->_starting_position[1] = y_start;
-      new_segment->_starting_position[2] = z_start;
+      new_segment._starting_position[0] = x_start;
+      new_segment._starting_position[1] = y_start;
+      new_segment._starting_position[2] = z_start;
     }
 
     /* Add the segment to the Track */
-    track->addSegment(new_segment);
-    delete new_segment;
+    track->addSegment(&new_segment);
   }
 
   log_printf(DEBUG, "Created %d segments for Track3D: %s",
@@ -2401,9 +2399,9 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
                  "segmentation");
 
     /* Create a new 2D Track segment with extruded region ID */
-    segment* new_segment = new segment;
-    new_segment->_length = min_length;
-    new_segment->_region_id = region_id;
+    segment new_segment;
+    new_segment._length = min_length;
+    new_segment._region_id = region_id;
 
     /* Save indices of CMFD Mesh surfaces that the Track segment crosses */
     if (_cmfd != NULL) {
@@ -2448,8 +2446,8 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
       }
 
       /* Save CMFD surfaces */
-      new_segment->_cmfd_surface_fwd = cmfd_surfaces[0];
-      new_segment->_cmfd_surface_bwd = cmfd_surfaces[1];
+      new_segment._cmfd_surface_fwd = cmfd_surfaces[0];
+      new_segment._cmfd_surface_bwd = cmfd_surfaces[1];
 
       /* Re-nudge segments from surface. */
       start.adjustCoords(delta_x, delta_y, 0);
@@ -2457,8 +2455,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
     }
 
     /* Add the segment to the 2D track */
-    flattened_track->addSegment(new_segment);
-    delete new_segment;
+    flattened_track->addSegment(&new_segment);
   }
 
   /* Truncate the linked list for the LocalCoords */

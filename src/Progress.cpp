@@ -4,7 +4,7 @@
 /**
  * @brief Constructor for Progress.
  */
-Progress::Progress(int num_iterations, std::string name, double interval,
+Progress::Progress(long num_iterations, std::string name, double interval,
                    Geometry* geometry, bool mpi_comm) {
 
   if (geometry != NULL) {

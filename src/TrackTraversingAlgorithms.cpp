@@ -212,29 +212,28 @@ void SegmentSplitter::onTrack(Track* track, segment* segments) {
     for (int k=0; k < min_num_cuts; k++) {
 
       /* Create a new Track segment */
-      segment* new_segment = new segment;
-      new_segment->_material = material;
-      new_segment->_length = length / min_num_cuts;
-      new_segment->_region_id = fsr_id;
+      segment new_segment;
+      new_segment._material = material;
+      new_segment._length = length / min_num_cuts;
+      new_segment._region_id = fsr_id;
 
       /* Assign CMFD surface boundaries */
       if (k == 0)
-        new_segment->_cmfd_surface_bwd = cmfd_surface_bwd;
+        new_segment._cmfd_surface_bwd = cmfd_surface_bwd;
 
       if (k == min_num_cuts-1)
-        new_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
+        new_segment._cmfd_surface_fwd = cmfd_surface_fwd;
 
       /* Set the starting position */
-      new_segment->_starting_position[0] = x_curr;
-      new_segment->_starting_position[1] = y_curr;
-      new_segment->_starting_position[2] = z_curr;
-      x_curr += new_segment->_length * xdir;
-      y_curr += new_segment->_length * ydir;
-      z_curr += new_segment->_length * zdir;
+      new_segment._starting_position[0] = x_curr;
+      new_segment._starting_position[1] = y_curr;
+      new_segment._starting_position[2] = z_curr;
+      x_curr += new_segment._length * xdir;
+      y_curr += new_segment._length * ydir;
+      z_curr += new_segment._length * zdir;
 
       /* Insert the new segment to the Track */
-      track->insertSegment(s+k+1, new_segment);
-      delete new_segment;
+      track->insertSegment(s+k+1, &new_segment);
     }
 
     /* Remove the original segment from the Track */
@@ -472,7 +471,7 @@ LinearExpansionGenerator::LinearExpansionGenerator(CPULSSolver* solver)
 
   _exp_evaluator = new ExpEvaluator();
 
-  std::string msg = "Initializing track linear source components";
+  std::string msg = "Initializing linear source constant components";
   _progress = new Progress(_track_generator->getNumTracks(), msg, 0.1,
                     track_generator->getGeometry(), true);
 }
@@ -1145,27 +1144,27 @@ void ReadSegments::onTrack(Track* track, segment* segments) {
     ret = geometry->twiddleRead(&start_z, sizeof(double), 1, _in);
 
     /* Initialize segment with the data */
-    segment* curr_segment = new segment;
-    curr_segment->_length = length;
-    curr_segment->_material = materials[material_id];
-    curr_segment->_region_id = region_id;
-    curr_segment->_track_idx = track_idx;
-    curr_segment->_starting_position[0] = start_x;
-    curr_segment->_starting_position[1] = start_y;
-    curr_segment->_starting_position[2] = start_z;
+    segment curr_segment;
+    curr_segment._length = length;
+    curr_segment._material = materials[material_id];
+    curr_segment._region_id = region_id;
+    curr_segment._track_idx = track_idx;
+    curr_segment._starting_position[0] = start_x;
+    curr_segment._starting_position[1] = start_y;
+    curr_segment._starting_position[2] = start_z;
 
     /* Import CMFD-related data if needed */
     if (cmfd != NULL) {
       int cmfd_surface_fwd;
       ret = geometry->twiddleRead(&cmfd_surface_fwd, sizeof(int), 1, _in);
-      curr_segment->_cmfd_surface_fwd = cmfd_surface_fwd;
+      curr_segment._cmfd_surface_fwd = cmfd_surface_fwd;
       int cmfd_surface_bwd;
       ret = geometry->twiddleRead(&cmfd_surface_bwd, sizeof(int), 1, _in);
-      curr_segment->_cmfd_surface_bwd = cmfd_surface_bwd;
+      curr_segment._cmfd_surface_bwd = cmfd_surface_bwd;
     }
 
     /* Add this segment to the Track */
-    track->addSegment(curr_segment);
+    track->addSegment(&curr_segment);
   }
 }
 
