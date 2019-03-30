@@ -740,9 +740,9 @@ void TrackGenerator3D::initializeTracks() {
   }
 
   double x1, x2, y1, y2, z1, z2;
-  double width_x  = _geometry->getWidthX();
+  double width_x = _geometry->getWidthX();
   double width_y = _geometry->getWidthY();
-  double width_z  = _geometry->getWidthZ();
+  double width_z = _geometry->getWidthZ();
   double avg_polar_spacing = 0.0;
   double sum_correction = 0.0;
   double max_correction = 0.0;
@@ -852,7 +852,7 @@ void TrackGenerator3D::initializeTracks() {
   /* Allocate memory for 3D track stacks */
   create3DTracksArrays();
 
-  /* Save explicit Track data if necessary */
+  /* Initialize tracks in _tracks_3D, save tracks */
   if (_segment_formation == EXPLICIT_3D)
     getCycleTrackData(tcis, num_chains, true);
 
@@ -896,7 +896,7 @@ void TrackGenerator3D::initialize2DTrackChains() {
       track = &_tracks_2D[a][x];
       track->setLinkIndex(link_index);
 
-      /* Cycle through the tracks in the 2D chain */
+      /* Cycle through 2D chain's tracks, set their index, get chain length */
       while (track->getXYIndex() < _num_y[a]) {
         link_index++;
         track = _tracks_2D_array[track->getTrackPrdcFwd()];
@@ -1109,11 +1109,13 @@ void TrackGenerator3D::set3DTrackData(TrackChainIndexes* tci,
     double dx;
     double dy;
     double dl_xy;
+    /* For first link, track starts at x1,y1,z1, in middle of Z-boundary */
     if (link == first_link) {
       dx = track_2D->getEnd()->getX() - x1;
       dy = track_2D->getEnd()->getY() - y1;
       dl_xy = sqrt(dx*dx + dy*dy);
     }
+    /* For other links, track starts on the X or Y boundaries */
     else
       dl_xy = track_2D->getLength();
 
@@ -1128,11 +1130,9 @@ void TrackGenerator3D::set3DTrackData(TrackChainIndexes* tci,
 
     /* Set the end point coords */
     int polar;
-    double track_theta;
     x2 = x1 + dl * cos(phi);
     y2 = y1 + dl * sin(phi);
     polar = tci->_polar;
-    track_theta = theta;
 
     if (tci->_polar < _num_polar / 2)
       z2 = z1 + dl / tan(theta);
@@ -1160,10 +1160,19 @@ void TrackGenerator3D::set3DTrackData(TrackChainIndexes* tci,
       if (z == 0)
         _first_lz_of_stack[azim][xy][polar] = tci->_lz;
 
-      if (save_tracks && _segment_formation == EXPLICIT_3D) {
+      if (_segment_formation == EXPLICIT_3D && save_tracks) {
 
-        /* Get this 3D track */
+        /* Get a pointer to this 3D track in the global tracks array */
         Track3D* track_3D = &_tracks_3D[azim][xy][polar][z];
+
+        /* Ensure the track does not lie outside the geometry bounds,
+           due to floating point errors */
+        x1 = std::max(_x_min, std::min(_x_max, x1));
+        y1 = std::max(_y_min, std::min(_y_max, y1));
+        z1 = std::max(_z_min, std::min(_z_max, z1));
+        x2 = std::max(_x_min, std::min(_x_max, x2));
+        y2 = std::max(_y_min, std::min(_y_max, y2));
+        z2 = std::max(_z_min, std::min(_z_max, z2));
 
         /* Set the start and end points */
         track_3D->getStart()->setCoords(x1, y1, z1);
@@ -1173,7 +1182,7 @@ void TrackGenerator3D::set3DTrackData(TrackChainIndexes* tci,
         track_3D->setAzimIndex(azim);
         track_3D->setXYIndex(xy);
         track_3D->setPolarIndex(polar);
-        track_3D->setTheta(track_theta);
+        track_3D->setTheta(theta);
         track_3D->setPhi(phi);
       }
     }
@@ -1190,7 +1199,8 @@ void TrackGenerator3D::set3DTrackData(TrackChainIndexes* tci,
     }
   }
 
-  /* Ensure the track does not lie outside the geometry bounds */
+  /* Ensure the track does not lie outside the geometry bounds,
+     due to floating point errors */
   x1 = std::max(_x_min, std::min(_x_max, x1));
   y1 = std::max(_y_min, std::min(_y_max, y1));
   z1 = std::max(_z_min, std::min(_z_max, z1));

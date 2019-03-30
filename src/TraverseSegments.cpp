@@ -110,7 +110,7 @@ void TraverseSegments::loopOverTracksExplicit(MOCKernel* kernel) {
   /* Loop over all tracks, parallelizing over parallel 2D tracks */
   for (int a=0; a < num_azim/2; a++) {
     int num_xy = _track_generator->getNumX(a) + _track_generator->getNumY(a);
-#pragma omp for schedule(guided)
+#pragma omp for schedule(guided) collapse(2)
     for (int i=0; i < num_xy; i++) {
 
       /* Loop over polar angles */

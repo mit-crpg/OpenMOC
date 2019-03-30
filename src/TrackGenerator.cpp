@@ -1659,7 +1659,7 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
     total_volume[3] += _FSR_volumes[r] * centroids[r]->getZ();
 
     log_printf(DEBUG, "FSR ID = %d has volume = %f, centroid"
-               " (%f %f %f)", r, _FSR_volumes[r], centroids[r]->getX(),
+               " (%.3f %.3f %.3f)", r, _FSR_volumes[r], centroids[r]->getX(),
                centroids[r]->getY(), centroids[r]->getZ());
   }
 
