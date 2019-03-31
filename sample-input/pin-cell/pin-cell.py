@@ -45,9 +45,7 @@ solver.printTimerReport()
 
 openmoc.log.py_printf('NORMAL', 'Plotting data...')
 
-#plotter.plot_periodic_cycles_2D(track_generator)
 plotter.plot_quadrature(solver)
-#plotter.plot_reflective_cycles_2D(track_generator)
 plotter.plot_tracks(track_generator)
 plotter.plot_segments(track_generator)
 plotter.plot_materials(geometry, gridsize=500, plane='xy', offset=0.)

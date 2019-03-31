@@ -577,7 +577,7 @@ bool TrackGenerator::containsSegments() {
 
 
 /**
- * @brief Fills an array with the x,y coordinates for each Track.
+ * @brief Fills an array with the x,y,z coordinates for each Track.
  * @details This class method is intended to be called by the OpenMOC
  *          Python "plotter" module as a utility to assist in plotting
  *          tracks. Although this method appears to require two arguments,
@@ -589,7 +589,7 @@ bool TrackGenerator::containsSegments() {
  *          coords = track_generator.retrieveTrackCoords(num_tracks*4)
  * @endcode
  *
- * @param coords an array of coords of length 4 times the number of Tracks
+ * @param coords an array of coords of length 6 times the number of Tracks
  * @param num_tracks the total number of Tracks
  */
 void TrackGenerator::retrieveTrackCoords(double* coords, long num_tracks) {
@@ -598,7 +598,7 @@ void TrackGenerator::retrieveTrackCoords(double* coords, long num_tracks) {
 
 
 /**
- * @brief Fills an array with the x,y coordinates for each Track.
+ * @brief Fills an array with the x,y,z coordinates for each Track.
  * @details This class method is intended to be called by the OpenMOC
  *          Python "plotter" module as a utility to assist in plotting
  *          tracks. Although this method appears to require two arguments,
@@ -610,7 +610,7 @@ void TrackGenerator::retrieveTrackCoords(double* coords, long num_tracks) {
  *          coords = track_generator.retrieve2DTrackCoords(num_tracks*4)
  * @endcode
  *
- * @param coords an array of coords of length 4 times the number of Tracks
+ * @param coords an array of coords of length 6 times the number of Tracks
  * @param num_tracks the total number of Tracks
  */
 void TrackGenerator::retrieve2DTrackCoords(double* coords, long num_tracks) {
@@ -632,6 +632,7 @@ void TrackGenerator::retrieve2DTrackCoords(double* coords, long num_tracks) {
       coords[counter+3] = _tracks_2D[a][i].getEnd()->getX();
       coords[counter+4] = _tracks_2D[a][i].getEnd()->getY();
       coords[counter+5] = _tracks_2D[a][i].getEnd()->getZ();
+      //NOTE The Z-coordinate is constant
 
       counter += NUM_VALUES_PER_RETRIEVED_TRACK;
     }
@@ -640,7 +641,7 @@ void TrackGenerator::retrieve2DTrackCoords(double* coords, long num_tracks) {
 
 
 /**
- * @brief Fills an array with the x,y coordinates for each Track segment.
+ * @brief Fills an array with the x,y,z coordinates for each Track segment.
  * @details This class method is intended to be called by the OpenMOC
  *          Python "plotter" module as a utility to assist in plotting
  *          segments. Although this method appears to require two arguments,
@@ -652,7 +653,7 @@ void TrackGenerator::retrieve2DTrackCoords(double* coords, long num_tracks) {
  *          coords = track_generator.retrieveSegmentCoords(num_segments*5)
  * @endcode
  *
- * @param coords an array of coords of length 5 times the number of segments
+ * @param coords an array of coords of length 7 times the number of segments
  * @param num_segments the total number of Track segments
  */
 void TrackGenerator::retrieveSegmentCoords(double* coords, long num_segments) {
@@ -661,7 +662,7 @@ void TrackGenerator::retrieveSegmentCoords(double* coords, long num_segments) {
 
 
 /**
- * @brief Fills an array with the x,y coordinates for each Track segment.
+ * @brief Fills an array with the x,y,z coordinates for each Track segment.
  * @details This class method is intended to be called by the OpenMOC
  *          Python "plotter" module as a utility to assist in plotting
  *          segments. Although this method appears to require two arguments,
@@ -673,7 +674,7 @@ void TrackGenerator::retrieveSegmentCoords(double* coords, long num_segments) {
  *          coords = track_generator.retrieve2DSegmentCoords(num_segments*5)
  * @endcode
  *
- * @param coords an array of coords of length 5 times the number of segments
+ * @param coords an array of coords of length 7 times the number of segments
  * @param num_segments the total number of Track segments
  */
 void TrackGenerator::retrieve2DSegmentCoords(double* coords, long num_segments) {

@@ -489,7 +489,7 @@ void TrackGenerator3D::retrieveGlobalZMesh(double*& z_mesh, int& num_fsrs) {
 
 
 /**
- * @brief Fills an array with the x,y coordinates for each Track.
+ * @brief Fills an array with the x,y,z coordinates for each Track.
  * @details This class method is intended to be called by the OpenMOC
  *          Python "plotter" module as a utility to assist in plotting
  *          tracks. Although this method appears to require two arguments,
@@ -510,7 +510,7 @@ void TrackGenerator3D::retrieveTrackCoords(double* coords, long num_tracks) {
 
 
 /**
- * @brief Fills an array with the x,y coordinates for each Track.
+ * @brief Fills an array with the x,y,z coordinates for each Track.
  * @details This class method is intended to be called by the OpenMOC
  *          Python "plotter" module as a utility to assist in plotting
  *          tracks. Although this method appears to require two arguments,
@@ -564,7 +564,7 @@ void TrackGenerator3D::retrieve3DTrackCoords(double* coords, long num_tracks) {
 
 
 /**
- * @brief Fills an array with the x,y coordinates for each Track segment.
+ * @brief Fills an array with the x,y,z coordinates for each Track segment.
  * @details This class method is intended to be called by the OpenMOC
  *          Python "plotter" module as a utility to assist in plotting
  *          segments. Although this method appears to require two arguments,
@@ -1008,9 +1008,11 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
    * with the same start and end points */
   bool nudged = false;
   if (fabs(l_start) > FLT_EPSILON) {
-    if (fabs(int(round(x_ext / width_x)) * width_x - x_ext) < TINY_MOVE ||
-        fabs(int(round(y_ext / width_y)) * width_y - y_ext) < TINY_MOVE) {
-      l_start += TINY_MOVE * 10;
+    /* x_ext and y_ext are both 0 or n*width_x/y at a double reflection */
+    //FIXME Understand why sides instead of corners
+    if (fabs(round(x_ext / width_x) * width_x - x_ext) < TINY_MOVE ||
+        fabs(round(y_ext / width_y) * width_y - y_ext) < TINY_MOVE) {
+      l_start -= 10 * TINY_MOVE;
       x_ext = x_start - _x_min + l_start * cos_phi;
       y_ext = y_start - _y_min + l_start * sin_phi;
       nudged = true;
@@ -1030,7 +1032,30 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
   /* Get the starting y-coord */
   double y1 = fmod(y_ext, width_y) + _y_min;
 
-  /* Get the z-coords */
+  /* Get the track's starting and ending z-coords */
+  /* lz index of track in [0, nz+nl]
+   *             nl tracks
+   *             cutting top plane
+   *           _____________
+   *          |/ / / / / / /|
+   *  nz      | / / / / / / | nz
+   *  tracks  |/ / / / / / /| tracks cutting Z axis
+   *  cutting | / / / / / / | on other side
+   *  Z axis  |/ / / / / / /|
+   *          |_/_/_/_/_/_/_|
+   *           / / / / / /
+   *          / / / / / /
+   *           / / / / /
+   *  nl      / / / / /
+   *  tracks   / / / /
+   *  cutting / / / /
+   *  bottom   / / /
+   *  horiz.  / / /
+   *  plane    / /
+   *          / /
+   *           /
+   *          /
+   */
   double z1;
   double z2;
   if (tci->_polar < _num_polar / 2) {
@@ -1042,10 +1067,10 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
     z2 = _z_min + std::max(0., (lz - nl + 0.5)) * dz;
   }
 
-  /* If the start point was nudged, nudge it back */
+  /* Reverse nudging of point */
   if (nudged) {
-    x1 -= 10 * TINY_MOVE * cos_phi;
-    y1 -= 10 * TINY_MOVE * sin_phi;
+    x1 += 10 * TINY_MOVE * cos_phi;
+    y1 += 10 * TINY_MOVE * sin_phi;
   }
 
   /* Set the Track start point and ending z-coord */
@@ -1309,7 +1334,7 @@ void TrackGenerator3D::segmentize() {
 
 
 /**
- * @brief Fills an array with the x,y coordinates for a given track.
+ * @brief Fills an array with the x,y,z coordinates for a given track.
  * @details This class method is intended to be called by the OpenMOC
  *          Python "plotter" module as a utility to assist in plotting
  *          tracks. Although this method appears to require two arguments,
@@ -1324,7 +1349,7 @@ void TrackGenerator3D::segmentize() {
  * @param track_id the ID of the requested track
  */
 void TrackGenerator3D::retrieveSingle3DTrackCoords(double coords[6],
-                                                 int track_id) {
+                                                   long track_id) {
 
   /* Find 3D track associated with track_id */
   for (int a=0; a < _num_azim/2; a++) {
@@ -1354,7 +1379,7 @@ void TrackGenerator3D::retrieveSingle3DTrackCoords(double coords[6],
     }
   }
   log_printf(ERROR, "Unable to find a 3D track associated with the given track"
-                    "ID during coordinate retrieval");
+                    "ID %ld during coordinate retrieval", track_id);
   return;
 }
 
