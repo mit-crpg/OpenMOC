@@ -101,11 +101,12 @@ if comp:
                         write_line = white_space + geometry + breaker + \
                                 'setDomainDecomposition(' + \
                                 str(d[0]) + ', ' + str(d[1]) + ', ' + \
-								str(d[2]) + ', MPI_COMM_WORLD);\n'
+                                str(d[2]) + ', MPI_COMM_WORLD);\n'
                         fhw.write(write_line)
                         write_line = white_space + geometry + breaker + \
                                 'setNumDomainModules(' + \
-                                str(nd[0]/d[0]) + ', ' + str(nd[1]/d[1]) + ', ' + \
+                                str(nd[0]/d[0]) + ', ' + \
+                                str(nd[1]/d[1]) + ', ' + \
                                 str(nd[2]/d[2]) + ');\n'
                         fhw.write(write_line)
 
