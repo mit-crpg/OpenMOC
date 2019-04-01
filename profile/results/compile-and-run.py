@@ -19,8 +19,8 @@ wait_time = 3
 def get_unique_variants(num, max_decomp=10**8):
     x = set()
     for i in range(1, min(num, max_decomp) + 1):
-        for j in range(1, min(num/i, max_decomp) + 1):
-            for k in range(1, min(num/(i*j), max_decomp) + 1):
+        for j in range(1, min(num//i, max_decomp) + 1):
+            for k in range(1, min(num//(i*j), max_decomp) + 1):
                 if (i*j*k == num):
                     x.add((i,j,k))
     return list(x)
@@ -100,7 +100,8 @@ if comp:
                         breaker = pieces[1].split('setRootUniverse')[0]
                         write_line = white_space + geometry + breaker + \
                                 'setDomainDecomposition(' + \
-                                str(d[0]) + ', ' + str(d[1]) + ', ' + str(d[2]) + ');\n'
+                                str(d[0]) + ', ' + str(d[1]) + ', ' + \
+								str(d[2]) + ', MPI_COMM_WORLD);\n'
                         fhw.write(write_line)
                         write_line = white_space + geometry + breaker + \
                                 'setNumDomainModules(' + \
