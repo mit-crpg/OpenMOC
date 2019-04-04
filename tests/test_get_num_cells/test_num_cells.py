@@ -8,11 +8,11 @@ from testing_harness import TestHarness
 from input_set import PinCellInput
 
 
-class PinCellTestHarness(TestHarness):
-    """An eigenvalue calculation in a pin cell with 7-group C5G7 data."""
+class GetNumCellsTestHarness(TestHarness):
+    """A unit test for the GetNumCells routine."""
 
     def __init__(self):
-        super(PinCellTestHarness, self).__init__()
+        super(GetNumCellsTestHarness, self).__init__()
         self.input_set = PinCellInput()
 
     def _get_results(self, num_iters=True, keff=True, fluxes=False,
@@ -32,5 +32,5 @@ class PinCellTestHarness(TestHarness):
 
 
 if __name__ == '__main__':
-    harness = PinCellTestHarness()
+    harness = GetNumCellsTestHarness()
     harness.main()
