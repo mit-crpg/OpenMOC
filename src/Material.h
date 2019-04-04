@@ -122,6 +122,7 @@ public:
   FP_PRECISION* getFissionMatrix();
   FP_PRECISION getSigmaTByGroup(int group);
   FP_PRECISION getSigmaSByGroup(int origin, int destination);
+  FP_PRECISION getSigmaAByGroup(int group);
   FP_PRECISION getSigmaFByGroup(int group);
   FP_PRECISION getNuSigmaFByGroup(int group);
   FP_PRECISION getChiByGroup(int group);

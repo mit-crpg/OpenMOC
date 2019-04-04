@@ -2059,7 +2059,6 @@ void Geometry::segmentize3D(Track3D* track, bool OTF_setup) {
   double z0 = track->getStart()->getZ();
   double phi = track->getPhi();
   double theta = track->getTheta();
-  double delta_x, delta_y, delta_z;
 
   /* Length of each segment */
   double length;

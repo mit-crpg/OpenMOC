@@ -859,12 +859,14 @@ void TrackGenerator3D::initializeTracks() {
   /* Delete the array of chain track indexes */
   delete [] tcis;
 
-  /* Record the maximum number of tracks in a single stack */
+  /* Record the number of tracks, maximum number of tracks in a single stack */
   for (int a=0; a < _num_azim/2; a++)
     for (int i=0; i < _num_x[a] + _num_y[a]; i++)
-      for (int p=0; p < _num_polar; p++)
+      for (int p=0; p < _num_polar; p++) {
+        _num_3D_tracks += _tracks_per_stack[a][i][p];
         if (_tracks_per_stack[a][i][p] > _max_num_tracks_per_stack)
           _max_num_tracks_per_stack = _tracks_per_stack[a][i][p];
+      }
 
   /* Allocate temporary Tracks if necessary */
   if (_segment_formation == OTF_STACKS)
@@ -1261,7 +1263,7 @@ void TrackGenerator3D::segmentizeExtruded() {
   /* Loop over all extruded Tracks */
   Progress progress(_num_2D_tracks, "Segmenting 2D Tracks", 0.1, _geometry,
                     true);
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic)
   for (int index=0; index < _num_2D_tracks; index++) {
     progress.incrementCounter();
     _geometry->segmentizeExtruded(_tracks_2D_array[index], z_coords);
@@ -1300,14 +1302,13 @@ void TrackGenerator3D::segmentize() {
   log_printf(NORMAL, "Ray tracing for 3D track segmentation...");
 
   int tracks_segmented = 0;
-  long num_3D_tracks = getNum3DTracks();
   Progress progress(_num_3D_tracks, "Segmenting 3D Tracks", 0.1, _geometry,
                     true);
 
   /* Loop over all Tracks */
   for (int a=0; a < _num_azim/2; a++) {
 
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic)
     for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
       for (int p=0; p < _num_polar; p++) {
         for (int z=0; z < _tracks_per_stack[a][i][p]; z++){

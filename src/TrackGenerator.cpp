@@ -1249,7 +1249,7 @@ void TrackGenerator::segmentize() {
   for (int a=0; a < _num_azim/2; a++) {
     log_printf(NORMAL, "segmenting 2D tracks - Percent complete: %5.2f %%",
                double(tracks_segmented) / num_2D_tracks * 100.0);
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic)
     for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
       _geometry->segmentize2D(&_tracks_2D[a][i], _z_coord);
     }

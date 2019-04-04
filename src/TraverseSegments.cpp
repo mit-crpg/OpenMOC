@@ -73,7 +73,7 @@ void TraverseSegments::loopOverTracks2D(MOCKernel* kernel) {
   int num_azim = _track_generator->getNumAzim();
   for (int a=0; a < num_azim/2; a++) {
     int num_xy = _track_generator->getNumX(a) + _track_generator->getNumY(a);
-#pragma omp for schedule(guided)
+#pragma omp for schedule(dynamic)
     for (int i=0; i < num_xy; i++) {
 
       Track* track_2D = &tracks_2D[a][i];
@@ -110,7 +110,7 @@ void TraverseSegments::loopOverTracksExplicit(MOCKernel* kernel) {
   /* Loop over all tracks, parallelizing over parallel 2D tracks */
   for (int a=0; a < num_azim/2; a++) {
     int num_xy = _track_generator->getNumX(a) + _track_generator->getNumY(a);
-#pragma omp for schedule(guided) collapse(2)
+#pragma omp for schedule(dynamic) collapse(2)
     for (int i=0; i < num_xy; i++) {
 
       /* Loop over polar angles */
@@ -160,7 +160,7 @@ void TraverseSegments::loopOverTracksByTrackOTF(MOCKernel* kernel) {
   int tid = omp_get_thread_num();
 
   /* Loop over flattened 2D tracks */
-#pragma omp for schedule(guided)
+#pragma omp for schedule(dynamic)
   for (int ext_id=0; ext_id < num_2D_tracks; ext_id++) {
 
     /* Extract indices of 3D tracks associated with the flattened track */
@@ -956,7 +956,7 @@ void TraverseSegments::loopOverTracksByStackTwoWay(TransportKernel* kernel) {
   int tid = omp_get_thread_num();
 
   /* Loop over flattened 2D tracks */
-#pragma omp for schedule(guided)
+#pragma omp for schedule(dynamic)
   for (int ext_id=0; ext_id < num_2D_tracks; ext_id++) {
 
     /* Extract indices of 3D tracks associated with the flattened track */
