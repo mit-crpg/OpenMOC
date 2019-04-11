@@ -852,7 +852,7 @@ void TrackGenerator3D::initializeTracks() {
   /* Allocate memory for 3D track stacks */
   create3DTracksArrays();
 
-  /* Initialize tracks in _tracks_3D, save tracks */
+  /* Initialize tracks in _tracks_3D array, save tracks */
   if (_segment_formation == EXPLICIT_3D)
     getCycleTrackData(tcis, num_chains, true);
 
@@ -1014,7 +1014,7 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
     //FIXME Understand why sides instead of corners
     if (fabs(round(x_ext / width_x) * width_x - x_ext) < TINY_MOVE ||
         fabs(round(y_ext / width_y) * width_y - y_ext) < TINY_MOVE) {
-      l_start -= 10 * TINY_MOVE;
+      l_start += 10 * TINY_MOVE;
       x_ext = x_start - _x_min + l_start * cos_phi;
       y_ext = y_start - _y_min + l_start * sin_phi;
       nudged = true;
@@ -1071,8 +1071,8 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
 
   /* Reverse nudging of point */
   if (nudged) {
-    x1 += 10 * TINY_MOVE * cos_phi;
-    y1 += 10 * TINY_MOVE * sin_phi;
+    x1 -= 10 * TINY_MOVE * cos_phi;
+    y1 -= 10 * TINY_MOVE * sin_phi;
   }
 
   /* Set the Track start point and ending z-coord */
@@ -1411,6 +1411,10 @@ void TrackGenerator3D::create3DTracksArrays() {
 
   /* Allocate tracks arrays if using explicit ray tracing */
   if (_segment_formation == EXPLICIT_3D) {
+
+    log_printf(NORMAL, "Explicit 3D Track storage = %.2f MB", num_tracks *
+               sizeof(Track3D) / 1e6);
+
     _tracks_3D = new Track3D***[_num_azim/2];
     for (int a=0; a < _num_azim/2; a++) {
       _tracks_3D[a] = new Track3D**[_num_x[a] + _num_y[a]];

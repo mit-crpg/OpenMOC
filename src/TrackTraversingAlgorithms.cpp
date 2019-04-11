@@ -29,8 +29,14 @@ void MaxOpticalLength::execute() {
 
 #pragma omp parallel
   {
-    MOCKernel* kernel = getKernel<SegmentationKernel>();
-    loopOverTracks(kernel);
+    // OTF ray tracing requires segmentation of tracks
+    if (_segment_formation != EXPLICIT_2D &&
+        _segment_formation != EXPLICIT_3D) {
+      MOCKernel* kernel = getKernel<SegmentationKernel>();
+      loopOverTracks(kernel);
+    }
+    else
+      loopOverTracks(NULL);
   }
   _track_generator->setMaxOpticalLength(_max_tau);
 }
@@ -322,8 +328,14 @@ CentroidGenerator::~CentroidGenerator() {
 void CentroidGenerator::execute() {
 #pragma omp parallel
   {
-    MOCKernel* kernel = getKernel<SegmentationKernel>();
-    loopOverTracks(kernel);
+    // OTF ray tracing requires segmentation of tracks
+    if (_segment_formation != EXPLICIT_2D &&
+        _segment_formation != EXPLICIT_3D) {
+      MOCKernel* kernel = getKernel<SegmentationKernel>();
+      loopOverTracks(kernel);
+    }
+    else
+      loopOverTracks(NULL);
   }
 }
 
@@ -499,8 +511,14 @@ LinearExpansionGenerator::~LinearExpansionGenerator() {
 void LinearExpansionGenerator::execute() {
 #pragma omp parallel
   {
-    MOCKernel* kernel = getKernel<SegmentationKernel>();
-    loopOverTracks(kernel);
+    // OTF ray tracing requires segmentation of tracks
+    if (_segment_formation != EXPLICIT_2D &&
+        _segment_formation != EXPLICIT_3D) {
+      MOCKernel* kernel = getKernel<SegmentationKernel>();
+      loopOverTracks(kernel);
+    }
+    else
+      loopOverTracks(NULL);
   }
 
   Geometry* geometry = _track_generator->getGeometry();
@@ -795,7 +813,9 @@ TransportSweep::TransportSweep(CPUSolver* cpu_solver)
   _ls_solver = dynamic_cast<CPULSSolver*>(cpu_solver);
   TrackGenerator* track_generator = cpu_solver->getTrackGenerator();
   _geometry = _track_generator->getGeometry();
-
+#ifndef NGROUPS
+  _num_groups = _geometry->getNumEnergyGroups();
+#endif
 }
 
 
@@ -816,8 +836,14 @@ TransportSweep::~TransportSweep() {
 void TransportSweep::execute() {
 #pragma omp parallel
   {
-    MOCKernel* kernel = getKernel<SegmentationKernel>();
-    loopOverTracks(kernel);
+    // OTF ray tracing requires segmentation of tracks
+    if (_segment_formation != EXPLICIT_2D &&
+        _segment_formation != EXPLICIT_3D) {
+      MOCKernel* kernel = getKernel<SegmentationKernel>();
+      loopOverTracks(kernel);
+    }
+    else
+      loopOverTracks(NULL);
   }
 }
 
@@ -833,7 +859,7 @@ void TransportSweep::execute() {
  */
 void TransportSweep::onTrack(Track* track, segment* segments) {
 
-  /* Get the temporary FSR flux */
+  /* Get the thread number */
   int tid = omp_get_thread_num();
 
   /* Extract Track information */
@@ -875,9 +901,6 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
   }
 
   /* Allocate a temporary flux buffer on the stack (free) and initialize it */
-#ifndef NGROUPS
-  int _num_groups = _track_generator->getGeometry()->getNumEnergyGroups();
-#endif
   int num_polar = 1;
   if (track_3D == NULL)
     num_polar = _track_generator->getQuadrature()->getNumPolarAngles() / 2;
@@ -1007,8 +1030,15 @@ DumpSegments::DumpSegments(TrackGenerator* track_generator)
  *          information to file.
  */
 void DumpSegments::execute() {
-  MOCKernel* kernel = getKernel<SegmentationKernel>();
-  loopOverTracks(kernel);
+
+  // OTF ray tracing requires segmentation of tracks
+  if (_segment_formation != EXPLICIT_2D &&
+      _segment_formation != EXPLICIT_3D) {
+    MOCKernel* kernel = getKernel<SegmentationKernel>();
+    loopOverTracks(kernel);
+  }
+  else
+    loopOverTracks(NULL);
 }
 
 
@@ -1229,8 +1259,14 @@ RecenterSegments::RecenterSegments(TrackGenerator* track_generator)
 void RecenterSegments::execute() {
 #pragma omp parallel
   {
-    MOCKernel* kernel = getKernel<SegmentationKernel>();
-    loopOverTracks(kernel);
+    // OTF ray tracing requires segmentation of tracks
+    if (_segment_formation != EXPLICIT_2D &&
+        _segment_formation != EXPLICIT_3D) {
+      MOCKernel* kernel = getKernel<SegmentationKernel>();
+      loopOverTracks(kernel);
+    }
+    else
+      loopOverTracks(NULL);
   }
 }
 
@@ -1273,8 +1309,15 @@ PrintSegments::PrintSegments(TrackGenerator* track_generator)
  //FIXME debug ?
  */
 void PrintSegments::execute() {
-  MOCKernel* kernel = getKernel<SegmentationKernel>();
-  loopOverTracks(kernel);
+
+  // OTF ray tracing requires segmentation of tracks
+  if (_segment_formation != EXPLICIT_2D &&
+      _segment_formation != EXPLICIT_3D) {
+    MOCKernel* kernel = getKernel<SegmentationKernel>();
+    loopOverTracks(kernel);
+  }
+  else
+    loopOverTracks(NULL);
 }
 
 

@@ -1659,14 +1659,14 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
     total_volume[2] += _FSR_volumes[r] * centroids[r]->getY();
     total_volume[3] += _FSR_volumes[r] * centroids[r]->getZ();
 
-    log_printf(DEBUG, "FSR ID = %d has volume = %f, centroid"
+    log_printf(DEBUG, "FSR ID = %d has volume = %.6f, centroid"
                " (%.3f %.3f %.3f)", r, _FSR_volumes[r], centroids[r]->getX(),
                centroids[r]->getY(), centroids[r]->getZ());
   }
 
-  log_printf(DEBUG, "Total volume %f cm3, moments of volume (%f %f %f).",
-             total_volume[0], total_volume[1], total_volume[2],
-             total_volume[3]);
+  log_printf(DEBUG, "Total volume %.6f cm3, moments of volume "
+             "(%.4e %.4e %.4e).", total_volume[0], total_volume[1],
+             total_volume[2], total_volume[3]);
   delete [] centroids;
 }
 

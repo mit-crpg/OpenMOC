@@ -384,7 +384,7 @@ void TransportKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
   for (int i=0; i < num_cuts; i++) {
 
     /* Copy data into segment */
-    segment curr_segment;  //FIXME Consider allocating segment beforehand
+    segment curr_segment;
     curr_segment._length = std::min(segment_length, remain_length);
     curr_segment._material = mat;
     curr_segment._region_id = fsr_id;

@@ -2634,7 +2634,7 @@ void Geometry::initializeFSRVectors() {
   _FSRs_to_CMFD_cells = std::vector<int>(num_FSRs);
 
   /* Fill vectors key and material ID information */
-  #pragma omp parallel for
+#pragma omp parallel for
   for (long i=0; i < num_FSRs; i++) {
     std::string key = key_list[i];
     fsr_data* fsr = value_list[i];
