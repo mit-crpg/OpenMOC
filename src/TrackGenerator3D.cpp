@@ -1301,7 +1301,7 @@ void TrackGenerator3D::segmentize() {
 
   log_printf(NORMAL, "Ray tracing for 3D track segmentation...");
 
-  int tracks_segmented = 0;
+  long num_segments = 0;
   Progress progress(_num_3D_tracks, "Segmenting 3D Tracks", 0.1, _geometry,
                     true);
 
@@ -1319,18 +1319,26 @@ void TrackGenerator3D::segmentize() {
           tsi._xy = i;
           tsi._polar = p;
           tsi._z = z;
-          _tracks_3D[a][i][p][z].setUid(get3DTrackID(&tsi));    
+          _tracks_3D[a][i][p][z].setUid(get3DTrackID(&tsi));
+
+          /* Set boundary conditions and linking Track data */
+          //FIXME Move to track initialization rather than segmentation
+          TrackChainIndexes tci;
+          convertTSItoTCI(&tsi, &tci);
+          setLinkingTracks(&tsi, &tci, true, &_tracks_3D[a][i][p][z]);
+          setLinkingTracks(&tsi, &tci, false, &_tracks_3D[a][i][p][z]);
+
+#pragma omp atomic update
+          num_segments += _tracks_3D[a][i][p][z].getNumSegments();
         }
       }
-    }
-
-    for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
-      for (int p=0; p < _num_polar; p++)
-        tracks_segmented += _tracks_per_stack[a][i][p];
     }
   }
   _geometry->initializeFSRVectors();
   _contains_3D_segments = true;
+
+  log_printf(NORMAL, "Explicit 3D segments storage = %.2f MB", num_segments *
+             sizeof(segment) / 1e6);
 }
 
 

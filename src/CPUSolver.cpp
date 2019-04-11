@@ -438,13 +438,10 @@ void CPUSolver::zeroTrackFluxes() {
 void CPUSolver::copyBoundaryFluxes() {
 
 #pragma omp parallel for schedule(static)
-  for (long t=0; t < _tot_num_tracks; t++) {
-    for (int d=0; d < 2; d++) {
-      for (int pe=0; pe < _fluxes_per_track; pe++) {
+  for (long t=0; t < _tot_num_tracks; t++)
+    for (int d=0; d < 2; d++)
+      for (int pe=0; pe < _fluxes_per_track; pe++)
         _boundary_flux(t,d,pe) = _start_flux(t, d, pe);
-        log_printf(NORMAL, "%f", _start_flux(t, d, pe)); }
-    }
-  }
 }
 
 
