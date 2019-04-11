@@ -2260,7 +2260,7 @@ void Solver::printInputParamsSummary() {
     if (_num_groups != _cmfd->getNumCmfdGroups()) {
       log_printf(NORMAL, "CMFD Group Structure:");
       log_printf(NORMAL, "\t MOC Group \t CMFD Group");
-      for (int g=0; g < _cmfd->getNumMOCGroups(); g++)
+      for (int g=0; g < _num_groups; g++)
         log_printf(NORMAL, "\t %d \t\t %d", g+1, _cmfd->getCmfdGroup(g)+1);
     }
     else
