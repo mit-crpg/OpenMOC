@@ -667,9 +667,9 @@ void CPUSolver::setupMPIBuffers() {
           {
             _tracks_from_vacuum.push_back(2*t + 1 - d);
           }
+          //NOTE domains[d] can be set for a track ending on an interface
+          // with vacuum and another track
           _domain_connections.at(d).at(t) = -1;
-          //FIXME The fact that this line has to be here means that 
-          // sometimes interface[] and domains[] dont agree
         }
 #endif
       }
