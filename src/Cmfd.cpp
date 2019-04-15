@@ -38,7 +38,7 @@ Cmfd::Cmfd() {
   _flux_limiting = true;
   _balance_sigma_t = false;
   _k_nearest = 1;
-  _SOR_factor = 1.0;
+  _SOR_factor = 1.5;
   _num_FSRs = 0;
 #ifndef THREED
   _SOLVE_3D = false;
@@ -64,7 +64,7 @@ Cmfd::Cmfd() {
   _A = NULL;
   _M = NULL;
   _k_eff = 1.0;
-  _relaxation_factor = 1.0;
+  _relaxation_factor = 0.7;
   _old_flux = NULL;
   _new_flux = NULL;
   _old_dif_surf_corr = NULL;
@@ -2586,7 +2586,7 @@ void Cmfd::useAxialInterpolation(int interpolate) {
   if (interpolate<0 || interpolate>2)
     log_printf(ERROR, "interpolate can only has value 0, 1, or 2, respectively"
                " meaning No interpolation, FSR axially averaged value or"
-               " centroid z-coordinate evaluted value");
+               " centroid z-coordinate evaluated value");
   if (interpolate==1 || interpolate==2)
     log_printf(WARNING_ONCE, "Axial interpolation CMFD prolongation may only"
                " be effective when all the FSRs are axially homogeneous");
@@ -3467,8 +3467,8 @@ void Cmfd::initialize() {
       int comm_data_size = storage_per_cell * num_boundary_cells;
 
       //NOTE Rank 0 is at a corner
-      log_printf(INFO_ONCE, "Max. CMFD communication buffers size = %6.2f MB",
-                 (2 * comm_data_size + internal) * sizeof(CMFD_PRECISION)/1e6);
+      log_printf(INFO_ONCE, "Max CMFD communication buffers size = %6.2f MB",
+                 (4 * comm_data_size + internal) * sizeof(CMFD_PRECISION)/1e6);
 
       _inter_domain_data = new CMFD_PRECISION[comm_data_size + internal];
       _send_domain_data = new CMFD_PRECISION[comm_data_size];
@@ -4059,6 +4059,53 @@ void Cmfd::setBackupGroupStructure(std::vector< std::vector<int> >
       log_printf(ERROR, "Invalid backup group structure: failed to find "
                  "matching index for CMFD group %d", e);
   }
+}
+
+
+/**
+ * @brief A function that prints a summary of the CMFD input parameters.
+ */
+void Cmfd::printInputParamsSummary() {
+
+  if (_flux_update_on)
+    log_printf(NORMAL, "CMFD acceleration: ON");
+  else
+    log_printf(NORMAL, "CMFD acceleration: OFF (no MOC flux update)");
+
+  // Print CMFD relaxation information
+  if (std::abs(_SOR_factor - 1) > FLT_EPSILON)
+    log_printf(NORMAL, "CMFD inner linear solver SOR factor: %f", _SOR_factor);
+  log_printf(NORMAL, "CMFD corrected diffusion coef. relaxation factor: %f",
+             _relaxation_factor);
+
+  // Print CMFD interpolation techniques
+  if (_centroid_update_on)
+    log_printf(NORMAL, "CMFD K-nearest scheme: %d neighbors", _k_nearest);
+  if (_use_axial_interpolation == 1)
+    log_printf(NORMAL, "CMFD axial interpolation with axially averaged update "
+               "ratios");
+  else if (_use_axial_interpolation == 2)
+    log_printf(NORMAL, "CMFD axial interpolation with update ratios evaluated "
+               "at centroid Z-coordinate");
+
+  // Print other CMFD modifications
+  if (_flux_limiting)
+    log_printf(INFO, "CMFD corrected diffusion coef. bounded by "
+               " regular diffusion coef.");
+  if (_balance_sigma_t)
+    log_printf(INFO, "CMFD total cross sections adjusted for matching MOC "
+               "reaction rates");
+
+  // Print CMFD space and energy mesh information
+  log_printf(NORMAL, "CMFD Mesh: %d x %d x %d", _num_x, _num_y, _num_z);
+  if (_num_cmfd_groups != _num_moc_groups) {
+    log_printf(NORMAL, "CMFD Group Structure:");
+    log_printf(NORMAL, "\t MOC Group \t CMFD Group");
+    for (int g=0; g < _num_moc_groups; g++)
+      log_printf(NORMAL, "\t %d \t\t %d", g+1, getCmfdGroup(g)+1);
+  }
+  else
+    log_printf(NORMAL, "CMFD and MOC group structures match");
 }
 
 

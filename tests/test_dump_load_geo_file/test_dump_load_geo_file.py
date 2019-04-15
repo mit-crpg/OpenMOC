@@ -44,6 +44,7 @@ class DumpAndLoadTestHarness(TestHarness):
         # Initialize CMFD
         cmfd = openmoc.Cmfd()
         cmfd.setCMFDRelaxationFactor(0.7)
+        cmfd.setSORRelaxationFactor(1.0)
         cmfd.setWidths([[0.05,1.26,1.26,0.05], [0.05,1.26,1.26,0.05], [1.,1.5]])
         cmfd.setGroupStructure([[1,2,3],[4,5,6,7]])
         cmfd.setCentroidUpdateOn(False)

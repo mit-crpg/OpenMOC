@@ -1646,6 +1646,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     /* Compute difference in k and apparent dominance ratio */
     double dr = residual / previous_residual;
     int dk = 1e5 * (_k_eff - k_prev);
+    previous_residual = residual;
     k_prev = _k_eff;
 
     /* Ouptut iteration report */
@@ -1678,7 +1679,6 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
       _cmfd->setSourceConvergenceThreshold(0.01*residual);
     }
     storeFSRFluxes();
-    previous_residual = residual;
     _num_iterations++;
 
     /* Check for convergence of the fission source distribution */
@@ -1686,13 +1686,14 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
       break;
   }
 
-  if (_num_iterations == max_iters-1)
+  if (_num_iterations == max_iters)
     log_printf(WARNING, "Unable to converge the source distribution");
 
   _timer->stopTimer();
   _timer->recordSplit("Total time");
 
-  delete convergence_data;
+  if (convergence_data != NULL)
+    delete convergence_data;
 }
 
 
@@ -2253,22 +2254,10 @@ void Solver::printInputParamsSummary() {
   }
 
   /* Print CMFD parameters */
-  if (_cmfd != NULL) {
-    log_printf(NORMAL, "CMFD acceleration: ON");
-    log_printf(NORMAL, "CMFD Mesh: %d x %d x %d", _cmfd->getNumX(),
-               _cmfd->getNumY(), _cmfd->getNumZ());
-    if (_num_groups != _cmfd->getNumCmfdGroups()) {
-      log_printf(NORMAL, "CMFD Group Structure:");
-      log_printf(NORMAL, "\t MOC Group \t CMFD Group");
-      for (int g=0; g < _num_groups; g++)
-        log_printf(NORMAL, "\t %d \t\t %d", g+1, _cmfd->getCmfdGroup(g)+1);
-    }
-    else
-      log_printf(NORMAL, "CMFD and MOC group structures match");
-  }
-  else {
+  if (_cmfd != NULL)
+    _cmfd->printInputParamsSummary();
+  else
     log_printf(NORMAL, "CMFD acceleration: OFF");
-  }
 }
 
 

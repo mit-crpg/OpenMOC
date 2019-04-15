@@ -2201,11 +2201,9 @@ void CPUSolver::addSourceToScalarFlux() {
   if (total_num_negative_fluxes > 0  && !_negative_fluxes_allowed) {
     if (_geometry->isRootDomain()) {
       log_printf(WARNING, "Computed %ld negative fluxes on %d domains",
-                 total_num_negative_fluxes,
-                 total_num_negative_flux_domains);
+                 total_num_negative_fluxes, total_num_negative_flux_domains);
     }
   }
-
 }
 
 

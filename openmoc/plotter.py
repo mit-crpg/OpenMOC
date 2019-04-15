@@ -152,7 +152,7 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
                 'tracks-{1}-angles-{2}.png'.format(directory, num_azim,
                                                    spacing)
             if plot_3D:
-              filename = '3d-' + filename
+                filename = '3d-' + filename
             fig.savefig(directory+filename, bbox_inches='tight')
             plt.close(fig)
 
@@ -276,6 +276,8 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
             filename = 'segments-{0}-angles-{1}-spacing'.format(num_azim,
                                                                 spacing)
             filename = '{0}-z-{1}.png'.format(filename, z[0])
+            if plot_3D:
+                filename = '3d-' + filename
             fig.savefig(directory+filename, bbox_inches='tight')
             plt.close(fig)
 

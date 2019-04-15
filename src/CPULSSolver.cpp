@@ -209,9 +209,9 @@ void CPULSSolver::initializeFixedSources() {
     source_z = fsr_iter->second[2];
 
     /* Warn the user if a fixed source has already been assigned to this FSR */
-    if (fabs(_fixed_sources_xyz(fsr_id,group,0)) > FLT_EPSILON ||
-        fabs(_fixed_sources_xyz(fsr_id,group,1)) > FLT_EPSILON ||
-        fabs(_fixed_sources_xyz(fsr_id,group,2)) > FLT_EPSILON)
+    if (fabs(_fixed_sources_xyz(fsr_id,group,0) - source_x) > FLT_EPSILON ||
+        fabs(_fixed_sources_xyz(fsr_id,group,1) - source_y) > FLT_EPSILON ||
+        fabs(_fixed_sources_xyz(fsr_id,group,2) - source_z) > FLT_EPSILON)
       log_printf(WARNING, "Overriding fixed linear source %f %f %f in FSR ID=%d"
                  " group %d with %f %f %f", _fixed_sources_xyz(fsr_id,group, 0),
                  _fixed_sources_xyz(fsr_id,group,1),
@@ -722,6 +722,7 @@ void CPULSSolver::addSourceToScalarFlux() {
   int nc = 3;
   if (_SOLVE_3D)
     nc = 6;
+  long num_negative_fluxes = 0;
 
 #pragma omp parallel
   {
@@ -734,6 +735,8 @@ void CPULSSolver::addSourceToScalarFlux() {
 #pragma omp for
     for (long r=0; r < _num_FSRs; r++) {
       volume = _FSR_volumes[r];
+      if (volume < FLT_EPSILON)
+        volume = FLT_INFINITY;
       sigma_t = _FSR_materials[r]->getSigmaT();
 
       for (int e=0; e < _num_groups; e++) {
@@ -775,7 +778,34 @@ void CPULSSolver::addSourceToScalarFlux() {
         _scalar_flux_xyz(r,e,1) /= sigma_t[e];
         if (_SOLVE_3D)
           _scalar_flux_xyz(r,e,2) /= sigma_t[e];
+
+        if (_scalar_flux(r, e) < 0.0 && !_negative_fluxes_allowed) {
+#pragma omp atomic update
+        num_negative_fluxes++;
+        }
       }
+    }
+  }
+
+  /* Tally the total number of negative fluxes across the entire problem */
+  long total_num_negative_fluxes = num_negative_fluxes;
+  int num_negative_flux_domains = (num_negative_fluxes > 0);
+  int total_num_negative_flux_domains = num_negative_flux_domains;
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed()) {
+    MPI_Allreduce(&num_negative_fluxes, &total_num_negative_fluxes, 1,
+                  MPI_LONG, MPI_SUM, _geometry->getMPICart());
+    MPI_Allreduce(&num_negative_flux_domains,
+                  &total_num_negative_flux_domains, 1,
+                  MPI_INT, MPI_SUM, _geometry->getMPICart());
+  }
+#endif
+
+  /* Report negative fluxes */
+  if (total_num_negative_fluxes > 0  && !_negative_fluxes_allowed) {
+    if (_geometry->isRootDomain()) {
+      log_printf(WARNING, "Computed %ld negative fluxes on %d domains",
+                 total_num_negative_fluxes, total_num_negative_flux_domains);
     }
   }
 }

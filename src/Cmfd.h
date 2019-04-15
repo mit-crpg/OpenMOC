@@ -247,7 +247,7 @@ private:
   /** Whether to allow the CMFD solver to work with / return negative fluxes */
   bool _negative_fluxes_allowed;
 
-  /** Number of cells to used in updating MOC flux */
+  /** Number of cells to use in updating MOC flux */
   int _k_nearest;
 
   /** Relaxation factor to use for corrected diffusion coefficients */
@@ -413,6 +413,7 @@ public:
   void tallyStartingCurrent(Point* point, double delta_x, double delta_y,
                             double delta_z, float* track_flux, double weight);
   void recordNetCurrents();
+  void printInputParamsSummary();
   void printTimerReport();
   void checkBalance();
 
