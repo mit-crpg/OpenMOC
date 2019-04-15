@@ -392,11 +392,11 @@ void log_printf(logLevel level, const char* format, ...) {
         std::stringstream ss;
 #ifdef MPIx
         if (rank < 10)
-          ss << "[  INFO " << rank << " ]  ";
+          ss << "[  NODE " << rank << " ]  ";
         else
-          ss << "[  INFO " << rank << "]  ";
+          ss << "[  NODE " << rank << "]  ";
 #else
-        ss << "[  INFO   ]  ";
+        ss << "[  NORMAL ]  ";
 #endif
         std::string level_prefix = ss.str();
 
