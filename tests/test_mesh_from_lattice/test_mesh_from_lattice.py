@@ -17,8 +17,7 @@ def get_cell_by_name(cells, name):
 
 
 class MeshFromLatticeTestHarness(TestHarness):
-    """An eigenvalue calculation with a mesh tally of the rates
-    using the C++ Mesh class."""
+    """Create and subdivide an openmoc.process.Mesh from an openmoc.Lattice"""
 
     def __init__(self):
         super(MeshFromLatticeTestHarness, self).__init__()
@@ -29,13 +28,9 @@ class MeshFromLatticeTestHarness(TestHarness):
         # parallelly to sector planes.
         self.spacing = 0.12
 
-    def _run_openmoc(self):
-        """Run an OpenMOC eigenvalue calculation."""
-        super(MeshFromLatticeTestHarness, self)._run_openmoc()
-
-    def _get_results(self, num_iters=True, keff=True, fluxes=True,
-                     num_fsrs=True, num_tracks=True, num_segments=True,
-                     hash_output=True):
+    def _get_results(self, num_iters=False, keff=False, fluxes=False,
+                     num_fsrs=False, num_tracks=False, num_segments=False,
+                     hash_output=False):
         """Create Meshes from a lattice and return their shapes as a string"""
         
         # Find the test oblong lattice
@@ -44,29 +39,27 @@ class MeshFromLatticeTestHarness(TestHarness):
         ulat = root_cell.getFillUniverse()
         lat = openmoc.castUniverseToLattice(ulat)
         
-        
         meshes = [None]*2
         meshes[0] = process.Mesh.from_lattice(lat)
         meshes[1] = process.Mesh.from_lattice(lat, division=2)
 
         # Append mesh properties to the output string
-        fmt_str = """\
-Mesh {mesh_num}:
-{dimension}
-{width}
-{lleft}
-{uright}"""
-        outstr = ''
+        fmt_str = \
+            "Mesh {mesh_num}:\n" \
+            "{dimension}\n" \
+            "{width}\n" \
+            "{lleft}\n" \
+            "{uright}\n"
+        outstr = ""
         for i, mesh in enumerate(meshes):
             outstr += fmt_str.format(
                 mesh_num=i+1, dimension=mesh.dimension, width=mesh.width,
                 lleft=mesh.lower_left, uright=mesh.upper_right)
-            outstr += "\n"
         
         return outstr
     
     def _execute_test(self):
-        """Build geometry, ray trace, run calculation, and verify results."""
+        """Build geometry and verify results."""
         try:
             self._create_geometry()
             results = self._get_results()
