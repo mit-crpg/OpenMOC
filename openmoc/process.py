@@ -917,7 +917,7 @@ class Mesh(object):
         Parameters
         ----------
         lattice : openmoc.Lattice
-            Rectangular lattice used as a template for this mesh
+            Uniform rectangular lattice used as a template for this mesh.
         division : int
             Number of mesh cells per lattice cell.
             If not specified, there will be 1 mesh cell per lattice cell.
@@ -929,6 +929,9 @@ class Mesh(object):
 
         """
         cv.check_type("lattice", lattice, openmoc.Lattice)
+        cv.check_type("division", division, Integral)
+        if lattice.getNonUniform():
+           raise ValueError("Lattice must be uniform.")
         
         shape = np.array((lattice.getNumX(), lattice.getNumY(),
                           lattice.getNumZ()))
