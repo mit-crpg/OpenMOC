@@ -1513,6 +1513,7 @@ CMFD_PRECISION Cmfd::computeLarsensEDCFactor(CMFD_PRECISION dif_coef,
   for (int a=0; a < _num_azim/2; a++) {
 
     CMFD_PRECISION wa = _quadrature->getAzimWeight(a);
+
     /* Loop over polar angles */
     for (int p = 0; p < _num_polar/2; p++) {
       mu = sqrt(1.0 - pow(_quadrature->getSinTheta(a,p), 2));
