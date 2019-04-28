@@ -2011,8 +2011,8 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
       FP_PRECISION delta_psi = (tau * track_flux[e] - length_2D *
               _reduced_sources(fsr_id, e)) * exponential;
       track_flux[e] -= delta_psi;
-      fsr_flux[e] += delta_psi * _quad->getWeightInline(azim_index,
-                                                        polar_index);
+      fsr_flux[e] += delta_psi * FP_PRECISION(_quad->getWeightInline(
+                                                     azim_index, polar_index));
     }
   }
   else {

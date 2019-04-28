@@ -1065,7 +1065,7 @@ void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     /* Correct the diffusion coefficient with Larsen's effective diffusion
      * coefficient correction factor */
     if (!_linear_source)
-      dif_coef_next *= computeLarsensEDCFactor(dif_coef_next, delta);
+      dif_coef_next *= computeLarsensEDCFactor(dif_coef_next, delta_next);
 
     /* Compute the surface diffusion coefficient */
     dif_surf = 2.0 * dif_coef * dif_coef_next
@@ -1509,12 +1509,18 @@ CMFD_PRECISION Cmfd::computeLarsensEDCFactor(CMFD_PRECISION dif_coef,
   CMFD_PRECISION alpha, mu, expon;
   double rho = 0.0;
 
-  /* Loop over polar angles */
-  for (int p = 0; p < _num_polar/2; p++) {
-    mu = cos(asin(_quadrature->getSinTheta(0,p)));
-    expon = exp(-delta / (3 * dif_coef * mu));
-    alpha = (1 + expon) / (1 - expon) - 2 * (3 * dif_coef * mu) / delta;
-    rho += 2.0 * mu * _quadrature->getPolarWeight(0,p) * alpha;
+  /* Loop over azimuthal angles */
+  for (int a=0; a < _num_azim/2; a++) {
+
+    CMFD_PRECISION wa = _quadrature->getAzimWeight(a);
+
+    /* Loop over polar angles */
+    for (int p = 0; p < _num_polar/2; p++) {
+      mu = sqrt(1.0 - pow(_quadrature->getSinTheta(a,p), 2));
+      expon = exp(-delta / (3 * dif_coef * mu));
+      alpha = (1 + expon) / (1 - expon) - 2 * (3 * dif_coef * mu) / delta;
+      rho += 2.0 * mu * _quadrature->getPolarWeight(a,p) * wa * alpha;
+    }
   }
 
   /* Compute the correction factor */
