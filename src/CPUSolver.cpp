@@ -517,7 +517,8 @@ void CPUSolver::setupMPIBuffers() {
     }
 
     /* Estimate and print size of flux transfer buffers */
-    int size_mb = 2 * message_length * _send_buffers.size() * sizeof(float);
+    int num_domains = _neighbor_domains.size();
+    int size_mb = 2 * message_length * num_domains * sizeof(float);
     int max_size_mb;
     MPI_Allreduce(&size_mb, &max_size_mb, 1, MPI_INT, MPI_MAX,
                   _geometry->getMPICart());
@@ -525,7 +526,6 @@ void CPUSolver::setupMPIBuffers() {
                max_size_mb / 1e6);
 
     /* Allocate track fluxes transfer buffers */
-    int num_domains = _neighbor_domains.size();
     _send_buffers.resize(num_domains);
     _receive_buffers.resize(num_domains);
     for (int i=0; i < num_domains; i++) {
@@ -728,15 +728,16 @@ void CPUSolver::resetBoundaryFluxes() {
                _tracks_from_vacuum.size());
 
 #pragma omp parallel for
-    for (long i=0; i< _tracks_from_vacuum.size(); i++) {
+    for (long i=0; i < _tracks_from_vacuum.size(); i++) {
 
       long t_id = _tracks_from_vacuum.at(i) / 2;
       int dir = _tracks_from_vacuum.at(i) - 2 * t_id;
-      for (int pe=0; pe<_fluxes_per_track; pe++)
+      for (int pe=0; pe < _fluxes_per_track; pe++)
         _boundary_flux(t_id, dir, pe) = 0.;
     }
   }
   else {
+#pragma omp parallel for
     for (long t=0; t < _tot_num_tracks; t++)
       for (int d=0; d < 2; d++)
         for (int pe=0; pe < _fluxes_per_track; pe++)
@@ -903,11 +904,10 @@ void CPUSolver::packBuffers(std::vector<long> &packing_indexes) {
   /* Fill send buffers for every domain */
   int num_domains = packing_indexes.size();
   for (int i=0; i < num_domains; i++) {
-    int send_domain = _neighbor_domains.at(i);
 
     /* Reset send buffers : start at beginning if the buffer has not been
        prefilled, else start after what has been prefilled */
-    int start_idx = (_send_buffers_index.at(i)) * (_track_message_size) +
+    int start_idx = _send_buffers_index.at(i) * _track_message_size +
                     _fluxes_per_track + 1;
     int max_idx = _track_message_size * TRACKS_PER_BUFFER;
 #pragma omp parallel for
@@ -975,7 +975,7 @@ void CPUSolver::packBuffers(std::vector<long> &packing_indexes) {
 #endif
     }
 
-    /* Record the next Track ID */
+    /* Record the next Track ID, reset index of fluxes in send_buffers */
     packing_indexes.at(i) += std::max(0, max_buffer_idx);
     _send_buffers_index.at(i) = 0;
   }
