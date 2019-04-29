@@ -78,7 +78,11 @@
 #define MAX_LINEAR_SOLVE_ITERATIONS 10000
 
 #ifdef MPIx
+#ifndef ONLYVACUUMBC
 #define TRACKS_PER_BUFFER 1000
+#else
+#define TRACKS_PER_BUFFER 10000
+#endif
 #define CMFD_BUFFER_SIZE 10000
 #endif
 

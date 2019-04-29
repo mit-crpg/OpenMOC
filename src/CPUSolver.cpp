@@ -1,5 +1,6 @@
 #include "CPUSolver.h"
 #include <unordered_map>
+#include <numeric>
 
 /**
  * @brief Constructor initializes array pointers for Tracks and Materials.
@@ -20,6 +21,7 @@ CPUSolver::CPUSolver(TrackGenerator* track_generator)
   _MPI_requests = NULL;
   _MPI_sends = NULL;
   _MPI_receives = NULL;
+  _neighbor_connections.clear();
 #endif
 }
 
@@ -146,7 +148,7 @@ void CPUSolver::setNumThreads(int num_threads) {
     if ((_track_generator->getSegmentFormation() == OTF_STACKS ||
        _track_generator->getSegmentFormation() == OTF_TRACKS) &&
        _track_generator->getNumThreads() != num_threads)
-      log_printf(WARNING, "The number of threads used in track generation (%d)"
+      log_printf(WARNING, "The number of threads used in track generation (%d) "
                  "should match the number of threads used in the solver (%d) "
                  "for OTF ray-tracing methods, as threaded buffers are shared.",
                  _track_generator->getNumThreads(), num_threads);
@@ -286,11 +288,16 @@ void CPUSolver::initializeFluxArrays() {
 #endif
     double max_size_mb = (double) (2 * max_size * sizeof(float))
         / (double) (1e6);
+#ifdef ONLYVACUUMBC
+    max_size_mb /= 2;
+#endif
     log_printf(NORMAL, "Max boundary angular flux storage per domain = %6.2f "
                "MB", max_size_mb);
 
     _boundary_flux = new float[size]();
+#ifndef ONLYVACUUMBC
     _start_flux = new float[size]();
+#endif
 
     /* Allocate memory for boundary leakage if necessary. CMFD is not set in
        solver at this point, so the value of _cmfd is always NULL as initial
@@ -321,6 +328,12 @@ void CPUSolver::initializeFluxArrays() {
     /* Allocate scalar fluxes */
     _scalar_flux = new FP_PRECISION[size]();
     _old_scalar_flux = new FP_PRECISION[size]();
+
+#ifdef ONLYVACUUMBC
+    _track_flux_sent.resize(2);
+    _track_flux_sent.at(0).resize(_tot_num_tracks, false);
+    _track_flux_sent.at(1).resize(_tot_num_tracks, false);
+#endif
 
     /* Allocate stabilizing flux vector if necessary */
     if (_stabilize_transport) {
@@ -424,7 +437,9 @@ void CPUSolver::zeroTrackFluxes() {
     for (int d=0; d < 2; d++) {
       for (int pe=0; pe < _fluxes_per_track; pe++) {
         _boundary_flux(t, d, pe) = 0.0;
+#ifndef ONLYVACUUMBC
         _start_flux(t, d, pe) = 0.0;
+#endif
       }
     }
   }
@@ -441,7 +456,7 @@ void CPUSolver::copyBoundaryFluxes() {
   for (long t=0; t < _tot_num_tracks; t++) {
     for (int d=0; d < 2; d++) {
       for (int pe=0; pe < _fluxes_per_track; pe++)
-        _boundary_flux(t,d,pe) = _start_flux(t, d, pe);
+        _boundary_flux(t,d,pe) = _start_flux(t,d,pe);
     }
   }
 }
@@ -503,7 +518,7 @@ void CPUSolver::setupMPIBuffers() {
 
   /* Determine the size of the buffers */
   _track_message_size = _fluxes_per_track + 3;
-  int length = TRACKS_PER_BUFFER * _track_message_size;
+  int message_length = TRACKS_PER_BUFFER * _track_message_size;
 
   /* Initialize MPI requests and status */
   if (_geometry->isDomainDecomposed()) {
@@ -514,7 +529,6 @@ void CPUSolver::setupMPIBuffers() {
     log_printf(NORMAL, "Setting up MPI Buffers for angular flux exchange...");
 
     /* Fill the hash map of send buffers */
-    std::unordered_map<int, int> neighbor_connections;
     int idx = 0;
     for (int dx=-1; dx <= 1; dx++) {
       for (int dy=-1; dy <= 1; dy++) {
@@ -523,27 +537,43 @@ void CPUSolver::setupMPIBuffers() {
               (dx == 0 && dy == 0 && dz != 0)) {
             int domain = _geometry->getNeighborDomain(dx, dy, dz);
             if (domain != -1) {
-              neighbor_connections.insert({domain, idx});
-              float* send_buffer = new float[length];
-              _send_buffers.push_back(send_buffer);
-              float* receive_buffer = new float[length];
-              _receive_buffers.push_back(receive_buffer);
+              _neighbor_connections.insert({domain, idx});
               _neighbor_domains.push_back(domain);
               idx++;
+
+              /* Inititalize vector of starting indexes into send_buffers */
+              _send_buffers_index.push_back(0);
             }
           }
         }
       }
     }
 
-    /* Setup Track communication information for all neighbor domains */
+    /* Estimate and print size of flux transfer buffers */
     int num_domains = _neighbor_domains.size();
+    int size_mb = 2 * message_length * num_domains * sizeof(float);
+    int max_size_mb;
+    MPI_Allreduce(&size_mb, &max_size_mb, 1, MPI_INT, MPI_MAX,
+                  _geometry->getMPICart());
+    log_printf(NORMAL, "Max track fluxes transfer buffer storage = %.2f MB",
+               max_size_mb / 1e6);
+
+    /* Allocate track fluxes transfer buffers */
+    _send_buffers.resize(num_domains);
+    _receive_buffers.resize(num_domains);
+    for (int i=0; i < num_domains; i++) {
+      _send_buffers.at(i).resize(message_length);
+      _receive_buffers.at(i).resize(message_length);
+    }
+
+    /* Setup Track communication information for all neighbor domains */
     _boundary_tracks.resize(num_domains);
     for (int i=0; i < num_domains; i++) {
 
       /* Initialize Track ID's to -1 */
       int start_idx = _fluxes_per_track + 1;
-      for (int idx = start_idx; idx < length; idx += _track_message_size) {
+      for (int idx = start_idx; idx < message_length;
+           idx += _track_message_size) {
         long* track_info_location =
              reinterpret_cast<long*>(&_send_buffers.at(i)[idx]);
         track_info_location[0] = -1;
@@ -553,10 +583,20 @@ void CPUSolver::setupMPIBuffers() {
       }
     }
 
+    /* Allocate vector of send/receive buffer sizes */
+    _send_size.resize(num_domains, 0);
+    _receive_size.resize(num_domains, 0);
+
     /* Build array of Track connections */
     _track_connections.resize(2);
     _track_connections.at(0).resize(_tot_num_tracks);
     _track_connections.at(1).resize(_tot_num_tracks);
+
+#ifdef ONLYVACUUMBC
+    _domain_connections.resize(2);
+    _domain_connections.at(0).resize(_tot_num_tracks);
+    _domain_connections.at(1).resize(_tot_num_tracks);
+#endif
 
     /* Determine how many Tracks communicate with each neighbor domain */
     log_printf(NORMAL, "Initializing Track connections accross domains...");
@@ -595,7 +635,7 @@ void CPUSolver::setupMPIBuffers() {
       interface[1] = track->getBCBwd() == INTERFACE;
       for (int d=0; d < 2; d++) {
         if (domains[d] != -1 && interface[d]) {
-          int neighbor = neighbor_connections.at(domains[d]);
+          int neighbor = _neighbor_connections.at(domains[d]);
 #pragma omp atomic
           num_tracks[neighbor]++;
         }
@@ -640,7 +680,7 @@ void CPUSolver::setupMPIBuffers() {
       interface[1] = track->getBCBwd() == INTERFACE;
       for (int d=0; d < 2; d++) {
         if (domains[d] != -1 && interface[d]) {
-          int neighbor = neighbor_connections.at(domains[d]);
+          int neighbor = _neighbor_connections.at(domains[d]);
 
           long slot;
 #pragma omp atomic capture
@@ -648,9 +688,23 @@ void CPUSolver::setupMPIBuffers() {
             slot = num_tracks[neighbor];
             num_tracks[neighbor]++;
           }
-
           _boundary_tracks.at(neighbor).at(slot) = 2*t + d;
+#ifdef ONLYVACUUMBC
+          _domain_connections.at(d).at(t) = domains[d];
+#endif
         }
+#ifdef ONLYVACUUMBC
+        /* Keep a list of the tracks that start at vacuum BC */
+        else {
+#pragma omp critical
+          {
+            _tracks_from_vacuum.push_back(2*t + 1 - d);
+          }
+          //NOTE domains[d] can be set for a track ending on an interface
+          // with vacuum and another track
+          _domain_connections.at(d).at(t) = -1;
+        }
+#endif
       }
       if (_SOLVE_3D)
         delete track;
@@ -676,12 +730,12 @@ void CPUSolver::setupMPIBuffers() {
  */
 void CPUSolver::deleteMPIBuffers() {
   for (int i=0; i < _send_buffers.size(); i++) {
-    delete [] _send_buffers.at(i);
+    _send_buffers.at(i).clear();
   }
   _send_buffers.clear();
 
   for (int i=0; i < _receive_buffers.size(); i++) {
-    delete [] _receive_buffers.at(i);
+    _receive_buffers.at(i).clear();
   }
   _receive_buffers.clear();
   _neighbor_domains.clear();
@@ -694,6 +748,36 @@ void CPUSolver::deleteMPIBuffers() {
   delete [] _MPI_sends;
   delete [] _MPI_receives;
 }
+
+
+#ifdef ONLYVACUUMBC
+/**
+ * @brief Resets the track angular fluxes at the vacuum boundary condition.
+ */
+void CPUSolver::resetBoundaryFluxes() {
+
+  if (_geometry->isDomainDecomposed()) {
+    log_printf(INFO, "Setting %ld incoming vaccum boundary fluxes to 0.",
+               _tracks_from_vacuum.size());
+
+#pragma omp parallel for
+    for (long i=0; i < _tracks_from_vacuum.size(); i++) {
+
+      long t_id = _tracks_from_vacuum.at(i) / 2;
+      int dir = _tracks_from_vacuum.at(i) - 2 * t_id;
+      for (int pe=0; pe < _fluxes_per_track; pe++)
+        _boundary_flux(t_id, dir, pe) = 0.;
+    }
+  }
+  else {
+#pragma omp parallel for
+    for (long t=0; t < _tot_num_tracks; t++)
+      for (int d=0; d < 2; d++)
+        for (int pe=0; pe < _fluxes_per_track; pe++)
+          _boundary_flux(t,d,pe) = 0.;
+  }
+}
+#endif
 
 
 /**
@@ -846,16 +930,18 @@ void CPUSolver::printCycle(long track_start, int domain_start, int length) {
  *          associated buffer is full. This provided integer array contains
  *          the index of the last track handled for each neighboring domain.
  *          These numbers are updated at the end with the last track handled.
+ * @arg packing_indexes index of last track sent for each neighbor domain
  */
 void CPUSolver::packBuffers(std::vector<long> &packing_indexes) {
 
   /* Fill send buffers for every domain */
   int num_domains = packing_indexes.size();
   for (int i=0; i < num_domains; i++) {
-    int send_domain = _neighbor_domains.at(i);
 
-    /* Reset send buffers */
-    int start_idx = _fluxes_per_track + 1;
+    /* Reset send buffers : start at beginning if the buffer has not been
+       prefilled, else start after what has been prefilled */
+    int start_idx = _send_buffers_index.at(i) * _track_message_size +
+                    _fluxes_per_track + 1;
     int max_idx = _track_message_size * TRACKS_PER_BUFFER;
 #pragma omp parallel for
     for (int idx = start_idx; idx < max_idx; idx += _track_message_size) {
@@ -864,16 +950,34 @@ void CPUSolver::packBuffers(std::vector<long> &packing_indexes) {
       track_info_location[0] = -1;
     }
 
-    /* Fill send buffers with Track information */
+    /* Fill send buffers with Track information :
+       -start from last track packed (packing_indexes)
+       -take into account the pre-filling
+       (pre-filling only if ONLYVACUUMBC flag is used)
+       -only fill to max_buffer_fill */
     int max_buffer_idx = _boundary_tracks.at(i).size() -
           packing_indexes.at(i);
-    if (max_buffer_idx > TRACKS_PER_BUFFER)
-      max_buffer_idx = TRACKS_PER_BUFFER;
+
+    if (_send_buffers_index.at(i) + max_buffer_idx > TRACKS_PER_BUFFER)
+      max_buffer_idx = TRACKS_PER_BUFFER - _send_buffers_index.at(i);
+
+    /* Keep track of buffer size to avoid sending more fluxes than needed */
+    _send_size.at(i) = std::max(_send_buffers_index.at(i) + max_buffer_idx,
+         _send_buffers_index.at(i));
+
+#ifndef ONLYVACUUMBC
 #pragma omp parallel for
+#endif
     for (int b=0; b < max_buffer_idx; b++) {
 
       long boundary_track_idx = packing_indexes.at(i) + b;
-      long buffer_index = b * _track_message_size;
+      long buffer_index = (_send_buffers_index.at(i)+b) * _track_message_size;
+
+#ifdef ONLYVACUUMBC
+      /* Exit loop if all fluxes have been sent */
+      if (boundary_track_idx >= _boundary_tracks.at(i).size())
+        break;
+#endif
 
       /* Get 3D Track data */
       long boundary_track = _boundary_tracks.at(i).at(boundary_track_idx);
@@ -886,15 +990,27 @@ void CPUSolver::packBuffers(std::vector<long> &packing_indexes) {
         _send_buffers.at(i)[buffer_index + pe] = _boundary_flux(t,d,pe);
 
       /* Assign the connecting Track information */
-      int idx = buffer_index + _fluxes_per_track;
+      long idx = buffer_index + _fluxes_per_track;
       _send_buffers.at(i)[idx] = d;
       long* track_info_location =
         reinterpret_cast<long*>(&_send_buffers.at(i)[idx+1]);
       track_info_location[0] = connect_track;
+
+ #ifdef ONLYVACUUMBC
+      /* Invalidate track transfer if it has already been sent by prefilling */
+      if (_track_flux_sent.at(d).at(t)) {
+        track_info_location[0] = long(-2);
+
+        /* Use freed-up spot in send_buffer and keep track of it */
+        b--;
+        packing_indexes.at(i)++;
+      }
+#endif
     }
 
-    /* Record the next Track ID */
-    packing_indexes.at(i) += max_buffer_idx;
+    /* Record the next Track ID, reset index of fluxes in send_buffers */
+    packing_indexes.at(i) += std::max(0, max_buffer_idx);
+    _send_buffers_index.at(i) = 0;
   }
 }
 
@@ -929,8 +1045,10 @@ void CPUSolver::transferAllInterfaceFluxes() {
   packing_indexes.resize(num_domains);
 
   /* Start communication rounds */
+  int round_counter = -1;
   while (true) {
 
+    round_counter++;
     int rank;
     MPI_Comm_rank(MPI_cart, &rank);
 
@@ -940,8 +1058,51 @@ void CPUSolver::transferAllInterfaceFluxes() {
     _timer->stopTimer();
     _timer->recordSplit("Packing time");
 
-    /* Send and receive from all neighboring domains */
+#ifdef ONLYVACUUMBC
+    /* Check if any rank needs to send buffers : because of the pre-filling
+       some nodes might have sent all their fluxes before others */
+    int need_to_send = 0;
+    for (int i=0; i < num_domains; i++) {
+
+      long* first_track_idx =
+        reinterpret_cast<long*>(&_send_buffers.at(i)[_fluxes_per_track+1]);
+      long first_track = first_track_idx[0];
+      if (first_track != -1)
+        need_to_send = 1;
+    }
+
+    int num_send_domains;
+    MPI_Allreduce(&need_to_send, &num_send_domains, 1, MPI_INT, MPI_SUM,
+                  MPI_cart);
+    if (round_counter % 20 == 0)
+      log_printf(INFO_ONCE, "Communication round %d : %d domains sending track"
+                 " fluxes.", round_counter, num_send_domains);
+#endif
+
+    /* Set size of received messages, adjust buffer if needed */
     _timer->startTimer();
+    for (int i=0; i < num_domains; i++) {
+
+      /* Size of received message, in number of tracks */
+      _receive_size.at(i) = TRACKS_PER_BUFFER;
+
+#ifdef ONLYVACUUMBC
+      int domain = _neighbor_domains.at(i);
+      if (num_send_domains > 0) {
+        /* Communicate _send_buffers' sizes to adapt _receive_buffers' sizes */
+        MPI_Sendrecv(&_send_size.at(i), 1, MPI_INT, domain, 0,
+                     &_receive_size.at(i), 1, MPI_INT, domain, 0, MPI_cart,
+                     MPI_STATUS_IGNORE);
+
+        /* Adjust receiving buffer if incoming message is large */
+        if (_receive_size.at(i) > _receive_buffers.at(i).size() / _track_message_size)
+          _receive_buffers.at(i).resize(
+               _receive_size.at(i) * _track_message_size);
+      }
+#endif
+    }
+
+    /* Send and receive from all neighboring domains */
     bool communication_complete = true;
     for (int i=0; i < num_domains; i++) {
 
@@ -952,17 +1113,22 @@ void CPUSolver::transferAllInterfaceFluxes() {
       long* first_track_idx =
         reinterpret_cast<long*>(&_send_buffers.at(i)[_fluxes_per_track+1]);
       long first_track = first_track_idx[0];
+
+#ifndef ONLYVACUUMBC
       if (first_track != -1) {
+#else
+      if (num_send_domains > 0) {
+#endif
 
         /* Send outgoing flux */
-        MPI_Isend(_send_buffers.at(i), _track_message_size *
-                  TRACKS_PER_BUFFER, MPI_FLOAT, domain, 0, MPI_cart,
+        MPI_Isend(&_send_buffers.at(i)[0], _track_message_size *
+                  _send_size.at(i), MPI_FLOAT, domain, 0, MPI_cart,
                   &_MPI_requests[i*2]);
         _MPI_sends[i] = true;
 
         /* Receive incoming flux */
-        MPI_Irecv(_receive_buffers.at(i), _track_message_size *
-                  TRACKS_PER_BUFFER, MPI_FLOAT, domain, 0, MPI_cart,
+        MPI_Irecv(&_receive_buffers.at(i)[0], _track_message_size *
+                  _receive_size.at(i), MPI_FLOAT, domain, 0, MPI_cart,
                   &_MPI_requests[i*2+1]);
         _MPI_receives[i] = true;
 
@@ -995,21 +1161,82 @@ void CPUSolver::transferAllInterfaceFluxes() {
       if (_MPI_receives[i]) {
 
         /* Get the buffer for the connecting domain */
-        float* buffer = _receive_buffers.at(i);
-        for (int t=0; t < TRACKS_PER_BUFFER; t++) {
+        for (int t=0; t < _receive_size.at(i); t++) {
 
           /* Get the Track ID */
-          float* curr_track_buffer = &buffer[t*_track_message_size];
+          float* curr_track_buffer = &_receive_buffers.at(i)[
+                                     t*_track_message_size];
           long* track_idx =
             reinterpret_cast<long*>(&curr_track_buffer[_fluxes_per_track+1]);
           long track_id = track_idx[0];
 
+          /* Break out of loop once buffer is finished */
+          if (track_id == -1)
+            break;
+
           /* Check if the angular fluxes are active */
-          if (track_id != -1) {
+          /* -2 : already transfered through pre-filling
+           * -1 : padding of buffer */
+          if (track_id > -1) {
             int dir = curr_track_buffer[_fluxes_per_track];
 
+#ifdef ONLYVACUUMBC
+            /* Before copying an incoming flux over an unsent flux, save
+             * the unsent flux in the send buffer (pre-filling) */
+
+            int send_domain = _domain_connections.at(dir).at(track_id);
+            long boundary_track = 2 * track_id + dir;
+
+            /* Only save destination flux if it doesn't go to vacuum */
+            if (send_domain >= 0) {
+              int i_next = _neighbor_connections.at(send_domain);
+
+              /* Check that all tracks to i_next haven't been sent */
+              if (packing_indexes.at(i_next) <
+                  _boundary_tracks.at(i_next).size()) {
+
+                /* Check that the current track hasn't been sent already */
+                if (boundary_track >= _boundary_tracks.at(i_next).at(
+                    packing_indexes.at(i_next))) {
+
+                  /* Keep track of the send buffer prefilling */
+                  int buffer_index = _send_buffers_index.at(i_next);
+                  buffer_index *= _track_message_size;
+                  _send_buffers_index.at(i_next)++;
+
+                  if (buffer_index >= _send_buffers.at(i_next).size()) {
+                    log_printf(WARNING, "MPI angular flux communication buffer"
+                               " from rank %d to %d overflowed. Buffer memory "
+                               "doubled dynamically.", rank, send_domain);
+                    _send_buffers.at(i_next).resize(_send_buffers.at(
+                          i_next).size() * 2);
+                  }
+
+                  /* Copy flux, direction and next track in send_buffer */
+                  for (int pe=0; pe < _fluxes_per_track; pe++)
+                    _send_buffers.at(i_next).at(buffer_index + pe) = 
+                         _boundary_flux(track_id, dir, pe);
+                  _send_buffers.at(i_next).at(buffer_index + _fluxes_per_track) =
+                       dir;
+                  long* track_info_location =
+                       reinterpret_cast<long*>(&_send_buffers.at(i_next).at(
+                       buffer_index + _fluxes_per_track + 1));
+                  track_info_location[0] = _track_connections.at(dir).at(
+                       track_id);
+
+                  /* Remember that track flux has been placed in send buffer
+                   * to avoid sending a wrong track flux when packing buffer */
+                  _track_flux_sent.at(dir).at(track_id) = true;
+                }
+              }
+            }
+
+            for (int pe=0; pe < _fluxes_per_track; pe++)
+              _boundary_flux(track_id, dir, pe) = curr_track_buffer[pe];
+#else
             for (int pe=0; pe < _fluxes_per_track; pe++)
               _start_flux(track_id, dir, pe) = curr_track_buffer[pe];
+#endif
           }
         }
       }
@@ -1020,6 +1247,12 @@ void CPUSolver::transferAllInterfaceFluxes() {
     _timer->stopTimer();
     _timer->recordSplit("Communication time");
   }
+
+#ifdef ONLYVACUUMBC
+  /* Reset book-keeping on which track fluxes have been sent already */
+  std::fill(_track_flux_sent.at(0).begin(), _track_flux_sent.at(0).end(), 0);
+  std::fill(_track_flux_sent.at(1).begin(), _track_flux_sent.at(1).end(), 0);
+#endif
 
   /* Join MPI at the end of communication */
   MPI_Barrier(MPI_cart);
@@ -1490,7 +1723,7 @@ double CPUSolver::normalizeFluxes() {
   long total_num_FSRs = _num_FSRs;
 
 #ifdef MPIx
-  /* Reduce total fission rates across domians */
+  /* Reduce total fission rates across domains */
   if (_geometry->isDomainDecomposed()) {
 
     /* Get the communicator */
@@ -1522,7 +1755,9 @@ double CPUSolver::normalizeFluxes() {
   /* Normalize angular boundary fluxes for each Track */
 #pragma omp parallel for schedule(static)
   for (long idx=0; idx < 2 * _tot_num_tracks * _fluxes_per_track; idx++) {
+#ifndef ONLYVACUUMBC
     _start_flux[idx] *= norm_factor;
+#endif
     _boundary_flux[idx] *= norm_factor;
   }
 
@@ -1937,8 +2172,10 @@ void CPUSolver::transportSweep() {
   /* Initialize flux in each FSR to zero */
   flattenFSRFluxes(0.0);
 
+#ifndef ONLYVACUUMBC
   /* Copy starting flux to current flux */
   copyBoundaryFluxes();
+#endif
 
   /* Tally the starting fluxes to boundaries */
   if (_cmfd != NULL)
@@ -1970,6 +2207,10 @@ void CPUSolver::transportSweep() {
   /* Transfer all interface fluxes after the transport sweep */
   if (_track_generator->getGeometry()->isDomainDecomposed())
     transferAllInterfaceFluxes();
+#endif
+
+#ifdef ONLYVACUUMBC
+  resetBoundaryFluxes();
 #endif
 }
 
@@ -2175,7 +2416,13 @@ void CPUSolver::addSourceToScalarFlux() {
     sigma_t = _FSR_materials[r]->getSigmaT();
 
     for (int e=0; e < _num_groups; e++) {
-      _scalar_flux(r, e) /= (sigma_t[e] * volume);
+
+      /* Handle zero volume regions */
+      if (volume > FLT_EPSILON)
+        _scalar_flux(r, e) /= (sigma_t[e] * volume);
+      else
+        _scalar_flux(r, e) = 0;
+
       _scalar_flux(r, e) += FOUR_PI * _reduced_sources(r, e) / sigma_t[e];
 
       if (_scalar_flux(r, e) < 0.0 && !_negative_fluxes_allowed) {

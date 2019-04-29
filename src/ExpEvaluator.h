@@ -356,7 +356,6 @@ inline void ExpEvaluator::retrieveExponentialComponents(FP_PRECISION tau,
                                               FP_PRECISION* __restrict__ exp_H) {
 #endif
 
-
 #ifndef THREED
   FP_PRECISION inv_sin_theta = 1.f / _quadrature->getSinThetaInline(_azim_index,
                                                    _polar_index + polar_offset);

@@ -16,6 +16,7 @@
 #include <math.h>
 #include <omp.h>
 #include <stdlib.h>
+#include <unordered_map>
 #endif
 
 #undef track_flux
@@ -65,19 +66,42 @@ protected:
   int _track_message_size;
 
   /* Buffer to send track angular fluxes and associated information */
-  std::vector<float*> _send_buffers;
+  std::vector<std::vector<float> > _send_buffers;
+
+  /* Index into send_buffers for pre-filling (ONLYVACUUMBC mode) */
+  std::vector<int> _send_buffers_index;
 
   /* Buffer to receive track angular fluxes and associated information */
-  std::vector<float*> _receive_buffers;
+  std::vector<std::vector<float> > _receive_buffers;
 
   /* Vector of vectors containing boundary track ids and direction */
   std::vector<std::vector<long> > _boundary_tracks;
 
+  /* Vector to know how big of a send buffer to send to another domain */
+  std::vector<int> _send_size;
+
+  /* Vector to save the size of the receive buffers */
+  std::vector<int> _receive_size;
+
+#ifdef ONLYVACUUMBC
+  /* Vector of the vacuum boundary track ids and direction */
+  std::vector<long> _tracks_from_vacuum;
+
+  /* Vector of vectors containing if a track flux has been sent by pre-fill */
+  std::vector<std::vector<bool> > _track_flux_sent;
+#endif
+
   /* Vector of vectors containing the connecting track id and direction */
   std::vector<std::vector<long> > _track_connections;
 
+  /* Vector of vectors containing the connecting domains */
+  std::vector<std::vector<int> > _domain_connections;
+
   /* Rank of domains neighboring local domain */
   std::vector<int> _neighbor_domains;
+
+  /* Index of neighboring domains in _neighbor_domains */
+  std::unordered_map<int, int> _neighbor_connections;
 
   /* Array to check whether MPI communications are finished */
   MPI_Request* _MPI_requests;
@@ -103,6 +127,9 @@ protected:
   void transferAllInterfaceFluxes();
   void printCycle(long track_start, int domain_start, int length);
   void boundaryFluxChecker();
+#endif
+#ifdef ONLYVACUUMBC
+  void resetBoundaryFluxes();
 #endif
   virtual void flattenFSRFluxes(FP_PRECISION value);
   void flattenFSRFluxesChiSpectrum();
