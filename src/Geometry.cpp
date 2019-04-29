@@ -607,6 +607,17 @@ void Geometry::getDomainIndexes(int* indexes) {
 
 
 /**
+ * @brief Returns the number of domains in each direction.
+ * @param structure A pointer to the array to be filled with the domain numbers
+ */
+void Geometry::getDomainStructure(int* structure) {
+  structure[0] = _num_domains_x;
+  structure[1] = _num_domains_y;
+  structure[2] = _num_domains_z;
+}
+
+
+/**
  * @brief Sets the root Universe for the CSG tree.
  * @param root_universe the root Universe of the CSG tree.
  */

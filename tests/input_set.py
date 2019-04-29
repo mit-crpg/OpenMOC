@@ -245,6 +245,67 @@ class LatticeGridInput(InputSet):
         super(LatticeGridInput, self).create_geometry()
 
 
+class OblongLatticeGridInput(InputSet):
+    """A simple lattice problem where the lattice where num_x != num_y."""
+
+    def create_materials(self):
+        """Instantiate C5G7 Materials."""
+        self.materials = \
+            openmoc.materialize.load_from_hdf5(filename='c5g7-mgxs.h5',
+                                               directory='../../sample-input/')
+
+    def create_geometry(self):
+        """Instantiate a 3x2 grid Geometry by making a lattice"""
+
+        # Create the planes bounding the geometry
+        xmin = openmoc.XPlane(x=-3.0, name='xmin')
+        xmax = openmoc.XPlane(x=3.0, name='xmax')
+        ymin = openmoc.YPlane(y=-2.0, name='ymin')
+        ymax = openmoc.YPlane(y=2.0, name='ymax')
+
+        xmin.setBoundaryType(openmoc.REFLECTIVE)
+        xmax.setBoundaryType(openmoc.REFLECTIVE)
+        ymin.setBoundaryType(openmoc.REFLECTIVE)
+        ymax.setBoundaryType(openmoc.REFLECTIVE)
+
+        # Create the root cell, bounded by the geometry bounds
+        root_cell = openmoc.Cell(name='root cell')
+        root_cell.addSurface(halfspace=+1, surface=xmin)
+        root_cell.addSurface(halfspace=-1, surface=xmax)
+        root_cell.addSurface(halfspace=+1, surface=ymin)
+        root_cell.addSurface(halfspace=-1, surface=ymax)
+
+        # Create UO2, water, and tube cells
+        uo2_cell = openmoc.Cell(name='UO2 Cell')
+        uo2_cell.setFill(self.materials['UO2'])
+        water_cell = openmoc.Cell(name='Water Cell')
+        water_cell.setFill(self.materials['Water'])
+        tube_cell = openmoc.Cell(name='Tube Cell')
+        tube_cell.setFill(self.materials['Guide Tube'])
+
+        # Create universes and fill with the associated cell
+        root_universe = openmoc.Universe(name='root universe')
+        root_universe.addCell(root_cell)
+        uo2 = openmoc.Universe(name='uo2 universe')
+        uo2.addCell(uo2_cell)
+        water = openmoc.Universe(name='water universe')
+        water.addCell(water_cell)
+        tube = openmoc.Universe(name='tube universe')
+        tube.addCell(tube_cell)
+
+        # Create the lattice and fill it with the appropriate universes
+        lattice = openmoc.Lattice(name='3x2 lattice')
+        lattice.setWidth(width_x=2.0, width_y=2.0)
+        lattice.setUniverses([[[uo2, tube, water],
+                               [water, uo2,   tube]]])
+        root_cell.setFill(lattice)
+
+        self.geometry = openmoc.Geometry()
+        self.geometry.setRootUniverse(root_universe)
+
+        super(OblongLatticeGridInput, self).create_geometry()
+
+
 class SimpleLatticeInput(InputSet):
     """A 4x4 pin cell lattice problem from sample-input/simple-lattice."""
 

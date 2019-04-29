@@ -910,6 +910,46 @@ class Mesh(object):
         else:
             return mesh_x, mesh_y, mesh_z
 
+    @classmethod
+    def from_lattice(cls, lattice, division=1):
+        """Create a mesh from an existing lattice
+
+        Parameters
+        ----------
+        lattice : openmoc.Lattice
+            Uniform rectangular lattice used as a template for this mesh.
+        division : int
+            Number of mesh cells per lattice cell.
+            If not specified, there will be 1 mesh cell per lattice cell.
+
+        Returns
+        -------
+        openmoc.process.Mesh
+            Mesh instance
+
+        """
+        cv.check_type("lattice", lattice, openmoc.Lattice)
+        cv.check_type("division", division, Integral)
+        if lattice.getNonUniform():
+           raise ValueError("Lattice must be uniform.")
+        
+        shape = np.array((lattice.getNumX(), lattice.getNumY(),
+                          lattice.getNumZ()))
+        width = np.array((lattice.getWidthX(), lattice.getWidthY(),
+                          lattice.getWidthZ()))
+        lleft = np.array((lattice.getMinX(), lattice.getMinY(),
+                          lattice.getMinZ()))
+        uright = lleft + shape*width
+        uright[np.isinf(width)] = np.inf
+
+        mesh = cls()
+        mesh.width = width
+        mesh.lower_left = lleft
+        mesh.upper_right = uright
+        mesh.dimension = [s*division for s in shape]
+
+        return mesh
+    
     def tally_fission_rates(self, solver, volume='integrated', nu=False):
         """Compute the fission rates in each mesh cell.
 
