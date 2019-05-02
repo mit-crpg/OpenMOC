@@ -876,17 +876,24 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
   }
 
   /* Allocate a temporary flux buffer on the stack (free) and initialize it */
+  /* Select right size for buffer */
 #ifndef NGROUPS
   int _num_groups = _track_generator->getGeometry()->getNumEnergyGroups();
 #endif
-  int num_polar = 1;
-  if (track_3D == NULL)
-    num_polar = _track_generator->getQuadrature()->getNumPolarAngles() / 2;
+#ifndef LINEARSOURCE
+  int num_moments = 1;
+  if (_ls_solver != NULL)
+    num_moments = 4;
+#else
+  const int num_moments = 4;
+#endif
+  int num_groups_aligned = (_num_groups / VEC_ALIGNMENT +
+                            (_num_groups % VEC_ALIGNMENT != 0)) * VEC_ALIGNMENT;
 
-  int num_groups_aligned = (_num_groups / VEC_ALIGNMENT + 1) * VEC_ALIGNMENT;
-  FP_PRECISION fsr_flux[4 * num_groups_aligned * num_polar] __attribute__
+  /* Allocate an aligned buffer on the stack */
+  FP_PRECISION fsr_flux[num_moments * num_groups_aligned] __attribute__
        ((aligned (VEC_ALIGNMENT)));
-  memset(&fsr_flux[0], 0, 4 * num_groups_aligned * sizeof(FP_PRECISION));
+  memset(&fsr_flux[0], 0, num_moments * num_groups_aligned * sizeof(FP_PRECISION));
   FP_PRECISION* fsr_flux_x = &fsr_flux[num_groups_aligned];
   FP_PRECISION* fsr_flux_y = &fsr_flux[2*num_groups_aligned];
   FP_PRECISION* fsr_flux_z = &fsr_flux[3*num_groups_aligned];
