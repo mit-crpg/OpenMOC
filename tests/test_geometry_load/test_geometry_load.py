@@ -43,7 +43,6 @@ class SimpleLatticeTestHarness(TestHarness):
             openmoc.TrackGenerator(geometry, self.num_azim,
                                      self.spacing)
 
-
     def _create_solver(self):
         """Instantiate a CPULSSolver, to add the centroid calculations"""
         self.solver = openmoc.CPULSSolver(self.track_generator)

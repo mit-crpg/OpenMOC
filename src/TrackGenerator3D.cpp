@@ -1267,7 +1267,7 @@ void TrackGenerator3D::segmentize() {
   int tracks_segmented = 0;
   long num_3D_tracks = getNum3DTracks();
 
-  /* Loop over all Tracks */
+  /* Loop over all Tracks */  //FIXME Move openmp section over all tracks
   for (int a=0; a < _num_azim/2; a++) {
 
     log_printf(NORMAL, "segmenting 3D tracks - Percent complete: %5.2f %%",
