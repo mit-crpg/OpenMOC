@@ -1257,7 +1257,7 @@ void TrackGenerator::segmentize() {
   /* Loop over all Tracks */
 #pragma omp parallel for schedule(dynamic)
   for (int t=0; t < _num_2D_tracks; t++) {
-    _geometry->segmentize2D(&_tracks_2D_array[t], _z_coord);
+    _geometry->segmentize2D(_tracks_2D_array[t], _z_coord);
     progress.incrementCounter();
   }
 

@@ -272,10 +272,6 @@ int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]) {
       arg_index++;
       RP._test_run = atoi(argv[arg_index++]);
     }
-    else if(strcmp(argv[arg_index], "-geo-version") == 0) {
-      arg_index++;
-      RP._geo_version = atoi(argv[arg_index++]);
-    }
     else if(strcmp(argv[arg_index], "-quadraturetype") == 0) {
       arg_index++;
       RP._quadraturetype = atoi(argv[arg_index++]);
@@ -328,7 +324,6 @@ int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]) {
       "-num_threads             1                                          \\\n"
       "-log_filename            test_problem.log                           \\\n"
       "-geo_file_name           test_problem.geo                           \\\n"
-      "-geo-version             0                                          \\\n"
       "-azim_spacing            0.10                                       \\\n"
       "-num_azim                32                                         \\\n"
       "-polar_spacing           0.5                                        \\\n"
@@ -369,10 +364,6 @@ int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]) {
     printf("-log_filename           : (NULL) the file name of the log file\n");
     printf("-geo_file_name          : (NULL) the file name of the geometry "
            "file\n");
-    printf("-geo-version            : (0) The version of geometry file\n"
-           "                           0 - uniform lattice geometry\n"
-           "                           1 - non-uniform lattice geometry\n"
-          );
     printf("\n");
 
     printf("Track generating parameters\n");
