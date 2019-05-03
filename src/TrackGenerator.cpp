@@ -543,6 +543,10 @@ void TrackGenerator::setGeometry(Geometry* geometry) {
  */
 void TrackGenerator::setZCoord(double z_coord) {
   _z_coord = z_coord;
+
+  /* Move the CMFD lattice near the plane of interest */
+  if (_geometry->getCmfd() != NULL)
+    _geometry->getCmfd()->getLattice()->getOffset()->setZ(z_coord - 0.5);
 }
 
 
