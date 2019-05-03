@@ -83,14 +83,6 @@ protected:
   /* Vector to save the size of the receive buffers */
   std::vector<int> _receive_size;
 
-#ifdef ONLYVACUUMBC
-  /* Vector of the vacuum boundary track ids and direction */
-  std::vector<long> _tracks_from_vacuum;
-
-  /* Vector of vectors containing if a track flux has been sent by pre-fill */
-  std::vector<std::vector<bool> > _track_flux_sent;
-#endif
-
   /* Vector of vectors containing the connecting track id and direction */
   std::vector<std::vector<long> > _track_connections;
 
@@ -111,6 +103,13 @@ protected:
   bool* _MPI_receives;
 #endif
 
+#ifdef ONLYVACUUMBC
+  /* Vector of the vacuum boundary track ids and direction */
+  std::vector<long> _tracks_from_vacuum;
+
+  /* Vector of vectors containing if a track flux has been sent by pre-fill */
+  std::vector<std::vector<bool> > _track_flux_sent;
+#endif
 
   virtual void initializeFluxArrays();
   virtual void initializeSourceArrays();

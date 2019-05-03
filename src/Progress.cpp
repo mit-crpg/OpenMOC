@@ -45,19 +45,22 @@ Progress::~Progress() {
  */
 void Progress::incrementCounter() {
 
-  int curr_count;
-  bool found_interval = false;
+  long curr_count;
 
-  /* Increment counter, check if next interval is reached */
   #pragma omp critical
   {
+    /* Increment counter */
     curr_count = _counter++;
+
+    /* While loop handles the case of an empty interval */
     while (_curr_interval < _intervals.size()) {
+
+      /* Check if next interval is reached */
       if (curr_count != _intervals.at(_curr_interval))
         break;
-      int count = curr_count;
-      if (count != 0)
-        count += 1;
+
+      /* Add 1 for nicer printout */
+      long count = curr_count + (count != 0);
       double num_iters = _num_iterations;
       double percent = count / num_iters * 100.0;
 #ifdef MPIx
