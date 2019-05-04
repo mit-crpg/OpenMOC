@@ -104,7 +104,7 @@ class configuration:
     # Dictionary of source code files to compile for each extension module
     sources = dict()
 
-    sources['gcc'] = ['openmoc/openmoc_wrap.cpp',
+    sources['gcc'] = ['openmoc/swig/openmoc_wrap.cpp',
                       'src/Cell.cpp',
                       'src/Cmfd.cpp',
                       'src/CPUSolver.cpp',
