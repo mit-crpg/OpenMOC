@@ -29,6 +29,7 @@ class SimpleLatticeTestHarness(TestHarness):
         # Initialize CMFD
         cmfd = openmoc.Cmfd()
         cmfd.setSORRelaxationFactor(1.5)
+        cmfd.setCMFDRelaxationFactor(1.0)
         cmfd.setLatticeStructure(4,4,4)
         cmfd.setGroupStructure([[1,2,3], [4,5,6,7]])
         cmfd.setKNearest(3)

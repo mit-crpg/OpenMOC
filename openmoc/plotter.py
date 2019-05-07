@@ -9,7 +9,8 @@ import matplotlib
 from mpl_toolkits.mplot3d import Axes3D
 
 # Force headless backend for plotting on clusters
-matplotlib.use('Agg')
+if "DISPLAY" not in os.environ:
+    matplotlib.use('Agg')
 
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
@@ -150,6 +151,8 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
             filename = \
                 'tracks-{1}-angles-{2}.png'.format(directory, num_azim,
                                                    spacing)
+            if plot_3D:
+                filename = '3d-' + filename
             fig.savefig(directory+filename, bbox_inches='tight')
             plt.close(fig)
 
@@ -273,6 +276,8 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
             filename = 'segments-{0}-angles-{1}-spacing'.format(num_azim,
                                                                 spacing)
             filename = '{0}-z-{1}.png'.format(filename, z[0])
+            if plot_3D:
+                filename = '3d-' + filename
             fig.savefig(directory+filename, bbox_inches='tight')
             plt.close(fig)
 

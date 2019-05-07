@@ -453,12 +453,10 @@ void CPUSolver::zeroTrackFluxes() {
 void CPUSolver::copyBoundaryFluxes() {
 
 #pragma omp parallel for schedule(static)
-  for (long t=0; t < _tot_num_tracks; t++) {
-    for (int d=0; d < 2; d++) {
+  for (long t=0; t < _tot_num_tracks; t++)
+    for (int d=0; d < 2; d++)
       for (int pe=0; pe < _fluxes_per_track; pe++)
-        _boundary_flux(t,d,pe) = _start_flux(t,d,pe);
-    }
-  }
+        _boundary_flux(t,d,pe) = _start_flux(t, d, pe);
 }
 
 
@@ -2450,11 +2448,9 @@ void CPUSolver::addSourceToScalarFlux() {
   if (total_num_negative_fluxes > 0  && !_negative_fluxes_allowed) {
     if (_geometry->isRootDomain()) {
       log_printf(WARNING, "Computed %ld negative fluxes on %d domains",
-                 total_num_negative_fluxes,
-                 total_num_negative_flux_domains);
+                 total_num_negative_fluxes, total_num_negative_flux_domains);
     }
   }
-
 }
 
 

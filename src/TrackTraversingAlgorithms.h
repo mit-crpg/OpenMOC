@@ -203,6 +203,7 @@ private:
   CPUSolver* _cpu_solver;
   CPULSSolver* _ls_solver;
   Geometry* _geometry;
+  int _num_groups;
   FP_PRECISION** _thread_fsr_fluxes;
   FP_PRECISION** _thread_scratch_pads;
 

@@ -489,7 +489,7 @@ void TrackGenerator3D::retrieveGlobalZMesh(double*& z_mesh, int& num_fsrs) {
 
 
 /**
- * @brief Fills an array with the x,y coordinates for each Track.
+ * @brief Fills an array with the x,y,z coordinates for each Track.
  * @details This class method is intended to be called by the OpenMOC
  *          Python "plotter" module as a utility to assist in plotting
  *          tracks. Although this method appears to require two arguments,
@@ -510,7 +510,7 @@ void TrackGenerator3D::retrieveTrackCoords(double* coords, long num_tracks) {
 
 
 /**
- * @brief Fills an array with the x,y coordinates for each Track.
+ * @brief Fills an array with the x,y,z coordinates for each Track.
  * @details This class method is intended to be called by the OpenMOC
  *          Python "plotter" module as a utility to assist in plotting
  *          tracks. Although this method appears to require two arguments,
@@ -564,7 +564,7 @@ void TrackGenerator3D::retrieve3DTrackCoords(double* coords, long num_tracks) {
 
 
 /**
- * @brief Fills an array with the x,y coordinates for each Track segment.
+ * @brief Fills an array with the x,y,z coordinates for each Track segment.
  * @details This class method is intended to be called by the OpenMOC
  *          Python "plotter" module as a utility to assist in plotting
  *          segments. Although this method appears to require two arguments,
@@ -740,9 +740,9 @@ void TrackGenerator3D::initializeTracks() {
   }
 
   double x1, x2, y1, y2, z1, z2;
-  double width_x  = _geometry->getWidthX();
+  double width_x = _geometry->getWidthX();
   double width_y = _geometry->getWidthY();
-  double width_z  = _geometry->getWidthZ();
+  double width_z = _geometry->getWidthZ();
   double avg_polar_spacing = 0.0;
   double sum_correction = 0.0;
   double max_correction = 0.0;
@@ -852,19 +852,21 @@ void TrackGenerator3D::initializeTracks() {
   /* Allocate memory for 3D track stacks */
   create3DTracksArrays();
 
-  /* Save explicit Track data if necessary */
+  /* Initialize tracks in _tracks_3D array, save tracks */
   if (_segment_formation == EXPLICIT_3D)
     getCycleTrackData(tcis, num_chains, true);
 
   /* Delete the array of chain track indexes */
   delete [] tcis;
 
-  /* Record the maximum number of tracks in a single stack */
+  /* Record the number of tracks, maximum number of tracks in a single stack */
   for (int a=0; a < _num_azim/2; a++)
     for (int i=0; i < _num_x[a] + _num_y[a]; i++)
-      for (int p=0; p < _num_polar; p++)
+      for (int p=0; p < _num_polar; p++) {
+        _num_3D_tracks += _tracks_per_stack[a][i][p];
         if (_tracks_per_stack[a][i][p] > _max_num_tracks_per_stack)
           _max_num_tracks_per_stack = _tracks_per_stack[a][i][p];
+      }
 
   /* Allocate temporary Tracks if necessary */
   if (_segment_formation == OTF_STACKS)
@@ -896,7 +898,7 @@ void TrackGenerator3D::initialize2DTrackChains() {
       track = &_tracks_2D[a][x];
       track->setLinkIndex(link_index);
 
-      /* Cycle through the tracks in the 2D chain */
+      /* Cycle through 2D chain's tracks, set their index, get chain length */
       while (track->getXYIndex() < _num_y[a]) {
         link_index++;
         track = _tracks_2D_array[track->getTrackPrdcFwd()];
@@ -1008,9 +1010,11 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
    * with the same start and end points */
   bool nudged = false;
   if (fabs(l_start) > FLT_EPSILON) {
-    if (fabs(int(round(x_ext / width_x)) * width_x - x_ext) < TINY_MOVE ||
-        fabs(int(round(y_ext / width_y)) * width_y - y_ext) < TINY_MOVE) {
-      l_start += TINY_MOVE * 10;
+    /* x_ext and y_ext are both 0 or n*width_x/y at a double reflection */
+    //FIXME Understand why sides instead of corners
+    if (fabs(round(x_ext / width_x) * width_x - x_ext) < TINY_MOVE ||
+        fabs(round(y_ext / width_y) * width_y - y_ext) < TINY_MOVE) {
+      l_start += 10 * TINY_MOVE;
       x_ext = x_start - _x_min + l_start * cos_phi;
       y_ext = y_start - _y_min + l_start * sin_phi;
       nudged = true;
@@ -1030,7 +1034,30 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
   /* Get the starting y-coord */
   double y1 = fmod(y_ext, width_y) + _y_min;
 
-  /* Get the z-coords */
+  /* Get the track's starting and ending z-coords */
+  /* lz index of track in [0, nz+nl]
+   *             nl tracks
+   *             cutting top plane
+   *           _____________
+   *          |/ / / / / / /|
+   *  nz      | / / / / / / | nz
+   *  tracks  |/ / / / / / /| tracks cutting Z axis
+   *  cutting | / / / / / / | on other side
+   *  Z axis  |/ / / / / / /|
+   *          |_/_/_/_/_/_/_|
+   *           / / / / / /
+   *          / / / / / /
+   *           / / / / /
+   *  nl      / / / / /
+   *  tracks   / / / /
+   *  cutting / / / /
+   *  bottom   / / /
+   *  horiz.  / / /
+   *  plane    / /
+   *          / /
+   *           /
+   *          /
+   */
   double z1;
   double z2;
   if (tci->_polar < _num_polar / 2) {
@@ -1042,7 +1069,7 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
     z2 = _z_min + std::max(0., (lz - nl + 0.5)) * dz;
   }
 
-  /* If the start point was nudged, nudge it back */
+  /* Reverse nudging of point */
   if (nudged) {
     x1 -= 10 * TINY_MOVE * cos_phi;
     y1 -= 10 * TINY_MOVE * sin_phi;
@@ -1109,11 +1136,13 @@ void TrackGenerator3D::set3DTrackData(TrackChainIndexes* tci,
     double dx;
     double dy;
     double dl_xy;
+    /* For first link, track starts at x1,y1,z1, in middle of Z-boundary */
     if (link == first_link) {
       dx = track_2D->getEnd()->getX() - x1;
       dy = track_2D->getEnd()->getY() - y1;
       dl_xy = sqrt(dx*dx + dy*dy);
     }
+    /* For other links, track starts on the X or Y boundaries */
     else
       dl_xy = track_2D->getLength();
 
@@ -1128,11 +1157,9 @@ void TrackGenerator3D::set3DTrackData(TrackChainIndexes* tci,
 
     /* Set the end point coords */
     int polar;
-    double track_theta;
     x2 = x1 + dl * cos(phi);
     y2 = y1 + dl * sin(phi);
     polar = tci->_polar;
-    track_theta = theta;
 
     if (tci->_polar < _num_polar / 2)
       z2 = z1 + dl / tan(theta);
@@ -1160,10 +1187,19 @@ void TrackGenerator3D::set3DTrackData(TrackChainIndexes* tci,
       if (z == 0)
         _first_lz_of_stack[azim][xy][polar] = tci->_lz;
 
-      if (save_tracks && _segment_formation == EXPLICIT_3D) {
+      if (_segment_formation == EXPLICIT_3D && save_tracks) {
 
-        /* Get this 3D track */
+        /* Get a pointer to this 3D track in the global tracks array */
         Track3D* track_3D = &_tracks_3D[azim][xy][polar][z];
+
+        /* Ensure the track does not lie outside the geometry bounds,
+           due to floating point errors */
+        x1 = std::max(_x_min, std::min(_x_max, x1));
+        y1 = std::max(_y_min, std::min(_y_max, y1));
+        z1 = std::max(_z_min, std::min(_z_max, z1));
+        x2 = std::max(_x_min, std::min(_x_max, x2));
+        y2 = std::max(_y_min, std::min(_y_max, y2));
+        z2 = std::max(_z_min, std::min(_z_max, z2));
 
         /* Set the start and end points */
         track_3D->getStart()->setCoords(x1, y1, z1);
@@ -1173,7 +1209,7 @@ void TrackGenerator3D::set3DTrackData(TrackChainIndexes* tci,
         track_3D->setAzimIndex(azim);
         track_3D->setXYIndex(xy);
         track_3D->setPolarIndex(polar);
-        track_3D->setTheta(track_theta);
+        track_3D->setTheta(theta);
         track_3D->setPhi(phi);
       }
     }
@@ -1190,7 +1226,8 @@ void TrackGenerator3D::set3DTrackData(TrackChainIndexes* tci,
     }
   }
 
-  /* Ensure the track does not lie outside the geometry bounds */
+  /* Ensure the track does not lie outside the geometry bounds,
+     due to floating point errors */
   x1 = std::max(_x_min, std::min(_x_max, x1));
   y1 = std::max(_y_min, std::min(_y_max, y1));
   z1 = std::max(_z_min, std::min(_z_max, z1));
@@ -1226,7 +1263,7 @@ void TrackGenerator3D::segmentizeExtruded() {
   /* Loop over all extruded Tracks */
   Progress progress(_num_2D_tracks, "Segmenting 2D Tracks", 0.1, _geometry,
                     true);
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic)
   for (int index=0; index < _num_2D_tracks; index++) {
     progress.incrementCounter();
     _geometry->segmentizeExtruded(_tracks_2D_array[index], z_coords);
@@ -1264,42 +1301,49 @@ void TrackGenerator3D::segmentize() {
 
   log_printf(NORMAL, "Ray tracing for 3D track segmentation...");
 
-  int tracks_segmented = 0;
-  long num_3D_tracks = getNum3DTracks();
+  long num_segments = 0;
+  Progress progress(_num_3D_tracks, "Segmenting 3D Tracks", 0.1, _geometry,
+                    true);
 
   /* Loop over all Tracks */
   for (int a=0; a < _num_azim/2; a++) {
 
-    log_printf(NORMAL, "segmenting 3D tracks - Percent complete: %5.2f %%",
-               double(tracks_segmented) / num_3D_tracks * 100.0);
-
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic)
     for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
       for (int p=0; p < _num_polar; p++) {
         for (int z=0; z < _tracks_per_stack[a][i][p]; z++){
+          progress.incrementCounter();
           _geometry->segmentize3D(&_tracks_3D[a][i][p][z]);
           TrackStackIndexes tsi;
           tsi._azim = a;
           tsi._xy = i;
           tsi._polar = p;
           tsi._z = z;
-          _tracks_3D[a][i][p][z].setUid(get3DTrackID(&tsi));    
+          _tracks_3D[a][i][p][z].setUid(get3DTrackID(&tsi));
+
+          /* Set boundary conditions and linking Track data */
+          //FIXME Move to track initialization rather than segmentation
+          TrackChainIndexes tci;
+          convertTSItoTCI(&tsi, &tci);
+          setLinkingTracks(&tsi, &tci, true, &_tracks_3D[a][i][p][z]);
+          setLinkingTracks(&tsi, &tci, false, &_tracks_3D[a][i][p][z]);
+
+#pragma omp atomic update
+          num_segments += _tracks_3D[a][i][p][z].getNumSegments();
         }
       }
-    }
-
-    for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
-      for (int p=0; p < _num_polar; p++)
-        tracks_segmented += _tracks_per_stack[a][i][p];
     }
   }
   _geometry->initializeFSRVectors();
   _contains_3D_segments = true;
+
+  log_printf(NORMAL, "Explicit 3D segments storage = %.2f MB", num_segments *
+             sizeof(segment) / 1e6);
 }
 
 
 /**
- * @brief Fills an array with the x,y coordinates for a given track.
+ * @brief Fills an array with the x,y,z coordinates for a given track.
  * @details This class method is intended to be called by the OpenMOC
  *          Python "plotter" module as a utility to assist in plotting
  *          tracks. Although this method appears to require two arguments,
@@ -1314,7 +1358,7 @@ void TrackGenerator3D::segmentize() {
  * @param track_id the ID of the requested track
  */
 void TrackGenerator3D::retrieveSingle3DTrackCoords(double coords[6],
-                                                 int track_id) {
+                                                   long track_id) {
 
   /* Find 3D track associated with track_id */
   for (int a=0; a < _num_azim/2; a++) {
@@ -1344,7 +1388,7 @@ void TrackGenerator3D::retrieveSingle3DTrackCoords(double coords[6],
     }
   }
   log_printf(ERROR, "Unable to find a 3D track associated with the given track"
-                    "ID during coordinate retrieval");
+                    "ID %ld during coordinate retrieval", track_id);
   return;
 }
 
@@ -1373,10 +1417,12 @@ void TrackGenerator3D::create3DTracksArrays() {
     _tracks_per_azim[a] = tracks_per_azim;
   }
 
-  log_printf(NORMAL, "Total number of Tracks = %ld", num_tracks);
-
   /* Allocate tracks arrays if using explicit ray tracing */
   if (_segment_formation == EXPLICIT_3D) {
+
+    log_printf(NORMAL, "Explicit 3D Track storage = %.2f MB", num_tracks *
+               sizeof(Track3D) / 1e6);
+
     _tracks_3D = new Track3D***[_num_azim/2];
     for (int a=0; a < _num_azim/2; a++) {
       _tracks_3D[a] = new Track3D**[_num_x[a] + _num_y[a]];
@@ -1649,7 +1695,6 @@ void TrackGenerator3D::getTrackOTF(Track3D* track, TrackStackIndexes* tsi) {
 
   try {
     Track* track_2D = &_tracks_2D[tsi->_azim][tsi->_xy];
-    double x1, x2, y1, y2, z1, z2;
     TrackChainIndexes tci;
     convertTSItoTCI(tsi, &tci);
 
@@ -1662,12 +1707,12 @@ void TrackGenerator3D::getTrackOTF(Track3D* track, TrackStackIndexes* tsi) {
       Point* start_3d_2 = track->getStart();
       Point* end_3d_2 = track->getEnd();
 
-      x1 = start_3d_1->getX();
-      y1 = start_3d_1->getY();
-      z1 = start_3d_1->getZ();
-      x2 = end_3d_1->getX();
-      y2 = end_3d_1->getY();
-      z2 = end_3d_1->getZ();
+      double x1 = start_3d_1->getX();
+      double y1 = start_3d_1->getY();
+      double z1 = start_3d_1->getZ();
+      double x2 = end_3d_1->getX();
+      double y2 = end_3d_1->getY();
+      double z2 = end_3d_1->getZ();
 
       start_3d_2->setCoords(x1, y1, z1);
       end_3d_2->setCoords(x2, y2, z2);

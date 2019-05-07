@@ -224,7 +224,7 @@ FP_PRECISION* Material::getSigmaS() {
 
 
 /**
- * @brief Return the array of the Material's absorption cross-section matrix.
+ * @brief Return the array of the Material's absorption group cross-sections.
  * @return the pointer to the Material's array of absorption cross-sections
  */
 FP_PRECISION* Material::getSigmaA() {
@@ -233,20 +233,18 @@ FP_PRECISION* Material::getSigmaA() {
     log_printf(ERROR, "Unable to return Material %d's absorption "
                "cross-section since it has %d groups", _id, _num_groups);
 
-  if (_sigma_s == NULL || _sigma_t == NULL) {
-    log_printf(ERROR, "Unable to return Material %d's scattering "
+  if (_sigma_s == NULL || _sigma_t == NULL)
+    log_printf(ERROR, "Unable to return Material %d's absorption "
                "cross-section since scattering and total have not been set",
                _id);
-  }
 
   /* If not initialized, compute _sigma_a the absorption cross section */
   if (_sigma_a == NULL) {
     _sigma_a = new FP_PRECISION[_num_groups];
     for (int g=0; g < _num_groups; g++) {
       _sigma_a[g] = _sigma_t[g];
-      for (int gp=0; gp < _num_groups; gp++) {
+      for (int gp=0; gp < _num_groups; gp++)
         _sigma_a[g] -= _sigma_s[gp*_num_groups + g];
-      }
     }
   }
 
@@ -344,6 +342,36 @@ FP_PRECISION Material::getSigmaSByGroup(int origin, int destination) {
                origin, destination, _id, _num_groups);
 
   return _sigma_s[(destination-1)*_num_groups + (origin-1)];
+}
+
+
+/**
+ * @brief Get the Material's absorption cross section for some energy group.
+ * @param group the energy group
+ * @return the absorption cross section
+ */
+FP_PRECISION Material::getSigmaAByGroup(int group) {
+
+  if (group <= 0 || group > _num_groups)
+    log_printf(ERROR, "Unable to get sigma_a for group %d for Material "
+               "%d which contains %d energy groups", group, _id, _num_groups);
+
+  if (_sigma_s == NULL || _sigma_t == NULL)
+    log_printf(ERROR, "Unable to return Material %d's absorption "
+               "cross-section since scattering and total have not been set",
+               _id);
+
+  /* If not initialized, compute _sigma_a the absorption cross section */
+  if (_sigma_a == NULL) {
+    _sigma_a = new FP_PRECISION[_num_groups];
+    for (int g=0; g < _num_groups; g++) {
+      _sigma_a[g] = _sigma_t[g];
+      for (int gp=0; gp < _num_groups; gp++)
+        _sigma_a[g] -= _sigma_s[gp*_num_groups + g];
+    }
+  }
+
+  return _sigma_a[group-1];
 }
 
 

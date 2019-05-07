@@ -1928,7 +1928,6 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
   double length;
   Material* material;
   int fsr_id;
-  int num_segments;
 
   /* Use a LocalCoords for the start and end of each segment */
   LocalCoords start(x0, y0, z0, true);
@@ -1959,8 +1958,8 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
     /* Checks that segment does not have the same start and end Points */
     if (fabs(start.getX() - end.getX()) < FLT_EPSILON
         && fabs(start.getY() - end.getY()) < FLT_EPSILON)
-      log_printf(ERROR, "Created 2D segment with same start and end "
-                 "point: x = %f, y = %f, z=%f", start.getX(), start.getY(),
+      log_printf(ERROR, "Created 2D segment with same start and end point: "
+                 "x = %f, y = %f, z = %f", start.getX(), start.getY(),
                  start.getZ());
 
     /* Find the segment length, Material and FSR ID */
@@ -1969,10 +1968,10 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
     fsr_id = findFSRId(&start);
 
     /* Create a new Track segment */
-    segment* new_segment = new segment;
-    new_segment->_material = material;
-    new_segment->_length = length;
-    new_segment->_region_id = fsr_id;
+    segment new_segment;
+    new_segment._material = material;
+    new_segment._length = length;
+    new_segment._region_id = fsr_id;
 
     log_printf(DEBUG, "segment start x = %f, y = %f; end x = %f, y = %f",
                start.getX(), start.getY(), end.getX(), end.getY());
@@ -2020,8 +2019,8 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
       }
 
       /* Save CMFD surfaces */
-      new_segment->_cmfd_surface_fwd = cmfd_surfaces[0];
-      new_segment->_cmfd_surface_bwd = cmfd_surfaces[1];
+      new_segment._cmfd_surface_fwd = cmfd_surfaces[0];
+      new_segment._cmfd_surface_bwd = cmfd_surfaces[1];
 
       /* Re-nudge segments from surface. */
       start.adjustCoords(delta_x, delta_y);
@@ -2031,19 +2030,18 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
     /* Calculate the local centroid of the segment if available */
     //FIXME Consider reversing nudge
     Point* starting_point = start.getHighestLevel()->getPoint();
-    new_segment->_starting_position[0] = starting_point->getX();
-    new_segment->_starting_position[1] = starting_point->getY();
+    new_segment._starting_position[0] = starting_point->getX();
+    new_segment._starting_position[1] = starting_point->getY();
     if (_contains_FSR_centroids) {
       Point* centroid = getFSRCentroid(fsr_id);
       double x_start = starting_point->getX() - centroid->getX();
       double y_start = starting_point->getY() - centroid->getY();
-      new_segment->_starting_position[0] = x_start;
-      new_segment->_starting_position[1] = y_start;
+      new_segment._starting_position[0] = x_start;
+      new_segment._starting_position[1] = y_start;
     }
 
     /* Add the segment to the Track */
-    track->addSegment(new_segment);
-    delete new_segment;
+    track->addSegment(&new_segment);
   }
 
   log_printf(DEBUG, "Created %d segments for Track: %s",
@@ -2062,9 +2060,9 @@ void Geometry::segmentize2D(Track* track, double z_coord) {
  *          intersection points with FSRs as the Track crosses through the
  *          Geometry and creates segment structs and adds them to the Track.
  * @param track a pointer to a track to segmentize
- * @param setup whether the segmentize routine is called during OTF setup
+ * @param OTF_setup whether this routine is called during OTF ray tracing setup
  */
-void Geometry::segmentize3D(Track3D* track, bool setup) {
+void Geometry::segmentize3D(Track3D* track, bool OTF_setup) {
 
   /* Track starting Point coordinates and azimuthal angle */
   double x0 = track->getStart()->getX();
@@ -2072,13 +2070,10 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
   double z0 = track->getStart()->getZ();
   double phi = track->getPhi();
   double theta = track->getTheta();
-  double delta_x, delta_y, delta_z;
 
   /* Length of each segment */
   double length;
-  Material* material;
   long fsr_id;
-  int num_segments;
 
   /* Use a LocalCoords for the start and end of each segment */
   LocalCoords start(x0, y0, z0, true);
@@ -2092,15 +2087,6 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
 
   /* Vector to fill coordinates if necessary */
   std::vector<LocalCoords*> fsr_coords;
-  LocalCoords* preallocation;
-  int preallocation_size = 0;
-  if (setup) {
-    if (_overlaid_mesh != NULL && false) {
-      preallocation_size = _overlaid_mesh->getNumZ();
-      preallocation = new LocalCoords[preallocation_size];
-      fsr_coords.reserve(preallocation_size);
-    }
-  }
 
   /* If starting Point was outside the bounds of the Geometry */
   if (curr == NULL)
@@ -2128,30 +2114,15 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
                  start.getY(), start.getZ());
     }
 
-    /* Find the segment length between the segment's start and end points */
-    length = double(end.getPoint()->distanceToPoint(start.getPoint()));
-    material = prev->getFillMaterial();
-
-    /* Get the FSR ID or save the coordinates */
-    long fsr_id = -1;
-    if (setup && false) {
-      LocalCoords* new_fsr_coords;
-      if (fsr_coords.size() >= preallocation_size)
-        new_fsr_coords = new LocalCoords(0, 0, 0, true);
-      else
-        new_fsr_coords = &preallocation[fsr_coords.size()];
-      start.copyCoords(new_fsr_coords);
-      fsr_coords.push_back(new_fsr_coords);
-    }
-    else {
-      fsr_id = findFSRId(&start);
-    }
+    /* Find the segment length and its region's id */
+    length = end.getPoint()->distanceToPoint(start.getPoint());
+    long fsr_id = findFSRId(&start);
 
     /* Create a new Track segment */
-    segment* new_segment = new segment;
-    new_segment->_material = material;
-    new_segment->_length = length;
-    new_segment->_region_id = fsr_id;
+    segment new_segment;
+    new_segment._material = prev->getFillMaterial();
+    new_segment._length = length;
+    new_segment._region_id = fsr_id;
 
     log_printf(DEBUG, "segment start x = %f, y = %f, z = %f; "
                "end x = %f, y = %f, z = %f",
@@ -2159,7 +2130,7 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
                end.getX(), end.getY(), end.getZ());
 
     /* Save indices of CMFD Mesh surfaces that the Track segment crosses */
-    if (_cmfd != NULL && !setup) {
+    if (_cmfd != NULL && !OTF_setup) {
 
       /* Find cmfd cell that segment lies in */
       int cmfd_cell = _cmfd->findCmfdCell(&start);
@@ -2172,9 +2143,9 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
       start.adjustCoords(-delta_x, -delta_y, -delta_z);
       end.adjustCoords(-delta_x, -delta_y, -delta_z);
 
-      new_segment->_cmfd_surface_fwd =
+      new_segment._cmfd_surface_fwd =
         _cmfd->findCmfdSurface(cmfd_cell, &end);
-      new_segment->_cmfd_surface_bwd =
+      new_segment._cmfd_surface_bwd =
         _cmfd->findCmfdSurface(cmfd_cell, &start);
 
       /* Re-nudge segments from surface. */
@@ -2182,43 +2153,29 @@ void Geometry::segmentize3D(Track3D* track, bool setup) {
       end.adjustCoords(delta_x, delta_y, delta_z);
     }
 
-    /* Calculate the local centroid of the segment if available */
-    if (!setup) {
-      //Point* centroid = getFSRCentroid(fsr_id);
+    /* For regular 3D tracks, get starting position relative to FSR centroid */
+    if (!OTF_setup) {
       Point* starting_point = start.getHighestLevel()->getPoint();
-      double x_start = starting_point->getX();
-      double y_start = starting_point->getY();
-      double z_start = starting_point->getZ();
-      new_segment->_starting_position[0] = x_start;
-      new_segment->_starting_position[1] = y_start;
-      new_segment->_starting_position[2] = z_start;
+      new_segment._starting_position[0] = starting_point->getX();
+      new_segment._starting_position[1] = starting_point->getY();
+      new_segment._starting_position[2] = starting_point->getZ();
+      if (_contains_FSR_centroids) {
+        Point* centroid = getFSRCentroid(fsr_id);
+        double x_start = starting_point->getX() - centroid->getX();
+        double y_start = starting_point->getY() - centroid->getY();
+        double z_start = starting_point->getZ() - centroid->getZ();
+        new_segment._starting_position[0] = x_start;
+        new_segment._starting_position[1] = y_start;
+        new_segment._starting_position[2] = z_start;
+      }
     }
 
     /* Add the segment to the Track */
-    track->addSegment(new_segment);
-    delete new_segment;
+    track->addSegment(&new_segment);
   }
 
   log_printf(DEBUG, "Created %d segments for Track3D: %s",
              track->getNumSegments(), track->toString().c_str());
-
-  /* Search FSR IDs if necessary */
-  if (setup && false) {
-#pragma omp critical
-    {
-      for (int s=0; s < track->getNumSegments(); s++) {
-        long fsr_id = findFSRId(fsr_coords.at(s));
-        track->getSegment(s)->_region_id = fsr_id;
-      }
-    }
-
-    for (int s=0; s < fsr_coords.size(); s++)
-      fsr_coords.at(s)->prune();
-
-    if (preallocation_size > 0)
-      delete [] preallocation;
-  }
-
 
   /* Truncate the linked list for the LocalCoords */
   start.prune();
@@ -2257,7 +2214,6 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
   double length;
   int min_z_ind;
   int region_id;
-  int num_segments;
 
   /* Use a LocalCoords for the start and end of each segment */
   LocalCoords start(x0, y0, z0, true);
@@ -2276,16 +2232,11 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
   if (curr == NULL) {
     int dom = _domain_index_x + _domain_index_y * _num_domains_x +
       _domain_index_z * _num_domains_x * _num_domains_y;
-    double min_x = getMinX();
-    double max_x = getMaxX();
-    double min_y = getMinY();
-    double max_y = getMaxY();
-    double min_z = getMinZ();
-    double max_z = getMaxZ();
     log_printf(ERROR, "Could not find a Cell containing the start Point "
                "of this Track: %s on domain %d with bounds [%f, %f] x [%f, %f]"
-               " x [%f, %f]", flattened_track->toString().c_str(), dom, min_x,
-               max_x, min_y, max_y, min_z, max_z);
+               " x [%f, %f]", flattened_track->toString().c_str(), dom,
+               getMinX(), getMaxX(), getMinY(), getMaxY(), getMinZ(),
+               getMaxZ());
   }
 
   /* While the end of the segment's LocalCoords is still within the Geometry,
@@ -2412,9 +2363,9 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
                  "segmentation");
 
     /* Create a new 2D Track segment with extruded region ID */
-    segment* new_segment = new segment;
-    new_segment->_length = min_length;
-    new_segment->_region_id = region_id;
+    segment new_segment;
+    new_segment._length = min_length;
+    new_segment._region_id = region_id;
 
     /* Save indices of CMFD Mesh surfaces that the Track segment crosses */
     if (_cmfd != NULL) {
@@ -2459,8 +2410,8 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
       }
 
       /* Save CMFD surfaces */
-      new_segment->_cmfd_surface_fwd = cmfd_surfaces[0];
-      new_segment->_cmfd_surface_bwd = cmfd_surfaces[1];
+      new_segment._cmfd_surface_fwd = cmfd_surfaces[0];
+      new_segment._cmfd_surface_bwd = cmfd_surfaces[1];
 
       /* Re-nudge segments from surface. */
       start.adjustCoords(delta_x, delta_y, 0);
@@ -2468,8 +2419,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
     }
 
     /* Add the segment to the 2D track */
-    flattened_track->addSegment(new_segment);
-    delete new_segment;
+    flattened_track->addSegment(&new_segment);
   }
 
   /* Truncate the linked list for the LocalCoords */
@@ -2695,7 +2645,7 @@ void Geometry::initializeFSRVectors() {
   _FSRs_to_CMFD_cells = std::vector<int>(num_FSRs);
 
   /* Fill vectors key and material ID information */
-  #pragma omp parallel for
+#pragma omp parallel for
   for (long i=0; i < num_FSRs; i++) {
     std::string key = key_list[i];
     fsr_data* fsr = value_list[i];
