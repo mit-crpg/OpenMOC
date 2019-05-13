@@ -371,6 +371,9 @@ class custom_build_ext(build_ext):
                 'openmoc/cuda/openmoc_cuda_wrap.cpp ' + \
                 'openmoc/cuda/openmoc_cuda.i')
 
+    # Move openmoc.py file created by swig into main python API folder
+    os.system('mv openmoc/swig/openmoc.py openmoc/openmoc.py')
+
     build_ext.build_extensions(self)
 
 
