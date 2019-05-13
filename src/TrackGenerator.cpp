@@ -543,6 +543,10 @@ void TrackGenerator::setGeometry(Geometry* geometry) {
  */
 void TrackGenerator::setZCoord(double z_coord) {
   _z_coord = z_coord;
+
+  /* Move the CMFD lattice near the plane of interest */
+  if (_geometry->getCmfd() != NULL)
+    _geometry->getCmfd()->getLattice()->getOffset()->setZ(z_coord - 0.5);
 }
 
 
@@ -1252,19 +1256,14 @@ void TrackGenerator::segmentize() {
     }
   }
 
-  int tracks_segmented = 0;
-  long num_2D_tracks = getNum2DTracks();
+  std::string msg = "Segmenting 2D tracks";
+  Progress progress(_num_2D_tracks, msg, 0.1, _geometry, true);
 
   /* Loop over all Tracks */
-  for (int a=0; a < _num_azim/2; a++) {
-    log_printf(NORMAL, "segmenting 2D tracks - Percent complete: %5.2f %%",
-               double(tracks_segmented) / num_2D_tracks * 100.0);
 #pragma omp parallel for schedule(dynamic)
-    for (int i=0; i < _num_x[a] + _num_y[a]; i++) {
-      _geometry->segmentize2D(&_tracks_2D[a][i], _z_coord);
-    }
-
-    tracks_segmented += _num_x[a] + _num_y[a];
+  for (int t=0; t < _num_2D_tracks; t++) {
+    _geometry->segmentize2D(_tracks_2D_array[t], _z_coord);
+    progress.incrementCounter();
   }
 
   _geometry->initializeFSRVectors();
@@ -1719,9 +1718,6 @@ FP_PRECISION TrackGenerator::retrieveMaxOpticalLength() {
  *          to fit the calculated maximum number of segments per Track.
  */
 void TrackGenerator::countSegments() {
-
-  std::string msg = "Counting segments";
-  Progress progress(_num_2D_tracks, msg);
 
   /* Count the number of segments on each track and update the maximum */
   SegmentCounter counter(this);

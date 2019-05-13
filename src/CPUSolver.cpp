@@ -2413,17 +2413,17 @@ void CPUSolver::addSourceToScalarFlux() {
     volume = _FSR_volumes[r];
     sigma_t = _FSR_materials[r]->getSigmaT();
 
+    /* Handle zero volume source region case */
+    if (volume < FLT_EPSILON)
+      volume = 1e30;
+
     for (int e=0; e < _num_groups; e++) {
 
-      /* Handle zero volume regions */
-      if (volume > FLT_EPSILON)
-        _scalar_flux(r, e) /= (sigma_t[e] * volume);
-      else
-        _scalar_flux(r, e) = 0;
-
+      _scalar_flux(r, e) /= (sigma_t[e] * volume);
       _scalar_flux(r, e) += FOUR_PI * _reduced_sources(r, e) / sigma_t[e];
 
       if (_scalar_flux(r, e) < 0.0 && !_negative_fluxes_allowed) {
+        _scalar_flux(r, e) = 1e-20;
 #pragma omp atomic update
         num_negative_fluxes++;
       }

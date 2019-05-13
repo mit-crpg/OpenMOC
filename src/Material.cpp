@@ -1002,7 +1002,7 @@ void Material::alignData() {
     log_printf(ERROR, "Unable to align Material %d data since the "
                "cross-sections have not yet been set\n", _id);
 
-  _num_vector_groups = (_num_groups / VEC_LENGTH) + 1;
+  _num_vector_groups = _num_groups / VEC_LENGTH + (_num_groups % VEC_LENGTH != 0);
 
   /* Allocate memory for the new aligned xs data */
   int size = _num_vector_groups * VEC_LENGTH * sizeof(FP_PRECISION);

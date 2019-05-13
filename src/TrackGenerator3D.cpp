@@ -1305,7 +1305,7 @@ void TrackGenerator3D::segmentize() {
   Progress progress(_num_3D_tracks, "Segmenting 3D Tracks", 0.1, _geometry,
                     true);
 
-  /* Loop over all Tracks */
+  /* Loop over all Tracks */  //FIXME Move openmp section over all tracks
   for (int a=0; a < _num_azim/2; a++) {
 
 #pragma omp parallel for schedule(dynamic)

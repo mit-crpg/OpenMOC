@@ -45,8 +45,7 @@ struct RuntimeParameters {
     _use_axial_interpolation(0), _log_filename(NULL), _linear_solver(true),
     _MOC_src_residual_type(1), _SOR_factor(1.0), _CMFD_relaxation_factor(1.0),
     _segmentation_type(3), _verbose_report(true), _time_report(true),
-    _log_level((char*)"NORMAL"),_quadraturetype(2), _test_run(false), 
-    _geo_version(0) {}
+    _log_level((char*)"NORMAL"),_quadraturetype(2), _test_run(false) {}
 
   /* To debug or not when running, dead while loop */
   bool _debug_flag;
@@ -66,9 +65,6 @@ struct RuntimeParameters {
 
   /* Geometry file name */
   std::string _geo_filename;
-
-  /* The version of the geometry file (uniform or non-uniform lattice) */
-  int _geo_version;
 
   /* Space and angle quadrature parameters */
   double _azim_spacing;

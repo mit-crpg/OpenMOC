@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
   Geometry *geometry = new Geometry();
   if(runtime._geo_filename.empty())
     log_printf(ERROR, "No geometry file is provided");
-  geometry->loadFromFile(runtime._geo_filename, runtime._geo_version, false); 
+  geometry->loadFromFile(runtime._geo_filename);
 #ifdef MPIx
   geometry->setDomainDecomposition(runtime._NDx, runtime._NDy, runtime._NDz, 
                                    MPI_COMM_WORLD); 
