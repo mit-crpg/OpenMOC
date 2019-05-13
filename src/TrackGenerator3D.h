@@ -230,7 +230,7 @@ public:
   void retrieveTrackCoords(double* coords, long num_tracks);
   void retrieve3DTrackCoords(double* coords, long num_tracks);
   void retrieveGlobalZMesh(double*& z_mesh, int& num_fsrs);
-  void retrieveSingle3DTrackCoords(double coords[6], int track_id);
+  void retrieveSingle3DTrackCoords(double coords[6], long track_id);
   void retrieveSegmentCoords(double* coords, long num_segments);
   void retrieve3DSegmentCoords(double* coords, long num_segments);
   void create3DTracksArrays();

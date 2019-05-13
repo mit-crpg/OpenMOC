@@ -24,6 +24,7 @@ class MultiSimMaterialsCmfdTestHarness(MultiSimTestHarness):
 
         # Initialize CMFD
         cmfd = openmoc.Cmfd()
+        cmfd.setCMFDRelaxationFactor(1.0)
         cmfd.setSORRelaxationFactor(1.5)
         cmfd.setLatticeStructure(3,3)
 
