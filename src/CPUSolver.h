@@ -159,7 +159,8 @@ public:
   void tallyScalarFlux(segment* curr_segment, int azim_index, int polar_index,
                        FP_PRECISION* fsr_flux, float* track_flux);
 
-  void accumulateScalarFluxContribution(long fsr_id, FP_PRECISION* fsr_flux);
+  void accumulateScalarFluxContribution(long fsr_id, FP_PRECISION weight,
+                                        FP_PRECISION* fsr_flux);
 
   void tallyCurrent(segment* curr_segment, int azim_index, int polar_index,
                     float* track_flux, bool fwd);

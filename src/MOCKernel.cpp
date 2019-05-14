@@ -411,7 +411,7 @@ void TransportKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
   }
 
   /* Accumulate contribution of all cuts to FSR scalar flux */
-  _cpu_solver->accumulateScalarFluxContribution(fsr_id, fsr_flux);
+  _cpu_solver->accumulateScalarFluxContribution(fsr_id, 1, fsr_flux);
 }
 
 

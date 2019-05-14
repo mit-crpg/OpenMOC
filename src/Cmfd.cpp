@@ -4097,7 +4097,7 @@ void Cmfd::printInputParamsSummary() {
   // Print other CMFD modifications
   if (_flux_limiting)
     log_printf(INFO, "CMFD corrected diffusion coef. bounded by "
-               " regular diffusion coef.");
+               "regular diffusion coef.");
   if (_balance_sigma_t)
     log_printf(INFO, "CMFD total cross sections adjusted for matching MOC "
                "reaction rates");
