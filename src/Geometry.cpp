@@ -2512,7 +2512,7 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
         }
       }
       /* Keep track of the number of FSRs in extruded FSRs */
-#pragma omp atomic
+#pragma omp atomic update
       total_number_fsrs_in_stack += extruded_FSR->_num_fsrs;
     }
     else {
@@ -2551,7 +2551,7 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
       }
 
       /* Keep track of the number of FSRs in extruded FSRs */
-#pragma omp atomic
+#pragma omp atomic update
       total_number_fsrs_in_stack += extruded_FSR->_num_fsrs;
     }
   }
@@ -3495,6 +3495,14 @@ std::vector<double> Geometry::getUniqueZPlanes() {
     double mid = (unique_heights[i-1] + unique_heights[i]) / 2;
     unique_z_planes.push_back(mid);
   }
+
+  /* Output the unique Z heights for debugging */
+  std::stringstream string;
+  string << unique_heights.size() - 1 << " unique Z domains with bounds: ";
+  for (int i=0; i < unique_heights.size(); i++)
+    string << unique_heights[i] << " ";
+  string << "(cm)";
+  log_printf(INFO, "%s", string.str().c_str());
 
   return unique_z_planes;
 }
