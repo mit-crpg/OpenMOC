@@ -13,44 +13,44 @@
 %{
   #define SWIG_FILE_WITH_INIT
   #include <cstddef>
-  #include "../src/boundary_type.h"
-  #include "../src/Cell.h"
-  #include "../src/Cmfd.h"
-  #include "../src/constants.h"
-  #include "../src/ExpEvaluator.h"
-  #include "../src/Geometry.h"
-  #include "../src/linalg.h"
-  #include "../src/log.h"
-  #include "../src/Material.h"
-  #include "../src/Matrix.h"
-  #include "../src/Mesh.h"
-  #include "../src/LocalCoords.h"
-  #include "../src/Point.h"
-  #include "../src/Progress.h"
-  #include "../src/Quadrature.h"
-  #include "../src/Region.h"
-  #include "../src/RunTime.h"
-  #include "../src/segmentation_type.h"
-  #include "../src/Solver.h"
-  #include "../src/CPUSolver.h"
-  #include "../src/CPULSSolver.h"
-  #include "../src/Surface.h"
-  #include "../src/Timer.h"
-  #include "../src/Track.h"
-  #include "../src/Track3D.h"
-  #include "../src/TrackGenerator.h"
-  #include "../src/TrackGenerator3D.h"
-  #include "../src/TraverseSegments.h"
-  #include "../src/TrackTraversingAlgorithms.h"
-  #include "../src/Universe.h"
-  #include "../src/Vector.h"
+  #include "../../src/boundary_type.h"
+  #include "../../src/Cell.h"
+  #include "../../src/Cmfd.h"
+  #include "../../src/constants.h"
+  #include "../../src/ExpEvaluator.h"
+  #include "../../src/Geometry.h"
+  #include "../../src/linalg.h"
+  #include "../../src/log.h"
+  #include "../../src/Material.h"
+  #include "../../src/Matrix.h"
+  #include "../../src/Mesh.h"
+  #include "../../src/LocalCoords.h"
+  #include "../../src/Point.h"
+  #include "../../src/Progress.h"
+  #include "../../src/Quadrature.h"
+  #include "../../src/Region.h"
+  #include "../../src/RunTime.h"
+  #include "../../src/segmentation_type.h"
+  #include "../../src/Solver.h"
+  #include "../../src/CPUSolver.h"
+  #include "../../src/CPULSSolver.h"
+  #include "../../src/Surface.h"
+  #include "../../src/Timer.h"
+  #include "../../src/Track.h"
+  #include "../../src/Track3D.h"
+  #include "../../src/TrackGenerator.h"
+  #include "../../src/TrackGenerator3D.h"
+  #include "../../src/TraverseSegments.h"
+  #include "../../src/TrackTraversingAlgorithms.h"
+  #include "../../src/Universe.h"
+  #include "../../src/Vector.h"
 
   #ifdef MPIx
   #include <mpi.h>
   #endif
 
   #ifdef ICPC
-  #include "../src/VectorizedSolver.h"
+  #include "../../src/VectorizedSolver.h"
   #endif
 
   #define printf PySys_WriteStdout
@@ -125,6 +125,9 @@
 /* Routines which pass / return NumPy arrays to / from C++ routine **/
 %include numpy_typemaps.i
 
+/* Routines which pass / return pointers to / from C++ routine **/
+%include argument_typemaps.i
+
 /* Include standard vector library for SWIG */
 %include "std_vector.i"
 
@@ -147,40 +150,41 @@ namespace std {
 #endif
 
 %include <exception.i>
-%include ../src/boundary_type.h
-%include ../src/Cell.h
-%include ../src/Cmfd.h
-%include ../src/constants.h
-%include ../src/ExpEvaluator.h
-%include ../src/Geometry.h
-%include ../src/linalg.h
-%include ../src/log.h
-%include ../src/Material.h
-%include ../src/Matrix.h
-%include ../src/Mesh.h
-%include ../src/LocalCoords.h
-%include ../src/Point.h
-%include ../src/Progress.h
-%include ../src/Quadrature.h
-%include ../src/Region.h
-%include ../src/segmentation_type.h
-%include ../src/RunTime.h
-%include ../src/Solver.h
-%include ../src/CPUSolver.h
-%include ../src/CPULSSolver.h
-%include ../src/Surface.h
-%include ../src/Timer.h
-%include ../src/Track.h
-%include ../src/Track3D.h
-%include ../src/TrackGenerator.h
-%include ../src/TrackGenerator3D.h
-%include ../src/TraverseSegments.h
-%include ../src/TrackTraversingAlgorithms.h
-%include ../src/Universe.h
-%include ../src/Vector.h
+%include ../../src/boundary_type.h
+%include ../../src/Cell.h
+%include ../../src/Cmfd.h
+%include ../../src/constants.h
+%include ../../src/ExpEvaluator.h
+%include ../../src/exponentials.h
+%include ../../src/Geometry.h
+%include ../../src/linalg.h
+%include ../../src/log.h
+%include ../../src/Material.h
+%include ../../src/Matrix.h
+%include ../../src/Mesh.h
+%include ../../src/LocalCoords.h
+%include ../../src/Point.h
+%include ../../src/Progress.h
+%include ../../src/Quadrature.h
+%include ../../src/Region.h
+%include ../../src/segmentation_type.h
+%include ../../src/RunTime.h
+%include ../../src/Solver.h
+%include ../../src/CPUSolver.h
+%include ../../src/CPULSSolver.h
+%include ../../src/Surface.h
+%include ../../src/Timer.h
+%include ../../src/Track.h
+%include ../../src/Track3D.h
+%include ../../src/TrackGenerator.h
+%include ../../src/TrackGenerator3D.h
+%include ../../src/TraverseSegments.h
+%include ../../src/TrackTraversingAlgorithms.h
+%include ../../src/Universe.h
+%include ../../src/Vector.h
 
 #ifdef ICPC
-%include ../src/VectorizedSolver.h
+%include ../../src/VectorizedSolver.h
 #endif
 
 #define printf PySys_WriteStdout

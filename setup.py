@@ -363,13 +363,16 @@ class custom_build_ext(build_ext):
     swig_flags = config.swig_flags + ['-D' + config.cc.upper()]
 
     os.system('swig {0} -o '.format(str.join(' ', swig_flags)) + \
-              'openmoc/openmoc_wrap.cpp openmoc/openmoc.i')
+              'openmoc/swig/openmoc_wrap.cpp openmoc/swig/openmoc.i')
 
     if config.with_cuda:
       swig_flags = config.swig_flags + ['-DNVCC']
       os.system('swig {0} -o '.format(str.join(' ', swig_flags)) + \
                 'openmoc/cuda/openmoc_cuda_wrap.cpp ' + \
                 'openmoc/cuda/openmoc_cuda.i')
+
+    # Move openmoc.py file created by swig into main python API folder
+    os.system('mv openmoc/swig/openmoc.py openmoc/openmoc.py')
 
     build_ext.build_extensions(self)
 
