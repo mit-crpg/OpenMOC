@@ -2173,7 +2173,7 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
 int Lattice::getLatticeSurfaceOTF(int cell, double z, int surface_2D) {
 
   /* Determine min and max z boundaries of the cell */
-  double lat_z = cell / (_num_x*_num_y);
+  int lat_z = cell / (_num_x*_num_y);
   double z_min = _accumulate_z[lat_z] + getMinZ();
   double z_max = z_min + _widths_z[lat_z];
 

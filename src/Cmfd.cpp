@@ -4096,10 +4096,10 @@ void Cmfd::printInputParamsSummary() {
 
   // Print other CMFD modifications
   if (_flux_limiting)
-    log_printf(INFO, "CMFD corrected diffusion coef. bounded by "
+    log_printf(INFO_ONCE, "CMFD corrected diffusion coef. bounded by "
                "regular diffusion coef.");
   if (_balance_sigma_t)
-    log_printf(INFO, "CMFD total cross sections adjusted for matching MOC "
+    log_printf(INFO_ONCE, "CMFD total cross sections adjusted for matching MOC "
                "reaction rates");
 
   // Print CMFD space and energy mesh information
@@ -4921,33 +4921,6 @@ int Cmfd::getLocalCMFDCell(int cmfd_cell) {
     local_cmfd_cell = -1;
 
   return local_cmfd_cell;
-}
-
-
-/**
- * @brief Converts a local CMFD cell ID into its global ID
- * @param cmfd_cell The local CMFD cell ID
- * @return The global CMFD cell ID
- */
-int Cmfd::getGlobalCMFDCell(int cmfd_cell) {
-
-  int x_start = 0;
-  int y_start = 0;
-  int z_start = 0;
-  if (_geometry->isDomainDecomposed()) {
-    if (_domain_communicator != NULL) {
-      x_start = _accumulate_lmx[_domain_communicator->_domain_idx_x];
-      y_start = _accumulate_lmy[_domain_communicator->_domain_idx_y];
-      z_start = _accumulate_lmz[_domain_communicator->_domain_idx_z];
-    }
-  }
-
-  int ix = cmfd_cell % _local_num_x;
-  int iy = (cmfd_cell % (_local_num_x * _local_num_y)) / _local_num_x;
-  int iz = cmfd_cell / (_local_num_x * _local_num_y);
-
-  return ((iz + z_start) * _num_y + iy + y_start) * _num_x
-                + ix + x_start;
 }
 
 
