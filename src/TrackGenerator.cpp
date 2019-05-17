@@ -1849,20 +1849,17 @@ void TrackGenerator::printMemoryReport() {
 
   long track_storage = _num_2D_tracks * sizeof(Track);
   long segment_storage = getNum2DSegments() * sizeof(segment);
-  long max_track_storage = track_storage;
   long max_segment_storage = segment_storage;
 
 #ifdef MPIx
-  if (_geometry->isDomainDecomposed()) {
-    MPI_Allreduce(&track_storage, &max_track_storage, 1, MPI_LONG, MPI_MAX,
-                  _geometry->getMPICart());
+  if (_geometry->isDomainDecomposed())
     MPI_Allreduce(&segment_storage, &max_segment_storage, 1, MPI_LONG, MPI_MAX,
                   _geometry->getMPICart());
-  }
+    /* NOTE: Same tracks on every domain */
 #endif
 
   log_printf(INFO_ONCE, "Max 2D explicit track storage per domain %.2f MB",
-             max_track_storage / float(1e6));
+             track_storage / float(1e6));
   log_printf(INFO_ONCE, "Max 2D explicit segment storage per domain %.2f MB",
              max_segment_storage / float(1e6));
 }
