@@ -68,7 +68,8 @@ class PinCellTestHarness(TestHarness):
                      hash_output=False):
         """Digest info in the solver and return as a string."""
 
-        outstr = str(self.solver._eigenvalues)
+        # Round to 10th decimal to avoid floating point issues
+        outstr = str([round(k, 10) for k in self.solver._eigenvalues])
         
         return outstr
 
