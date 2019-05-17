@@ -221,7 +221,7 @@ long TrackGenerator::getNumSegments() {
  */
 long TrackGenerator::getNum2DSegments() {
 
-  if (!TrackGenerator::containsSegments())
+  if (!containsSegments())
     log_printf(ERROR, "Cannot get the number of 2D segments since they "
                "have not been generated.");
 
@@ -1268,6 +1268,9 @@ void TrackGenerator::segmentize() {
 
   _geometry->initializeFSRVectors();
   _contains_2D_segments = true;
+
+  /* Output memory consumption of explicit ray tracing */
+  printMemoryReport();
 }
 
 
@@ -1836,4 +1839,30 @@ void TrackGenerator::printTimerReport(bool mpi_reduce) {
   std::string msg_string = "Total Track Generation & Segmentation Time";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), gen_time);
+}
+
+
+/**
+ * @brief Print the track generation memory report.
+ */
+void TrackGenerator::printMemoryReport() {
+
+  long track_storage = _num_2D_tracks * sizeof(Track);
+  long segment_storage = getNum2DSegments() * sizeof(segment);
+  long max_track_storage = track_storage;
+  long max_segment_storage = segment_storage;
+
+#ifdef MPIx
+  if (_geometry->isDomainDecomposed()) {
+    MPI_Allreduce(&track_storage, &max_track_storage, 1, MPI_LONG, MPI_MAX,
+                  _geometry->getMPICart());
+    MPI_Allreduce(&segment_storage, &max_segment_storage, 1, MPI_LONG, MPI_MAX,
+                  _geometry->getMPICart());
+  }
+#endif
+
+  log_printf(INFO_ONCE, "Max 2D explicit track storage per domain %.2f MB",
+             max_track_storage / float(1e6));
+  log_printf(INFO_ONCE, "Max 2D explicit segment storage per domain %.2f MB",
+             max_segment_storage / float(1e6));
 }
