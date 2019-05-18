@@ -553,7 +553,7 @@ void CPUSolver::setupMPIBuffers() {
     int max_size_mb;
     MPI_Allreduce(&size_mb, &max_size_mb, 1, MPI_INT, MPI_MAX,
                   _geometry->getMPICart());
-    log_printf(NORMAL, "Max track fluxes transfer buffer storage = %.2f MB",
+    log_printf(INFO, "Max track fluxes transfer buffer storage = %.2f MB",
                max_size_mb / 1e6);
 
     /* Allocate track fluxes transfer buffers */

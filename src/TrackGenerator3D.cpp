@@ -1337,7 +1337,7 @@ void TrackGenerator3D::segmentize() {
   _geometry->initializeFSRVectors();
   _contains_3D_segments = true;
 
-  log_printf(NORMAL, "Explicit 3D segments storage = %.2f MB", num_segments *
+  log_printf(INFO, "Explicit 3D segments storage = %.2f MB", num_segments *
              sizeof(segment) / 1e6);
 }
 
@@ -1607,7 +1607,7 @@ void TrackGenerator3D::allocateTemporarySegments() {
   double max_size_mb = (double) (max_size * _num_threads * sizeof(segment)) 
       / (double) (1e6);
  
-  log_printf(NORMAL, "Max temporary segment storage per domain = %6.2f MB",
+  log_printf(INFO, "Max temporary segment storage per domain = %6.2f MB",
              max_size_mb);
 
   /* Allocate new temporary segments */
@@ -1637,7 +1637,7 @@ void TrackGenerator3D::allocateTemporaryTracks() {
   /* Report memory usage */ 
   double size_mb = (double) (_num_threads * _max_num_tracks_per_stack
         * sizeof(Track3D)) / (double) 1e6;
-  log_printf(NORMAL, "Temporary Track storage per domain = %6.2f MB",
+  log_printf(INFO, "Temporary Track storage per domain = %6.2f MB",
              size_mb);
 
   /* Allocate new temporary tracks arrays */

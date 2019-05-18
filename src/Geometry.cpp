@@ -2564,7 +2564,7 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
   // Output the extruded FSR storage requirement
   long max_number_fsrs_in_stack = total_number_fsrs_in_stack;
 #ifdef MPIX
-    if (_geometry->isDomainDecomposed())
+    if (isDomainDecomposed())
       MPI_Allreduce(&total_number_fsrs_in_stack, &max_number_fsrs_in_stack, 1,
                     MPI_LONG, MPI_MAX, _MPI_cart);
 #endif
@@ -2682,6 +2682,18 @@ void Geometry::initializeFSRVectors() {
       _FSRs_to_CMFD_cells.at(fsr_id) = fsr->_cmfd_cell;
     }
   }
+
+  /* Output approximate storage for various FSR maps, locks, volumes... */
+  long size = num_FSRs * (sizeof(fsr_data) + sizeof(omp_lock_t) +
+       sizeof(FP_PRECISION) + sizeof(fsr_data*) + 2 * sizeof(key_list[0]) +
+       sizeof(Point*) + sizeof(Point) + 2*sizeof(int));
+  long max_size = size;
+#ifdef MPIX
+  if (isDomainDecomposed())
+    MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX, _MPI_cart);
+#endif
+  log_printf(INFO, "Max FSR, maps and data, storage per domain = %.2f MB",
+             max_size / float(1e6));
 
   /* Check if extruded FSRs are present */
   size_t num_extruded_FSRs = _extruded_FSR_keys_map.size();

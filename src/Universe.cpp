@@ -316,7 +316,7 @@ boundaryType Universe::getMinZBoundaryType() {
 
 #ifdef ONLYVACUUMBC
   if (_min_z_bound != VACUUM && _min_z_bound != INTERFACE)
-    log_printf(ERROR, "OpenMOC was compiled specially for cases with only "
+    log_printf(WARNING, "OpenMOC was compiled specially for cases with only "
                "vacuum boundary conditions and a reflective or periodic "
                "boundary condition was found in universe %d.", _id);
 #endif
@@ -337,7 +337,7 @@ boundaryType Universe::getMaxZBoundaryType() {
 
 #ifdef ONLYVACUUMBC
   if (_max_z_bound != VACUUM && _max_z_bound != INTERFACE)
-    log_printf(ERROR, "OpenMOC was compiled specially for cases with only "
+    log_printf(WARNING, "OpenMOC was compiled specially for cases with only "
                "vacuum boundary conditions and a reflective or periodic "
                "boundary condition was found in universe %d.", _id);
 #endif

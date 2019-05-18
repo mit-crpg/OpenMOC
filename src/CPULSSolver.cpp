@@ -736,7 +736,7 @@ void CPULSSolver::addSourceToScalarFlux() {
     for (long r=0; r < _num_FSRs; r++) {
       volume = _FSR_volumes[r];
       if (volume < FLT_EPSILON)
-        volume = FLT_INFINITY;
+        volume = 1e30;
       sigma_t = _FSR_materials[r]->getSigmaT();
 
       for (int e=0; e < _num_groups; e++) {
