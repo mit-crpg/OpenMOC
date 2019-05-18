@@ -2511,9 +2511,6 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
           extruded_FSR->_materials[n] = material;
         }
       }
-      /* Keep track of the number of FSRs in extruded FSRs */
-#pragma omp atomic update
-      total_number_fsrs_in_stack += extruded_FSR->_num_fsrs;
     }
     else {
 
@@ -2549,12 +2546,12 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
           level = max_z;
       extruded_FSR->_mesh[s+1] = level;
       }
-
-      /* Keep track of the number of FSRs in extruded FSRs */
-#pragma omp atomic update
-      total_number_fsrs_in_stack += extruded_FSR->_num_fsrs;
     }
+    /* Keep track of the number of FSRs in extruded FSRs */
+#pragma omp atomic update
+    total_number_fsrs_in_stack += extruded_FSR->_num_fsrs;
   }
+
   delete [] extruded_FSRs;
 #ifdef MPIx
   if (_domain_decomposed)
@@ -2568,7 +2565,7 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
       MPI_Allreduce(&total_number_fsrs_in_stack, &max_number_fsrs_in_stack, 1,
                     MPI_LONG, MPI_MAX, _MPI_cart);
 #endif
-  log_printf(INFO_ONCE, "Max storage for extruded FSRs = %.2f MB",
+  log_printf(INFO_ONCE, "Max storage for extruded FSRs per domain = %.2f MB",
              max_number_fsrs_in_stack * (sizeof(double) + sizeof(long) +
              sizeof(Material*)) / float(1e6));
 

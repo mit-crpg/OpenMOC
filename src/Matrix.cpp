@@ -193,7 +193,7 @@ void Matrix::convertToCSR() {
     delete [] _DIAG;
 
   log_printf(INFO_ONCE, "Matrix CSR format storage %6.2f MB", (NNZ + _num_rows)
-             * (sizeof(CMFD_PRECISION) + sizeof(int)) / 1e6);
+             * (sizeof(CMFD_PRECISION) + sizeof(int)) / float(1e6));
 
   /* Allocate memory for arrays */
   _A = new CMFD_PRECISION[NNZ];

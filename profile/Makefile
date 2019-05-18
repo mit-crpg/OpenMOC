@@ -192,7 +192,7 @@ ifeq ($(OPTIMIZE),yes)
     CFLAGS += -O3 -ffast-math -fvectorize -fpic
   endif
   # Set the number of groups at compile time
-  #CFLAGS += -DNGROUPS=361
+  #CFLAGS += -DNGROUPS=70
   # Set the source to linear source at compile time
   #CFLAGS += -DLINEARSOURCE
   # Set the dimension to 3D at compile time

@@ -69,25 +69,23 @@ void TraverseSegments::loopOverTracks(MOCKernel* kernel) {
 void TraverseSegments::loopOverTracks2D(MOCKernel* kernel) {
 
   /* Loop over all parallel tracks for each azimuthal angle */
-  Track** tracks_2D = _track_generator->get2DTracks();
-  int num_azim = _track_generator->getNumAzim();
-  for (int a=0; a < num_azim/2; a++) {
-    int num_xy = _track_generator->getNumX(a) + _track_generator->getNumY(a);
+  Track** tracks_2D = _track_generator->get2DTracksArray();
+  long num_tracks = _track_generator->getNum2DTracks();
+
 #pragma omp for schedule(dynamic)
-    for (int i=0; i < num_xy; i++) {
+  for (long t=0; t < num_tracks; t++) {
 
-      Track* track_2D = &tracks_2D[a][i];
-      segment* segments = track_2D->getSegments();
+    Track* track_2D = tracks_2D[t];
+    segment* segments = track_2D->getSegments();
 
-      /* Operate on segments if necessary */
-      if (kernel != NULL) {
-        kernel->newTrack(track_2D);
-        traceSegmentsExplicit(track_2D, kernel);
-      }
-
-      /* Operate on the Track */
-      onTrack(track_2D, segments);
+    /* Operate on segments if necessary */
+    if (kernel != NULL) {
+      kernel->newTrack(track_2D);
+      traceSegmentsExplicit(track_2D, kernel);
     }
+
+    /* Operate on the Track */
+    onTrack(track_2D, segments);
   }
 }
 
