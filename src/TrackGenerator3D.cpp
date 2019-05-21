@@ -1269,6 +1269,10 @@ void TrackGenerator3D::segmentizeExtruded() {
     _geometry->segmentizeExtruded(_tracks_2D_array[index], z_coords);
   }
 
+  /* Output memory consumption of 2D explicit ray tracing */
+  _contains_2D_segments = true;
+  printMemoryReport();
+
   /* Initialize 3D FSRs and their associated vectors */
 #ifdef MPIx
   if (_geometry->isDomainDecomposed())
@@ -1281,7 +1285,6 @@ void TrackGenerator3D::segmentizeExtruded() {
 #endif
   _geometry->initializeAxialFSRs(_global_z_mesh);
   _geometry->initializeFSRVectors();
-  _contains_2D_segments = true;
 
   /* Count the number of segments in each track */
   countSegments();

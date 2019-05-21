@@ -201,7 +201,10 @@ public:
   void initializeTrackFileDirectory();
   void initializeTracksArray();
   virtual void checkBoundaryConditions();
+
+  /* Log functions */
   void printTimerReport(bool mpi_reduce);
+  void printMemoryReport();
 };
 
 
