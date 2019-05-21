@@ -78,11 +78,10 @@ Solver::Solver(TrackGenerator* track_generator) {
   _load_initial_FSR_fluxes = false;
   _calculate_residuals_by_reference = false;
   _negative_fluxes_allowed = false;
+  _OTF_transport = false;
 
   _xs_log_level = ERROR;
 
-  //FIXME OTF transport isnt implemented
-  _OTF_transport = false;
   //FIXME Parameters for xs modification, should be deleted
   _reset_iteration = -1;
   _limit_xs = false;

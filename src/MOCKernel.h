@@ -165,11 +165,17 @@ private:
   /** Pointer to CPUSolver enabling use of transport functions */
   CPUSolver* _cpu_solver;
 
+  /** Pointer to TrackGenerator enabling use of ray tracer on the fly */
+  TrackGenerator* _track_generator;
+
   /** Pointer to angular flux data in the current direction */
   FP_PRECISION* _thread_fsr_flux;
 
   /** Azimuthal index of the current track */
   int _azim_index;
+
+  /** XY index of the current track within tracks of that azimuthal angle */
+  int _xy_index;
 
   /** Polar index of the current track */
   int _polar_index;

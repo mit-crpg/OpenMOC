@@ -7,6 +7,7 @@
  * @param track_generator the TrackGenerator used to pull relevant tracking
  *        data from
  * @param row_num the row index into the temporary segments matrix
+ * //FIXME row_num seems to be deprecated
  */
 MOCKernel::MOCKernel(TrackGenerator* track_generator, int row_num) {
   _count = 0;
@@ -208,9 +209,9 @@ void CounterKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
  * @param mat Material associated with the segment
  * @param fsr_id the FSR ID of the FSR associated with the segment
  * @param track_idx the track index in stack
- * @param cmfd_surface_fwd CMFD surface at the end of the segment in the forward 
+ * @param cmfd_surface_fwd CMFD surface at the end of the segment in the forward
  *        direction
- * @param cmfd_surface_bwd CMFD surface at the end of the segment in the 
+ * @param cmfd_surface_bwd CMFD surface at the end of the segment in the
  *        backward direction
  * @param x_start x coordinate of the start of the segment
  * @param y_start y coordinate of the start of the segment
@@ -281,10 +282,12 @@ void SegmentationKernel::execute(FP_PRECISION length, Material* mat, long fsr_id
  */
 TransportKernel::TransportKernel(TrackGenerator* track_generator, int row_num)
                                  : MOCKernel(track_generator, row_num) {
+  _track_generator = track_generator;
   _direction = true;
   _min_track_idx = 0;
   _max_track_idx = 0;
   _azim_index = 0;
+  _xy_index = 0;
   _polar_index = 0;
   _track_id = 0;
 }
@@ -310,10 +313,10 @@ void TransportKernel::setCPUSolver(CPUSolver* cpu_solver) {
  * @brief Create a new track3D from an existing one.
  * @param track track to create the new track from
  */
-//FIXME: delete?
 void TransportKernel::newTrack(Track* track) {
-  Track3D* track_3D = dynamic_cast<Track3D*>(track);
+  Track3D* track_3D = dynamic_cast<Track3D*>(track);  //why not just save the track
   _azim_index = track_3D->getAzimIndex();
+  _xy_index = track_3D->getXYIndex();
   _polar_index = track_3D->getPolarIndex();
   _track_id = track_3D->getUid();
   _count = 0;
@@ -324,7 +327,6 @@ void TransportKernel::newTrack(Track* track) {
  * @brief Sets the direction of the current track.
  * @param direction the direction of the track: true = Forward, false = Backward
  */
-//FIXME: delete?
 void TransportKernel::setDirection(bool direction) {
   _direction = direction;
 }
@@ -336,9 +338,9 @@ void TransportKernel::setDirection(bool direction) {
  * @param mat pointer to the Material around the segment
  * @param fsr_id id of the FSR the segment lies in
  * @param track_idx id of the track
- * @param cmfd_surface_fwd CMFD surface at the end of the segment in the forward 
+ * @param cmfd_surface_fwd CMFD surface at the end of the segment in the forward
  *        direction
- * @param cmfd_surface_bwd CMFD surface at the end of the segment in the 
+ * @param cmfd_surface_bwd CMFD surface at the end of the segment in the
  *        backward direction
  * @param x_start x coordinate of the start of the segment
  * @param y_start y coordinate of the start of the segment
@@ -389,22 +391,17 @@ void TransportKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
     curr_segment._material = mat;
     curr_segment._region_id = fsr_id;
 
-    /* Set CMFD surface if cut is at one end of the Segment */
-    curr_segment._cmfd_surface_bwd = -1;
-    curr_segment._cmfd_surface_fwd = -1;
-    if (i == 0)
-      curr_segment._cmfd_surface_bwd = cmfd_surface_bwd;
-    if (i == num_cuts - 1)
-      curr_segment._cmfd_surface_fwd = cmfd_surface_fwd;
-
     /* Apply MOC equations */
     _cpu_solver->tallyScalarFlux(&curr_segment, _azim_index, _polar_index,
                                  fsr_flux, track_flux);
 
-    /* CMFD surfaces can only be on the segment ends */
-    if (i == 0 || i == num_cuts - 1)
+    /* CMFD surfaces can only be on the segment ends, and the propagation is
+       always in the forward direction */
+    if (i == num_cuts - 1) {
+      curr_segment._cmfd_surface_fwd = cmfd_surface_fwd;
       _cpu_solver->tallyCurrent(&curr_segment, _azim_index, _polar_index,
                                 track_flux, true);
+    }
 
     /* Shorten remaining 3D length */
     remain_length -= segment_length;
@@ -419,15 +416,28 @@ void TransportKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
  * @brief Obtain and transfer the boundary track angular fluxes.
  */
 void TransportKernel::post() {
+#ifndef ONLYVACUUMBC
+
+  TrackGenerator3D* track_generator_3D =
+    dynamic_cast<TrackGenerator3D*>(_track_generator);
+
+  /* Get track */
+  Track3D track;
+  TrackStackIndexes tsi;
+  tsi._azim = _azim_index;
+  tsi._xy = _xy_index;
+  tsi._polar = _polar_index;
+
   for (int i=_min_track_idx; i <= _max_track_idx; i++) {
     float* track_flux = _cpu_solver->getBoundaryFlux(_track_id+i,
                                                      _direction);
-    Track track;
-    //_sti._z = i; FIXME THIS IS BROKEN
-    //_track_generator_3D->getTrackOTF(&track, &_sti);
+
+    tsi._z = i;
+    track_generator_3D->getTrackOTF(&track, &tsi);
     _cpu_solver->transferBoundaryFlux(&track, _azim_index, _polar_index,
                                       _direction, track_flux);
   }
+#endif
 
   /* Reset track indexes */
   _min_track_idx = 0;

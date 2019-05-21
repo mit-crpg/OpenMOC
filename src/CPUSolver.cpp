@@ -266,7 +266,7 @@ void CPUSolver::initializeFluxArrays() {
 
   if (_old_scalar_flux != NULL)
     delete [] _old_scalar_flux;
-  
+
   if (_stabilizing_flux != NULL)
     delete [] _stabilizing_flux;
 
@@ -1212,7 +1212,7 @@ void CPUSolver::transferAllInterfaceFluxes() {
 
                   /* Copy flux, direction and next track in send_buffer */
                   for (int pe=0; pe < _fluxes_per_track; pe++)
-                    _send_buffers.at(i_next).at(buffer_index + pe) = 
+                    _send_buffers.at(i_next).at(buffer_index + pe) =
                          _boundary_flux(track_id, dir, pe);
                   _send_buffers.at(i_next).at(buffer_index + _fluxes_per_track) =
                        dir;
@@ -2061,7 +2061,7 @@ double CPUSolver::computeResidual(residualType res_type) {
 
   /* Error check residual componenets */
   if (residual < 0.0) {
-    log_printf(WARNING, "MOC residual mean square error %6.4f less than zero", 
+    log_printf(WARNING, "MOC residual mean square error %6.4f less than zero",
                residual);
     residual = 0.0;
   }
@@ -2124,7 +2124,7 @@ void CPUSolver::computeKeff() {
 
   /* Get the total number of source regions */
   long total_num_FSRs = _num_FSRs;
-  
+
 #ifdef MPIx
   /* Reduce rates across domians */
   if (_geometry->isDomainDecomposed()) {
@@ -2136,7 +2136,7 @@ void CPUSolver::computeKeff() {
     double local_rates[num_rates];
     for (int i=0; i < num_rates; i++)
       local_rates[i] = rates[i];
- 
+
      /* Reduce computed rates */
     MPI_Allreduce(local_rates, rates, num_rates, MPI_DOUBLE, MPI_SUM, comm);
 
@@ -2259,14 +2259,14 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
     const int num_polar_2 = _num_polar / 2;
 
     /* Compute tau in advance to simplify attenuation loop */
-    FP_PRECISION tau[_num_groups * num_polar_2] 
+    FP_PRECISION tau[_num_groups * num_polar_2]
                  __attribute__ ((aligned(VEC_ALIGNMENT)));
 
 #pragma omp simd aligned(tau)
     for (int pe=0; pe < num_polar_2 * _num_groups; pe++)
       tau[pe] = sigma_t[pe % _num_groups] * length;
 
-    FP_PRECISION delta_psi[_num_groups * num_polar_2] 
+    FP_PRECISION delta_psi[_num_groups * num_polar_2]
                  __attribute__ ((aligned(VEC_ALIGNMENT)));
 
     /* Loop over polar angles and energy groups */
@@ -2476,10 +2476,10 @@ void CPUSolver::computeStabilizingFlux() {
         /* Extract the in-scattering (diagonal) element */
         FP_PRECISION sigma_s = scattering_matrix[e*_num_groups+e];
 
-        /* For negative cross-sections, add the absolute value of the 
+        /* For negative cross-sections, add the absolute value of the
            in-scattering rate to the stabilizing flux */
         if (sigma_s < 0.0)
-          _stabilizing_flux(r, e) = -_scalar_flux(r,e) * _stabilization_factor 
+          _stabilizing_flux(r, e) = -_scalar_flux(r,e) * _stabilization_factor
               * sigma_s / sigma_t[e];
       }
     }
@@ -2516,7 +2516,7 @@ void CPUSolver::computeStabilizingFlux() {
     /* Get the multiplicative factor */
     FP_PRECISION mult_factor = 1.0 / _stabilization_factor - 1.0;
 
-    /* Apply the global muliplicative factor */ 
+    /* Apply the global muliplicative factor */
 #pragma omp parallel for schedule(static)
     for (long r=0; r < _num_FSRs; r++)
       for (int e=0; e < _num_groups; e++)
@@ -2552,7 +2552,7 @@ void CPUSolver::stabilizeFlux() {
            no bias is introduced but the source iteration is stabilized */
         if (sigma_s < 0.0) {
           _scalar_flux(r, e) += _stabilizing_flux(r,e);
-          _scalar_flux(r, e) /= (1.0 - _stabilization_factor * sigma_s / 
+          _scalar_flux(r, e) /= (1.0 - _stabilization_factor * sigma_s /
                                  sigma_t[e]);
         }
       }
@@ -2638,7 +2638,7 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs,
   for (long r=0; r < _num_FSRs; r++) {
     if (nu) {
       sigma_f = _FSR_materials[r]->getNuSigmaF();
-    } 
+    }
     else {
       sigma_f = _FSR_materials[r]->getSigmaF();
     }
@@ -2766,7 +2766,7 @@ void CPUSolver::printFSRFluxes(std::vector<double> dim1,
         for (int j=0; j<dim2.size(); j++) {
           int r = i + j*dim1.size();
           double flux = total_fluxes.at(r) / num_contains_coords.at(r);
-          log_printf(NORMAL, "(%d: %f, %d: %f) -> %f", i, dim1.at(i), j, 
+          log_printf(NORMAL, "(%d: %f, %d: %f) -> %f", i, dim1.at(i), j,
                      dim2.at(j), flux);
         }
       }
@@ -2808,13 +2808,13 @@ void CPUSolver::printFluxesTemp() {
 
 
 /**
- * @brief A function that prints the number of FSRs with negative sources in 
+ * @brief A function that prints the number of FSRs with negative sources in
  *        the whole geometry subdivided by a 3D lattice. The number of negative
  *        sources per energy group is also printed out.
  * @param iteration the current iteration
  * @param num_x number of divisions in X direction
  * @param num_y number of divisions in Y direction
- * @param num_z number of divisions in Z direction 
+ * @param num_z number of divisions in Z direction
  */
 void CPUSolver::printNegativeSources(int iteration, int num_x, int num_y,
                                      int num_z) {

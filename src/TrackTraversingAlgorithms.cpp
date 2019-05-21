@@ -1246,8 +1246,10 @@ void TransportSweepOTF::setCPUSolver(CPUSolver* cpu_solver) {
   _cpu_solver = cpu_solver;
 }
 
+
 /**
- * @brief NOT IMPLEMENTED
+ * @brief Placeholder, an onTrack routine is not required when performing
+ *        track generation and transport simultaneously.
  * @param track the Track of interest
  * @param segments array of segments on that track
  */

@@ -194,11 +194,11 @@ ifeq ($(OPTIMIZE),yes)
     CFLAGS += -O3 -ffast-math -fvectorize -fpic
   endif
   # Set the number of groups at compile time
-  #CFLAGS += -DNGROUPS=70
+  CFLAGS += -DNGROUPS=70
   # Set the source to linear source at compile time
   #CFLAGS += -DLINEARSOURCE
   # Set the dimension to 3D at compile time
-  #CFLAGS += -DTHREED
+  CFLAGS += -DTHREED
   # Only vacuum boundary conditions, avoid double store of track fluxes
   #CFLAGS += -DONLYVACUUMBC
 endif
