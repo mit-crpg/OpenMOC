@@ -553,7 +553,7 @@ void CPUSolver::setupMPIBuffers() {
     int max_size_mb;
     MPI_Allreduce(&size_mb, &max_size_mb, 1, MPI_INT, MPI_MAX,
                   _geometry->getMPICart());
-    log_printf(NORMAL, "Max track fluxes transfer buffer storage = %.2f MB",
+    log_printf(INFO, "Max track fluxes transfer buffer storage = %.2f MB",
                max_size_mb / 1e6);
 
     /* Allocate track fluxes transfer buffers */
@@ -2232,30 +2232,28 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   long fsr_id = curr_segment->_region_id;
   FP_PRECISION length = curr_segment->_length;
   FP_PRECISION* sigma_t = curr_segment->_material->getSigmaT();
-  ExpEvaluator* exp_evaluator = _exp_evaluators[azim_index][polar_index];
 
   if (_SOLVE_3D) {
-
-    FP_PRECISION length_2D = exp_evaluator->convertDistance3Dto2D(length);
 
 #pragma omp simd aligned(sigma_t, fsr_flux)
     for (int e=0; e < _num_groups; e++) {
 
-      FP_PRECISION tau = sigma_t[e] * length_2D;
+      FP_PRECISION tau = sigma_t[e] * length;
 
       /* Compute the exponential */
-      FP_PRECISION exponential = exp_evaluator->computeExponential(tau, 0);
+      FP_PRECISION exponential;
+      expF1_fractional(tau, &exponential);
 
       /* Compute attenuation and tally the contribution to the scalar flux */
-      FP_PRECISION delta_psi = (tau * track_flux[e] - length_2D *
+      FP_PRECISION delta_psi = (tau * track_flux[e] - length *
               _reduced_sources(fsr_id, e)) * exponential;
       track_flux[e] -= delta_psi;
-      fsr_flux[e] += delta_psi * FP_PRECISION(_quad->getWeightInline(
-                                                     azim_index, polar_index));
+      fsr_flux[e] += delta_psi;
     }
   }
   else {
 
+    ExpEvaluator* exp_evaluator = _exp_evaluators[azim_index][polar_index];
     const int num_polar_2 = _num_polar / 2;
 
     /* Compute tau in advance to simplify attenuation loop */
@@ -2302,10 +2300,13 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
  * @brief Move the segment(s)' contributions to the scalar flux from the buffer
  * to the global scalar flux array.
  * @param fsr_id the id of the fsr
+ * @param weight the quadrature weight (only for 3D ray tracing)
  * @param fsr_flux the buffer containing the segment(s)' contribution
  */
 void CPUSolver::accumulateScalarFluxContribution(long fsr_id,
-                                         FP_PRECISION* __restrict__ fsr_flux) {
+                                                 FP_PRECISION weight,
+                                                 FP_PRECISION* __restrict__
+                                                 fsr_flux) {
 
   // Atomically increment the FSR scalar flux from the temporary array
   omp_set_lock(&_FSR_locks[fsr_id]);
@@ -2313,7 +2314,7 @@ void CPUSolver::accumulateScalarFluxContribution(long fsr_id,
   // Add to global scalar flux vector
 #pragma omp simd aligned(fsr_flux)
   for (int e=0; e < _num_groups; e++)
-    _scalar_flux(fsr_id,e) += fsr_flux[e];
+    _scalar_flux(fsr_id,e) += weight * fsr_flux[e];
 
   omp_unset_lock(&_FSR_locks[fsr_id]);
 

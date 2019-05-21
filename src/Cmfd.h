@@ -520,6 +520,31 @@ inline int Cmfd::findCmfdSurfaceOTF(int cell_id, double z, int surface_2D) {
 
 
 /**
+ * @brief Converts a local CMFD cell ID into its global ID
+ * @param cmfd_cell The local CMFD cell ID
+ * @return The global CMFD cell ID
+ */
+inline int Cmfd::getGlobalCMFDCell(int cmfd_cell) {
+
+  int x_start = 0;
+  int y_start = 0;
+  int z_start = 0;
+  if (_domain_communicator != NULL) {
+    x_start = _accumulate_lmx[_domain_communicator->_domain_idx_x];
+    y_start = _accumulate_lmy[_domain_communicator->_domain_idx_y];
+    z_start = _accumulate_lmz[_domain_communicator->_domain_idx_z];
+  }
+
+  int ix = cmfd_cell % _local_num_x;
+  int iy = (cmfd_cell % (_local_num_x * _local_num_y)) / _local_num_x;
+  int iz = cmfd_cell / (_local_num_x * _local_num_y);
+
+  return ((iz + z_start) * _num_y + iy + y_start) * _num_x
+                + ix + x_start;
+}
+
+
+/**
  * @brief Tallies the current contribution from this segment across the
  *        the appropriate CMFD mesh cell surface.
  * @param curr_segment the current Track segment
