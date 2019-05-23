@@ -862,7 +862,7 @@ void Cmfd::collapseXS() {
 
         if (rxn_tally < FLT_EPSILON / 1e3) {
           log_printf(WARNING, "Negative or zero reaction tally calculated in "
-                     "CMFD cell %d in CMFD group %d", i, e);
+                     "CMFD cell %d in CMFD group %d : %e", i, e + 1, rxn_tally);
           rxn_tally = ZERO_SIGMA_T;
           _reaction_tally[i][e] = ZERO_SIGMA_T;
           _diffusion_tally[i][e] = ZERO_SIGMA_T;
@@ -1721,6 +1721,12 @@ void Cmfd::initializeCurrents() {
   if (_surface_currents != NULL)
     delete _surface_currents;
 
+  float size = _num_cmfd_groups * (NUM_FACES + 2 * _balance_sigma_t) *
+              _local_num_x * _local_num_y * _local_num_z *
+              sizeof(CMFD_PRECISION) / float(1e6);
+  log_printf(INFO_ONCE, "CMFD surface current storage per domain = %6.2f MB",
+             size);
+
   /* Allocate memory for the CMFD Mesh surface and corner currents Vectors */
   _surface_currents = new Vector(_cell_locks, _local_num_x, _local_num_y,
                                  _local_num_z, _num_cmfd_groups * NUM_FACES);
@@ -1786,9 +1792,9 @@ void Cmfd::allocateTallies() {
       all_tallies[t][i] = &_tally_memory[idx];
     }
   }
-  log_printf(INFO_ONCE, "CMFD tally storage = %6.2f MB", (_total_tally_size *
-             sizeof(CMFD_PRECISION) + local_num_cells *
-             sizeof(CMFD_PRECISION*)) / 1e6);
+  log_printf(INFO_ONCE, "CMFD tally storage per domain = %6.2f MB",
+             (_total_tally_size * sizeof(CMFD_PRECISION) + 3 * local_num_cells
+             * sizeof(CMFD_PRECISION*)) / float(1e6));
 
   /* Assign tallies to allocated data */
   _diffusion_tally = all_tallies[0];
@@ -2834,6 +2840,8 @@ void Cmfd::generateKNearestStencils() {
     for (long r=0; r < _num_FSRs; r++) {
       _axial_interpolants.at(r) = new double[3]();
     }
+    log_printf(INFO_ONCE, "CMFD Axial interpolation storage per domain = %6.2f"
+               " MB", _num_FSRs * 3 * sizeof(double));
 
     /* Loop over mesh cells */
     for (int i = 0; i < _local_num_x*_local_num_y*_local_num_z; i++) {
@@ -3373,7 +3381,7 @@ void Cmfd::initialize() {
     // A matrix is duplicated as list of list and CSR form (allocated before
     // each transport iteration's CMFD solve)
 
-    int num_non_zero_coeffs = 6 + std::min(20, _num_cmfd_groups);
+    int num_non_zero_coeffs = 6 + 20 * _num_cmfd_groups / 70;
     // 20 is estimated number of non-zero scatters per group for 70g structure
     double size = (double) (num_rows) * num_non_zero_coeffs *
                   sizeof(CMFD_PRECISION) / (double) 1e6;
@@ -3399,8 +3407,8 @@ void Cmfd::initialize() {
     _volumes = new Vector(_cell_locks, _local_num_x, _local_num_y,
                           _local_num_z, 1);
     log_printf(INFO_ONCE, "CMFD flux, source and diffusion coefficient storage"
-               " = %6.2f MB", (num_rows/2) * (4 + NUM_FACES) *
-               sizeof(CMFD_PRECISION) / 1e6);
+               " = %6.2f MB", num_cells * ((4 + NUM_FACES) * ncg *
+               sizeof(CMFD_PRECISION) + sizeof(omp_lock_t)) / float(1e6));
 
     /* Initialize k-nearest stencils, currents, flux, materials and tallies */
     generateKNearestStencils();
@@ -3422,6 +3430,15 @@ void Cmfd::initialize() {
 
       int dir_sizes[3] = {num_cells / _local_num_x,  num_cells / _local_num_y,
                           num_cells / _local_num_z};
+
+      /* Output size of domain communicator */
+      int boundary_cells = dir_sizes[0] + dir_sizes[1] + dir_sizes[2];
+      float size = 2 * num_cells * ncg * (1 + 2 * NUM_FACES) * sizeof(int) +
+                   (2 * NUM_FACES * 2 * ncg * boundary_cells +
+                    2 * num_cells * ncg * NUM_FACES + NUM_FACES *
+                    4 * ncg * boundary_cells) * sizeof(CMFD_PRECISION);
+      log_printf(INFO_ONCE, "CMFD domain communicator size per domain = %6.2f "
+                 "MB", size / 1e6);
 
       /* Allocate arrays to contain information about the domain's neighbors */
       _domain_communicator->num_connections = new int*[2];
@@ -3473,8 +3490,9 @@ void Cmfd::initialize() {
       int comm_data_size = storage_per_cell * num_boundary_cells;
 
       //NOTE Rank 0 is at a corner
-      log_printf(INFO_ONCE, "Max CMFD communication buffers size = %6.2f MB",
-                 (4 * comm_data_size + internal) * sizeof(CMFD_PRECISION)/1e6);
+      log_printf(INFO_ONCE, "CMFD communication buffers size per domain = "
+                 "%6.2f MB", (4 * comm_data_size + internal) *
+                 sizeof(CMFD_PRECISION) / float(1e6));
 
       _inter_domain_data = new CMFD_PRECISION[comm_data_size + internal];
       _send_domain_data = new CMFD_PRECISION[comm_data_size];
@@ -3524,8 +3542,9 @@ void Cmfd::initialize() {
       _send_split_current_data = new CMFD_PRECISION[split_current_size];
       _receive_split_current_data = new CMFD_PRECISION[split_current_size];
       //NOTE Rank 0 is at a corner
-      log_printf(INFO_ONCE, "Max CMFD corner current comm. storage = %6.2f MB",
-                 4 * split_current_size * sizeof(CMFD_PRECISION) / 1e6);
+      log_printf(INFO_ONCE, "CMFD corner current comm. storage per domain = "
+                 "%6.2f MB", 4 * split_current_size * sizeof(CMFD_PRECISION)
+                 / float(1e6));
 
       _send_split_currents_array = new CMFD_PRECISION*[NUM_FACES];
       _receive_split_currents_array = new CMFD_PRECISION*[NUM_FACES];

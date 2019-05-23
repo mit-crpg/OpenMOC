@@ -549,12 +549,12 @@ void CPUSolver::setupMPIBuffers() {
 
     /* Estimate and print size of flux transfer buffers */
     int num_domains = _neighbor_domains.size();
-    int size_mb = 2 * message_length * num_domains * sizeof(float);
-    int max_size_mb;
-    MPI_Allreduce(&size_mb, &max_size_mb, 1, MPI_INT, MPI_MAX,
+    int size = 2 * message_length * num_domains * sizeof(float);
+    int max_size;
+    MPI_Allreduce(&size, &max_size, 1, MPI_INT, MPI_MAX,
                   _geometry->getMPICart());
-    log_printf(INFO, "Max track fluxes transfer buffer storage = %.2f MB",
-               max_size_mb / 1e6);
+    log_printf(INFO_ONCE, "Max track fluxes transfer buffer storage = %.2f MB",
+               max_size / 1e6);
 
     /* Allocate track fluxes transfer buffers */
     _send_buffers.resize(num_domains);
