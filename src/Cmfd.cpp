@@ -1354,7 +1354,8 @@ void Cmfd::constructMatrices(int moc_iteration) {
             if (_domain_communicator != NULL) {
               if (getCellNext(i, s, false, true) != -1) {
                 int neighbor_cell = getCellNext(i, s, false, true);
-                int row = i * _num_cmfd_groups + e;
+                int row = _domain_communicator->mapLocalToSurface[i] *
+                     _num_cmfd_groups + e;
                 int idx = _domain_communicator->num_connections[color][row];
                 value = - (dif_surf + sense * dif_surf_corr) * delta;
                 _domain_communicator->indexes[color][row][idx] = neighbor_cell;
@@ -2840,8 +2841,8 @@ void Cmfd::generateKNearestStencils() {
     for (long r=0; r < _num_FSRs; r++) {
       _axial_interpolants.at(r) = new double[3]();
     }
-    log_printf(INFO_ONCE, "CMFD Axial interpolation storage per domain = %6.2f"
-               " MB", _num_FSRs * 3 * sizeof(double));
+    log_printf(INFO_ONCE, "CMFD axial interpolation storage per domain = %6.2f"
+               " MB", _num_FSRs * 3 * sizeof(double) / float(1e6));
 
     /* Loop over mesh cells */
     for (int i = 0; i < _local_num_x*_local_num_y*_local_num_z; i++) {
@@ -3433,9 +3434,9 @@ void Cmfd::initialize() {
 
       /* Output size of domain communicator */
       int boundary_cells = dir_sizes[0] + dir_sizes[1] + dir_sizes[2];
-      float size = 2 * num_cells * ncg * (1 + 2 * NUM_FACES) * sizeof(int) +
+      float size = 2 * boundary_cells * ncg * (1 + 2 * NUM_FACES) * sizeof(int) +
                    (2 * NUM_FACES * 2 * ncg * boundary_cells +
-                    2 * num_cells * ncg * NUM_FACES + NUM_FACES *
+                    2 * boundary_cells * ncg * NUM_FACES + NUM_FACES *
                     4 * ncg * boundary_cells) * sizeof(CMFD_PRECISION);
       log_printf(INFO_ONCE, "CMFD domain communicator size per domain = %6.2f "
                  "MB", size / 1e6);
@@ -3450,12 +3451,12 @@ void Cmfd::initialize() {
       _domain_communicator->coupling_coeffs = new CMFD_PRECISION**[2];
       _domain_communicator->buffer = new CMFD_PRECISION*[NUM_FACES];
       for (int rb=0; rb<2; rb++) {
-        _domain_communicator->num_connections[rb] = new int[num_cells*ncg];
-        _domain_communicator->indexes[rb] = new int*[num_cells*ncg];
-        _domain_communicator->domains[rb] = new int*[num_cells*ncg];
+        _domain_communicator->num_connections[rb] = new int[boundary_cells*ncg];
+        _domain_communicator->indexes[rb] = new int*[boundary_cells*ncg];
+        _domain_communicator->domains[rb] = new int*[boundary_cells*ncg];
         _domain_communicator->fluxes[rb] = new CMFD_PRECISION*[NUM_FACES];
         _domain_communicator->coupling_coeffs[rb] =
-                            new CMFD_PRECISION*[num_cells*ncg];
+                            new CMFD_PRECISION*[boundary_cells*ncg];
 
         for (int coord=0; coord < 3; coord++) {
           for (int d=0; d < 2; d++) {
@@ -3466,7 +3467,7 @@ void Cmfd::initialize() {
                                 new CMFD_PRECISION[2*dir_sizes[coord]*ncg];
           }
         }
-        for (int nsc=0; nsc < num_cells * ncg; nsc++) {
+        for (int nsc=0; nsc < boundary_cells * ncg; nsc++) {
           _domain_communicator->num_connections[rb][nsc] = 0;
           _domain_communicator->indexes[rb][nsc] = new int[NUM_FACES];
           _domain_communicator->domains[rb][nsc] = new int[NUM_FACES];
@@ -3480,6 +3481,52 @@ void Cmfd::initialize() {
       int num_per_side[3] = {_local_num_y * _local_num_z,
                           _local_num_x * _local_num_z,
                           _local_num_x * _local_num_y};
+
+      /* Create map of continuous indexes for the domain's 6 faces : same
+         order as the surfaces (XMIN=0, YMIN=1...) */
+      int count = 0;
+      for (int iz=0; iz < _local_num_z; iz++) {
+        for (int iy=0; iy < _local_num_y; iy++) {
+          int cell = (iz*_local_num_y + iy)*_local_num_x;
+          _domain_communicator->mapLocalToSurface.insert(std::pair<int,int>(
+                                                         cell,count++));
+        }
+      }
+      for (int iz=0; iz < _local_num_z; iz++) {
+        for (int ix=0; ix < _local_num_x; ix++) {
+          int cell = (iz*_local_num_y)*_local_num_x + ix;
+          _domain_communicator->mapLocalToSurface.insert(std::pair<int,int>(
+                                                         cell,count++));
+        }
+      }
+      for (int iy=0; iy < _local_num_y; iy++) {
+        for (int ix=0; ix < _local_num_x; ix++) {
+          int cell = (iy)*_local_num_x + ix;
+          _domain_communicator->mapLocalToSurface.insert(std::pair<int,int>(
+                                                         cell,count++));
+        }
+      }
+      for (int iz=0; iz < _local_num_z; iz++) {
+        for (int iy=0; iy < _local_num_y; iy++) {
+          int cell = (iz*_local_num_y + iy)*_local_num_x + _local_num_x - 1;
+          _domain_communicator->mapLocalToSurface.insert(std::pair<int,int>(
+                                                         cell,count++));
+        }
+      }
+      for (int iz=0; iz < _local_num_z; iz++) {
+        for (int ix=0; ix < _local_num_x; ix++) {
+          int cell = (iz*_local_num_y + _local_num_y - 1)*_local_num_x + ix;
+          _domain_communicator->mapLocalToSurface.insert(std::pair<int,int>(
+                                                         cell,count++));
+        }
+      }
+      for (int iy=0; iy < _local_num_y; iy++) {
+        for (int ix=0; ix < _local_num_x; ix++) {
+          int cell = ((_local_num_z - 1)*_local_num_y + iy)*_local_num_x + ix;
+          _domain_communicator->mapLocalToSurface.insert(std::pair<int,int>(
+                                                         cell,count++));
+        }
+      }
 
       /* Count total number of cells at all faces of the domain */
       int num_boundary_cells = 0;

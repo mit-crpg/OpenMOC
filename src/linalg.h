@@ -105,6 +105,9 @@ struct DomainCommunicator {
   /* Buffer for sending/receiving fluxes to/from connecting neighbors */
   CMFD_PRECISION** buffer;
 
+  /* Map to the index of the boundary elements */
+  std::map<int, int> mapLocalToSurface;
+
   int num_groups;
   bool stop;
 #ifdef MPIx

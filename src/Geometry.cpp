@@ -2563,7 +2563,7 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
              sizeof(Material*)) + _extruded_FSR_keys_map.size() * (sizeof(
              _extruded_FSR_keys_map.keys()[0]) + sizeof(ExtrudedFSR) +
              (LOCAL_COORDS_LEN + 1) * sizeof(LocalCoords));
-  long max_size = size;
+  float max_size = size;
 #ifdef MPIX
     if (isDomainDecomposed())
       MPI_Allreduce(&size, &max_size, 1, MPI_FLOAT, MPI_MAX, _MPI_cart);

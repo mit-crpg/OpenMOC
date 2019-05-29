@@ -258,6 +258,8 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
         for (int iy=0; iy < num_y; iy++) {
           for (int ix=(iy+iz+color+offset)%2; ix < num_x; ix+=2) {
 
+            bool on_surface = (iz==0) || (iz==num_z-1) || (iy==0) || (iy==num_y-1)
+                 || (ix==0) || (ix==num_x-1);
             int cell = (iz*num_y + iy)*num_x + ix;
             int row_start = cell*num_groups;
 
@@ -283,12 +285,13 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
               }
 
               // Contribution of off node fluxes
-              if (comm != NULL) {
-                for (int i = 0; i < coupling_sizes[row]; i++) {
-                  int idx = coupling_indexes[row][i] * num_groups + g;
-                  int domain = comm->domains[color][row][i];
+              if (comm != NULL && on_surface) {
+                int row_surf = comm->mapLocalToSurface[cell]*num_groups + g;
+                for (int i = 0; i < coupling_sizes[row_surf]; i++) {
+                  int idx = coupling_indexes[row_surf][i] * num_groups + g;
+                  int domain = comm->domains[color][row_surf][i];
                   CMFD_PRECISION flux = coupling_fluxes[domain][idx];
-                  x[row] -= coupling_coeffs[row][i] * flux;
+                  x[row] -= coupling_coeffs[row_surf][i] * flux;
                 }
               }
 
@@ -422,51 +425,69 @@ void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
         int size = 0;
         if (surf == SURFACE_X_MIN) {
           size = ny * nz * ng;
+          int row_surf = comm->mapLocalToSurface[0];
           for (int i=0; i < nz; i++)
-            for (int j=0; j < ny; j++)
+            for (int j=0; j < ny; j++) {
               for (int g=0; g < ng; g++)
-                comm->buffer[surf][ng*(i*ny+j)+g] =
+                comm->buffer[surf][row_surf+g] =
                   curr_fluxes[ng*((i*ny + j)*nx)+g];
+            row_surf++;
+            }
         }
         else if (surf == SURFACE_X_MAX) {
           size = ny * nz * ng;
+          int row_surf = comm->mapLocalToSurface[ny*nz + nx*nz + nx*ny];
           for (int i=0; i < nz; i++)
-            for (int j=0; j < ny; j++)
+            for (int j=0; j < ny; j++) {
               for (int g=0; g < ng; g++)
-                comm->buffer[surf][ng*(i*ny+j)+g] =
+                comm->buffer[surf][row_surf+g] =
                   curr_fluxes[ng*((i*ny + j)*nx + nx-1)+g];
+            row_surf++;
+            }
         }
         else if (surf == SURFACE_Y_MIN) {
           size = nx * nz * ng;
+          int row_surf = comm->mapLocalToSurface[ny*nz];
           for (int i=0; i < nz; i++)
-            for (int j=0; j < nx; j++)
+            for (int j=0; j < nx; j++) {
               for (int g=0; g < ng; g++)
-                comm->buffer[surf][ng*(i*nx+j)+g] =
+                comm->buffer[surf][row_surf+g] =
                   curr_fluxes[ng*(i*nx*ny + j)+g];
+            row_surf++;
+            }
         }
         else if (surf == SURFACE_Y_MAX) {
           size = nx * nz * ng;
+          int row_surf = comm->mapLocalToSurface[2*ny*nz + nx*nz + nx*ny];
           for (int i=0; i < nz; i++)
-            for (int j=0; j < nx; j++)
+            for (int j=0; j < nx; j++) {
               for (int g=0; g < ng; g++)
-                comm->buffer[surf][ng*(i*nx+j)+g] =
+                comm->buffer[surf][row_surf+g] =
                   curr_fluxes[ng*(i*nx*ny + j + nx*(ny-1))+g];
+            row_surf++;
+            }
         }
         else if (surf == SURFACE_Z_MIN) {
           size = nx * ny * ng;
+          int row_surf = comm->mapLocalToSurface[ny*nz + nx*nz];
           for (int i=0; i < ny; i++)
-            for (int j=0; j < nx; j++)
+            for (int j=0; j < nx; j++) {
               for (int g=0; g < ng; g++)
-                comm->buffer[surf][ng*(i*nx+j)+g] =
+                comm->buffer[surf][row_surf+g] =
                   curr_fluxes[ng*(i*nx + j)+g];
+            row_surf++;
+            }
         }
         else if (surf == SURFACE_Z_MAX) {
           size = nx * ny * ng;
+          int row_surf = comm->mapLocalToSurface[2*ny*nz + 2*nx*nz + nx*ny];
           for (int i=0; i < ny; i++)
-            for (int j=0; j < nx; j++)
+            for (int j=0; j < nx; j++) {
               for (int g=0; g < ng; g++)
-                comm->buffer[surf][ng*(i*nx+j)+g] =
+                comm->buffer[surf][row_surf+g] =
                   curr_fluxes[ng*(i*nx + j + nx*ny*(nz-1))+g];
+            row_surf++;
+            }
         }
 
         sizes[surf] = size;
@@ -887,6 +908,8 @@ bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
         for (int ix=(iy+iz+color+offset)%2; ix < num_x; ix+=2) {
 
           int cell = (iz*num_y + iy)*num_x + ix;
+          bool on_surface = (iz==0) || (iz==num_z-1) || (iy==0) || (iy==num_y-1)
+               || (ix==0) || (ix==num_x-1);
 
           /* Determine whether each group's row is diagonally dominant */
           for (int e = 0; e < num_groups; e++) {
@@ -905,11 +928,12 @@ bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 
             /* Add off-node off-diagonal elements */
 #ifdef MPIx
-            if (comm != NULL) {
+            if (comm != NULL && on_surface) {
               int* coupling_sizes = comm->num_connections[color];
               CMFD_PRECISION** coupling_coeffs = comm->coupling_coeffs[color];
-              for (int idx = 0; idx < coupling_sizes[row]; idx++)
-                row_sum += fabs(coupling_coeffs[row][idx]);
+              int row_surf = comm->mapLocalToSurface[cell]*num_groups + e;
+              for (int idx = 0; idx < coupling_sizes[row_surf]; idx++)
+                row_sum += fabs(coupling_coeffs[row_surf][idx]);
             }
 #endif
 
