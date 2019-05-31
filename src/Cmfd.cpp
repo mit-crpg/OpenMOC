@@ -3659,7 +3659,7 @@ void Cmfd::initialize() {
 void Cmfd::initializeLattice(Point* offset, bool is_2D) {
 
   /* Deal with 2D case, set all widths Z to 1 */
-  if (is_2D || _width_z == std::numeric_limits<double>::infinity()) {
+  if (is_2D || _width_z > FLT_INFINITY) {
     _num_z = 1;
     _local_num_z = 1;
     _width_z = 1.0;
