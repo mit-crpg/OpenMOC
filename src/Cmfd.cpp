@@ -1337,17 +1337,17 @@ void Cmfd::constructMatrices(int moc_iteration) {
         bool on_surface = false;
 
         for (int s = 0; s < NUM_FACES; s++) {
-
-          neighbor_cells[s] = getCellNext(i, s, false, true);
-          if (neighbor_cells[s] != -1)
-            on_surface = true;
+          neighbor_cells[s] = -1;
+          if (getCellNext(i, s, false, false) == -1) {
+            neighbor_cells[s] = getCellNext(i, s, false, true);
+            if (neighbor_cells[s] != -1)
+              on_surface = true;
+          }
         }
 
         /* If the cell is on a surface, find the index into the comm buffers */
-        if (on_surface) {log_printf(NORMAL, "%d %d", i, getSurfaceCellIndex(_local_num_x, _local_num_y,
-                                                     _local_num_z, i));
-          domain_surface_index = getSurfaceCellIndex(_local_num_x, _local_num_y,
-                                                     _local_num_z, i);}
+        if (on_surface) {log_printf(NODAL, "%d %d %d %d", i, _domain_communicator->mapLocalToSurface[i], neighbor_cells[2], neighbor_cells[5]);
+          domain_surface_index = _domain_communicator->mapLocalToSurface[i];}
       }
 
       /* Loop over groups */
@@ -3531,43 +3531,37 @@ void Cmfd::initialize() {
       for (int iz=0; iz < _local_num_z; iz++) {
         for (int iy=0; iy < _local_num_y; iy++) {
           int cell = (iz*_local_num_y + iy)*_local_num_x;
-          _domain_communicator->mapLocalToSurface.insert(std::pair<int,int>(
-                                                         cell,count++));
+          _domain_communicator->mapLocalToSurface[cell] = count++;
         }
       }
       for (int iz=0; iz < _local_num_z; iz++) {
         for (int ix=0; ix < _local_num_x; ix++) {
           int cell = (iz*_local_num_y)*_local_num_x + ix;
-          _domain_communicator->mapLocalToSurface.insert(std::pair<int,int>(
-                                                         cell,count++));
+          _domain_communicator->mapLocalToSurface[cell] = count++;
         }
       }
       for (int iy=0; iy < _local_num_y; iy++) {
         for (int ix=0; ix < _local_num_x; ix++) {
           int cell = (iy)*_local_num_x + ix;
-          _domain_communicator->mapLocalToSurface.insert(std::pair<int,int>(
-                                                         cell,count++));
+          _domain_communicator->mapLocalToSurface[cell] = count++;
         }
       }
       for (int iz=0; iz < _local_num_z; iz++) {
         for (int iy=0; iy < _local_num_y; iy++) {
           int cell = (iz*_local_num_y + iy)*_local_num_x + _local_num_x - 1;
-          _domain_communicator->mapLocalToSurface.insert(std::pair<int,int>(
-                                                         cell,count++));
+          _domain_communicator->mapLocalToSurface[cell] = count++;
         }
       }
       for (int iz=0; iz < _local_num_z; iz++) {
         for (int ix=0; ix < _local_num_x; ix++) {
           int cell = (iz*_local_num_y + _local_num_y - 1)*_local_num_x + ix;
-          _domain_communicator->mapLocalToSurface.insert(std::pair<int,int>(
-                                                         cell,count++));
+          _domain_communicator->mapLocalToSurface[cell] = count++;
         }
       }
       for (int iy=0; iy < _local_num_y; iy++) {
         for (int ix=0; ix < _local_num_x; ix++) {
           int cell = ((_local_num_z - 1)*_local_num_y + iy)*_local_num_x + ix;
-          _domain_communicator->mapLocalToSurface.insert(std::pair<int,int>(
-                                                         cell,count++));
+          _domain_communicator->mapLocalToSurface[cell] = count++;
         }
       }
 

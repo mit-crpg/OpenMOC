@@ -166,7 +166,7 @@ inline void matrix_transpose(T* matrix, int dim1, int dim2) {
 }
 
 
-inline int getSurfaceCellIndex(nx, ny, nz, i) {
+inline int getSurfaceCellIndex(int nx, int ny, int nz, int i) {
 
   if (i >= 2*ny*nz + 2*nx*nz + nx*ny)
     return i - (2*ny*nz + 2*nx*nz + nx*ny);
