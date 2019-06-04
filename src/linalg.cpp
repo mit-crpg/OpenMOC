@@ -258,10 +258,15 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
         for (int iy=0; iy < num_y; iy++) {
           for (int ix=(iy+iz+color+offset)%2; ix < num_x; ix+=2) {
 
-            bool on_surface = (iz==0) || (iz==num_z-1) || (iy==0) || (iy==num_y-1)
-                 || (ix==0) || (ix==num_x-1);
             int cell = (iz*num_y + iy)*num_x + ix;
             int row_start = cell*num_groups;
+
+            /* Find index into communicator buffers for cells on surfaces */
+            bool on_surface = (iz==0) || (iz==num_z-1) || (iy==0) || (iy==num_y-1)
+                 || (ix==0) || (ix==num_x-1);
+            int domain_surface_index = -1;
+            if (comm != NULL && on_surface)
+              domain_surface_index = comm->mapLocalToSurface[cell];
 
             /* Contribution of off-diagonal terms, hard to SIMD vectorize */
             for (int g=0; g < num_groups; g++) {
@@ -286,7 +291,7 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 
               // Contribution of off node fluxes
               if (comm != NULL && on_surface) {
-                int row_surf = comm->mapLocalToSurface[cell]*num_groups + g;
+                int row_surf = domain_surface_index * num_groups + g;
                 for (int i = 0; i < coupling_sizes[row_surf]; i++) {
                   int idx = coupling_indexes[row_surf][i] * num_groups + g;
                   int domain = comm->domains[color][row_surf][i];
@@ -429,8 +434,8 @@ void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
           for (int i=0; i < nz; i++)
             for (int j=0; j < ny; j++) {
               for (int g=0; g < ng; g++)
-                comm->buffer[surf][row_surf+g] =
-                  curr_fluxes[ng*((i*ny + j)*nx)+g];
+                comm->buffer[surf][ng * row_surf + g] =
+                  curr_fluxes[ng*((i*ny + j)*nx) + g];
             row_surf++;
             }
         }
@@ -440,8 +445,8 @@ void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
           for (int i=0; i < nz; i++)
             for (int j=0; j < ny; j++) {
               for (int g=0; g < ng; g++)
-                comm->buffer[surf][row_surf+g] =
-                  curr_fluxes[ng*((i*ny + j)*nx + nx-1)+g];
+                comm->buffer[surf][ng * row_surf + g] =
+                  curr_fluxes[ng*((i*ny + j)*nx + nx-1) + g];
             row_surf++;
             }
         }
@@ -451,8 +456,8 @@ void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
           for (int i=0; i < nz; i++)
             for (int j=0; j < nx; j++) {
               for (int g=0; g < ng; g++)
-                comm->buffer[surf][row_surf+g] =
-                  curr_fluxes[ng*(i*nx*ny + j)+g];
+                comm->buffer[surf][ng * row_surf + g] =
+                  curr_fluxes[ng*(i*nx*ny + j) + g];
             row_surf++;
             }
         }
@@ -462,8 +467,8 @@ void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
           for (int i=0; i < nz; i++)
             for (int j=0; j < nx; j++) {
               for (int g=0; g < ng; g++)
-                comm->buffer[surf][row_surf+g] =
-                  curr_fluxes[ng*(i*nx*ny + j + nx*(ny-1))+g];
+                comm->buffer[surf][ng * row_surf + g] =
+                  curr_fluxes[ng*(i*nx*ny + j + nx*(ny-1)) + g];
             row_surf++;
             }
         }
@@ -473,7 +478,7 @@ void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
           for (int i=0; i < ny; i++)
             for (int j=0; j < nx; j++) {
               for (int g=0; g < ng; g++)
-                comm->buffer[surf][row_surf+g] =
+                comm->buffer[surf][ng * row_surf + g] =
                   curr_fluxes[ng*(i*nx + j)+g];
             row_surf++;
             }
@@ -484,8 +489,8 @@ void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
           for (int i=0; i < ny; i++)
             for (int j=0; j < nx; j++) {
               for (int g=0; g < ng; g++)
-                comm->buffer[surf][row_surf+g] =
-                  curr_fluxes[ng*(i*nx + j + nx*ny*(nz-1))+g];
+                comm->buffer[surf][ng * row_surf + g] =
+                  curr_fluxes[ng*(i*nx + j + nx*ny*(nz-1)) + g];
             row_surf++;
             }
         }
@@ -523,6 +528,7 @@ void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
           if (flag == 0)
             round_complete = false;
           else
+            // Copy received data into coupling_fluxes
             for (int i=0; i < sizes[surf]; i++)
               coupling_fluxes[surf][i] = comm->buffer[surf][sizes[surf]+i];
         }
@@ -908,8 +914,13 @@ bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
         for (int ix=(iy+iz+color+offset)%2; ix < num_x; ix+=2) {
 
           int cell = (iz*num_y + iy)*num_x + ix;
+
+          /* Find index into communicator buffers for cells on surfaces */
           bool on_surface = (iz==0) || (iz==num_z-1) || (iy==0) || (iy==num_y-1)
                || (ix==0) || (ix==num_x-1);
+          int domain_surface_index = -1;
+          if (comm != NULL && on_surface)
+            domain_surface_index = comm->mapLocalToSurface[cell];
 
           /* Determine whether each group's row is diagonally dominant */
           for (int e = 0; e < num_groups; e++) {
@@ -929,10 +940,10 @@ bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
             /* Add off-node off-diagonal elements */
 #ifdef MPIx
             if (comm != NULL && on_surface) {
+              int row_surf = domain_surface_index * num_groups + e;
               int* coupling_sizes = comm->num_connections[color];
               CMFD_PRECISION** coupling_coeffs = comm->coupling_coeffs[color];
-              int row_surf = comm->mapLocalToSurface[cell]*num_groups + e;
-              for (int idx = 0; idx < coupling_sizes[row_surf]; idx++)
+              for (int idx=0; idx < coupling_sizes[row_surf]; idx++)
                 row_sum += fabs(coupling_coeffs[row_surf][idx]);
             }
 #endif

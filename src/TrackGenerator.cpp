@@ -387,7 +387,7 @@ FP_PRECISION* TrackGenerator::getFSRVolumes() {
   double total_volume = 0;
   for (long r=0; r < num_FSRs; r++)
     total_volume += _FSR_volumes[r];
-  log_printf(INFO, "Total volume %f cm3", total_volume);
+  log_printf(DEBUG, "Total volume %f cm3", total_volume);
 
   return _FSR_volumes;
 }

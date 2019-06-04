@@ -165,4 +165,21 @@ inline void matrix_transpose(T* matrix, int dim1, int dim2) {
   std::copy(temp.begin(), temp.end(), matrix);
 }
 
+
+inline int getSurfaceCellIndex(nx, ny, nz, i) {
+
+  if (i >= 2*ny*nz + 2*nx*nz + nx*ny)
+    return i - (2*ny*nz + 2*nx*nz + nx*ny);
+  else if (i >= 2*ny*nz + nx*nz + nx*ny)
+    return i - (2*ny*nz + nx*nz + nx*ny);
+  else if (i >= ny*nz + nx*nz + nx*ny)
+    return i - (ny*nz + nx*nz + nx*ny);
+  else if (i >= ny*nz + nx*nz)
+    return i - (ny*nz + nx*nz);
+  else if (i >= ny*nz)
+    return i - (ny*nz);
+  else
+    return i;
+}
+
 #endif /* LINALG_H_ */

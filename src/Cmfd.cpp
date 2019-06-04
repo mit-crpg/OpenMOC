@@ -937,6 +937,28 @@ void Cmfd::collapseXS() {
       }
     }
   }
+
+  /* Output max CMFD cell optical thickness for stability concerns */
+  float max_tau = -1;
+  for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
+    int global_cmfd_cell = getGlobalCMFDCell(i);
+    CMFD_PRECISION delta_x = getPerpendicularSurfaceWidth(0, global_cmfd_cell);
+    CMFD_PRECISION delta_y = getPerpendicularSurfaceWidth(1, global_cmfd_cell);
+    CMFD_PRECISION delta_z = -1;
+    if (_SOLVE_3D)
+      delta_z = getPerpendicularSurfaceWidth(2, global_cmfd_cell);
+    max_tau = std::max(max_tau, float(_materials[i]->getMaxSigmaT() *
+              std::max(delta_x, std::max(delta_y, delta_z))));
+  }
+
+  float global_max_tau = max_tau;
+#ifdef MPIx
+  if (_domain_communicator != NULL)
+    MPI_Allreduce(&global_max_tau, &max_tau, 1, MPI_FLOAT, MPI_MAX,
+                  _domain_communicator->_MPI_cart);
+#endif
+  log_printf(INFO_ONCE, "Max CMFD optical thickness in all domains %.2e",
+             global_max_tau);
 }
 
 
@@ -1307,6 +1329,27 @@ void Cmfd::constructMatrices(int moc_iteration) {
       material = _materials[i];
       volume = _volumes->getValue(i, 0);
 
+      /* Find neighboring cells on other domains */
+      int domain_surface_index = -1;
+      int neighbor_cells[NUM_FACES];
+      if (_geometry->isDomainDecomposed() && _domain_communicator != NULL) {
+
+        bool on_surface = false;
+
+        for (int s = 0; s < NUM_FACES; s++) {
+
+          neighbor_cells[s] = getCellNext(i, s, false, true);
+          if (neighbor_cells[s] != -1)
+            on_surface = true;
+        }
+
+        /* If the cell is on a surface, find the index into the comm buffers */
+        if (on_surface) {log_printf(NORMAL, "%d %d", i, getSurfaceCellIndex(_local_num_x, _local_num_y,
+                                                     _local_num_z, i));
+          domain_surface_index = getSurfaceCellIndex(_local_num_x, _local_num_y,
+                                                     _local_num_z, i);}
+      }
+
       /* Loop over groups */
       for (int e = 0; e < _num_cmfd_groups; e++) {
 
@@ -1352,10 +1395,10 @@ void Cmfd::constructMatrices(int moc_iteration) {
           /* Check for cell in neighboring domain if applicable */
           else if (_geometry->isDomainDecomposed()) {
             if (_domain_communicator != NULL) {
-              if (getCellNext(i, s, false, true) != -1) {
-                int neighbor_cell = getCellNext(i, s, false, true);
-                int row = _domain_communicator->mapLocalToSurface[i] *
-                     _num_cmfd_groups + e;
+              if (neighbor_cells[s] != -1) {
+                int neighbor_cell = neighbor_cells[s];
+                int row = domain_surface_index * _num_cmfd_groups + e;
+                if (e==0) log_printf(NORMAL, "Index on surf %d", domain_surface_index);
                 int idx = _domain_communicator->num_connections[color][row];
                 value = - (dif_surf + sense * dif_surf_corr) * delta;
                 _domain_communicator->indexes[color][row][idx] = neighbor_cell;
@@ -4335,15 +4378,23 @@ void Cmfd::checkNeutronBalance(bool pre_split, bool moc_balance) {
         for (int iy=0; iy < _local_num_y; iy++) {
           for (int ix=(iy+iz+color+offset)%2; ix < _local_num_x; ix+=2) {
             int cell = (iz*_local_num_y + iy)*_local_num_x + ix;
+            bool on_surface = (iz==0) || (iz==_local_num_z-1) || (iy==0) ||
+                 (iy==_local_num_y-1) || (ix==0) || (ix==_local_num_x-1);
+
             for (int g=0; g < _num_cmfd_groups; g++) {
 
               int row = cell * _num_cmfd_groups + g;
 
-              for (int i = 0; i < coupling_sizes[row]; i++) {
-                int idx = coupling_indexes[row][i] * _num_cmfd_groups + g;
-                int domain = _domain_communicator->domains[color][row][i];
-                CMFD_PRECISION flux = coupling_fluxes[domain][idx];
-                a_phi_array[row] += coupling_coeffs[row][i] * flux;
+              if (on_surface) {
+                int row_surf = _domain_communicator->mapLocalToSurface[cell];
+                for (int i = 0; i < coupling_sizes[row_surf]; i++) {
+                  int idx = coupling_indexes[row_surf][i] * _num_cmfd_groups
+                       + g;
+                  int domain =
+                       _domain_communicator->domains[color][row_surf][i];
+                  CMFD_PRECISION flux = coupling_fluxes[domain][idx];
+                  a_phi_array[row] += coupling_coeffs[row_surf][i] * flux;
+                }
               }
             }
           }
