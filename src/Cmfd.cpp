@@ -1287,9 +1287,10 @@ void Cmfd::constructMatrices(int moc_iteration) {
 
   /* Zero the number of connections */
   if (_domain_communicator != NULL) {
-    int num_local_cells = _local_num_x * _local_num_y * _local_num_z;
+    int num_boundary_cells = _local_num_x * _local_num_z + _local_num_y *
+                             _local_num_z + _local_num_x * _local_num_y;
     for (int c=0; c<2; c++) {
-      for (int ncg=0; ncg < num_local_cells * _num_cmfd_groups; ncg++) {
+      for (int ncg=0; ncg < num_boundary_cells * _num_cmfd_groups; ncg++) {
         _domain_communicator->num_connections[c][ncg] = 0;
       }
     }
@@ -3535,31 +3536,31 @@ void Cmfd::initialize() {
         }
       }
       for (int iz=0; iz < _local_num_z; iz++) {
-        for (int ix=0; ix < _local_num_x; ix++) {
+        for (int ix=1; ix < _local_num_x; ix++) {
           int cell = (iz*_local_num_y)*_local_num_x + ix;
           _domain_communicator->mapLocalToSurface[cell] = count++;
         }
       }
-      for (int iy=0; iy < _local_num_y; iy++) {
-        for (int ix=0; ix < _local_num_x; ix++) {
+      for (int iy=1; iy < _local_num_y; iy++) {
+        for (int ix=1; ix < _local_num_x; ix++) {
           int cell = (iy)*_local_num_x + ix;
           _domain_communicator->mapLocalToSurface[cell] = count++;
         }
       }
-      for (int iz=0; iz < _local_num_z; iz++) {
-        for (int iy=0; iy < _local_num_y; iy++) {
+      for (int iz=1; iz < _local_num_z; iz++) {
+        for (int iy=1; iy < _local_num_y; iy++) {
           int cell = (iz*_local_num_y + iy)*_local_num_x + _local_num_x - 1;
           _domain_communicator->mapLocalToSurface[cell] = count++;
         }
       }
-      for (int iz=0; iz < _local_num_z; iz++) {
-        for (int ix=0; ix < _local_num_x; ix++) {
+      for (int iz=1; iz < _local_num_z; iz++) {
+        for (int ix=1; ix < _local_num_x-1; ix++) {
           int cell = (iz*_local_num_y + _local_num_y - 1)*_local_num_x + ix;
           _domain_communicator->mapLocalToSurface[cell] = count++;
         }
       }
-      for (int iy=0; iy < _local_num_y; iy++) {
-        for (int ix=0; ix < _local_num_x; ix++) {
+      for (int iy=1; iy < _local_num_y-1; iy++) {
+        for (int ix=1; ix < _local_num_x-1; ix++) {
           int cell = ((_local_num_z - 1)*_local_num_y + iy)*_local_num_x + ix;
           _domain_communicator->mapLocalToSurface[cell] = count++;
         }
