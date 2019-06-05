@@ -253,6 +253,7 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
       getCouplingTerms(comm, color, coupling_sizes, coupling_indexes,
                        coupling_coeffs, coupling_fluxes, x, offset);
 #endif
+
 #pragma omp parallel for collapse(2)
       for (int iz=0; iz < num_z; iz++) {
         for (int iy=0; iy < num_y; iy++) {
@@ -430,69 +431,51 @@ void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
         int size = 0;
         if (surf == SURFACE_X_MIN) {
           size = ny * nz * ng;
-          int row_surf = comm->mapLocalToSurface[0];
           for (int i=0; i < nz; i++)
-            for (int j=0; j < ny; j++) {
+            for (int j=0; j < ny; j++)
               for (int g=0; g < ng; g++)
-                comm->buffer[surf][ng * row_surf + g] =
+                comm->buffer[surf][ng*(i*ny+j)+g] =
                   curr_fluxes[ng*((i*ny + j)*nx) + g];
-            row_surf++;
-            }
         }
         else if (surf == SURFACE_X_MAX) {
           size = ny * nz * ng;
-          int row_surf = comm->mapLocalToSurface[ny*nz + nx*nz + nx*ny];
           for (int i=0; i < nz; i++)
-            for (int j=0; j < ny; j++) {
+            for (int j=0; j < ny; j++)
               for (int g=0; g < ng; g++)
-                comm->buffer[surf][ng * row_surf + g] =
+                comm->buffer[surf][ng*(i*ny+j)+g] =
                   curr_fluxes[ng*((i*ny + j)*nx + nx-1) + g];
-            row_surf++;
-            }
         }
         else if (surf == SURFACE_Y_MIN) {
           size = nx * nz * ng;
-          int row_surf = comm->mapLocalToSurface[ny*nz];
           for (int i=0; i < nz; i++)
-            for (int j=0; j < nx; j++) {
+            for (int j=0; j < nx; j++)
               for (int g=0; g < ng; g++)
-                comm->buffer[surf][ng * row_surf + g] =
+                comm->buffer[surf][ng*(i*nx+j)+g] =
                   curr_fluxes[ng*(i*nx*ny + j) + g];
-            row_surf++;
-            }
         }
         else if (surf == SURFACE_Y_MAX) {
           size = nx * nz * ng;
-          int row_surf = comm->mapLocalToSurface[2*ny*nz + nx*nz + nx*ny];
           for (int i=0; i < nz; i++)
-            for (int j=0; j < nx; j++) {
+            for (int j=0; j < nx; j++)
               for (int g=0; g < ng; g++)
-                comm->buffer[surf][ng * row_surf + g] =
+                comm->buffer[surf][ng*(i*nx+j)+g] =
                   curr_fluxes[ng*(i*nx*ny + j + nx*(ny-1)) + g];
-            row_surf++;
-            }
         }
         else if (surf == SURFACE_Z_MIN) {
           size = nx * ny * ng;
-          int row_surf = comm->mapLocalToSurface[ny*nz + nx*nz];
           for (int i=0; i < ny; i++)
-            for (int j=0; j < nx; j++) {
+            for (int j=0; j < nx; j++)
               for (int g=0; g < ng; g++)
-                comm->buffer[surf][ng * row_surf + g] =
+                comm->buffer[surf][ng*(i*nx+j)+g] =
                   curr_fluxes[ng*(i*nx + j)+g];
-            row_surf++;
-            }
         }
         else if (surf == SURFACE_Z_MAX) {
           size = nx * ny * ng;
-          int row_surf = comm->mapLocalToSurface[2*ny*nz + 2*nx*nz + nx*ny];
           for (int i=0; i < ny; i++)
-            for (int j=0; j < nx; j++) {
+            for (int j=0; j < nx; j++)
               for (int g=0; g < ng; g++)
-                comm->buffer[surf][ng * row_surf + g] =
+                comm->buffer[surf][ng*(i*nx+j)+g] =
                   curr_fluxes[ng*(i*nx + j + nx*ny*(nz-1)) + g];
-            row_surf++;
-            }
         }
 
         sizes[surf] = size;

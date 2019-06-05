@@ -1287,8 +1287,8 @@ void Cmfd::constructMatrices(int moc_iteration) {
 
   /* Zero the number of connections */
   if (_domain_communicator != NULL) {
-    int num_boundary_cells = _local_num_x * _local_num_z + _local_num_y *
-                             _local_num_z + _local_num_x * _local_num_y;
+    int num_boundary_cells = 2 * (_local_num_x * _local_num_z + _local_num_y *
+                             _local_num_z + _local_num_x * _local_num_y);
     for (int c=0; c<2; c++) {
       for (int ncg=0; ncg < num_boundary_cells * _num_cmfd_groups; ncg++) {
         _domain_communicator->num_connections[c][ncg] = 0;
@@ -1347,8 +1347,8 @@ void Cmfd::constructMatrices(int moc_iteration) {
         }
 
         /* If the cell is on a surface, find the index into the comm buffers */
-        if (on_surface) {log_printf(NODAL, "%d %d %d %d", i, _domain_communicator->mapLocalToSurface[i], neighbor_cells[2], neighbor_cells[5]);
-          domain_surface_index = _domain_communicator->mapLocalToSurface[i];}
+        if (on_surface)
+          domain_surface_index = _domain_communicator->mapLocalToSurface[i];
       }
 
       /* Loop over groups */
@@ -1399,7 +1399,6 @@ void Cmfd::constructMatrices(int moc_iteration) {
               if (neighbor_cells[s] != -1) {
                 int neighbor_cell = neighbor_cells[s];
                 int row = domain_surface_index * _num_cmfd_groups + e;
-                if (e==0) log_printf(NORMAL, "Index on surf %d", domain_surface_index);
                 int idx = _domain_communicator->num_connections[color][row];
                 value = - (dif_surf + sense * dif_surf_corr) * delta;
                 _domain_communicator->indexes[color][row][idx] = neighbor_cell;
@@ -3476,12 +3475,18 @@ void Cmfd::initialize() {
       int dir_sizes[3] = {num_cells / _local_num_x,  num_cells / _local_num_y,
                           num_cells / _local_num_z};
 
-      /* Output size of domain communicator */
-      int boundary_cells = dir_sizes[0] + dir_sizes[1] + dir_sizes[2];
-      float size = 2 * boundary_cells * ncg * (1 + 2 * NUM_FACES) * sizeof(int) +
-                   (2 * NUM_FACES * 2 * ncg * boundary_cells +
-                    2 * boundary_cells * ncg * NUM_FACES + NUM_FACES *
-                    4 * ncg * boundary_cells) * sizeof(CMFD_PRECISION);
+      /* Count total number of cells at all faces of the domain */
+      int num_per_side[3] = {_local_num_y * _local_num_z,
+                          _local_num_x * _local_num_z,
+                          _local_num_x * _local_num_y};
+      int num_boundary_cells = 0;
+      for (int s=0; s < NUM_FACES; s++)
+        num_boundary_cells += num_per_side[s % 3];
+
+      float size = 2 * num_boundary_cells * ncg * (1 + 2 * NUM_FACES) *
+                    sizeof(int) + (2 * NUM_FACES * 2 * ncg * num_boundary_cells
+                    + 2 * num_boundary_cells * ncg * NUM_FACES + NUM_FACES *
+                    4 * ncg * num_boundary_cells) * sizeof(CMFD_PRECISION);
       log_printf(INFO_ONCE, "CMFD domain communicator size per domain = %6.2f "
                  "MB", size / 1e6);
 
@@ -3495,12 +3500,13 @@ void Cmfd::initialize() {
       _domain_communicator->coupling_coeffs = new CMFD_PRECISION**[2];
       _domain_communicator->buffer = new CMFD_PRECISION*[NUM_FACES];
       for (int rb=0; rb<2; rb++) {
-        _domain_communicator->num_connections[rb] = new int[boundary_cells*ncg];
-        _domain_communicator->indexes[rb] = new int*[boundary_cells*ncg];
-        _domain_communicator->domains[rb] = new int*[boundary_cells*ncg];
+        _domain_communicator->num_connections[rb] = new
+              int[num_boundary_cells*ncg];
+        _domain_communicator->indexes[rb] = new int*[num_boundary_cells*ncg];
+        _domain_communicator->domains[rb] = new int*[num_boundary_cells*ncg];
         _domain_communicator->fluxes[rb] = new CMFD_PRECISION*[NUM_FACES];
         _domain_communicator->coupling_coeffs[rb] =
-                            new CMFD_PRECISION*[boundary_cells*ncg];
+                            new CMFD_PRECISION*[num_boundary_cells*ncg];
 
         for (int coord=0; coord < 3; coord++) {
           for (int d=0; d < 2; d++) {
@@ -3511,7 +3517,7 @@ void Cmfd::initialize() {
                                 new CMFD_PRECISION[2*dir_sizes[coord]*ncg];
           }
         }
-        for (int nsc=0; nsc < boundary_cells * ncg; nsc++) {
+        for (int nsc=0; nsc < num_boundary_cells * ncg; nsc++) {
           _domain_communicator->num_connections[rb][nsc] = 0;
           _domain_communicator->indexes[rb][nsc] = new int[NUM_FACES];
           _domain_communicator->domains[rb][nsc] = new int[NUM_FACES];
@@ -3520,11 +3526,6 @@ void Cmfd::initialize() {
         }
         _domain_communicator_allocated = true;
       }
-
-      int storage_per_cell = ((2 + NUM_FACES) * ncg + 1);
-      int num_per_side[3] = {_local_num_y * _local_num_z,
-                          _local_num_x * _local_num_z,
-                          _local_num_x * _local_num_y};
 
       /* Create map of continuous indexes for the domain's 6 faces : same
          order as the surfaces (XMIN=0, YMIN=1...) */
@@ -3566,11 +3567,8 @@ void Cmfd::initialize() {
         }
       }
 
-      /* Count total number of cells at all faces of the domain */
-      int num_boundary_cells = 0;
-      for (int s=0; s < NUM_FACES; s++)
-        num_boundary_cells += num_per_side[s % 3];
-
+      /* Allocate communication buffers for CMFD matrix construction */
+      int storage_per_cell = ((2 + NUM_FACES) * ncg + 1);
       int internal = ncg * num_boundary_cells;
       int comm_data_size = storage_per_cell * num_boundary_cells;
 

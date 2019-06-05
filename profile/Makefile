@@ -27,8 +27,8 @@ CMFD_PRECISION ?= single
 #case = models/load-geometry/load-geometry.cpp
 #case = models/simple-lattice/simple-lattice-3d.cpp
 #case = models/homogeneous/homogeneous.cpp
-#case ?= models/run_time_standard/run_time_standard.cpp
-case ?= models/assembly_1/load-assembly.cpp
+case ?= models/run_time_standard/run_time_standard.cpp
+#case ?= models/assembly_1/load-assembly.cpp
 #case ?= models/core/load-core.cpp
 
 source = \
@@ -86,7 +86,7 @@ load-geometry/load-full-core.cpp
 # Sets Flags
 #===============================================================================
 
-CFLAGS = -std=gnu++0x -g
+CFLAGS = -std=gnu++0x
 
 # Regular gcc Compiler
 ifeq ($(COMPILER),gnu)
