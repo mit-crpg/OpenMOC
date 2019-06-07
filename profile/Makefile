@@ -167,8 +167,8 @@ ifeq ($(CMFD_PRECISION),double)
   CFLAGS += -DCMFD_PRECISION=double -DLINALG_TOL=1E-15
 endif
 
-# Vector Flags
-CFLAGS += -DVEC_LENGTH=8
+# Vector Flags, take into account strip mining with VEC_LENGTH sized vectors
+CFLAGS += -DVEC_LENGTH=32
 CFLAGS += -DVEC_ALIGNMENT=32
 
 # Optimization Flags
