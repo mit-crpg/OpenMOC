@@ -1399,6 +1399,8 @@ void Cmfd::constructMatrices(int moc_iteration) {
               if (neighbor_cells[s] != -1) {
                 int neighbor_cell = neighbor_cells[s];
                 int row = domain_surface_index * _num_cmfd_groups + e;
+                //FIXME Make num_connections, indexes and domains array not
+                // group dependent
                 int idx = _domain_communicator->num_connections[color][row];
                 value = - (dif_surf + sense * dif_surf_corr) * delta;
                 _domain_communicator->indexes[color][row][idx] = neighbor_cell;
@@ -3460,6 +3462,7 @@ void Cmfd::initialize() {
     initializeMaterials();
     allocateTallies();
 
+#ifdef MPIx
     /* Initialize domain communicator */
     if (_domain_communicator != NULL) {
       _domain_communicator->stop = false;
@@ -3744,6 +3747,7 @@ void Cmfd::initialize() {
         }
       }
     }
+#endif
   }
   catch (std::exception &e) {
     log_printf(ERROR, "Could not allocate memory for the CMFD mesh objects. "

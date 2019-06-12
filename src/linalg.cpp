@@ -289,7 +289,7 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
                 else
                   x[row] += b[row];
               }
-
+#ifdef MPIx
               // Contribution of off node fluxes
               if (comm != NULL && on_surface) {
                 int row_surf = domain_surface_index * num_groups + g;
@@ -300,7 +300,7 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
                   x[row] -= coupling_coeffs[row_surf][i] * flux;
                 }
               }
-
+#endif
               // Perform these operations separately, for performance
               x[row] *= (SOR_factor / DIAG[row]);
             }
