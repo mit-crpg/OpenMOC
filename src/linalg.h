@@ -141,9 +141,6 @@ bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 void matrixMultiplication(Matrix* A, Vector* X, Vector* B);
 double computeRMSE(Vector* x, Vector* y, bool integrated,
                          DomainCommunicator* comm = NULL);
-void oldLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
-                    double SOR_factor=1.5,
-                    ConvergenceData* convergence_data = NULL);
 
 
 /**
@@ -163,23 +160,6 @@ inline void matrix_transpose(T* matrix, int dim1, int dim2) {
   }
 
   std::copy(temp.begin(), temp.end(), matrix);
-}
-
-
-inline int getSurfaceCellIndex(int nx, int ny, int nz, int i) {
-
-  if (i >= 2*ny*nz + 2*nx*nz + nx*ny)
-    return i - (2*ny*nz + 2*nx*nz + nx*ny);
-  else if (i >= 2*ny*nz + nx*nz + nx*ny)
-    return i - (2*ny*nz + nx*nz + nx*ny);
-  else if (i >= ny*nz + nx*nz + nx*ny)
-    return i - (ny*nz + nx*nz + nx*ny);
-  else if (i >= ny*nz + nx*nz)
-    return i - (ny*nz + nx*nz);
-  else if (i >= ny*nz)
-    return i - (ny*nz);
-  else
-    return i;
 }
 
 #endif /* LINALG_H_ */
