@@ -30,5 +30,21 @@ class TestCmfdParameters(unittest.TestCase):
         cmfd.setCentroidUpdateOn(True)
         self.assertEqual(cmfd.isCentroidUpdateOn(), True)
 
+    def test_cmfd_group_structure(self):
+
+        cmfd = openmoc.Cmfd()
+
+        # CMFD number of groups getter test
+        cmfd.setGroupStructure([[1, 2, 3], [4, 5]])
+        self.assertEqual(cmfd.getNumCmfdGroups(), 2)
+
+        # Check exception raising for non-monotonic group structure
+        with self.assertRaises(Exception): cmfd.setGroupStructure([[1, 2, 6],
+             [4, 5]])
+
+        # Check exception raising for non-continuous group structure
+        with self.assertRaises(Exception): cmfd.setGroupStructure([[1, 2, 3],
+             [6, 7]])
+
 if __name__ == '__main__':
     unittest.main()
