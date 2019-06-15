@@ -198,8 +198,8 @@ Cmfd::~Cmfd() {
     delete [] _diffusion_tally;
   }
 
+#ifdef MPIx
   /* De-allocate domain communicator */
-  int num_cells_local = _local_num_x * _local_num_y * _local_num_z;
   if (_domain_communicator != NULL) {
     if (_domain_communicator_allocated) {
       for (int rb=0; rb<2; rb++) {
@@ -239,6 +239,7 @@ Cmfd::~Cmfd() {
       delete [] _boundary_surface_currents;
     }
   }
+#endif
 
   for (long r=0; r < _axial_interpolants.size(); r++)
     delete [] _axial_interpolants.at(r);
@@ -4699,6 +4700,7 @@ int Cmfd::getCellColor(int cmfd_cell) {
  * @brief Packs reaction rates and currents into buffers for communication.
  * @details Buffer description is found in ghostCellExchange's docstring
  */
+#ifdef MPIx
 void Cmfd::packBuffers() {
 
   int current_idx[6] = {0,0,0,0,0,0};
@@ -4760,7 +4762,6 @@ void Cmfd::packBuffers() {
  *          is the serialized buffer corresponding to the number of 2D cells to
  *          exchange times the number of energy groups.
  */
-#ifdef MPIx
 void Cmfd::ghostCellExchange() {
 
   packBuffers();
@@ -4901,7 +4902,6 @@ void Cmfd::communicateSplits(bool faces) {
 
   unpackSplitCurrents(faces);
 }
-#endif
 
 
 /**
@@ -4995,6 +4995,7 @@ void Cmfd::unpackSplitCurrents(bool faces) {
     }
   }
 }
+#endif
 
 
 /**
