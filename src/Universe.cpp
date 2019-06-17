@@ -743,7 +743,7 @@ void Universe::calculateBoundaries() {
   Surface* surf;
   int halfspace;
 
-  /* Calculate the boundary condition at the minimum reachable x-coordinate in 
+  /* Calculate the boundary condition at the minimum reachable x-coordinate in
    * the Universe and store it in _min_x_bound */
   _min_x_bound = BOUNDARY_NONE;
 
@@ -774,8 +774,16 @@ void Universe::calculateBoundaries() {
   /* If a x-min boundary was not found, get the x-min from the bounding boxes
    * of the cells */
   if (min_x > FLT_INFINITY) {
-    for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
-      min_x = std::min(min_x, c_iter->second->getMinX());
+    double cell_min_x = min_x;
+    boundaryType cell_min_x_bound = BOUNDARY_NONE;
+    for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
+      cell_min_x = c_iter->second->getMinX();
+      cell_min_x_bound = c_iter->second->getMinXBoundaryType();
+      if (cell_min_x_bound != BOUNDARY_NONE && cell_min_x < min_x) {
+        min_x = cell_min_x;
+        _min_x_bound = cell_min_x_bound;
+      }
+    }
   }
 
   _min_x = min_x;
@@ -784,7 +792,7 @@ void Universe::calculateBoundaries() {
    * in _max_x */
   double max_x = -std::numeric_limits<double>::infinity();
 
-  /* Calculate the boundary condition at the maximum reachable x-coordinate in 
+  /* Calculate the boundary condition at the maximum reachable x-coordinate in
    * the Universe and store it in _max_x_bound */
   _max_x_bound = BOUNDARY_NONE;
 
@@ -815,8 +823,16 @@ void Universe::calculateBoundaries() {
   /* If a x-max boundary was not found, get the x-max from the bounding boxes
    * of the cells */
   if (max_x < -FLT_INFINITY) {
-    for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
-      max_x = std::max(max_x, c_iter->second->getMaxX());
+    double cell_max_x = max_x;
+    boundaryType cell_max_x_bound = BOUNDARY_NONE;
+    for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
+      cell_max_x = c_iter->second->getMaxX();
+      cell_max_x_bound = c_iter->second->getMaxXBoundaryType();
+      if (cell_max_x_bound != BOUNDARY_NONE && cell_max_x > max_x) {
+        max_x = cell_max_x;
+        _max_x_bound = cell_max_x_bound;
+      }
+    }
   }
 
   _max_x = max_x;
@@ -826,7 +842,7 @@ void Universe::calculateBoundaries() {
    * in _min_y */
   double min_y = std::numeric_limits<double>::infinity();
 
-  /* Calculate the boundary condition at the minimum reachable y-coordinate in 
+  /* Calculate the boundary condition at the minimum reachable y-coordinate in
    * the Universe and store it in _min_y_bound */
   _min_y_bound = BOUNDARY_NONE;
 
@@ -857,8 +873,16 @@ void Universe::calculateBoundaries() {
   /* If a y-min boundary was not found, get the y-min from the bounding boxes
    * of the cells */
   if (min_y > FLT_INFINITY) {
-    for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
-      min_y = std::min(min_y, c_iter->second->getMinY());
+    double cell_min_y = min_y;
+    boundaryType cell_min_y_bound = BOUNDARY_NONE;
+    for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
+      cell_min_y = c_iter->second->getMinY();
+      cell_min_y_bound = c_iter->second->getMinYBoundaryType();
+      if (cell_min_y_bound != BOUNDARY_NONE && cell_min_y < min_y) {
+        min_y = cell_min_y;
+        _min_y_bound = cell_min_y_bound;
+      }
+    }
   }
 
   _min_y = min_y;
@@ -867,7 +891,7 @@ void Universe::calculateBoundaries() {
    * in _max_y */
   double max_y = -std::numeric_limits<double>::infinity();
 
-  /* Calculate the boundary condition at the maximum reachable y-coordinate in 
+  /* Calculate the boundary condition at the maximum reachable y-coordinate in
    * the Universe and store it in _max_y_bound */
   _max_y_bound = BOUNDARY_NONE;
 
@@ -898,8 +922,16 @@ void Universe::calculateBoundaries() {
   /* If a y-max boundary was not found, get the y-max from the bounding boxes
    * of the cells */
   if (max_y < -FLT_INFINITY) {
-    for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
-      max_y = std::max(max_y, c_iter->second->getMaxY());
+    double cell_max_y = max_y;
+    boundaryType cell_max_y_bound = BOUNDARY_NONE;
+    for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
+      cell_max_y = c_iter->second->getMaxY();
+      cell_max_y_bound = c_iter->second->getMaxYBoundaryType();
+      if (cell_max_y_bound != BOUNDARY_NONE && cell_max_y > max_y) {
+        max_y = cell_max_y;
+        _max_y_bound = cell_max_y_bound;
+      }
+    }
   }
 
   _max_y = max_y;
@@ -939,8 +971,16 @@ void Universe::calculateBoundaries() {
   /* If a z-min boundary was not found, get the z-min from the bounding boxes
    * of the cells */
   if (min_z > FLT_INFINITY) {
-    for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
-      min_z = std::min(min_z, c_iter->second->getMinZ());
+    double cell_min_z = min_z;
+    boundaryType cell_min_z_bound = BOUNDARY_NONE;
+    for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
+      cell_min_z = c_iter->second->getMinZ();
+      cell_min_z_bound = c_iter->second->getMinZBoundaryType();
+      if (cell_min_z_bound != BOUNDARY_NONE && cell_min_z < min_z) {
+        min_z = cell_min_z;
+        _min_z_bound = cell_min_z_bound;
+      }
+    }
   }
 
   _min_z = min_z;
@@ -980,13 +1020,26 @@ void Universe::calculateBoundaries() {
   /* If a z-max boundary was not found, get the z-max from the bounding boxes
    * of the cells */
   if (max_z < -FLT_INFINITY) {
-    for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter)
-      max_z = std::max(max_z, c_iter->second->getMaxZ());
+    double cell_max_z = max_z;
+    boundaryType cell_max_z_bound = BOUNDARY_NONE;
+    for (c_iter = _cells.begin(); c_iter != _cells.end(); ++c_iter) {
+      cell_max_z = c_iter->second->getMaxZ();
+      cell_max_z_bound = c_iter->second->getMaxZBoundaryType();
+      if (cell_max_z_bound != BOUNDARY_NONE && cell_max_z > max_z) {
+        max_z = cell_max_z;
+        _max_z_bound = cell_max_z_bound;
+      }
+    }
   }
 
   _max_z = max_z;
-
   _boundaries_inspected = true;
+
+  // Fix Z bounds for 2D cases
+  if (_min_z > FLT_INFINITY)
+    _min_z = -std::numeric_limits<double>::infinity();
+  if (_max_z < -FLT_INFINITY)
+    _max_z = std::numeric_limits<double>::infinity();
 }
 
 
@@ -1313,7 +1366,7 @@ std::map<int, double> Lattice::getUniqueRadius
     for (int j = _universes.at(k).size()-1; j > -1;  j--) {
       for (int i = 0; i < _universes.at(k).at(j).size(); i++) {
         universe = _universes.at(k).at(j).at(i).second;
-        unique_radius[universe->getId()] = 
+        unique_radius[universe->getId()] =
           std::max(unique_radius[universe->getId()],
           sqrt(_widths_x[i]*_widths_x[i]/4.0 + _widths_y[j]*_widths_y[j]/4.0));
       }
@@ -1629,12 +1682,12 @@ void Lattice::subdivideCells(double max_radius) {
 
   /* Subdivide all Cells */
   for (iter = universes.begin(); iter != universes.end(); ++iter) {
-    log_printf(DEBUG, "univ_ID: %d, radius: %f, max_radius: %f", 
+    log_printf(DEBUG, "univ_ID: %d, radius: %f, max_radius: %f",
                iter->first, unique_radius[iter->first], max_radius);
 
-    /* If the  local universe equivalent radius is smaller than max_radius 
+    /* If the  local universe equivalent radius is smaller than max_radius
        parameter, over-ride it*/
-    iter->second->subdivideCells(std::min(unique_radius[iter->first], 
+    iter->second->subdivideCells(std::min(unique_radius[iter->first],
                                           max_radius));
   }
 }
@@ -1719,7 +1772,7 @@ bool Lattice::containsPoint(Point* point) {
  * @details This method first find the Lattice cell, then searches the
  *          Universe inside that Lattice cell. If LocalCoords is outside
  *          the bounds of the Lattice, this method will return NULL.
- * @param coords the LocalCoords of interest. Coordinates of coords and  
+ * @param coords the LocalCoords of interest. Coordinates of coords and
  *        lattice._offset share the same origin.
  * @return a pointer to the Cell this LocalCoord is in or NULL
  */
@@ -1740,7 +1793,7 @@ Cell* Lattice::findCell(LocalCoords* coords) {
     return NULL;
   }
 
-  /* Compute local position of Point in the next level Universe. The offset of 
+  /* Compute local position of Point in the next level Universe. The offset of
      Lattice should be considered. */
   double next_x = coords->getX()
                   - (getMinX() + _widths_x[lat_x]/2. + _accumulate_x[lat_x]);
@@ -1823,7 +1876,7 @@ double Lattice::minSurfaceDist(Point* point, double azim, double polar) {
 
   /* Get the min distance for Z PLANE  */
   double dist_z;
-  if (fabs(u_z) > FLT_EPSILON && 
+  if (fabs(u_z) > FLT_EPSILON &&
       _width_z != std::numeric_limits<double>::infinity()) {
     double plane_z = _accumulate_z[lat_z] + getMinZ();
     dist_z = (plane_z - point->getZ()) / u_z;
@@ -1886,7 +1939,7 @@ int Lattice::getLatY(Point* point) {
 
   /* Compute the y index for the Lattice cell this point is in */
   for (int i=0; i<_num_y; i++) {
-    if (dist_to_bottom >= _accumulate_y[i] && 
+    if (dist_to_bottom >= _accumulate_y[i] &&
       dist_to_bottom < _accumulate_y[i+1]) {
       lat_y = i;
       break;
@@ -1926,7 +1979,7 @@ int Lattice::getLatZ(Point* point) {
 
   /* Compute the y index for the Lattice cell this point is in */
   for (int i=0; i<_num_z; i++) {
-    if (dist_to_bottom >= _accumulate_z[i] && 
+    if (dist_to_bottom >= _accumulate_z[i] &&
         dist_to_bottom < _accumulate_z[i+1]) {
       lat_z = i;
       break;
@@ -1973,7 +2026,7 @@ std::string Lattice::toString() {
     for (int i=0; i<_num_z; i++)
       string << _widths_z[i] << "  ";
   }
-  else  
+  else
     string << ", x width = " << _width_x
            << ", y width = " << _width_y
            << ", z width = " << _width_z;
@@ -2046,7 +2099,7 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
   XPlane xplane(0.0);
   YPlane yplane(0.0);
   ZPlane zplane(0.0);
-  
+
   /* Bools indicating if point is on each surface */
   bool on_min_x, on_max_x, on_min_y, on_max_y, on_min_z, on_max_z;
 
@@ -2269,7 +2322,7 @@ int Lattice::getLatticeSurfaceOTF(int cell, double z, int surface_2D) {
  * @param widths_y y-direction widths of non-uniform meshes
  * @param widths_z z-direction widths of non-uniform meshes
  */
-void Lattice::setWidths(std::vector<double> widths_x, 
+void Lattice::setWidths(std::vector<double> widths_x,
                   std::vector<double> widths_y, std::vector<double> widths_z) {
   _non_uniform = true;
   _widths_x = widths_x;
@@ -2279,7 +2332,7 @@ void Lattice::setWidths(std::vector<double> widths_x,
 
 
 /**
- * @brief Set _widths_x, _widths_y, _widths_z for uniform case, compute 
+ * @brief Set _widths_x, _widths_y, _widths_z for uniform case, compute
  *        accumulate variables.
  */
 void Lattice::computeSizes() {

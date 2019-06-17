@@ -42,7 +42,7 @@ Geometry::Geometry() {
  * @brief Destructor clears FSR to Cells and Materials maps.
  */
 Geometry::~Geometry() {
-  
+
   /* Free all materials */
   if (_loaded_from_file) {
     std::map<int, Material*> materials = _root_universe->getAllMaterials();
@@ -50,7 +50,7 @@ Geometry::~Geometry() {
     for (iter = materials.begin(); iter != materials.end(); ++iter)
       delete iter->second;
   }
-  
+
   /* Free all surfaces */
   if (_loaded_from_file) {
     std::map<int, Surface*> surfaces = getAllSurfaces();
@@ -234,7 +234,7 @@ double Geometry::getMaxZ() {
 
 
 /**
- * @brief Returns the boundary conditions at the minimum x-coordinate in the 
+ * @brief Returns the boundary conditions at the minimum x-coordinate in the
  *        Geometry / domain if the geometry is domain-decomposed.
  * @return the boundary conditions for the minimum x-coordinate in the domain
  */
@@ -247,7 +247,7 @@ boundaryType Geometry::getMinXBoundaryType() {
 
 
 /**
- * @brief Returns the boundary conditions at the maximum x-coordinate in the 
+ * @brief Returns the boundary conditions at the maximum x-coordinate in the
  *        Geometry / domain if the geometry is domain-decomposed.
  * @return the boundary conditions for the maximum x-coordinate in the domain
  */
@@ -260,7 +260,7 @@ boundaryType Geometry::getMaxXBoundaryType() {
 
 
 /**
- * @brief Returns the boundary conditions at the minimum y-coordinate in the 
+ * @brief Returns the boundary conditions at the minimum y-coordinate in the
  *        Geometry / domain if the geometry is domain-decomposed.
  * @return the boundary conditions for the minimum y-coordinate in the domain
  */
@@ -273,7 +273,7 @@ boundaryType Geometry::getMinYBoundaryType() {
 
 
 /**
- * @brief Returns the boundary conditions at the maximum y-coordinate in the 
+ * @brief Returns the boundary conditions at the maximum y-coordinate in the
  *        Geometry / domain if the geometry is domain-decomposed.
  * @return the boundary conditions for the maximum y-coordinate in the domain
  */
@@ -286,7 +286,7 @@ boundaryType Geometry::getMaxYBoundaryType() {
 
 
 /**
- * @brief Returns the boundary conditions at the minimum z-coordinate in the 
+ * @brief Returns the boundary conditions at the minimum z-coordinate in the
  *        Geometry / domain if the geometry is domain-decomposed.
  * @return the boundary conditions for the minimum z-coordinate in the domain
  */
@@ -299,7 +299,7 @@ boundaryType Geometry::getMinZBoundaryType() {
 
 
 /**
- * @brief Returns the boundary conditions at the maximum z-coordinate in the 
+ * @brief Returns the boundary conditions at the maximum z-coordinate in the
  *        Geometry / domain if the geometry is domain-decomposed.
  * @return the boundary conditions for the maximum z-coordinate in the domain
  */
@@ -669,6 +669,68 @@ int Geometry::getNumYModules() {
  */
 int Geometry::getNumZModules() {
   return _num_modules_z;
+}
+
+
+/**
+ * @brief Take into account domain symmetries to reduce the problem domain.
+ * @param X_symmetry whether the domain is symmetric in X
+ * @param Y_symmetry whether the domain is symmetric in Y
+ * @param Z_symmetry whether the domain is symmetric in Z
+ */
+void Geometry::useSymmetry(bool X_symmetry, bool Y_symmetry, bool Z_symmetry) {
+
+  if (_root_universe->getCells().size() > 1)
+    log_printf(ERROR, "To take advantage of the problem symmetries, use a root"
+               " universe AND a root cell to contain the CSG.");
+
+#ifdef ONLYVACUUMBC
+  if (X_symmetry || Y_symmetry || Z_symmetry)
+    log_printf(ERROR, "Using symmetries requires reflective boundary conditions"
+               ", re-compile without the ONLYVACUUMBC flag.")
+#endif
+
+  if (X_symmetry) {
+    // Get center plane
+    double mid_x = (_root_universe->getMaxX() + _root_universe->getMinX()) / 2;
+    XPlane* symX = new XPlane(mid_x);
+    symX->setBoundaryType(REFLECTIVE);
+
+    // Add plane to root cell
+    Cell* root_cell = _root_universe->getCells().begin()->second;
+    root_cell->addSurface(+1, symX);
+    log_printf(NORMAL, "Using X symmetry to restrict domain to [%.3f %.3f] cm",
+                mid_x, _root_universe->getMaxX());
+  }
+
+  if (Y_symmetry) {
+    // Get center plane
+    double mid_y = (_root_universe->getMaxY() + _root_universe->getMinY()) / 2;
+    YPlane* symY = new YPlane(mid_y);
+    symY->setBoundaryType(REFLECTIVE);
+
+    // Add plane to root cell
+    Cell* root_cell = _root_universe->getCells().begin()->second;
+    root_cell->addSurface(+1, symY);
+    log_printf(NORMAL, "Using Y symmetry to restrict domain to [%.3f %.3f] cm",
+               mid_y, _root_universe->getMaxY());
+  }
+
+  if (Z_symmetry) {
+    // Get center planes
+    double mid_z = (_root_universe->getMaxZ() + _root_universe->getMinZ()) / 2;
+    ZPlane* symZ = new ZPlane(mid_z);
+    symZ->setBoundaryType(REFLECTIVE);
+
+    // Add plane to root cell
+    Cell* root_cell = _root_universe->getCells().begin()->second;
+    root_cell->addSurface(+1, symZ);
+    log_printf(NORMAL, "Using Z symmetry to restrict domain to [%.3f %.3f] cm",
+               mid_z, _root_universe->getMaxZ());
+  }
+
+  // Reset boundaries to trigger boundary calculation again
+  _root_universe->resetBoundaries();
 }
 
 
@@ -1741,7 +1803,7 @@ void Geometry::printToString(std::string& str, int& index, int value) {
 
 
 /**
- * @brief Generate a string FSR "key" for the FSR where the point reside in. A 
+ * @brief Generate a string FSR "key" for the FSR where the point reside in. A
           string FSR "key" identifies an FSR by its unique hierarchical
  *        lattice/universe/cell structure.
  * @details Since not all FSRs will reside on the absolute lowest universe
@@ -2271,7 +2333,7 @@ void Geometry::segmentizeExtruded(Track* flattened_track,
       curr = findNextCell(&end, phi);
 
       /* Checks that segment does not have the same start and end Points */
-      if (fabs(start.getX() - end.getX()) < FLT_EPSILON && 
+      if (fabs(start.getX() - end.getX()) < FLT_EPSILON &&
           fabs(start.getY() - end.getY()) < FLT_EPSILON)
         log_printf(ERROR, "Created segment with same start and end "
                    "point: x = %f, y = %f", start.getX(), start.getY());
@@ -2829,7 +2891,7 @@ std::vector<long> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
       else if (strcmp(plane, "xz") == 0)
         point = new LocalCoords(dim1[i], offset, dim2[j], true);
       else if (strcmp(plane, "yz") == 0)
-        point = new LocalCoords(offset, dim1[i], dim2[j], true); 
+        point = new LocalCoords(offset, dim1[i], dim2[j], true);
       else
         log_printf(ERROR, "Unable to extract spatial data for "
                           "unsupported plane %s", plane);
@@ -2908,7 +2970,7 @@ void Geometry::printString() {
 
 /**
  * @brief Prints FSR layout to file
- * @details This provides a way to get the functionality of the 
+ * @details This provides a way to get the functionality of the
  *              plot_flat_source_regions Python function without Python
  * @param plane The "xy", "xz", or "yz" plane in which to extract flat source
  *        regions
@@ -2919,7 +2981,7 @@ void Geometry::printString() {
  * @param bounds_z a two valued array for the plotted z-limits
  */
 void Geometry::printFSRsToFile(const char* plane, int gridsize, double offset,
-                               double* bounds_x, double* bounds_y, 
+                               double* bounds_x, double* bounds_y,
                                double* bounds_z) {
 
   /* Get geometry min and max */
@@ -3018,7 +3080,7 @@ void Geometry::printFSRsToFile(const char* plane, int gridsize, double offset,
     out << "[HEADER] FSR printout" << std::endl;
     out << "[HEADER] Plane = " << plane << std::endl;
     out << "[HEADER] Offset = " << offset << std::endl;
-    out << "[HEADER] Bounds = (" << dim1_min << ", " << dim1_max << ") x (" 
+    out << "[HEADER] Bounds = (" << dim1_min << ", " << dim1_max << ") x ("
         << dim2_min << ", " << dim2_max << ")" << std::endl;
     out << "[HEADER] Gridsize = " << gridsize << std::endl;
     for (int i=0; i < domain_data.size(); i++) {
@@ -3098,7 +3160,7 @@ void Geometry::initializeSpectrumCalculator(Cmfd* spectrum_calculator) {
 
   /* Setup the CMFD lattice with the domain dimensions */
   spectrum_calculator->setLatticeStructure(_num_domains_x, _num_domains_y,
-                                           _num_domains_z); 
+                                           _num_domains_z);
 
   /* Get the global Geometry boundary conditions */
   boundaryType min_x_bound = _root_universe->getMinXBoundaryType();
@@ -3143,7 +3205,7 @@ void Geometry::initializeSpectrumCalculator(Cmfd* spectrum_calculator) {
 
 #ifdef MPIx
   if (_domain_decomposed) {
-    spectrum_calculator->setNumDomains(_num_domains_x, _num_domains_y, 
+    spectrum_calculator->setNumDomains(_num_domains_x, _num_domains_y,
                                        _num_domains_z);
     spectrum_calculator->setDomainIndexes(_domain_index_x, _domain_index_y,
                                           _domain_index_z);

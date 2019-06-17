@@ -214,6 +214,7 @@ public:
   int getNumXModules();
   int getNumYModules();
   int getNumZModules();
+  void useSymmetry(bool X_symmetry, bool Y_symmetry, bool Z_symmetry);
 
   /* Get parameters */
   double getWidthX();
@@ -258,7 +259,7 @@ public:
   MPI_Comm getMPICart();
 #endif
 
-  /* Get CMFD parameters */
+  /* More complex getter methods */
   Cmfd* getCmfd();
   std::vector<std::string>& getFSRsToKeys();
   std::vector<int>& getFSRsToMaterialIDs();
@@ -282,7 +283,7 @@ public:
   int getNeighborDomain(int offset_x, int offset_y, int offset_z);
 #endif
 
-  /* Set CMFD parameters */
+  /* Setter methods */
   void setCmfd(Cmfd* cmfd);
   void setFSRCentroid(long fsr, Point* centroid);
   void setOverlaidMesh(double axial_mesh_height, int num_x=0,

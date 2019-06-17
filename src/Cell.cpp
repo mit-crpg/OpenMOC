@@ -398,6 +398,12 @@ double Cell::getMinX() {
       std::abs(min_x) == std::numeric_limits<double>::infinity())
     min_x = getParent()->getMinX();
 
+  /* If region has an infinite min_x, it could be that the fill contains the
+     boundaries */
+  if (_cell_type == FILL && _fill != NULL &&
+      std::abs(min_x) == std::numeric_limits<double>::infinity())
+    min_x = static_cast<Universe*>(_fill)->getMinX();
+
   return min_x;
 }
 
@@ -423,6 +429,12 @@ double Cell::getMaxX() {
   if (getParent() != NULL &&
       std::abs(max_x) == std::numeric_limits<double>::infinity())
     max_x = getParent()->getMaxX();
+
+  /* If region has an infinite max_x, it could be that the fill contains the
+     boundaries */
+  if (_cell_type == FILL && _fill != NULL &&
+      std::abs(max_x) == std::numeric_limits<double>::infinity())
+    max_x = static_cast<Universe*>(_fill)->getMaxX();
 
   return max_x;
 }
@@ -450,6 +462,12 @@ double Cell::getMinY() {
       std::abs(min_y) == std::numeric_limits<double>::infinity())
     min_y = getParent()->getMinY();
 
+  /* If region has an infinite min_y, it could be that the fill contains the
+     boundaries */
+  if (_cell_type == FILL && _fill != NULL &&
+      std::abs(min_y) == std::numeric_limits<double>::infinity())
+    min_y = static_cast<Universe*>(_fill)->getMinY();
+
   return min_y;
 }
 
@@ -475,6 +493,12 @@ double Cell::getMaxY() {
   if (getParent() != NULL &&
       std::abs(max_y) == std::numeric_limits<double>::infinity())
     max_y = getParent()->getMaxY();
+
+  /* If region has an infinite max_y, it could be that the fill contains the
+     boundaries */
+  if (_cell_type == FILL && _fill != NULL &&
+      std::abs(max_y) == std::numeric_limits<double>::infinity())
+    max_y = static_cast<Universe*>(_fill)->getMaxY();
 
   return max_y;
 }
@@ -502,6 +526,12 @@ double Cell::getMinZ() {
       std::abs(min_z) == std::numeric_limits<double>::infinity())
     min_z = getParent()->getMinZ();
 
+  /* If region has an infinite min_z, it could be that the fill contains the
+     boundaries */
+  if (_cell_type == FILL && _fill != NULL &&
+      std::abs(min_z) == std::numeric_limits<double>::infinity())
+    min_z = static_cast<Universe*>(_fill)->getMinZ();
+
   return min_z;
 }
 
@@ -528,6 +558,12 @@ double Cell::getMaxZ() {
       std::abs(max_z) == std::numeric_limits<double>::infinity())
     max_z = getParent()->getMaxZ();
 
+  /* If region has an infinite max_z, it could be that the fill contains the
+     boundaries */
+  if (_cell_type == FILL && _fill != NULL &&
+      std::abs(max_z) == std::numeric_limits<double>::infinity())
+    max_z = static_cast<Universe*>(_fill)->getMaxZ();
+
   return max_z;
 }
 
@@ -550,6 +586,11 @@ boundaryType Cell::getMinXBoundaryType() {
      is in the Parent cell's region */
   if (getParent() != NULL && boundary == BOUNDARY_NONE)
     boundary = getParent()->getMinXBoundaryType();
+
+  /* If no boundary was found in the region, it may be that the boundary
+     is defined in the cell's fill */
+  if (_cell_type == FILL && _fill != NULL && boundary == BOUNDARY_NONE)
+    boundary = static_cast<Universe*>(_fill)->getMinXBoundaryType();
 
   return boundary;
 }
@@ -574,6 +615,11 @@ boundaryType Cell::getMaxXBoundaryType() {
   if (getParent() != NULL && boundary == BOUNDARY_NONE)
     boundary = getParent()->getMaxXBoundaryType();
 
+  /* If no boundary was found in the region, it may be that the boundary
+     is defined in the cell's fill */
+  if (_cell_type == FILL && _fill != NULL && boundary == BOUNDARY_NONE)
+    boundary = static_cast<Universe*>(_fill)->getMaxXBoundaryType();
+
   return boundary;
 }
 
@@ -596,6 +642,11 @@ boundaryType Cell::getMinYBoundaryType() {
      is in the Parent cell's region */
   if (getParent() != NULL && boundary == BOUNDARY_NONE)
     boundary = getParent()->getMinYBoundaryType();
+
+  /* If no boundary was found in the region, it may be that the boundary
+     is defined in the cell's fill */
+  if (_cell_type == FILL && _fill != NULL && boundary == BOUNDARY_NONE)
+    boundary = static_cast<Universe*>(_fill)->getMinYBoundaryType();
 
   return boundary;
 }
@@ -620,6 +671,11 @@ boundaryType Cell::getMaxYBoundaryType() {
   if (getParent() != NULL && boundary == BOUNDARY_NONE)
     boundary = getParent()->getMaxYBoundaryType();
 
+  /* If no boundary was found in the region, it may be that the boundary
+     is defined in the cell's fill */
+  if (_cell_type == FILL && _fill != NULL && boundary == BOUNDARY_NONE)
+    boundary = static_cast<Universe*>(_fill)->getMaxYBoundaryType();
+
   return boundary;
 }
 
@@ -642,6 +698,11 @@ boundaryType Cell::getMinZBoundaryType() {
      is in the Parent cell's region */
   if (getParent() != NULL && boundary == BOUNDARY_NONE)
     boundary = getParent()->getMinZBoundaryType();
+
+  /* If no boundary was found in the region, it may be that the boundary
+     is defined in the cell's fill */
+  if (_cell_type == FILL && _fill != NULL && boundary == BOUNDARY_NONE)
+      boundary = static_cast<Universe*>(_fill)->getMinZBoundaryType();
 
   return boundary;
 }
@@ -666,9 +727,13 @@ boundaryType Cell::getMaxZBoundaryType() {
   if (getParent() != NULL && boundary == BOUNDARY_NONE)
     boundary = getParent()->getMaxZBoundaryType();
 
+  /* If no boundary was found in the region, it may be that the boundary
+     is defined in the cell's fill */
+  if (_cell_type == FILL && _fill != NULL && boundary == BOUNDARY_NONE)
+      boundary = static_cast<Universe*>(_fill)->getMaxZBoundaryType();
+
   return boundary;
 }
-
 
 
 /**
@@ -1080,7 +1145,7 @@ void Cell::addSurface(int halfspace, Surface* surface) {
   * @param surface a pointer to the Surface
   */
  void Cell::addSurfaceInRegion(int halfspace, Surface* surface) {
- 
+
    /* Create a new halfspace */
    Halfspace* new_halfspace = new Halfspace(halfspace, surface);
 
@@ -1116,7 +1181,7 @@ void Cell::removeSurface(Surface* surface) {
   * @param region_type the logical operation
   */
  void Cell::addLogicalNode(int region_type) {
- 
+
    /* Create new region if void */
    if (_region == NULL) {
      if (region_type == INTERSECTION) {
@@ -1364,8 +1429,8 @@ void Cell::sectorize(std::vector<Cell*>& subcells) {
         sector->addSurface(-1, planes.at(0));
     }
     else {
-      /* For _num_sectors==2, planes[0] and planes[1] are actually the same but 
-         opposite direction, so the two adjacent sectors will have the same 
+      /* For _num_sectors==2, planes[0] and planes[1] are actually the same but
+         opposite direction, so the two adjacent sectors will have the same
          Halfspace value, which will cause trouble when a point is on the plane.
          This is to avoid this trouble. */
       int halfspace = (i==0? +1 : -1);
@@ -1672,7 +1737,7 @@ std::string Cell::toString() {
   std::map<int, Halfspace*> _surfaces = getSurfaces();
   string << ", Surfaces: ";
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    string << std::showpos << "\nhalfspace = " << iter->second->_halfspace 
+    string << std::showpos << "\nhalfspace = " << iter->second->_halfspace
            << ", " << iter->second->_surface->toString();
 
   return string.str();
