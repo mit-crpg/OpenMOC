@@ -31,6 +31,7 @@ Geometry::Geometry() {
   _domain_index_x = 1;
   _domain_index_y = 1;
   _domain_index_z = 1;
+  _symmetries.resize(3);
   _domain_FSRs_counted = false;
   _contains_FSR_centroids = false;
   _twiddle = false;
@@ -690,6 +691,11 @@ void Geometry::useSymmetry(bool X_symmetry, bool Y_symmetry, bool Z_symmetry) {
                ", re-compile without the ONLYVACUUMBC flag.")
 #endif
 
+  // Keep track of symmetries used
+  _symmetries[0] = X_symmetry;
+  _symmetries[1] = Y_symmetry;
+  _symmetries[2] = Z_symmetry;
+
   if (X_symmetry) {
     // Get center plane
     double mid_x = (_root_universe->getMaxX() + _root_universe->getMinX()) / 2;
@@ -731,6 +737,15 @@ void Geometry::useSymmetry(bool X_symmetry, bool Y_symmetry, bool Z_symmetry) {
 
   // Reset boundaries to trigger boundary calculation again
   _root_universe->resetBoundaries();
+}
+
+
+/**
+ * @brief Get the symmetries used to restrict the domain
+ * @return _symmetries pointer to an array containing the symmetries used
+ */
+std::vector<bool> Geometry::getSymmetries() {
+  return _symmetries;
 }
 
 

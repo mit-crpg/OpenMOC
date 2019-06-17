@@ -183,21 +183,24 @@ private:
   std::vector<long> _num_domain_FSRs;
 
 #ifdef MPIx
-  /* MPI communicator, used to transfer information across domain for both 
+  /* MPI communicator, used to transfer information across domain for both
    * ray-tracing and solving the MOC equations */
   MPI_Comm _MPI_cart;
 #endif
 
-  /* Number of modular track laydowns within a domain, in the X, Y and 
+  /* Number of modular track laydowns within a domain, in the X, Y and
      Z directions */
   int _num_modules_x;
   int _num_modules_y;
   int _num_modules_z;
 
+  /* Symmetries in X,Y and Z axis used to restrict the computation domain */
+  std::vector<bool> _symmetries;
+
   /* Wether to read bites backwards or forward (for BGQ) */
   bool _twiddle;
 
-  /* Whether the geometry was loaded from a .geo file or created in the input 
+  /* Whether the geometry was loaded from a .geo file or created in the input
    * file. This matters for memory de-allocation purposes. */
   bool _loaded_from_file;
 
@@ -214,7 +217,10 @@ public:
   int getNumXModules();
   int getNumYModules();
   int getNumZModules();
+
+  /* Handle symmetry axis used to restrict the computation domain */
   void useSymmetry(bool X_symmetry, bool Y_symmetry, bool Z_symmetry);
+  std::vector<bool> getSymmetries();
 
   /* Get parameters */
   double getWidthX();
@@ -322,8 +328,8 @@ public:
                                          const char* domain_type);
   std::string toString();
   void printString();
-  void printFSRsToFile(const char* plane="xy", int gridsize=1000, 
-                       double offset=0.0, double* bounds_x = NULL, 
+  void printFSRsToFile(const char* plane="xy", int gridsize=1000,
+                       double offset=0.0, double* bounds_x = NULL,
                        double* bounds_y = NULL, double* bounds_z = NULL);
 
   void initializeCmfd();
