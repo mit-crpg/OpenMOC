@@ -220,7 +220,7 @@ public:
 
   /* Handle symmetry axis used to restrict the computation domain */
   void useSymmetry(bool X_symmetry, bool Y_symmetry, bool Z_symmetry);
-  std::vector<bool> getSymmetries();
+  bool getSymmetry(int axis);
 
   /* Get parameters */
   double getWidthX();

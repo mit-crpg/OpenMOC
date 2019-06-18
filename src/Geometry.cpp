@@ -31,7 +31,7 @@ Geometry::Geometry() {
   _domain_index_x = 1;
   _domain_index_y = 1;
   _domain_index_z = 1;
-  _symmetries.resize(3);
+  _symmetries.resize(3, false);
   _domain_FSRs_counted = false;
   _contains_FSR_centroids = false;
   _twiddle = false;
@@ -742,10 +742,10 @@ void Geometry::useSymmetry(bool X_symmetry, bool Y_symmetry, bool Z_symmetry) {
 
 /**
  * @brief Get the symmetries used to restrict the domain
- * @return _symmetries pointer to an array containing the symmetries used
+ * @return a boolean indicating if the symmetry along this axis is used
  */
-std::vector<bool> Geometry::getSymmetries() {
-  return _symmetries;
+bool Geometry::getSymmetry(int axis) {
+  return _symmetries[axis];
 }
 
 
@@ -3151,9 +3151,8 @@ void Geometry::initializeCmfd() {
   else
     offset.setZ(0.);
 
-  _cmfd->initializeLattice(&offset);
-
   _cmfd->setGeometry(this);
+  _cmfd->initializeLattice(&offset);
 
 #ifdef MPIx
   if (_domain_decomposed) {

@@ -837,7 +837,6 @@ void Universe::calculateBoundaries() {
 
   _max_x = max_x;
 
-
   /* Calculate the minimum reachable y-coordinate in the geometry and store it
    * in _min_y */
   double min_y = std::numeric_limits<double>::infinity();

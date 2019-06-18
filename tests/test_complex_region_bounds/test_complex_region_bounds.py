@@ -18,6 +18,13 @@ class ComplexRegionBoundsTestHarness(TestHarness):
 
     def _run_openmoc(self):
         """Instantiate a complex region Geometry."""
+#                                ----------------
+#                              /                 \
+#             --------------- c2 (p22,p23) - u2 - c2a (p11)
+#           /               /
+#  u_r <- c_r (p1,p2) - u1 - c1 (p11,p12,p13)
+#           \             \
+#            ------------- c3
         root_universe = openmoc.Universe(name='root universe')
         root_cell = openmoc.Cell(name='root cell')
         u1 = openmoc.Universe(name='universe 1')
@@ -102,7 +109,7 @@ class ComplexRegionBoundsTestHarness(TestHarness):
 
     def _generate_tracks(self):
         pass
-        
+
     def _create_solver(self):
         pass
 
@@ -117,7 +124,7 @@ class ComplexRegionBoundsTestHarness(TestHarness):
         # Read the file into a list of strings for each line
         with open(logfilename[0], 'r') as myfile:
             lines = myfile.readlines()
-        
+
         # Concatenate all strings in the file into a single string
         # Exclude the first line which is the time and date
         outstr = ''.join(lines[1:])

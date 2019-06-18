@@ -3671,8 +3671,7 @@ void Cmfd::initializeLattice(Point* offset, bool is_2D) {
   }
 
   /* Handle use of X,Y and Z symmetries */
-  std::vector<bool> symmetries = _geometry->getSymmetries();
-  if (symmetries[0]) {
+  if (_geometry->getSymmetry(0)) {
 
     // Compute current width of CMFD mesh
     double width_x = 0;
@@ -3681,7 +3680,7 @@ void Cmfd::initializeLattice(Point* offset, bool is_2D) {
 
     // If CMFD mesh was meant for full geometry, adapt it
     if (std::abs(width_x - _width_x * 2) < FLT_EPSILON) {
-      if (initial_size % 2 == 0)
+      if (_cell_widths_x.size() % 2 == 0)
         _cell_widths_x.resize(_cell_widths_x.size() / 2);
       else {
         _cell_widths_x.resize(_cell_widths_x.size() / 2 + 1);
@@ -3689,7 +3688,7 @@ void Cmfd::initializeLattice(Point* offset, bool is_2D) {
       }
     }
   }
-  if (symmetries[1]) {
+  if (_geometry->getSymmetry(1)) {
 
     // Compute current width of CMFD mesh
     double width_y = 0;
@@ -3698,7 +3697,7 @@ void Cmfd::initializeLattice(Point* offset, bool is_2D) {
 
     // If CMFD mesh was meant for full geometry, adapt it
     if (std::abs(width_y - _width_y * 2) < FLT_EPSILON) {
-      if (initial_size % 2 == 0)
+      if (_cell_widths_y.size() % 2 == 0)
         _cell_widths_y.resize(_cell_widths_y.size() / 2);
       else {
         _cell_widths_y.resize(_cell_widths_y.size() / 2 + 1);
@@ -3706,7 +3705,7 @@ void Cmfd::initializeLattice(Point* offset, bool is_2D) {
       }
     }
   }
-  if (symmetries[2]) {
+  if (_geometry->getSymmetry(2)) {
 
     // Compute current width of CMFD mesh
     double width_z = 0;
@@ -3715,7 +3714,7 @@ void Cmfd::initializeLattice(Point* offset, bool is_2D) {
 
     // If CMFD mesh was meant for full geometry, adapt it
     if (std::abs(width_z - _width_z * 2) < FLT_EPSILON) {
-      if (initial_size % 2 == 0)
+      if (_cell_widths_z.size() % 2 == 0)
         _cell_widths_z.resize(_cell_widths_z.size() / 2);
       else {
         _cell_widths_z.resize(_cell_widths_z.size() / 2 + 1);
