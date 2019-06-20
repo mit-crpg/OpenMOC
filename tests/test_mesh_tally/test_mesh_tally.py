@@ -19,7 +19,7 @@ class MeshTallyTestHarness(TestHarness):
 
     def __init__(self):
         super(MeshTallyTestHarness, self).__init__()
-        self.input_set = SimpleLatticeInput()
+        self.input_set = SimpleLatticeInput(3)
 
         # Change spacing to avoid having rays start on lattice planes
         # Those rays are problematic because they cross through fuel pins
@@ -42,16 +42,29 @@ class MeshTallyTestHarness(TestHarness):
 
         # List reaction rates wanted
         rxn_types = OrderedDict(
-            {'flux'      : {openmoc.FLUX_RX},
-             'total'     : {openmoc.TOTAL_RX},
-             'fission'   : {openmoc.FISSION_RX},
-             'nu-fission': {openmoc.NUFISSION_RX},
-             'absorption': {openmoc.ABSORPTION_RX}})
+            {'flux'      : openmoc.FLUX_RX,
+             'total'     : openmoc.TOTAL_RX,
+             'fission'   : openmoc.FISSION_RX,
+             'nu-fission': openmoc.NUFISSION_RX,
+             'absorption': openmoc.ABSORPTION_RX})
 
-        # Tally volume-averaged OpenMOC rates on the Mesh
+        # Tally volume-integrated OpenMOC rates on the Mesh
         tallies = OrderedDict()
         for rxn, rxn_type in rxn_types.items():
-            tallies[rxn] = mesh.getReactionRates(rxn_type.pop())
+            tallies[rxn] = mesh.getReactionRates(rxn_types[rxn])
+
+        # Test defining a lattice from Python
+        lattice = openmoc.Lattice()
+        lattice.setNumX(4)
+        lattice.setNumY(4)
+        lattice.setNumZ(1)
+        lattice.setWidth(10, 10, 1)
+        lattice.computeSizes()
+        mesh.setLattice(lattice)
+
+        # Tally volume-averaged OpenMOC rates on the Mesh
+        for rxn, rxn_type in rxn_types.items():
+            tallies[rxn+"-ave"] = mesh.getReactionRates(rxn_types[rxn], True)
 
         # Append reaction rates to the output string
         outstr = ''
