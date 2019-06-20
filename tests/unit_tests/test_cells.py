@@ -11,7 +11,6 @@ class TestCells(unittest.TestCase):
 
     def setUp(self):
         self.cell = openmoc.Cell(id=12, name="test cell")
-        self.cell.printString()
 
     def test_getters(self):
 
@@ -27,6 +26,7 @@ class TestCells(unittest.TestCase):
         openmoc.maximize_cell_id(10000000)
         cell_3 = openmoc.Cell()
         self.assertEqual(cell_3.getId(), 10000000)
+        self.cell.printString()
 
     def test_volume(self):
 

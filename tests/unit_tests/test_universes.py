@@ -13,7 +13,6 @@ class TestUniverse(unittest.TestCase):
         self.universe = openmoc.Universe(id=12, name="test universe")
         self.cell = openmoc.Cell(name="test cell")
         self.universe.addCell(self.cell)
-        self.universe.printString()
 
     def test_getters(self):
 
@@ -37,6 +36,7 @@ class TestUniverse(unittest.TestCase):
                          self.cell.getId())
         self.universe.removeCell(self.cell)
         self.assertEqual(self.universe.getNumCells(), 0)
+        self.universe.printString()
 
     def test_clone(self):
 
