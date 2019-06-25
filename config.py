@@ -83,7 +83,7 @@ class configuration:
     # that the number of energy groups is be fit too a multiple of this
     # vector_length, and restructuring the innermost loops in the solver to
     # loop from 0 to the vector length
-    vector_length = 8
+    vector_length = 32
 
     # The vector alignment used in the VectorizedSolver class when allocating
     # aligned data structures using MM_MALLOC and MM_FREE
