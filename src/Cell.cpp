@@ -378,7 +378,6 @@ int Cell::getNumSectors() {
 
 /**
  * @brief Return the minimum reachable x-coordinate in the Cell.
- * @param search_fill whether to search the fill universe (default=true)
  * @return the minimum x-coordinate
  */
 double Cell::getMinX() {
@@ -405,7 +404,6 @@ double Cell::getMinX() {
 
 /**
  * @brief Return the maximum reachable x-coordinate in the Cell.
- * @param search_fill whether to search the fill universe (default=true)
  * @return the maximum x-coordinate
  */
 double Cell::getMaxX() {
@@ -432,7 +430,6 @@ double Cell::getMaxX() {
 
 /**
  * @brief Return the minimum reachable y-coordinate in the Cell.
- * @param search_fill whether to search the fill universe (default=true)
  * @return the minimum y-coordinate
  */
 double Cell::getMinY() {
@@ -459,7 +456,6 @@ double Cell::getMinY() {
 
 /**
  * @brief Return the maximum reachable y-coordinate in the Cell.
- * @param search_fill whether to search the fill universe (default=true)
  * @return the maximum y-coordinate
  */
 double Cell::getMaxY() {
@@ -486,7 +482,6 @@ double Cell::getMaxY() {
 
 /**
  * @brief Return the minimum reachable z-coordinate in the Cell.
- * @param search_fill whether to search the fill universe (default=true)
  * @return the minimum z-coordinate
  */
 double Cell::getMinZ() {
@@ -513,7 +508,6 @@ double Cell::getMinZ() {
 
 /**
  * @brief Return the maximum reachable z-coordinate in the Cell.
- * @param search_fill whether to search the fill universe (default=true)
  * @return the maximum z-coordinate
  */
 double Cell::getMaxZ() {
@@ -541,7 +535,6 @@ double Cell::getMaxZ() {
 /**
  * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
  *        the minimum reachable x-coordinate in the Cell.
- * @param search_fill whether to search the fill universe (default=true)
  * @return the boundary condition at the minimum x-coordinate
  */
 boundaryType Cell::getMinXBoundaryType() {
@@ -565,7 +558,6 @@ boundaryType Cell::getMinXBoundaryType() {
 /**
  * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
  *        the maximum reachable x-coordinate in the Cell.
- * @param search_fill whether to search the fill universe (default=true)
  * @return the boundary condition at the maximum x-coordinate
  */
 boundaryType Cell::getMaxXBoundaryType() {
@@ -589,7 +581,6 @@ boundaryType Cell::getMaxXBoundaryType() {
 /**
  * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
  *        the minimum reachable y-coordinate in the Cell.
- * @param search_fill whether to search the fill universe (default=true)
  * @return the boundary condition at the minimum y-coordinate
  */
 boundaryType Cell::getMinYBoundaryType() {
@@ -613,7 +604,6 @@ boundaryType Cell::getMinYBoundaryType() {
 /**
  * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
  *        the maximum reachable y-coordinate in the Cell.
- * @param search_fill whether to search the fill universe (default=true)
  * @return the boundary condition at the maximum y-coordinate
  */
 boundaryType Cell::getMaxYBoundaryType() {
@@ -637,7 +627,6 @@ boundaryType Cell::getMaxYBoundaryType() {
 /**
  * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
  *        the minimum reachable z-coordinate in the Cell.
- * @param search_fill whether to search the fill universe (default=true)
  * @return the boundary condition at the minimum z-coordinate
  */
 boundaryType Cell::getMinZBoundaryType() {
@@ -661,7 +650,6 @@ boundaryType Cell::getMinZBoundaryType() {
 /**
  * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
  *        the maximum reachable z-coordinate in the Cell.
- * @param search_fill whether to search the fill universe (default=true)
  * @return the boundary condition at the maximum z-coordinate
  */
 boundaryType Cell::getMaxZBoundaryType() {
