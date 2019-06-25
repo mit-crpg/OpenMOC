@@ -2559,15 +2559,18 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
 #endif
 
   // Output the extruded FSR storage requirement
-  long max_number_fsrs_in_stack = total_number_fsrs_in_stack;
+  float size = total_number_fsrs_in_stack * (sizeof(double) + sizeof(long) +
+             sizeof(Material*)) + _extruded_FSR_keys_map.size() * (sizeof(
+             _extruded_FSR_keys_map.keys()[0]) + sizeof(ExtrudedFSR) +
+             (LOCAL_COORDS_LEN + 1) * sizeof(LocalCoords));
+  float max_size = size;
 #ifdef MPIX
     if (isDomainDecomposed())
-      MPI_Allreduce(&total_number_fsrs_in_stack, &max_number_fsrs_in_stack, 1,
-                    MPI_LONG, MPI_MAX, _MPI_cart);
+      MPI_Allreduce(&size, &max_size, 1, MPI_FLOAT, MPI_MAX, _MPI_cart);
 #endif
+
   log_printf(INFO_ONCE, "Max storage for extruded FSRs per domain = %.2f MB",
-             max_number_fsrs_in_stack * (sizeof(double) + sizeof(long) +
-             sizeof(Material*)) / float(1e6));
+             max_size / float(1e6));
 
   /* Re-order FSR IDs so they are sequential in the axial direction */
   reorderFSRIDs();
@@ -2689,7 +2692,7 @@ void Geometry::initializeFSRVectors() {
   if (isDomainDecomposed())
     MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX, _MPI_cart);
 #endif
-  log_printf(INFO, "Max FSR, maps and data, storage per domain = %.2f MB",
+  log_printf(INFO_ONCE, "Max FSR, maps and data, storage per domain = %.2f MB",
              max_size / float(1e6));
 
   /* Check if extruded FSRs are present */

@@ -852,7 +852,7 @@ void Solver::initializeFSRs() {
  */
 void Solver::countFissionableFSRs() {
 
-  log_printf(INFO, "Counting fissionable FSRs...");
+  log_printf(INFO_ONCE, "Counting fissionable FSRs...");
 
   /* Count the number of fissionable FSRs */
   _num_fissionable_FSRs = 0;
@@ -1114,7 +1114,7 @@ void Solver::initializeFixedSources() {
  */
 void Solver::initializeCmfd() {
 
-  log_printf(INFO, "Initializing CMFD...");
+  log_printf(INFO_ONCE, "Initializing CMFD...");
 
   /* Retrieve CMFD from the Geometry */
   _cmfd = _geometry->getCmfd();

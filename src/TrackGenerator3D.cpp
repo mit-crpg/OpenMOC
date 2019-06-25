@@ -1610,7 +1610,7 @@ void TrackGenerator3D::allocateTemporarySegments() {
   double max_size_mb = (double) (max_size * _num_threads * sizeof(segment)) 
       / (double) (1e6);
  
-  log_printf(INFO, "Max temporary segment storage per domain = %6.2f MB",
+  log_printf(INFO_ONCE, "Max temporary segment storage per domain = %6.2f MB",
              max_size_mb);
 
   /* Allocate new temporary segments */
@@ -1640,7 +1640,7 @@ void TrackGenerator3D::allocateTemporaryTracks() {
   /* Report memory usage */ 
   double size_mb = (double) (_num_threads * _max_num_tracks_per_stack
         * sizeof(Track3D)) / (double) 1e6;
-  log_printf(INFO, "Temporary Track storage per domain = %6.2f MB",
+  log_printf(INFO_ONCE, "Temporary Track storage per domain = %6.2f MB",
              size_mb);
 
   /* Allocate new temporary tracks arrays */

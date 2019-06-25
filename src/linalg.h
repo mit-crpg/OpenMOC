@@ -105,6 +105,9 @@ struct DomainCommunicator {
   /* Buffer for sending/receiving fluxes to/from connecting neighbors */
   CMFD_PRECISION** buffer;
 
+  /* Map to the index of the boundary elements */
+  std::map<int, int> mapLocalToSurface;
+
   int num_groups;
   bool stop;
 #ifdef MPIx
@@ -138,9 +141,6 @@ bool ddLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 void matrixMultiplication(Matrix* A, Vector* X, Vector* B);
 double computeRMSE(Vector* x, Vector* y, bool integrated,
                          DomainCommunicator* comm = NULL);
-void oldLinearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
-                    double SOR_factor=1.5,
-                    ConvergenceData* convergence_data = NULL);
 
 
 /**
