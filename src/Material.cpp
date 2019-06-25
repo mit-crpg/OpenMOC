@@ -1002,6 +1002,9 @@ void Material::alignData() {
     log_printf(ERROR, "Unable to align Material %d data since the "
                "cross-sections have not yet been set\n", _id);
 
+  if (_fiss_matrix == NULL)
+    buildFissionMatrix();
+
   _num_vector_groups = _num_groups / VEC_LENGTH + (_num_groups % VEC_LENGTH != 0);
 
   /* Allocate memory for the new aligned xs data */
@@ -1012,6 +1015,7 @@ void Material::alignData() {
   FP_PRECISION* new_sigma_f = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
   FP_PRECISION* new_nu_sigma_f=(FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
   FP_PRECISION* new_chi = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+  //FIXME Sigma_a is not copied
 
   /* The fission and scattering matrices will be the number of vector
    * groups wide (SIMD) and the actual number of groups long since
