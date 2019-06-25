@@ -49,17 +49,19 @@ void Region::removeHalfspace(Surface* surface, int halfspace) {
     std::vector<Region*>::iterator iter1;
 
     /* Loop through nodes in region to check for the same Halfspace */
-    for (iter1 = _nodes.begin(); iter1 != _nodes.end(); iter1++) {
+    for ( ; iter1 != _nodes.end();) {
 
         if (dynamic_cast<Halfspace*>(*iter1)) {
           Halfspace* iter2 = dynamic_cast<Halfspace*>(*iter1);
           if (iter2->getSurface()->getId() == surface->getId() && 
               iter2->getHalfspace() == halfspace) {
 
-            delete iter2;
+            //delete iter2; FIXME Memory leak
             _nodes.erase(iter1);
         }
       }
+      else
+        ++iter1;
     }
   }
 }
