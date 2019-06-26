@@ -1777,7 +1777,6 @@ void TrackGenerator3D::convertTCItoTSI(TrackChainIndexes* tci,
                                        TrackStackIndexes* tsi) {
 
   int link = getLinkIndex(tci);
-  //log_printf(NORMAL, "%d %d %d", tci->_azim,tci->_x,link);
   Track* track_2D = _tracks_2D_chains[tci->_azim][tci->_x][link];
   tsi->_azim = tci->_azim;
   tsi->_xy = track_2D->getXYIndex();

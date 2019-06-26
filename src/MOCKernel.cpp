@@ -6,10 +6,8 @@
  * @brief Constructor for the MOCKernel assigns default values
  * @param track_generator the TrackGenerator used to pull relevant tracking
  *        data from
- * @param row_num the row index into the temporary segments matrix
- * //FIXME row_num seems to be deprecated
  */
-MOCKernel::MOCKernel(TrackGenerator* track_generator, int row_num) {
+MOCKernel::MOCKernel(TrackGenerator* track_generator) {
   _count = 0;
   _max_tau = track_generator->retrieveMaxOpticalLength();
 #ifndef NGROUPS
@@ -24,10 +22,9 @@ MOCKernel::MOCKernel(TrackGenerator* track_generator, int row_num) {
  *        volumes from the provided TrackGenerator.
  * @param track_generator the TrackGenerator used to pull relevant tracking
  *        data from
- * @param row_num the row index into the temporary segments matrix
  */
-VolumeKernel::VolumeKernel(TrackGenerator* track_generator, int row_num) :
-                           MOCKernel(track_generator, row_num) {
+VolumeKernel::VolumeKernel(TrackGenerator* track_generator) :
+                           MOCKernel(track_generator) {
 
   _FSR_locks = track_generator->getFSRLocks();
 
@@ -47,11 +44,9 @@ VolumeKernel::VolumeKernel(TrackGenerator* track_generator, int row_num) :
  *        data from the provided TrackGenerator.
  * @param track_generator the TrackGenerator used to pull relevant tracking
  *        data from
- * @param row_num the row index into the temporary segments matrix
  */
-SegmentationKernel::SegmentationKernel(TrackGenerator* track_generator,
-                                       int row_num)
-                                       : MOCKernel(track_generator, row_num) {
+SegmentationKernel::SegmentationKernel(TrackGenerator* track_generator)
+                                       : MOCKernel(track_generator) {
 
   int thread_id = omp_get_thread_num();
   TrackGenerator3D* track_generator_3D =
@@ -68,10 +63,9 @@ SegmentationKernel::SegmentationKernel(TrackGenerator* track_generator,
  *        the MOCKernel constructor.
  * @param track_generator the TrackGenerator used to pull relevant tracking
  *        data from
- * @param row_num the row index into the temporary segments matrix
  */
-CounterKernel::CounterKernel(TrackGenerator* track_generator, int row_num) :
-                           MOCKernel(track_generator, row_num) {}
+CounterKernel::CounterKernel(TrackGenerator* track_generator) :
+                           MOCKernel(track_generator) {}
 
 
 /**
@@ -278,10 +272,9 @@ void SegmentationKernel::execute(FP_PRECISION length, Material* mat, long fsr_id
  * @brief Constructor for the TransportKernel.
  * @param track_generator the TrackGenerator used to pull relevant tracking
  *        data from
- * @param row_num the row index into the temporary segments matrix
  */
-TransportKernel::TransportKernel(TrackGenerator* track_generator, int row_num)
-                                 : MOCKernel(track_generator, row_num) {
+TransportKernel::TransportKernel(TrackGenerator* track_generator)
+                                 : MOCKernel(track_generator) {
   _track_generator = track_generator;
   _direction = true;
   _min_track_idx = 0;
@@ -314,7 +307,7 @@ void TransportKernel::setCPUSolver(CPUSolver* cpu_solver) {
  * @param track track to create the new track from
  */
 void TransportKernel::newTrack(Track* track) {
-  Track3D* track_3D = dynamic_cast<Track3D*>(track);  //why not just save the track
+  Track3D* track_3D = dynamic_cast<Track3D*>(track);
   _azim_index = track_3D->getAzimIndex();
   _xy_index = track_3D->getXYIndex();
   _polar_index = track_3D->getPolarIndex();
@@ -329,6 +322,15 @@ void TransportKernel::newTrack(Track* track) {
  */
 void TransportKernel::setDirection(bool direction) {
   _direction = direction;
+}
+
+
+/**
+ * @brief Returns the direction of the current track.
+ * @return _direction the direction of the track: true = Forward, false = Backward
+ */
+bool TransportKernel::getDirection() {
+  return _direction;
 }
 
 
@@ -408,13 +410,15 @@ void TransportKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
   }
 
   /* Accumulate contribution of all cuts to FSR scalar flux */
-  _cpu_solver->accumulateScalarFluxContribution(fsr_id, fsr_flux);
+  FP_PRECISION wgt = _track_generator->getQuadrature()->getWeightInline(
+       _azim_index, _polar_index);
+  _cpu_solver->accumulateScalarFluxContribution(fsr_id, wgt, fsr_flux);
 }
 
 
 /**
  * @brief Obtain and transfer the boundary track angular fluxes.
- */
+ */  //TODO Optimize, create a postTwoWay
 void TransportKernel::post() {
 #ifndef ONLYVACUUMBC
 

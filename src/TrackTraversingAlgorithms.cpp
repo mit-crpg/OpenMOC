@@ -1231,7 +1231,7 @@ TransportSweepOTF::TransportSweepOTF(TrackGenerator* track_generator)
 void TransportSweepOTF::execute() {
 #pragma omp parallel
   {
-    TransportKernel kernel(_track_generator, 0);
+    TransportKernel kernel(_track_generator);
     kernel.setCPUSolver(_cpu_solver);
     loopOverTracksByStackTwoWay(&kernel);
   }

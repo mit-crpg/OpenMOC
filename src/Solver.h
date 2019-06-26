@@ -535,6 +535,7 @@ public:
    */
   inline void setOTFTransport() {
     _OTF_transport = true;
+    log_printf(NORMAL, "Using On-The-Fly transport");
   }
 };
 
