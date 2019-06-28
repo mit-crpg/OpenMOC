@@ -1226,7 +1226,7 @@ TransportSweepOTF::TransportSweepOTF(TrackGenerator* track_generator)
 void TransportSweepOTF::execute() {
 #pragma omp parallel
   {
-    TransportKernel kernel(_track_generator, 0);
+    TransportKernel kernel(_track_generator);
     kernel.setCPUSolver(_cpu_solver);
     loopOverTracksByStackTwoWay(&kernel);
   }
@@ -1241,8 +1241,10 @@ void TransportSweepOTF::setCPUSolver(CPUSolver* cpu_solver) {
   _cpu_solver = cpu_solver;
 }
 
+
 /**
- * @brief NOT IMPLEMENTED
+ * @brief Placeholder, an onTrack routine is not required when performing
+ *        track generation and transport simultaneously.
  * @param track the Track of interest
  * @param segments array of segments on that track
  */

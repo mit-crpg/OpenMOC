@@ -90,7 +90,7 @@ protected:
         (_segment_formation != EXPLICIT_3D))) {
 
       /* Allocate kernel */
-      MOCKernel* kernel = new KernelType(_track_generator, 0);
+      MOCKernel* kernel = new KernelType(_track_generator);
       return kernel;
     }
     else

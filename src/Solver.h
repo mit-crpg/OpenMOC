@@ -187,6 +187,9 @@ protected:
   bool _SOLVE_3D;
 #endif
 
+  /** Whether the solver is using the direct or adjoint mode */
+  solverMode _solver_mode;
+
   /** Indicator of whether the flux array has been defined by the user */
   bool _is_restart;
 
@@ -469,6 +472,7 @@ public:
   void setExpPrecision(double precision);
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
+  void setSolverMode(solverMode solver_mode);
   void setRestartStatus(bool is_restart);
   void allowNegativeFluxes(bool negative_fluxes_on);
   void correctXS();
@@ -535,6 +539,7 @@ public:
    */
   inline void setOTFTransport() {
     _OTF_transport = true;
+    log_printf(NORMAL, "Using On-The-Fly transport");
   }
 };
 

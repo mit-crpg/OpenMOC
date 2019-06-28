@@ -346,7 +346,7 @@ void TraverseSegments::traceSegmentsOTF(Track* flattened_track, Point* start,
   if (seg_start == flattened_track->getNumSegments()) {
     log_printf(WARNING, "Track of zero length encountered at starting point "
                "%s traveling on 2D Track: %s at polar angle cos %3.2f "
-               "degrees on domain with z-bounds %3.2f and %3.2f", 
+               "degrees on domain with z-bounds %3.2f and %3.2f",
                start->toString().c_str(), flattened_track->toString().c_str(),
                cos(theta), geometry->getMinZ(), geometry->getMaxZ());
     return;
@@ -559,6 +559,30 @@ void TraverseSegments::traceStackOTF(Track* flattened_track, int polar_index,
   /* Calculate starting intersection of lowest track with z-axis */
   double z0 = first.getStart()->getZ();
   double start_z = z0 - start_dist_2D / tan_theta;
+
+  /* Adapt for traceStackTwoWay reverse direction */
+  //NOTE If more applications for this arise, make 'reverse' an argument
+  if (dynamic_cast<TransportKernel*>(kernel) &&
+      !dynamic_cast<TransportKernel*>(kernel)->getDirection()) {
+    phi += M_PI;
+    cos_phi *= -1;
+    sin_phi *= -1;
+
+    theta = M_PI - theta;
+    cos_theta = cos(theta);
+    sin_theta = sin(theta);
+    tan_theta = sin_theta / cos_theta;
+    sign = (cos_theta > 0) - (cos_theta < 0);
+
+    x_start_3D = first.getEnd()->getX();
+    x_start_2D = flattened_track->getEnd()->getX();
+    y_start_2D = flattened_track->getEnd()->getY();
+    start_dist_2D = (x_start_3D - x_start_2D) / cos_phi;
+
+    z0 = first.getEnd()->getZ();
+    start_z = z0 - start_dist_2D / tan_theta;
+  }
+
 
   /* Get the Geometry and CMFD mesh */
   Geometry* geometry = _track_generator_3D->getGeometry();
@@ -1004,52 +1028,17 @@ void TraverseSegments::loopOverTracksByStackTwoWay(TransportKernel* kernel) {
  * @param polar_index the polar index of the 3D Track z-stack
  * @param kernel The TransportKernel applied to the calculated 3D segments
  */
-//FIXME debug
 void TraverseSegments::traceStackTwoWay(Track* flattened_track, int polar_index,
                                         TransportKernel* kernel) {
 
-  /* Copy segments from flattened track */
+  /* Get segments from flattened track */
   segment* segments = flattened_track->getSegments();
-  int*** tracks_per_stack = _track_generator_3D->getTracksPerStack();
   MOCKernel* moc_kernel = dynamic_cast<MOCKernel*>(kernel);
-
-  /* Get the first track in the 3D track stack */
-  int azim_index = flattened_track->getAzimIndex();
-  int track_index = flattened_track->getXYIndex();
-  TrackStackIndexes tsi;
-  tsi._azim = azim_index;
-  tsi._xy = track_index;
-  tsi._polar = polar_index;
-  tsi._z = 0;
-  Track3D first;
-  _track_generator_3D->getTrackOTF(&first, &tsi);
-  int num_z_stack = tracks_per_stack[azim_index][track_index][polar_index];
-
-  /* Copy spatial data from track stack */
-  double start_2D[3], end_2D[3], start_3D[3], end_3D[3];
-  for (int i = 0; i < 3; i++) {
-    start_2D[i] = flattened_track->getStart()->getXYZ()[i];
-    end_2D[i] = flattened_track->getEnd()->getXYZ()[i];
-    start_3D[i] = first.getStart()->getXYZ()[i];
-    end_3D[i] = first.getEnd()->getXYZ()[i];
-  }
-
-  /* Copy directional data from track stack */
-  double phi = flattened_track->getPhi();
-  double theta = first.getTheta();
 
   /* Trace stack forwards */
   kernel->setDirection(true);
   traceStackOTF(flattened_track, polar_index, moc_kernel);
   kernel->post();
-
-  /* Reflect track stack */
-  first.getStart()->setXYZ(end_3D);
-  first.getEnd()->setXYZ(start_3D);
-  first.setTheta(M_PI - theta);
-  flattened_track->getStart()->setXYZ(end_2D);
-  flattened_track->getEnd()->setXYZ(start_2D);
-  flattened_track->setPhi(M_PI + phi);
 
   /* Reverse segments in flattened track */
   int num_segments = flattened_track->getNumSegments();
@@ -1070,14 +1059,6 @@ void TraverseSegments::traceStackTwoWay(Track* flattened_track, int polar_index,
   kernel->setDirection(false);
   traceStackOTF(flattened_track, polar_index, moc_kernel);
   kernel->post();
-
-  /* Reflect track stack back to forwards */
-  first.getStart()->setXYZ(start_3D);
-  first.getEnd()->setXYZ(end_3D);
-  first.setTheta(theta);
-  flattened_track->getStart()->setXYZ(start_2D);
-  flattened_track->getEnd()->setXYZ(end_2D);
-  flattened_track->setPhi(phi);
 
   /* Reverse segments in flattened track */
   for (int s = 0; s < num_segments/2; s++) {
