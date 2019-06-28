@@ -69,9 +69,9 @@ class OTFTransportTestHarness(TestHarness):
         self.track_generator.setNumThreads(self.num_threads)
         self.track_generator.generateTracks()
 
-    def _get_results(self, num_iters=True, keff=True, fluxes=True,
+    def _get_results(self, num_iters=True, keff=True, fluxes=False,
                      num_fsrs=False, num_tracks=False, num_segments=False,
-                     hash_output=True):
+                     hash_output=False):
         """Digest info in the solver and return hash as a string."""
         return super(OTFTransportTestHarness, self)._get_results(
                 num_iters=num_iters, keff=keff, fluxes=fluxes,

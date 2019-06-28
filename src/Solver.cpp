@@ -67,6 +67,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _timer = new Timer();
 
   /* Default settings */
+  _solver_mode = FORWARD;
   _is_restart = false;
   _user_fluxes = false;
   _fixed_sources_on = false;
@@ -585,6 +586,18 @@ void Solver::useExponentialIntrinsic() {
 
 
 /**
+ * @brief Choose between direct and adjoint mode.
+ * @param solver_mode openmoc.FORWARD or .ADJOINT
+ */
+void Solver::setSolverMode(solverMode solver_mode) {
+
+  _solver_mode = solver_mode;
+  if (solver_mode == ADJOINT)
+    log_printf(NORMAL, "Solver set to perform an adjoint calculation");
+}
+
+
+/**
  * @brief Informs the Solver that this is a 'restart' calculation and therefore
  *        k_eff, track angular and region scalar fluxes should not be reset.
  * @param is_restart whether solver run is a restart run
@@ -767,10 +780,10 @@ void Solver::initializeExpEvaluators() {
 void Solver::initializeMaterials(solverMode mode) {
 
   log_printf(INFO, "Initializing materials...");
+  _solver_mode = mode;
 
   std::map<int, Material*> materials = _geometry->getAllMaterials();
   std::map<int, Material*>::iterator m_iter;
-
 
   for (m_iter = materials.begin(); m_iter != materials.end(); ++m_iter) {
     m_iter->second->buildFissionMatrix();
@@ -1332,6 +1345,7 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   double residual = 0.;
 
   /* Initialize data structures */
+  initializeMaterials(_solver_mode);
   initializeFSRs();
   initializeSourceArrays();
   countFissionableFSRs();
@@ -1436,6 +1450,7 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
   double residual = 0.;
 
   /* Initialize data structures */
+  initializeMaterials(_solver_mode);
   initializeFSRs();
   initializeExpEvaluators();
   if (!_is_restart)
@@ -1527,6 +1542,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     _k_eff = 1.;
 
   /* Initialize data structures */
+  initializeMaterials(_solver_mode);
   initializeFSRs();
   countFissionableFSRs();
   initializeExpEvaluators();

@@ -73,6 +73,7 @@ class TestHarness(object):
         self.solver = openmoc.CPUSolver(self.track_generator)
         self.solver.setNumThreads(self.num_threads)
         self.solver.setConvergenceThreshold(self.tolerance)
+        #self.solver.setSolverMode(self.calculation_mode)
 
     def _generate_tracks(self):
         """Generate Tracks and segments."""

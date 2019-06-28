@@ -61,7 +61,7 @@ class PinCellTestHarness(TestHarness):
 
     def _run_openmoc(self):
         """Run an OpenMOC forward kyrlov calculation."""
-        self.solver.computeEigenmodes(num_modes=2, solver_mode=openmoc.ADJOINT)
+        self.solver.computeEigenmodes(num_modes=1, solver_mode=openmoc.ADJOINT)
 
     def _get_results(self, num_iters=True, keff=True, fluxes=True,
                      num_fsrs=False, num_tracks=False, num_segments=False,
