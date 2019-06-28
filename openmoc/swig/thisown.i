@@ -5,7 +5,7 @@
 /* A Cell owns the memory for each Surface it contains */
 %pythonappend Cell::addSurface %{
         # SWIG 3
-        if 'surface'in locals():
+        if 'surface' in locals():
             surface = locals()['surface']
         elif 'args' in locals() and 'surface' in locals()['args']:
             surface = locals()['args']['surface']
@@ -56,7 +56,7 @@
 /* A Region owns the memory for each node it contains */
 %pythonappend Region::addNode %{
         # SWIG 3
-        if 'node'in locals():
+        if 'node' in locals():
             node = locals()['node']
         elif 'args' in locals() and 'node' in locals()['args']:
             node = locals()['args']['node']
@@ -65,7 +65,7 @@
 
         # SWIG 2
         else:
-            node = locals()['args'][1]
+            node = locals()['args'][0]
 
         node.thisown = False
 %}
