@@ -141,7 +141,7 @@ class configuration:
     sources['mpicc'] = sources['gcc']
 
 
-    sources['icpc'] = sources['gcc'] + ['src/VectorizedSolver.cpp']
+    sources['icpc'] = sources['gcc']
 
 
     sources['bgxlc'] = sources['gcc']
@@ -171,10 +171,8 @@ class configuration:
                                '-Wno-deprecated-register',
                                '-Wno-parentheses-equality',
                                '-march=native']
-    compiler_flags['icpc'] =['-c', '-O3', '-fast', '--ccache-skip',
-                             '-openmp', '-xhost', '-std=c++11',
-                             '--ccache-skip', '-fpic',
-                             '-openmp-report', '-vec-report']
+    compiler_flags['icpc'] =['-c', '-O3', '-fast','-qopenmp', '-xhost',
+                             '-std=c++11','-fpic',]
     compiler_flags['bgxlc'] = ['-c', '-O2', '-qarch=qp', '-qreport',
                                '-qsimd=auto', '-qtune=qp', '-qunroll=auto',
                                '-qsmp=omp', '-qpic']
@@ -208,7 +206,7 @@ class configuration:
                                  '-Wl,-soname,' + get_openmoc_object_name()]
 
 
-    linker_flags['icpc'] = [ '-openmp', '-shared',
+    linker_flags['icpc'] = [ '-qopenmp', '-shared',
                              '-Xlinker', '-soname=' + get_openmoc_object_name()]
     linker_flags['bgxlc'] = ['-qmkshrobj', '-shared',
                              '-R/soft/compilers/ibmcmp-may2013/lib64/bg/bglib64',

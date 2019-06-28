@@ -49,10 +49,6 @@
   #include <mpi.h>
   #endif
 
-  #ifdef ICPC
-  #include "../../src/VectorizedSolver.h"
-  #endif
-
   #define printf PySys_WriteStdout
 
   /* Exception helpers */
@@ -182,9 +178,5 @@ namespace std {
 %include ../../src/TrackTraversingAlgorithms.h
 %include ../../src/Universe.h
 %include ../../src/Vector.h
-
-#ifdef ICPC
-%include ../../src/VectorizedSolver.h
-#endif
 
 #define printf PySys_WriteStdout

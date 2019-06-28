@@ -174,16 +174,16 @@ CFLAGS += -DVEC_ALIGNMENT=32
 # Optimization Flags
 ifeq ($(OPTIMIZE),yes)
   ifeq ($(COMPILER),gnu)
-    CFLAGS += -O3 -ffast-math -fpic -march=native
+    CFLAGS += -O3 -ffast-math -fpic -march=native #-flto
   endif
   ifeq ($(COMPILER),mpi)
-    CFLAGS += -O3 -ffast-math -fpic -march=native
+    CFLAGS += -O3 -ffast-math -fpic -march=native #-flto
   endif
   ifeq ($(COMPILER),intel)
-    CFLAGS += -O3 -xhost -ansi-alias -no-prec-div -ipo
+    CFLAGS += -O3 -xhost -ansi-alias -no-prec-div #-ipo
   endif
   ifeq ($(COMPILER),impi)
-    CFLAGS += -O3 -xhost -ansi-alias -no-prec-div -ipo
+    CFLAGS += -O3 -xhost -ansi-alias -no-prec-div #-ipo
   endif
   ifeq ($(COMPILER),bluegene)
     CFLAGS += -O3 -ffast-math -fpic
