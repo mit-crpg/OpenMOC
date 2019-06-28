@@ -670,7 +670,6 @@ boundaryType Cell::getMaxZBoundaryType() {
 }
 
 
-
 /**
  * @brief Return the number of Surfaces in the Cell.
  * @return the number of Surfaces
@@ -1080,7 +1079,7 @@ void Cell::addSurface(int halfspace, Surface* surface) {
   * @param surface a pointer to the Surface
   */
  void Cell::addSurfaceInRegion(int halfspace, Surface* surface) {
- 
+
    /* Create a new halfspace */
    Halfspace* new_halfspace = new Halfspace(halfspace, surface);
 
@@ -1116,7 +1115,7 @@ void Cell::removeSurface(Surface* surface) {
   * @param region_type the logical operation
   */
  void Cell::addLogicalNode(int region_type) {
- 
+
    /* Create new region if void */
    if (_region == NULL) {
      if (region_type == INTERSECTION) {
@@ -1364,8 +1363,8 @@ void Cell::sectorize(std::vector<Cell*>& subcells) {
         sector->addSurface(-1, planes.at(0));
     }
     else {
-      /* For _num_sectors==2, planes[0] and planes[1] are actually the same but 
-         opposite direction, so the two adjacent sectors will have the same 
+      /* For _num_sectors==2, planes[0] and planes[1] are actually the same but
+         opposite direction, so the two adjacent sectors will have the same
          Halfspace value, which will cause trouble when a point is on the plane.
          This is to avoid this trouble. */
       int halfspace = (i==0? +1 : -1);
@@ -1672,7 +1671,7 @@ std::string Cell::toString() {
   std::map<int, Halfspace*> _surfaces = getSurfaces();
   string << ", Surfaces: ";
   for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
-    string << std::showpos << "\nhalfspace = " << iter->second->_halfspace 
+    string << std::showpos << "\nhalfspace = " << iter->second->_halfspace
            << ", " << iter->second->_surface->toString();
 
   return string.str();

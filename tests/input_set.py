@@ -851,7 +851,7 @@ class AxialExtendedInput(InputSet):
         root_universe = openmoc.Universe()
         root_universe.addCell(root_cell)
 
-        self.geometry=openmoc.Geometry() 
+        self.geometry=openmoc.Geometry()
         self.geometry.setRootUniverse(root_universe)
 
         super(AxialExtendedInput, self).create_geometry()

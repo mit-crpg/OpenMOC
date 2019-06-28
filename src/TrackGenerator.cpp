@@ -483,7 +483,7 @@ void TrackGenerator::setNumThreads(int num_threads) {
 #endif
 
   if (num_threads > 1)
-    log_printf(NODAL, "CPUs on rank %d process: %s", rank, 
+    log_printf(NODAL, "CPUs on rank %d process: %s", rank,
                str_cpus.str().c_str());
 }
 
@@ -1222,8 +1222,8 @@ void TrackGenerator::segmentize() {
   /* Check to ensure the Geometry is infinite in axial direction */
   double max_z = _geometry->getRootUniverse()->getMaxZ();
   double min_z = _geometry->getRootUniverse()->getMinZ();
-  if ((max_z - min_z) < FLT_INFINITY) {
-    log_printf(WARNING_ONCE, "The Geometry was set with non-inifinite "
+  if (max_z - min_z < FLT_INFINITY) {
+    log_printf(WARNING_ONCE, "The Geometry was set with non-infinite "
                "z-boundaries and supplied to a 2D TrackGenerator. The min-z "
                "boundary was set to %5.2f and the max-z boundary was set to "
                "%5.2f. Z-boundaries are assumed to be infinite in 2D "
@@ -1460,7 +1460,7 @@ void TrackGenerator::dumpSegmentsToFile() {
 
 
 /**
- * @brief Write information of all Extruded FSRs to a file 
+ * @brief Write information of all Extruded FSRs to a file
  //TODO Use implementation in 3D track generator
  * @param out file to write to
  */
@@ -1776,7 +1776,7 @@ bool TrackGenerator::getPeriodic() {
 
 /**
  * @brief Sets a flag to record all segment information in the tracking file.
- * @param dump_segments whether or not to record segment information in the 
+ * @param dump_segments whether or not to record segment information in the
  *        tracking file: true to record, false not to record
  */
 void TrackGenerator::setDumpSegments(bool dump_segments) {

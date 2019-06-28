@@ -853,7 +853,7 @@ void Cmfd::collapseXS() {
           if (fabs(trans_tally_group) > fabs(rxn_tally_group) * FLT_EPSILON) {
             CMFD_PRECISION flux_avg_sigma_t = trans_tally_group /
                 rxn_tally_group;
-            _diffusion_tally[i][e] += rxn_tally_group / 
+            _diffusion_tally[i][e] += rxn_tally_group /
                 (3.0 * flux_avg_sigma_t);
           }
         }
@@ -1378,7 +1378,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
           delta = getSurfaceWidth(s, global_ind);
 
           /* Set transport term on diagonal */
-          getSurfaceDiffusionCoefficient(i, s, e, moc_iteration, dif_surf, 
+          getSurfaceDiffusionCoefficient(i, s, e, moc_iteration, dif_surf,
                                           dif_surf_corr);
 
           /* Record the corrected diffusion coefficient */
@@ -1469,7 +1469,7 @@ void Cmfd::updateMOCFlux() {
 
         /* Save max update ratio among fsrs and groups in a cell */
         if (_convergence_data != NULL)
-            if (std::abs(log(update_ratio)) > 
+            if (std::abs(log(update_ratio)) >
                 std::abs(log(thread_max_update_ratio)))
               thread_max_update_ratio = update_ratio;
 
@@ -1497,7 +1497,7 @@ void Cmfd::updateMOCFlux() {
     if (_convergence_data != NULL) {
 #pragma omp critical
       {
-        if (std::abs(log(thread_max_update_ratio)) > 
+        if (std::abs(log(thread_max_update_ratio)) >
             std::abs(log(_convergence_data->pf)))
               _convergence_data->pf = thread_max_update_ratio;
       }
@@ -3777,6 +3777,59 @@ void Cmfd::initializeLattice(Point* offset, bool is_2D) {
     setBoundary(SURFACE_Z_MAX, REFLECTIVE);
   }
 
+  /* Handle use of X,Y and Z symmetries */
+  if (_geometry->getSymmetry(0)) {
+
+    // Compute current width of CMFD mesh
+    double width_x = 0;
+    for (int i=0; i<_cell_widths_x.size(); i++)
+      width_x = width_x + _cell_widths_x[i];
+
+    // If CMFD mesh was meant for full geometry, adapt it
+    if (std::abs(width_x - _width_x * 2) < FLT_EPSILON) {
+      if (_cell_widths_x.size() % 2 == 0)
+        _cell_widths_x.resize(_cell_widths_x.size() / 2);
+      else {
+        _cell_widths_x.resize(_cell_widths_x.size() / 2 + 1);
+        _cell_widths_x[_cell_widths_x.size() - 1] /= 2;
+      }
+    }
+  }
+  if (_geometry->getSymmetry(1)) {
+
+    // Compute current width of CMFD mesh
+    double width_y = 0;
+    for (int i=0; i<_cell_widths_y.size(); i++)
+      width_y = width_y + _cell_widths_y[i];
+
+    // If CMFD mesh was meant for full geometry, adapt it
+    if (std::abs(width_y - _width_y * 2) < FLT_EPSILON) {
+      if (_cell_widths_y.size() % 2 == 0)
+        _cell_widths_y.resize(_cell_widths_y.size() / 2);
+      else {
+        _cell_widths_y.resize(_cell_widths_y.size() / 2 + 1);
+        _cell_widths_y[_cell_widths_y.size() - 1] /= 2;
+      }
+    }
+  }
+  if (_geometry->getSymmetry(2)) {
+
+    // Compute current width of CMFD mesh
+    double width_z = 0;
+    for (int i=0; i<_cell_widths_z.size(); i++)
+      width_z = width_z + _cell_widths_z[i];
+
+    // If CMFD mesh was meant for full geometry, adapt it
+    if (std::abs(width_z - _width_z * 2) < FLT_EPSILON) {
+      if (_cell_widths_z.size() % 2 == 0)
+        _cell_widths_z.resize(_cell_widths_z.size() / 2);
+      else {
+        _cell_widths_z.resize(_cell_widths_z.size() / 2 + 1);
+        _cell_widths_z[_cell_widths_z.size() - 1] /= 2;
+      }
+    }
+  }
+
   if (_non_uniform) {
     setNumX(_cell_widths_x.size());
     setNumY(_cell_widths_y.size());
@@ -4320,7 +4373,7 @@ void Cmfd::copyFullSurfaceCurrents() {
  *          - in MOC at the boundaries, as the incoming currents are not
  *          tallied (except at ite 0, they are null)
  *          - in MOC at the reflective boundaries when tracks hit edges and
- *          corners as the contributions are double tallied (not a bug, only 
+ *          corners as the contributions are double tallied (not a bug, only
  *          a problem for this routine, see NOTE for where to modify code)
  * @param pre_split whether edge currents are not split (default true)
  * @param moc_balance whether to check the MOC balance over the cell or
@@ -4754,8 +4807,8 @@ void Cmfd::packBuffers() {
  * @details comm The cartesian MPI domain communicator object that is
  *          configured for the CMFD exchange
  *          send_buffers A 2D array of floating point data. The outer dimension
- *          corresponds to each face of the domain, while the inner dimension 
- *          is the serialized buffer corresponding to the number of 2D cells 
+ *          corresponds to each face of the domain, while the inner dimension
+ *          is the serialized buffer corresponding to the number of 2D cells
  *          to exchange times the number of energy groups.
  *          recv_buffers A 2D array of floating point data. The outer dimension
  *          corresponds to each face of the domain,  while the inner dimension
