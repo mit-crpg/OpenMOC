@@ -706,9 +706,12 @@ void ParallelHashMap<K,V>::resize() {
   delete [] value_list;
 
   /* wait for all threads to stop reading from the old table */
-  for (size_t i=0; i<_num_threads; i++)
-    while (_announce[i].value == old_table)
+  for (size_t i=0; i<_num_threads; i++) {
+    while (_announce[i].value == old_table) {
+#pragma omp flush
       continue;
+    }
+  }
 
   /* free memory associated with old table */
   delete old_table;

@@ -27,7 +27,6 @@ CMFD_PRECISION ?= single
 #case = models/load-geometry/load-geometry.cpp
 #case = models/simple-lattice/simple-lattice-3d.cpp
 #case = models/homogeneous/homogeneous.cpp
-#case = models/non-uniform-lattice/non-uniform-lattice.cpp
 case ?= models/run_time_standard/run_time_standard.cpp
 #case ?= models/assembly_1/load-assembly.cpp
 #case ?= models/core/load-core.cpp
@@ -81,8 +80,7 @@ single-assembly/single-c5g7-assembly.cpp \
 load-geometry/load-geometry.cpp \
 load-geometry/load-single-assembly.cpp \
 load-geometry/load-2D-full-core.cpp \
-load-geometry/load-full-core.cpp \
-non-uniform-lattice/non-uniform-lattice.cpp
+load-geometry/load-full-core.cpp
 
 #===============================================================================
 # Sets Flags
@@ -169,8 +167,8 @@ ifeq ($(CMFD_PRECISION),double)
   CFLAGS += -DCMFD_PRECISION=double -DLINALG_TOL=1E-15
 endif
 
-# Vector Flags
-CFLAGS += -DVEC_LENGTH=8
+# Vector Flags, take into account strip mining with VEC_LENGTH sized vectors
+CFLAGS += -DVEC_LENGTH=32
 CFLAGS += -DVEC_ALIGNMENT=32
 
 # Optimization Flags

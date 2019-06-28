@@ -55,6 +55,7 @@ class MultiSimMaterialsCmfdTestHarness(MultiSimTestHarness):
             # Run eigenvalue calculation and store the results
             self.num_simulations = 1
             super(MultiSimMaterialsCmfdTestHarness, self)._run_openmoc()
+            self.solver.printTimerReport()
 
 
 if __name__ == '__main__':

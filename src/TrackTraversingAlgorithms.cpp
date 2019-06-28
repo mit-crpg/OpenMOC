@@ -869,11 +869,15 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
   int num_segments = track->getNumSegments();
   float* track_flux;
 
-  /* Extract the polar index if a 3D track */
+  /* Extract the polar index and quadrature weight if a 3D track */
   int polar_index = 0;
+  FP_PRECISION weight = 1;
   Track3D* track_3D = dynamic_cast<Track3D*>(track);
-  if (track_3D != NULL)
+  if (track_3D != NULL) {
     polar_index = track_3D->getPolarIndex();
+    weight = _track_generator->getQuadrature()->getWeightInline(azim_index,
+                                                                polar_index);
+  }
 
   /* Compute unit vector if necessary */
   FP_PRECISION direction[3];
@@ -947,10 +951,10 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     if (s < num_segments - 1 && fsr_id != (&segments[s+1])->_region_id) {
 #ifndef LINEARSOURCE
       if (_ls_solver == NULL)
-        _cpu_solver->accumulateScalarFluxContribution(fsr_id, fsr_flux);
+        _cpu_solver->accumulateScalarFluxContribution(fsr_id, weight, fsr_flux);
       else
 #endif
-        _ls_solver->accumulateLinearFluxContribution(fsr_id, fsr_flux);
+        _ls_solver->accumulateLinearFluxContribution(fsr_id, weight, fsr_flux);
     }
 
     /* Tally the current for CMFD */
@@ -992,28 +996,19 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
                                     fsr_flux_z, track_flux, direction);
 
     /* Accumulate contribution of segments to scalar flux before changing fsr */
-    if (s > 0 && fsr_id != (&segments[s-1])->_region_id) {
+    if (s == 0 || fsr_id != (&segments[s-1])->_region_id) {
 #ifndef LINEARSOURCE
       if (_ls_solver == NULL)
-        _cpu_solver->accumulateScalarFluxContribution(fsr_id, fsr_flux);
+        _cpu_solver->accumulateScalarFluxContribution(fsr_id, weight, fsr_flux);
       else
 #endif
-        _ls_solver->accumulateLinearFluxContribution(fsr_id, fsr_flux);
+        _ls_solver->accumulateLinearFluxContribution(fsr_id, weight, fsr_flux);
     }
 
     /* Tally the current for CMFD */
     _cpu_solver->tallyCurrent(curr_segment, azim_index, polar_index,
                               track_flux, false);
   }
-
-  /* Tally contribution for last segment */
-  long fsr_id = (&segments[0])->_region_id;
-#ifndef LINEARSOURCE
-  if (_ls_solver == NULL)
-    _cpu_solver->accumulateScalarFluxContribution(fsr_id, fsr_flux);
-  else
-#endif
-    _ls_solver->accumulateLinearFluxContribution(fsr_id, fsr_flux);
 
 #ifndef ONLYVACUUMBC
   /* Transfer boundary angular flux to outgoing Track */

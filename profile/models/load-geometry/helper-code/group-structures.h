@@ -357,7 +357,7 @@ inline std::vector<std::vector<int> > get_group_structure(int num_groups,
   else if (num_groups < num_cmfd_groups)
     log_printf(ERROR, "Number of CMFD groups must be lower than the number of"
                "MOC groups.");
-  else if (cmfd_group_structure.at(0).size() == 0) {
+  if (cmfd_group_structure.at(0).size() == 0) {
     log_printf(WARNING_ONCE, "CMFD group structure requested is unknown, "
                "creating a condensed structure with a constant number of "
                "MOC groups in each CMFD group");

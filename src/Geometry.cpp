@@ -2469,6 +2469,7 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
   if (_overlaid_mesh != NULL)
     anticipated_size *= _overlaid_mesh->getNumZ();
   _FSR_keys_map.realloc(anticipated_size);
+  long total_number_fsrs_in_stack = 0;
 
   /* Loop over extruded FSRs */
 #pragma omp parallel for
@@ -2546,12 +2547,30 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
       extruded_FSR->_mesh[s+1] = level;
       }
     }
+    /* Keep track of the number of FSRs in extruded FSRs */
+#pragma omp atomic update
+    total_number_fsrs_in_stack += extruded_FSR->_num_fsrs;
   }
+
   delete [] extruded_FSRs;
 #ifdef MPIx
   if (_domain_decomposed)
     MPI_Barrier(_MPI_cart);
 #endif
+
+  // Output the extruded FSR storage requirement
+  float size = total_number_fsrs_in_stack * (sizeof(double) + sizeof(long) +
+             sizeof(Material*)) + _extruded_FSR_keys_map.size() * (sizeof(
+             _extruded_FSR_keys_map.keys()[0]) + sizeof(ExtrudedFSR) +
+             (LOCAL_COORDS_LEN + 1) * sizeof(LocalCoords));
+  float max_size = size;
+#ifdef MPIX
+    if (isDomainDecomposed())
+      MPI_Allreduce(&size, &max_size, 1, MPI_FLOAT, MPI_MAX, _MPI_cart);
+#endif
+
+  log_printf(INFO_ONCE, "Max storage for extruded FSRs per domain = %.2f MB",
+             max_size / float(1e6));
 
   /* Re-order FSR IDs so they are sequential in the axial direction */
   reorderFSRIDs();
@@ -2663,6 +2682,18 @@ void Geometry::initializeFSRVectors() {
       _FSRs_to_CMFD_cells.at(fsr_id) = fsr->_cmfd_cell;
     }
   }
+
+  /* Output approximate storage for various FSR maps, locks, volumes... */
+  long size = num_FSRs * (sizeof(fsr_data) + sizeof(omp_lock_t) +
+       sizeof(FP_PRECISION) + sizeof(fsr_data*) + 2 * sizeof(key_list[0]) +
+       sizeof(Point*) + sizeof(Point) + 2*sizeof(int));
+  long max_size = size;
+#ifdef MPIX
+  if (isDomainDecomposed())
+    MPI_Allreduce(&size, &max_size, 1, MPI_LONG, MPI_MAX, _MPI_cart);
+#endif
+  log_printf(INFO_ONCE, "Max FSR, maps and data, storage per domain = %.2f MB",
+             max_size / float(1e6));
 
   /* Check if extruded FSRs are present */
   size_t num_extruded_FSRs = _extruded_FSR_keys_map.size();
@@ -3476,6 +3507,14 @@ std::vector<double> Geometry::getUniqueZPlanes() {
     double mid = (unique_heights[i-1] + unique_heights[i]) / 2;
     unique_z_planes.push_back(mid);
   }
+
+  /* Output the unique Z heights for debugging */
+  std::stringstream string;
+  string << unique_heights.size() - 1 << " unique Z domains with bounds: ";
+  for (int i=0; i < unique_heights.size(); i++)
+    string << unique_heights[i] << " ";
+  string << "(cm)";
+  log_printf(INFO, "%s", string.str().c_str());
 
   return unique_z_planes;
 }

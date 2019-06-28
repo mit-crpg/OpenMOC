@@ -127,19 +127,21 @@ inline void expG_fractional(FP_PRECISION x, FP_PRECISION* expG) {
   const FP_PRECISION d6 = 6.064409107557148 * 1E-5;
 
   FP_PRECISION num, den;
-  num = p5*x + p4;
-  num = num*x + p3;
-  num = num*x + p2;
-  num = num*x + p1;
-  num = num*x + p0;
-
   den = d6*x + d5;
   den = den*x + d4;
   den = den*x + d3;
   den = den*x + d2;
   den = den*x + d1;
   den = den*x + d0;
-  *expG = num/den;
+  den = 1.f/den;
+
+  num = p5*x + p4;
+  num = num*x + p3;
+  num = num*x + p2;
+  num = num*x + p1;
+  num = num*x + p0;
+
+  *expG = num*den;
 }
 
 
@@ -171,11 +173,6 @@ inline void expF1_fractional(FP_PRECISION x, FP_PRECISION* expF1) {
   const FP_PRECISION d6 = 1.9309063097411041 * 1E-4;
 
   FP_PRECISION num, den;
-  num = p5*x + p4;
-  num = num*x + p3;
-  num = num*x + p2;
-  num = num*x + p1;
-  num = num*x + p0;
 
   den = d6*x + d5;
   den = den*x + d4;
@@ -183,7 +180,15 @@ inline void expF1_fractional(FP_PRECISION x, FP_PRECISION* expF1) {
   den = den*x + d2;
   den = den*x + d1;
   den = den*x + d0;
-  *expF1 = num/den;
+  den = 1.f / den;
+
+  num = p5*x + p4;
+  num = num*x + p3;
+  num = num*x + p2;
+  num = num*x + p1;
+  num = num*x + p0;
+
+  *expF1 = num*den;
 }
 
 
