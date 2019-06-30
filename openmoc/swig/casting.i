@@ -48,5 +48,4 @@
   ZCylinder* castSurfaceToZCylinder(Surface* zcylinder) {
     return dynamic_cast<ZCylinder*>(zcylinder);
   }
-
 %}
