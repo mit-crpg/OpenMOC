@@ -137,7 +137,7 @@ int RuntimeParameters::setRuntimeParameters(int argc, char *argv[]) {
       arg_index++;
       _log_filename = argv[arg_index++];
     }
-    else if(strcmp(argv[arg_index], "-geo_file_name") == 0) {
+    else if(strcmp(argv[arg_index], "-geo_filename") == 0) {
       arg_index++;
       _geo_filename = std::string(argv[arg_index++]);
     }
@@ -322,7 +322,7 @@ int RuntimeParameters::setRuntimeParameters(int argc, char *argv[]) {
       "-num_domain_modules      1,1,1                                      \\\n"
       "-num_threads             1                                          \\\n"
       "-log_filename            test_problem.log                           \\\n"
-      "-geo_file_name           test_problem.geo                           \\\n"
+      "-geo_filename            test_problem.geo                           \\\n"
       "-azim_spacing            0.10                                       \\\n"
       "-num_azim                32                                         \\\n"
       "-polar_spacing           0.5                                        \\\n"
@@ -361,7 +361,7 @@ int RuntimeParameters::setRuntimeParameters(int argc, char *argv[]) {
     printf("-num_domain_modules     : (1,1,1) modular structure in a domain\n");
     printf("-num_threads            : (1) Number of OpenMP threads to use\n");
     printf("-log_filename           : (NULL) the file name of the log file\n");
-    printf("-geo_file_name          : (NULL) the file name of the geometry "
+    printf("-geo_filename           : (NULL) the file name of the geometry "
            "file\n");
     printf("\n");
 
