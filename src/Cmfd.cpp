@@ -861,7 +861,7 @@ void Cmfd::collapseXS() {
         /* Save cross-sections to material */
         double rxn_tally = _reaction_tally[i][e];
 
-        if (rxn_tally < FLT_EPSILON / 1e3) {
+        if (rxn_tally <= 0) {
           log_printf(WARNING, "Negative or zero reaction tally calculated in "
                      "CMFD cell %d in CMFD group %d : %e", i, e + 1, rxn_tally);
           rxn_tally = ZERO_SIGMA_T;
