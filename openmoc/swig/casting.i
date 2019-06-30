@@ -49,4 +49,7 @@
     return dynamic_cast<ZCylinder*>(zcylinder);
   }
 
+  char* [] castStringToCharArray(std::string string) {
+    return string.c_str();
+  }
 %}
