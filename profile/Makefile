@@ -139,6 +139,8 @@ ifeq ($(DEBUG),yes)
   CFLAGS += -O0
   CFLAGS += -g
   CFLAGS += -fno-omit-frame-pointer
+else
+  CFLAGS += -Wno-unused-result
 endif
 
 # Profiling Flags

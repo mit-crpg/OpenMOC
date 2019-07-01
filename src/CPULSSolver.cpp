@@ -357,9 +357,6 @@ void CPULSSolver::computeFSRSources(int iteration) {
   {
     int tid = omp_get_thread_num();
     Material* material;
-    FP_PRECISION* sigma_t;
-    FP_PRECISION* nu_sigma_f;
-    FP_PRECISION* chi;
     FP_PRECISION* sigma_s;
     FP_PRECISION src_x, src_y, src_z;
 
@@ -368,47 +365,44 @@ void CPULSSolver::computeFSRSources(int iteration) {
     for (long r=0; r < _num_FSRs; r++) {
 
       material = _FSR_materials[r];
-      nu_sigma_f = material->getNuSigmaF();
-      chi = material->getChi();
-      sigma_t = material->getSigmaT();
       sigma_s = material->getSigmaS();
 
-      /* Initialize the fission sources to zero */
-      double fission_source_x = 0.0;
-      double fission_source_y = 0.0;
-      double fission_source_z = 0.0;
-
-      /* Compute fission sources */
-      if (material->isFissionable()) {
-        FP_PRECISION* fission_sources_x = _groupwise_scratch.at(tid);
-        for (int g_prime=0; g_prime < _num_groups; g_prime++)
-          fission_sources_x[g_prime] =
-              nu_sigma_f[g_prime] * _scalar_flux_xyz(r,g_prime,0);
-        fission_source_x =
-            pairwise_sum<FP_PRECISION>(fission_sources_x, _num_groups);
-
-        FP_PRECISION* fission_sources_y = _groupwise_scratch.at(tid);
-        for (int g_prime=0; g_prime < _num_groups; g_prime++)
-          fission_sources_y[g_prime] =
-              nu_sigma_f[g_prime] * _scalar_flux_xyz(r,g_prime,1);
-        fission_source_y =
-            pairwise_sum<FP_PRECISION>(fission_sources_y, _num_groups);
-
-        FP_PRECISION* fission_sources_z = _groupwise_scratch.at(tid);
-        for (int g_prime=0; g_prime < _num_groups; g_prime++)
-          fission_sources_z[g_prime] =
-              nu_sigma_f[g_prime] * _scalar_flux_xyz(r,g_prime,2);
-        fission_source_z =
-            pairwise_sum<FP_PRECISION>(fission_sources_z, _num_groups);
-
-        fission_source_x /= _k_eff;
-        fission_source_y /= _k_eff;
-        fission_source_z /= _k_eff;
-      }
-
-      /* Compute scatter + fission source for group g */
       for (int g=0; g < _num_groups; g++) {
 
+        /* Initialize the fission sources to zero */
+        double fission_source_x = 0.0;
+        double fission_source_y = 0.0;
+        double fission_source_z = 0.0;
+
+        /* Compute fission sources */
+        if (material->isFissionable()) {
+          FP_PRECISION* fission_sources_x = _groupwise_scratch.at(tid);
+          for (int g_prime=0; g_prime < _num_groups; g_prime++)
+            fission_sources_x[g_prime] = material->getFissionMatrixByGroup(
+                 g_prime+1,g+1) * _scalar_flux_xyz(r,g_prime,0);
+          fission_source_x =
+              pairwise_sum<FP_PRECISION>(fission_sources_x, _num_groups);
+
+          FP_PRECISION* fission_sources_y = _groupwise_scratch.at(tid);
+          for (int g_prime=0; g_prime < _num_groups; g_prime++)
+            fission_sources_y[g_prime] = material->getFissionMatrixByGroup(
+                 g_prime+1,g+1) * _scalar_flux_xyz(r,g_prime,1);
+          fission_source_y =
+              pairwise_sum<FP_PRECISION>(fission_sources_y, _num_groups);
+
+          FP_PRECISION* fission_sources_z = _groupwise_scratch.at(tid);
+          for (int g_prime=0; g_prime < _num_groups; g_prime++)
+            fission_sources_z[g_prime] = material->getFissionMatrixByGroup(
+                 g_prime+1,g+1) * _scalar_flux_xyz(r,g_prime,2);
+          fission_source_z =
+              pairwise_sum<FP_PRECISION>(fission_sources_z, _num_groups);
+
+          fission_source_x /= _k_eff;
+          fission_source_y /= _k_eff;
+          fission_source_z /= _k_eff;
+        }
+
+        /* Compute scatter + fission source for group g */
         int first_scattering_index = g * _num_groups;
 
         /* Compute scatter sources */
@@ -440,9 +434,9 @@ void CPULSSolver::computeFSRSources(int iteration) {
             pairwise_sum<FP_PRECISION>(scatter_sources_z, _num_groups);
 
         /* Compute total (scatter + fission) source */
-        src_x = scatter_source_x + chi[g] * fission_source_x;
-        src_y = scatter_source_y + chi[g] * fission_source_y;
-        src_z = scatter_source_z + chi[g] * fission_source_z;
+        src_x = scatter_source_x + fission_source_x;
+        src_y = scatter_source_y + fission_source_y;
+        src_z = scatter_source_z + fission_source_z;
         if (_fixed_source_moments_on) {
           src_x += _fixed_sources_xyz(r, g, 0);
           src_y += _fixed_sources_xyz(r, g, 1);

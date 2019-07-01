@@ -70,6 +70,23 @@
         node.thisown = False
 %}
 
+/* Python must free memory for each Node that is not in a Region  */
+%pythonappend Region::removeNode %{
+        # SWIG 3
+        if 'node' in locals():
+            node = locals()['node']
+        elif 'args' in locals() and 'node' in locals()['args']:
+            node = locals()['args']['node']
+        elif 'kwargs' in locals() and 'node' in locals()['kwargs']:
+            node = locals()['kwargs']['node']
+
+        # SWIG 2
+        else:
+            node = locals()['args'][0]
+
+        node.thisown = True
+%}
+
  /* A Halfspace owns the memory for the Surface it contains */
 %pythonappend Halfspace::Halfspace %{
         # SWIG 3

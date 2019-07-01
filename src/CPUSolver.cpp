@@ -1776,37 +1776,28 @@ void CPUSolver::computeFSRSources(int iteration) {
 #pragma omp parallel for schedule(static)
   for (long r=0; r < _num_FSRs; r++) {
 
-    int tid = omp_get_thread_num();
     Material* material = _FSR_materials[r];
-    FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
-    FP_PRECISION* chi = material->getChi();
-    FP_PRECISION* sigma_t = material->getSigmaT();
-    FP_PRECISION* fission_sources = _groupwise_scratch.at(tid);
-
-    /* Initialize the fission sources to zero */
-    FP_PRECISION fission_source = 0.0;
-
-    /* Compute fission source for each group */
-    if (material->isFissionable()) {
-      for (int e=0; e < _num_groups; e++)
-        fission_sources[e] = _scalar_flux(r,e) * nu_sigma_f[e];
-
-      fission_source = pairwise_sum<FP_PRECISION>(fission_sources,
-                                                  _num_groups);
-      fission_source /= _k_eff;
-    }
+    FP_PRECISION* sigma_s = material->getSigmaS();
+    FP_PRECISION fiss_mat;
+    FP_PRECISION fission_sources[_num_groups];
+    FP_PRECISION scatter_sources[_num_groups];
 
     /* Compute total (fission+scatter+fixed) source for group G */
-    FP_PRECISION* scatter_sources = _groupwise_scratch.at(tid);
-    FP_PRECISION* sigma_s = material->getSigmaS();
     for (int G=0; G < _num_groups; G++) {
       int first_idx = G * _num_groups;
-      for (int g=0; g < _num_groups; g++)
+      fiss_mat = 0;
+      for (int g=0; g < _num_groups; g++) {
+        if (material->isFissionable())
+          fiss_mat = material->getFissionMatrixByGroup(g+1,G+1);
         scatter_sources[g] = sigma_s[first_idx+g] * _scalar_flux(r,g);
+        fission_sources[g] = _scalar_flux(r,g) * fiss_mat;
+      }
       double scatter_source =
           pairwise_sum<FP_PRECISION>(scatter_sources, _num_groups);
-
-      _reduced_sources(r,G) = fission_source * chi[G];
+      double fission_source = pairwise_sum<FP_PRECISION>(fission_sources,
+                                                  _num_groups);
+      fission_source /= _k_eff;
+      _reduced_sources(r,G) = fission_source;
       _reduced_sources(r,G) += scatter_source;
       if (_fixed_sources_on)
         _reduced_sources(r,G) += _fixed_sources(r,G);
@@ -1872,8 +1863,10 @@ void CPUSolver::computeFSRFissionSources() {
       /* Compute fission source for group g */
       //NOTE use full fission matrix instead of chi because of transpose
       for (int g=0; g < _num_groups; g++) {
+        fiss_mat = 0;
         for (int g_prime=0; g_prime < _num_groups; g_prime++) {
-          fiss_mat = material->getFissionMatrixByGroup(g_prime+1,g+1);
+          if (material->isFissionable())
+            fiss_mat = material->getFissionMatrixByGroup(g_prime+1,g+1);
           fission_sources[g_prime] = fiss_mat * _scalar_flux(r,g_prime);
         }
 

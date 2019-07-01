@@ -5,11 +5,10 @@
 
 /**
  * @brief Process the run time options.
- * @param RP A reference of RuntimeParameters
  * @param argc number of run time command words
  * @param argv content of run time command words
  */
-int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]) {
+int RuntimeParameters::setRuntimeParameters(int argc, char *argv[]) {
 
   int arg_index = 0;
   int print_usage = 0;
@@ -18,10 +17,10 @@ int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]) {
   while (arg_index < argc) {
     if(strcmp(argv[arg_index], "-debug") == 0) {
       arg_index++;
-      RP._debug_flag = atoi(argv[arg_index++]);
+      _debug_flag = atoi(argv[arg_index++]);
     }
     else if(strcmp(argv[arg_index], "-domain_decompose") == 0) {
-      int *pointer[] = {&RP._NDx, &RP._NDy, &RP._NDz};
+      int *pointer[] = {&_NDx, &_NDy, &_NDz};
       int i = 0;
       arg_index++;
       char *buf = argv[arg_index];
@@ -35,7 +34,7 @@ int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]) {
       arg_index++;
     }
     else if(strcmp(argv[arg_index], "-num_domain_modules") == 0) {
-      int *pointer[] = {&RP._NMx, &RP._NMy, &RP._NMz};
+      int *pointer[] = {&_NMx, &_NMy, &_NMz};
       int i = 0;
       arg_index++;
       char *buf = argv[arg_index];
@@ -49,7 +48,7 @@ int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]) {
       arg_index++;
     }
     else if(strcmp(argv[arg_index], "-CMFD_lattice") == 0) {
-      int *pointer[] = {&RP._NCx, &RP._NCy, &RP._NCz};
+      int *pointer[] = {&_NCx, &_NCy, &_NCz};
       int i = 0;
       arg_index++;
       char *buf = argv[arg_index];
@@ -72,60 +71,60 @@ int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]) {
         tmp.push_back(atoi(p));
         buf = NULL;
       }
-      RP._output_mesh_lattices.push_back(tmp);
+      _output_mesh_lattices.push_back(tmp);
       arg_index++;
     }
     else if(strcmp(argv[arg_index], "-output_type") == 0 ) {
       arg_index++;
-      RP._output_types.push_back(atoi(argv[arg_index++]));
+      _output_types.push_back(atoi(argv[arg_index++]));
     }
     else if(strcmp(argv[arg_index], "-num_threads") == 0 ) {
       arg_index++;
-      RP._num_threads = atoi(argv[arg_index++]);
+      _num_threads = atoi(argv[arg_index++]);
     }
     else if(strcmp(argv[arg_index], "-azim_spacing") == 0) {
       arg_index++;
-      RP._azim_spacing = atof(argv[arg_index++]);
+      _azim_spacing = atof(argv[arg_index++]);
     }
     else if(strcmp(argv[arg_index], "-num_azim") == 0) {
       arg_index++;
-      RP._num_azim = atoi(argv[arg_index++]);
+      _num_azim = atoi(argv[arg_index++]);
     }
     else if(strcmp(argv[arg_index], "-polar_spacing") == 0) {
       arg_index++;
-      RP._polar_spacing = atof(argv[arg_index++]);
+      _polar_spacing = atof(argv[arg_index++]);
     }
     else if(strcmp(argv[arg_index], "-num_polar") == 0) {
       arg_index++;
-      RP._num_polar = atoi(argv[arg_index++]);
+      _num_polar = atoi(argv[arg_index++]);
     }
     else if(strcmp(argv[arg_index], "-MOC_src_tolerance") == 0) {
       arg_index++;
-      RP._tolerance = atof(argv[arg_index++]);
+      _tolerance = atof(argv[arg_index++]);
     }
     else if(strcmp(argv[arg_index], "-max_iters") == 0) {
       arg_index++;
-      RP._max_iters= atoi(argv[arg_index++]);
+      _max_iters= atoi(argv[arg_index++]);
     }
     else if(strcmp(argv[arg_index], "-log_level") == 0) {
       arg_index++;
-      RP._log_level = argv[arg_index++];
+      _log_level = argv[arg_index++];
     }
     else if(strcmp(argv[arg_index], "-knearest") == 0) {
       arg_index++;
-      RP._knearest = atoi(argv[arg_index++]);
+      _knearest = atoi(argv[arg_index++]);
     }
     else if(strcmp(argv[arg_index], "-CMFD_flux_update_on") == 0) {
       arg_index++;
-      RP._CMFD_flux_update_on = atoi(argv[arg_index++]);
+      _CMFD_flux_update_on = atoi(argv[arg_index++]);
     }
     else if(strcmp(argv[arg_index], "-CMFD_centroid_update_on") == 0) {
       arg_index++;
-      RP._CMFD_centroid_update_on = atoi(argv[arg_index++]);
+      _CMFD_centroid_update_on = atoi(argv[arg_index++]);
     } 
     else if(strcmp(argv[arg_index], "-use_axial_interpolation") == 0) {
       arg_index++;
-      RP._use_axial_interpolation = atoi(argv[arg_index++]);
+      _use_axial_interpolation = atoi(argv[arg_index++]);
     } 
     else if(strcmp(argv[arg_index], "-help") == 0 ||
             strcmp(argv[arg_index], "--help") == 0 ||
@@ -136,11 +135,11 @@ int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]) {
     }
     else if(strcmp(argv[arg_index], "-log_filename") == 0) {
       arg_index++;
-      RP._log_filename = argv[arg_index++];
+      _log_filename = argv[arg_index++];
     }
     else if(strcmp(argv[arg_index], "-geo_file_name") == 0) {
       arg_index++;
-      RP._geo_filename = std::string(argv[arg_index++]);
+      _geo_filename = std::string(argv[arg_index++]);
     }
     else if(strcmp(argv[arg_index], "-widths_x") == 0) {
       arg_index++;
@@ -152,10 +151,10 @@ int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]) {
         ql = strtok_r(p, "*", &qr);
         if(strcmp(qr, "")) {
           for(int i=0; i< atoi(qr); i++)
-            RP._cell_widths_x.push_back(atof(ql));
+            _cell_widths_x.push_back(atof(ql));
         }
         else 
-          RP._cell_widths_x.push_back(atof(p));
+          _cell_widths_x.push_back(atof(p));
         buf = NULL;
       }
       arg_index++;
@@ -170,10 +169,10 @@ int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]) {
         ql = strtok_r(p, "*", &qr);
         if(strcmp(qr, "")) {
           for(int i=0; i< atoi(qr); i++)
-            RP._cell_widths_y.push_back(atof(ql));
+            _cell_widths_y.push_back(atof(ql));
         }
         else 
-          RP._cell_widths_y.push_back(atof(p));
+          _cell_widths_y.push_back(atof(p));
         buf = NULL;
       }
       arg_index++;      
@@ -188,17 +187,17 @@ int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]) {
         ql = strtok_r(p, "*", &qr);
         if(strcmp(qr, "")) {
           for(int i=0; i< atoi(qr); i++)
-            RP._cell_widths_z.push_back(atof(ql));
+            _cell_widths_z.push_back(atof(ql));
         }
         else 
-          RP._cell_widths_z.push_back(atof(p));
+          _cell_widths_z.push_back(atof(p));
         buf = NULL;
       }
       arg_index++;
     }
     else if(strcmp(argv[arg_index], "-ls_solver") == 0) {
       arg_index++;
-      RP._linear_solver=atoi(argv[arg_index++]);
+      _linear_solver=atoi(argv[arg_index++]);
     }
     else if(strcmp(argv[arg_index], "-seg_zones") == 0) {
       arg_index++;
@@ -210,29 +209,29 @@ int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]) {
         ql = strtok_r(p, "*", &qr);
         if(strcmp(qr, "")) {
           for(int i=0; i< atoi(qr); i++)
-            RP._seg_zones.push_back(atof(ql));
+            _seg_zones.push_back(atof(ql));
         }
         else 
-          RP._seg_zones.push_back(atof(p));
+          _seg_zones.push_back(atof(p));
         buf = NULL;
       }
       arg_index++;
     }
     else if(strcmp(argv[arg_index], "-MOC_src_residual_type") == 0) {
       arg_index++;
-      RP._MOC_src_residual_type = atoi(argv[arg_index++]);
+      _MOC_src_residual_type = atoi(argv[arg_index++]);
     }
     else if(strcmp(argv[arg_index], "-SOR_factor") == 0) {
       arg_index++;
-      RP._SOR_factor = atof(argv[arg_index++]);
+      _SOR_factor = atof(argv[arg_index++]);
     }
     else if(strcmp(argv[arg_index], "-CMFD_relaxation_factor") == 0) {
       arg_index++;
-      RP._CMFD_relaxation_factor = atof(argv[arg_index++]);
+      _CMFD_relaxation_factor = atof(argv[arg_index++]);
     }
     else if(strcmp(argv[arg_index], "-segmentation_type") == 0) {
       arg_index++;
-      RP._segmentation_type = atoi(argv[arg_index++]);
+      _segmentation_type = atoi(argv[arg_index++]);
     }
     else if(strcmp(argv[arg_index], "-CMFD_group_structure") == 0) {
       arg_index++;
@@ -255,26 +254,26 @@ int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]) {
           buf = NULL;
         }
         
-        RP._CMFD_group_structure.push_back(tmp);
+        _CMFD_group_structure.push_back(tmp);
         buf = NULL;
       }
       arg_index++;
     }  
     else if(strcmp(argv[arg_index], "-verbose_report") == 0) {
       arg_index++;
-      RP._verbose_report = atoi(argv[arg_index++]);
+      _verbose_report = atoi(argv[arg_index++]);
     }
     else if(strcmp(argv[arg_index], "-time_report") == 0) {
       arg_index++;
-      RP._time_report = atoi(argv[arg_index++]);
+      _time_report = atoi(argv[arg_index++]);
     }
     else if(strcmp(argv[arg_index], "-test_run") == 0) {
       arg_index++;
-      RP._test_run = atoi(argv[arg_index++]);
+      _test_run = atoi(argv[arg_index++]);
     }
     else if(strcmp(argv[arg_index], "-quadraturetype") == 0) {
       arg_index++;
-      RP._quadraturetype = atoi(argv[arg_index++]);
+      _quadraturetype = atoi(argv[arg_index++]);
     } 
     else if(strcmp(argv[arg_index], "-non_uniform_output") == 0) {
       arg_index++;
@@ -300,7 +299,7 @@ int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]) {
         widths_offset.push_back(tmp);
         buf = NULL;
       }
-      RP._non_uniform_mesh_lattices.push_back(widths_offset);
+      _non_uniform_mesh_lattices.push_back(widths_offset);
       arg_index++;
     }  
     else {

@@ -38,14 +38,14 @@ typedef std::vector<std::vector<std::vector<double> > > DoubleVector3D;
  */
 struct RuntimeParameters {
   RuntimeParameters() : _debug_flag(false), _NDx(1), _NDy(1), _NDz(1),
-    _NMx(1), _NMy(1), _NMz(1), _NCx(0), _NCy(0), _NCz(0), 
-    _num_threads(1), _azim_spacing(0.05), _num_azim(64), _polar_spacing(0.75), 
+    _NMx(1), _NMy(1), _NMz(1), _NCx(0), _NCy(0), _NCz(0),
+    _num_threads(1), _azim_spacing(0.05), _num_azim(64), _polar_spacing(0.75),
     _num_polar(10), _tolerance(1.0E-4), _max_iters(1000), _knearest(1),
     _CMFD_flux_update_on(true), _CMFD_centroid_update_on(false),
     _use_axial_interpolation(0), _log_filename(NULL), _linear_solver(true),
     _MOC_src_residual_type(1), _SOR_factor(1.0), _CMFD_relaxation_factor(1.0),
     _segmentation_type(3), _verbose_report(true), _time_report(true),
-    _log_level((char*)"NORMAL"),_quadraturetype(2), _test_run(false) {}
+    _log_level((char*)"NORMAL"), _quadraturetype(2), _test_run(false) {}
 
   /* To debug or not when running, dead while loop */
   bool _debug_flag;
@@ -98,7 +98,7 @@ struct RuntimeParameters {
   /* The order of k-nearest update */
   int _knearest;
 
-  /* Knearest update or conventional update */
+  /* K-nearest update or conventional update */
   bool _CMFD_centroid_update_on;
 
   /* Whether to use axial interpolation for CMFD update */
@@ -122,7 +122,6 @@ struct RuntimeParameters {
   /* MOC source convergence tolerance */
   double _tolerance;
 
-
   /* uniform lattice output */
   std::vector<std::vector<int> > _output_mesh_lattices;
 
@@ -136,9 +135,9 @@ struct RuntimeParameters {
 
   /* whether to run the code for test */
   bool _test_run;
+
+  /* Setter, can be used from command line */
+  int setRuntimeParameters(int argc, char *argv[]);
 };
-
-
-int setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]);
 
 #endif /* RUNTIME_H_ */

@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
   }
   
   RuntimeParameters runtime;
-  setRuntimeParameters(runtime, argc, argv);
+  runtime.setRuntimeParameters(argc, argv);
   
   /* stuck here for debug tools to attach */
   while (runtime._debug_flag) ;

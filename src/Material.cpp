@@ -299,8 +299,7 @@ FP_PRECISION* Material::getChi() {
  */
 FP_PRECISION* Material::getFissionMatrix() {
   if (_fiss_matrix == NULL)
-    log_printf(ERROR, "Unable to return Material %d's fission matrix "
-               "since it has not yet been built", _id);
+    buildFissionMatrix();
 
   return _fiss_matrix;
 }
@@ -437,8 +436,7 @@ FP_PRECISION Material::getChiByGroup(int group) {
  */
 FP_PRECISION Material::getFissionMatrixByGroup(int origin, int destination) {
   if (_fiss_matrix == NULL)
-    log_printf(ERROR, "Unable to return Material %d's fission matrix "
-               "cross section since it has not yet been built", _id);
+    buildFissionMatrix();
 
   else if (origin <= 0 || destination <= 0 ||
            origin > _num_groups || destination > _num_groups)
