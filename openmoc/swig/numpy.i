@@ -78,6 +78,7 @@
     if (py_obj == Py_None       ) return "Python None" ;
     if (PyCallable_Check(py_obj)) return "callable"    ;
     if (PyString_Check(  py_obj)) return "string"      ;
+    if (PyUnicode_Check( py_obj)) return "unicode"     ;
     if (PyInt_Check(     py_obj)) return "int"         ;
     if (PyFloat_Check(   py_obj)) return "float"       ;
     if (PyDict_Check(    py_obj)) return "dict"        ;
@@ -89,7 +90,7 @@
     if (PyInstance_Check(py_obj)) return "instance"    ;
 %#endif
 
-    return "unkown type";
+    return "unknown type";
   }
 
   /* Given a NumPy typecode, return a string describing the type.
