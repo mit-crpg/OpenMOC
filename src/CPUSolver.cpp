@@ -2256,7 +2256,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
 
     // The rest of the loop is treated separately
 #pragma omp simd aligned(sigma_t, fsr_flux)
-    for (int e=num_vector_groups * VEC_LENGTH; e < remainder; e++) {
+    for (int e=num_vector_groups * VEC_LENGTH; e < _num_groups; e++) {
       FP_PRECISION tau = sigma_t[e] * length;
 
       /* Compute the exponential */

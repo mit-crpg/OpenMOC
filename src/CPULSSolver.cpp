@@ -583,7 +583,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     // Handle remainder of energy groups
 #pragma omp simd aligned(tau, src_flat, src_linear, fsr_flux, exp_G, fsr_flux_x\
      , fsr_flux_y, fsr_flux_z)
-    for (int e=num_vector_groups * VEC_LENGTH; e < remainder; e++) {
+    for (int e=num_vector_groups * VEC_LENGTH; e < _num_groups; e++) {
 
       /* Compute exponential F1, F2 and H from G */
       FP_PRECISION exp_F1 = 1.f - tau[e]*exp_G[e];
