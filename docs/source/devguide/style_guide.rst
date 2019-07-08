@@ -6,7 +6,8 @@ Style Guide for OpenMOC
 
 In order to keep the OpenMOC code base consistent in style, this guide specifies
 a number of rules which should be adhered to when modified existing code or
-adding new code in OpenMC.
+adding new code in OpenMC. This guide should mostly agree with the `Google style guides`_
+for Python and C++.
 
 -------------
 General Rules
@@ -319,3 +320,4 @@ Avoid extraneous whitespace in the following situations:
 .. _api: http://en.wikipedia.org/wiki/Application_programming_interface
 .. _CamelCase: http://en.wikipedia.org/wiki/CamelCase
 .. _camelCase: http://en.wikipedia.org/wiki/CamelCase
+.. _Google style guide: http://google.github.io/styleguide

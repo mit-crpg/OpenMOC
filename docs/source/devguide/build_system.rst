@@ -49,7 +49,7 @@ For example, the following command would build and install the ``openmoc`` modul
 
 Similarly, the following command would build and install the ``openmoc`` module with default compiler (gcc), as well was the ``openmoc.cuda`` module, each with single precision and `debug symbols`_::
   
-  python setup.py install --user --with-cuda --sp=single --debug-mode
+  python setup.py install --user --with-cuda --fp=single --debug-mode
 
 
 .. _setup_file:

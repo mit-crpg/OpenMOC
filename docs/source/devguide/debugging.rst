@@ -329,7 +329,7 @@ To list breakpoint numbers only, ``info`` command is used with the :option:`brea
 
     (gdb) info break
 
-Likewise, to list all watchpints, the ``info`` command is used with the :option:`watchpoints` option:
+Likewise, to list all watchpoints, the ``info`` command is used with the :option:`watchpoints` option:
 
 .. code-block:: none
 
@@ -358,6 +358,35 @@ The ``backtrace`` or ``bt`` command may be used to show the trace of the functio
 
 The ``backtrace`` command can be particularly useful when debugging `segmentation faults`_. In particular, GDB may be used to run the program until the segmentation fault is reached. At this point, the use of ``backtrace`` will print the function call stack, showing where the segmentation faul occurred.
 
+Debugging with OpenMP threads
+-----------------------------
+
+Most of the time, OpenMOC will be run with more than one thread, and bugs might not manifest themselves on all threads. The ``info`` command can be run to check what each thread is doing.
+
+.. code-block:: none
+
+    (gdb) info thread
+
+To switch between threads and print variables local to each thread, one can use the ``thread`` command with the desired thread number.
+
+.. code-block:: none
+
+    (gdb) thread 4
+
+Debugging with multiple MPI processes
+-------------------------------------
+
+Some simulations may require OpenMOC to be run on more than one computing node. Debugging those situations with GDB is rather difficult, but not impossible. xterm can be used to spawn terminals which host each MPI process. On a cluster, a sshx connection and an interactive node reservation is required.
+
+.. code-block:: none
+
+    (gdb)  mpirun -np 2 xterm -e gdb python
+
+Another handy command is to tell GDB to start each process, and to run backtrace when it crashes/reaches a breakpoint using "-ex".
+
+.. code-block:: none
+
+    (gdb)  mpirun -np 2 gdb -batch -ex "run assembly-case.py" -ex "bt" python
 
 Stop Program Execution
 ----------------------

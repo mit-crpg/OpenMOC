@@ -19,7 +19,7 @@ Simulation Parameters
 
 The full power of Python is available to users designing OpenMOC simulations. As a result, simulation parameters may easily be defined and redefined in a Python script for one or more simulations at a user's discretion. However, some simulation parameters are best defined at runtime, including the number of azimuthal angles, azimuthal track spacing, number of threads, etc.
 
-The ``openmoc.options`` module provides functionality to parse arguments defined on the command line at runtime. The full list of options available in OpenMOC are itemized and described in :ref:`Runtime Options <runtime_options>`. The following code snippet illutrates how to instantiate an ``Options`` object and extract data from command line arguments.
+The ``openmoc.options`` module provides functionality to parse arguments defined on the command line at runtime. The full list of options available in OpenMOC are itemized and described in :ref:`Runtime Options <runtime_options>`. The following code snippet illutrates how to instantiate an ``Options`` object and extract data from command line arguments. Domain decomposition is specified with the Geometry class.
 
 .. code-block:: python
 
@@ -525,6 +525,15 @@ Once the cells for the geometry have been created, OpenMOC's ``Lattice`` class m
                           [pin_univ, pin_univ, pin_univ, pin_univ],
                           [pin_univ, pin_univ, pin_univ, pin_univ]])
 
+Non-uniform lattices can also be specified.
+
+.. code-block:: python
+
+    # Initialize the lattice for the geometry
+    lattice = openmoc.Lattice(name='4x4x2 pin lattice')
+    lattice.setWidthsX([1.26, 1.12, 1.12, 1.26])
+    lattice.setWidthsY([1.26, 1.12, 1.12, 1.26])
+    lattice.setWidthsZ([1, 2])
 
 Geometry
 --------
@@ -544,6 +553,37 @@ The final step in creating a geometry is to instantiate OpenMOC's ``Geometry`` c
     geometry.setRootUniverse(root_univ)
 
 
+Using domain symmetries
+-----------------------
+
+If the domain is symmetric along one or more of the Cartesian axis, OpenMOC can cut the computational domain in half/four/eight by introducing reflective boundary conditions at the center of the geometry.
+
+.. code-block:: python
+
+    # Use symmetry in X and Z to reduce computation domain
+    geometry.useSymmetry(True, False, True)
+
+
+Domain decomposition
+--------------------
+
+In order to run OpenMOC on more than one node of a computing cluster, distributed parallelism using MPI has to be used.
+
+.. code-block:: python
+
+    from mpi4py import MPI
+    # Initialize MPI, the library thread support should be at least MPI_THREAD_SERIALIZED
+    MPI.Init_thread()
+
+    # Use a 2x2x3 domain decomposition
+    geometry.setDomainDecomposition(2,2,3)
+
+In the console, one then needs to call mpirun with as many processes as there are domains. Multiple processes can be placed on a single node, and an usually optimal strategy is to bind them to sockets. For example here on 4 nodes with 2 sockets each, the command below can be run in a PBS job.
+
+.. code-block:: guess 
+
+    mpirun -n 8 --bind-to socket -npersocket 1 python run_script.py
+
 ----------------
 Track Generation
 ----------------
@@ -560,6 +600,26 @@ Once the geometry has been initialized for a simulation, the next step is to per
     # Generate tracks using ray tracing across the geometry
     track_generator.generateTracks()
 
+3D Track Generation
+-------------------
+
+For 3D geometries, a ``TrackGenerator3D`` object is used instead, as shown below. The number of polar angles and the axial spacing of rays now have to be specified. The ray tracing method can also be specified.
+
+.. code-block:: python
+
+    # Initialize the track generator after the geometry has been constructed
+    track_generator = openmoc.TrackGenerator3D(geometry, num_azim=64,\
+                                               num_polar=10, azim_spacing=0.05,\
+                                               z_spacing=0.75)
+
+    # Choose a ray tracing method (optional)
+    track_generator.setSegmentFormation(openmoc.OTF_STACKS)
+
+    # Choose axial segmentation heights (optional)
+    track_generator.setSegmentationZones([0, 10, 30])
+
+    # Generate tracks using ray tracing across the geometry
+    track_generator.generateTracks()
 
 --------------------
 MOC Source Iteration
@@ -567,8 +627,9 @@ MOC Source Iteration
 
 One of OpenMOC's ``Solver`` subclasses may be initialized given the ``TrackGenerator`` objects discussed in the preceding section. The most commonly used subclasses for OpenMOC simulations are itemized below:
 
-  * ``CPUSolver`` - multi-core CPUs, memory efficient, good parallel scaling [CPUs]_
-  * ``GPUSolver`` - GPUs, 30-50 :math:`\times` faster than CPUs [GPUs]_
+  * ``CPUSolver``   - multi-core CPUs, memory efficient, good parallel scaling [CPUs]_
+  * ``CPULSSolver`` - CPUSolver but with a linear source approximation, allowing for a lower FSR discretization
+  * ``GPUSolver``   - GPUs, 30-50 :math:`\times` faster than CPUs [GPUs]_
 
 
 Criticality Calculations
@@ -716,6 +777,11 @@ The resulting flux distribution in the third energy group (which previously was 
 
 .. warning:: This calculation mode has not yet been thoroughly tested
 
+SuperHomogenization Factors calculation
+---------------------------------------
+
+Using an OpenMC multi group cross section library, OpenMOC can determine SPH factors that make it match OpenMC reaction rates. More can be found in the sample inputs.
+
 Convergence Options
 -------------------
 
@@ -813,8 +879,7 @@ The quadrature recommended by [Yamamoto]_ is used by default for the polar angle
 FSR Volume Correction
 ---------------------
 
-To be updated...
-
+This feature is not implemented yet. When volumes determined by integration with OpenMOC differ too much from the real geometric volumes, it can be important to adjust track lengths to simulate the real volume.
 
 -----------------
 CMFD Acceleration
@@ -830,8 +895,8 @@ OpenMOC has an integrated CMFD acceleration framework that allows users to great
 
     # Optional CMFD parameters
     cmfd.setGroupStructure([1,4,8])
-    cmfd.setOpticallyThick(False)
     cmfd.setSORRelaxationFactor(1.5)
+    cmfd.setCMFDRelaxationFactor(0.7)
     cmfd.setConvergenceThreshold(1.E-8)
     cmfd.setFluxUpdateOn(True)
 
@@ -845,10 +910,27 @@ These lines of code should be placed in your input file at the location where th
   * ``setFluxUpdateOn`` (default: True) - This function is included to give the users the option to overlay the CMFD mesh, but toggle the CMFD update. If the CMFD mesh breaks up any parts of the geometry, this function be can be used to overlay the CMFD mesh for segmentation, but not perform a CMFD solve and flux update after each MOC iteration. This is useful in comparing runs with and without CMFD and ensuring the exact same segments are used.
   * ``setGroupStructure`` (default: same as MOC group structure) - OpenMOC is able to perform CMFD on a coarse energy group structure to allow fine energy group problems to be accelerated with CMFD without incurring a significant computational overhead for CMFD. This function takes a python list as input with the first value of 1 (to indicate the first energy group) followed by an increasing values ending with the number of energy groups plus 1. In the example above, a 7 group MOC problem is broken up into 2 energy groups for CMFD.
   * ``setOpticallyThick`` (default: False) - OpenMOC uses a correction factor on the material diffusion coefficients as described in the Theory and Methodology section. This correction factor is turned off by default.
-  * ``setSORRelaxationFactor`` (default: 1.0) - As described in the Theory and Methodology section, OpenMOC use the successive over-relaxation method (SOR) to solve the CMFD diffusion eigenvalue problem. The SOR method can use an over-relaxation factor to speed up the convergence of problems. Valid input for the SOR relaxation factor are values between 0 and 2. By default the SOR factor is set to 1.0, reducing the SOR method to the Gauss-Seidel method.
+  * ``setSORRelaxationFactor`` (default: 1.5) - As described in the Theory and Methodology section, OpenMOC use the successive over-relaxation method (SOR) to solve the CMFD diffusion eigenvalue problem. The SOR method can use an over-relaxation factor to speed up the convergence of problems. Valid input for the SOR relaxation factor are values between 0 and 2. By default the SOR factor is set to 1.0, reducing the SOR method to the Gauss-Seidel method.
+  * ``setCMFDRelaxationFactor`` (default: 0.7) - As described in the Theory and Methodology section, OpenMOC use correction diffusion coefficients to make CMFD match the MOC neutron balance. These coefficients can be damped using relaxation to improve the stability of CMFD.
   * ``setConvergenceThreshold`` (default: 1.E-7) - This method is used to set the convergence of the root-mean-square-error on the region and group wise fission source of the CMFD diffusion eigenvalue problem. By default, the convergence threshold is set at 1.E-7 and is sufficient for most problems.
 
 With those few additional lines of code, you should be able to create an input file for any problem and utilize CMFD acceleration. The input file ``c5g7-cmfd.py`` provides a good example of how an input file is constructed that uses CMFD acceleration.
+
+Non-uniform CMFD mesh
+---------------------
+
+If the system geometry is not arranged along a regular mesh, using a regular CMFD mesh will split many source regions and create an unnecessary computational burden. For example, in a PWR, the fuel pins are positioned in an irregular lattice, since the assembly pitch is different at the edges because of the water gap between assemblies. It is possible in OpenMOC to input a non-uniform CMFD mesh, by specifying the widths directly.
+
+.. code-block:: python
+
+    # Create the widths array, adapted to the geometry
+    widths = [[1.31, 1.25984, 1.31], [1.31, 1.25984, 1.31], 
+          [2 for i in range(230)]]
+
+    # Initialize the Cmfd object
+    cmfd = Cmfd()
+    cmfd.setWidths(widths)
+    ...
 
 .. _logging module: http://mit-crpg.github.io/OpenMOC/doxygen/html/log_8h.html
 .. _printf: http://www.cplusplus.com/reference/cstdio/printf/

@@ -66,6 +66,21 @@ The reader should note that this method for computing the effective track spacin
 
    t_{s,m,eff} \;\;\; \le \;\;\; t_{s}
 
+.. _modular_ray_tracing:
+
+Modular Ray Tracing
+===================
+
+For domain decomposed situations, all domains have the same shape and are treated independently by the track generator. By cutting ray tracing into similar modules, tracks naturally line up between neighboring domains. Track fluxes are then transferred naturally during the transport sweep from one domain to another along each track. :ref:`Figure 2 <modular_rt>` illustrates this.
+
+.. _modular_rt:
+
+.. figure:: ../../img/ray-tracing-2d_periodic_track_cycles.png
+   :align: center
+   :figclass: align-center
+   :width: 600px
+
+   **Figure 2**: Modular ray tracing in the four domains ensures the track line up at each boundary
 
 .. _azimuthal-angle-quadrature:
 
@@ -279,8 +294,29 @@ This algorithm relies upon the use of a small numerical parameter :math:`\epsilo
 
    **Algorithm 5**: Track segmentation algorithm.
 
+.. _otf-ray-tracing:
+
+On-The-Fly Ray Tracing
+======================
+
+Most MOC solvers generate tracks & segments, save them in memory, then solve the MOC equations over the segments. For 3D simulations, the memory cost would be prohibitive. OpenMOC proposes two On-The-Fly approaches to 3D track generation. 3D tracks are generated from a corresponding 2D track as show in :ref:`Figure 4<OTF_RT>`. Only the segment information from the 2D track and the index of the 3D track is required to generate the 3D track on-the-fly and find its intersections with the geometry to form segments. One approach generates a full 3D track, which crosses the entire geometry, then solves the MOC equations along it, and the other generates a full 3D stack of tracks before solving the MOC equations.
+
+Stacked tracks can be generated when the geometry is axially extruded, which means that all cell surfaces are either parallel or perpendicular to the Z-direction. This particular configuration simplifies ray tracing, allowing for increased performance.
+
+.. _OTF_RT:
+
+.. figure:: ../../img/ray-tracing-3d-track_cycles.png
+   :align: center
+   :figclass: align-center
+   :width: 400px
+
+   **Figure 4**: 3D tracks generated from a 2D track
+
+More details on On-The-Fly ray tracing can be found in `G. Gunow PhD Thesis`_.
 
 References
 ==========
 
 .. [Cacuci] D. Cacuci, et. al. "Handbook of Nuclear Engineering" *Springer Science+Business Media*, New York, NY, pp. 1111-1113 (2010).
+
+.. [G. Gunow PhD Thesis] G. Gunow "Full Core 3D Neutron Transport Simulation Using the Method of Characteristics with Linear Sources", PhD Thesis, Massachusetts Institute of Technology (2018).

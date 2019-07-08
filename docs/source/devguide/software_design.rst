@@ -37,10 +37,12 @@ Class                        Parent Class             Category
 ``Lattice``                  N/A                      Constructive Solid Geometry
 ``Geometry``                 N/A                      Constructive Solid Geometry
 ``TrackGenerator``           N/A                      Ray Tracing
+``TrackGenerator3D``         TrackGenerator           Ray Tracing
 ``Quadrature``               N/A                      Ray Tracing
 ``Material``                 N/A                      Nuclear Data
 ``Solver``                   N/A                      Method of Characteristics
 ``CPUSolver``                ``Solver``               Method of Characteristics
+``CPULSSolver``              ``CPUSolver``            Method of Characteristics
 ``GPUSolver``                ``Solver``               Method of Characteristics
 ``VectorizedSolver``         ``CPUSolver``            Method of Characteristics
 ===========================  =======================  ============================
@@ -67,6 +69,7 @@ Module                   Description
 ``openmoc.plotter``      Visualizations for geometry, flux, etc.
 ``openmoc.process``      Data processing
 ``openmoc.cuda``         Solver for NVIDIA GPUs
+``openmoc.krylov``       Solver based on krylov IRAM methods
 =======================  ======================================
 
 **Table 2**: OpenMOC's Python modules.
