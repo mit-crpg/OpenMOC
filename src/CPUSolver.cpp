@@ -1770,6 +1770,7 @@ double CPUSolver::normalizeFluxes() {
  */
 void CPUSolver::computeFSRSources(int iteration) {
 
+  long num_negative_fsrs = 0;
   long num_negative_sources = 0;
 
   /* For all FSRs, find the source */
@@ -1781,6 +1782,7 @@ void CPUSolver::computeFSRSources(int iteration) {
     FP_PRECISION fiss_mat;
     FP_PRECISION fission_sources[_num_groups];
     FP_PRECISION scatter_sources[_num_groups];
+    bool negative_source_in_fsr = false;
 
     /* Compute total (fission+scatter+fixed) source for group G */
     for (int G=0; G < _num_groups; G++) {
@@ -1807,19 +1809,27 @@ void CPUSolver::computeFSRSources(int iteration) {
       if (_reduced_sources(r,G) < 0.0) {
 #pragma omp atomic
         num_negative_sources++;
+        negative_source_in_fsr = true;
         if (iteration < 30 && !_negative_fluxes_allowed)
           _reduced_sources(r,G) = 1.0e-20;
       }
     }
+
+    if (negative_source_in_fsr)
+#pragma omp atomic
+      num_negative_fsrs++;
   }
 
   /* Tally the total number of negative source across the entire problem */
   long total_num_negative_sources = num_negative_sources;
+  long total_num_negative_fsrs = num_negative_fsrs;
   int num_negative_source_domains = (num_negative_sources > 0);
   int total_num_negative_source_domains = num_negative_source_domains;
 #ifdef MPIx
   if (_geometry->isDomainDecomposed()) {
     MPI_Allreduce(&num_negative_sources, &total_num_negative_sources, 1,
+                  MPI_LONG, MPI_SUM, _geometry->getMPICart());
+    MPI_Allreduce(&num_negative_fsrs, &total_num_negative_fsrs, 1,
                   MPI_LONG, MPI_SUM, _geometry->getMPICart());
     MPI_Allreduce(&num_negative_source_domains,
                   &total_num_negative_source_domains, 1,
@@ -1830,9 +1840,9 @@ void CPUSolver::computeFSRSources(int iteration) {
   /* Report negative sources */
   if (total_num_negative_sources > 0 && !_negative_fluxes_allowed) {
     if (_geometry->isRootDomain()) {
-      log_printf(WARNING, "Computed %ld negative sources on %d domains",
-                 total_num_negative_sources,
-                 total_num_negative_source_domains);
+      log_printf(WARNING, "Computed %ld negative sources in %ld fsrs on %d "
+                 "domains", total_num_negative_sources,
+                 total_num_negative_fsrs, total_num_negative_source_domains);
       if (iteration < 30)
         log_printf(WARNING, "Negative sources corrected to zero");
     }

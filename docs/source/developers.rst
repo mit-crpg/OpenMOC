@@ -40,6 +40,10 @@ Development Team
 
 - **Dr. Andrew Siegel** is a scientist in the Division of Mathematics and Computer Science at ANL and a fellow at the Computation Institute at the University of Chicago. He is the Director of the DOE's Office of Science, Center for Exascale Simulation of Advanced Reactors (CESAR), and was a leading advisor for the OpenMOC development team.
 
+`Other institutions`_
+---------------------
+
+- **Dr Wenbin Wu** (@wuwenbin2006) developped non-uniform meshes and non-uniform CMFD during a postdoctoral appointment in CRPG. 
 
 .. _Massachusetts Institute of Technology: http://web.mit.edu/
 .. _Argonne National Laboratory: http://www.anl.gov/

@@ -27,7 +27,13 @@ Citations are tracked automatically by `Google Scholar`_. A more comprehensive l
 
 Journals
 =========
-- J.Tramm, G.Gunow, T.He, K.Smith, B.Forget, A.Siegel, “ A task-based parallelism and vectorized approach to 3D Method of Characteristics reactor simulation for high performance computing architectures ”, Computer Physics Communications, 202, 141-150, (2016)
+- Zhaoyuan Liu, Kord Smith and Benoit Forget, "Calculation Method for Multi-group Migration Area in Deterministic Simulation Methods", To be published (2019)
+
+- Zhaoyuan Liu, Guillaume Giudicelli, Kord Smith and Benoit Forget, "Transport Correction using Cumulative Migration Method by Conserving Migration Area", To be published (2019)
+
+- Geoffrey Gunow, Benoit Forget, Kord Smith, "Full Core 3D Simulation of the BEAVRS Benchmark with OpenMOC", Annals of Nuclear Energy, Volume 134, December 2019, Pages 299-304
+
+- J.Tramm, G.Gunow, T.He, K.Smith, B.Forget, A.Siegel, “ A task-based parallelism and vectorized approach to 3D Method of Characteristics reactor simulation for high performance computing architectures \”, Computer Physics Communications, 202, 141-150, (2016)
 
 - William Boyd, Andrew Siegel, Benoit Forget and Kord Smith, "Parallel Performance Results for the OpenMOC Neutron Transport Code on Multi-Core Platforms." *Int'l Journ. of High Perf. Comp. Appl.*, 30 (2016).
 

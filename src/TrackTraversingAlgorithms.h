@@ -330,6 +330,4 @@ public:
   void onTrack(Track* track, segment* segments);
 };
 
-
-
 #endif

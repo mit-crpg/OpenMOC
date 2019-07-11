@@ -72,6 +72,7 @@ Build Configuration Options
 
 This section section will provides an overview of the most useful and relevant build options for OpenMOC developers.
 
+
 .. option:: --user
 
 Installs OpenMOC in a user local directory (ie, `/home/username/.local/lib/pythonX.X/site-packages`) where it will only be accessible to your username. Installation without this option will instead install OpenMOC in the main Python directory accessible to all users of your machine (ie, `/usr/lib/pythonX.X/site-packages/`). This option is highly recommended for developers as it will prevent your Python packages from being polluted with code that has not yet been validated.
@@ -101,9 +102,16 @@ Compiles the ``openmoc.cuda`` module using the :program:`nvcc` compiler. This mo
 
 Compiles with debugging symbols and information by including the :envvar:`-g` compile flag.
 
+
+.. option:: --sanitizer-mode
+
+Compiles with ASan, an address sanitizer developped by Google that detects memory corruption bugs. Compatible with GCC and Clang.
+
+
 .. option:: --profile-mode
 
 Compiles with profiling information by including the :envvar:`-p` compile flag.
+
 
 .. option:: --with-ccache
 
@@ -111,6 +119,29 @@ Compiles using ccache_ which uses a cache to speedup compilation of unchanged so
 
     sudo apt-get install ccache
 
+----------------------
+Installing with Docker
+----------------------
+
+A Dockerfile that installs OpenMOC and its dependences is provided. A container may be permanently hosted in the future.
+
+.. code-block:: guess
+
+    # Build image
+    docker build -t <container name>
+
+    # List images
+    docker images
+
+    # Execute the image
+    docker run <container name>
+
+    # Run a shell inside the container
+    docker-compose run <container name> /bin/bash
+    # or
+    docker exec -it <container name> /bin/bash
+
+.. note:: Running OpenMOC from Docker will be significantly slower than the regular build
 
 .. _distutils: http://docs.python.org/2/library/distutils.html#module-distutils
 .. _gcc: http://gcc.gnu.org/
@@ -121,8 +152,3 @@ Compiles using ccache_ which uses a cache to speedup compilation of unchanged so
 .. _NVIDIA: http://www.nvidia.com/content/global/global.php
 .. _BlueGene: http://www-03.ibm.com/systems/technicalcomputing/solutions/bluegene/
 
------------------------------
-Installing on Ubuntu with PPA
------------------------------
-
-A binary package for Debian Linux derivatives, such as Ubuntu, is under development. Please check back at a later time for further updates.
