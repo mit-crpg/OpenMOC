@@ -63,7 +63,7 @@ class RuntimeTestHarness(TestHarness):
         '-SOR_factor', '1.5',
         '-CMFD_relaxation_factor', '0.7',
         '-ls_solver', '1',
-        '-max_iters', '100',
+        '-max_iters', '15',
         '-MOC_src_residual_type', '1',
         '-MOC_src_tolerance', '1.0E-2',
         '-output_mesh_lattice', '-output_mesh_lattice', ' 5,5,9', ' -output_type', ' 0',

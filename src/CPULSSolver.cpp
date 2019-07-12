@@ -445,8 +445,8 @@ void CPULSSolver::computeFSRSources(int iteration) {
 
         /* Compute total (scatter+fission) reduced source moments */
         if (_SOLVE_3D) {
-          if (!_negative_fluxes_allowed && (_reduced_sources(r,g) > 1e-15
-              || iteration > 29)) {
+          if (_negative_fluxes_allowed || _reduced_sources(r,g) > 1e-15
+              || iteration > 29) {
             _reduced_sources_xyz(r,g,0) = ONE_OVER_FOUR_PI / 2 *
                  (_FSR_lin_exp_matrix[r*num_coeffs  ] * src_x +
                   _FSR_lin_exp_matrix[r*num_coeffs+2] * src_y +
@@ -461,14 +461,14 @@ void CPULSSolver::computeFSRSources(int iteration) {
                   _FSR_lin_exp_matrix[r*num_coeffs+5] * src_z);
           }
           else {
-            _reduced_sources_xyz(r,g,0) = 1e-20;
-            _reduced_sources_xyz(r,g,1) = 1e-20;
-            _reduced_sources_xyz(r,g,2) = 1e-20;
+            _reduced_sources_xyz(r,g,0) = 1e-25;
+            _reduced_sources_xyz(r,g,1) = 1e-25;
+            _reduced_sources_xyz(r,g,2) = 1e-25;
           }
         }
         else {
-          if (!_negative_fluxes_allowed && (_reduced_sources(r,g) > 1e-15
-              || iteration > 29)) {
+          if (_negative_fluxes_allowed || _reduced_sources(r,g) > 1e-15
+              || iteration > 29) {
             _reduced_sources_xyz(r,g,0) = ONE_OVER_FOUR_PI / 2 *
                  (_FSR_lin_exp_matrix[r*num_coeffs  ] * src_x +
                   _FSR_lin_exp_matrix[r*num_coeffs+2] * src_y);
@@ -805,7 +805,7 @@ void CPULSSolver::addSourceToScalarFlux() {
 
         if (_scalar_flux(r, e) < 0.0 && !_negative_fluxes_allowed) {
 #pragma omp atomic update
-        num_negative_fluxes++;
+          num_negative_fluxes++;
         }
       }
     }

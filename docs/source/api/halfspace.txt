@@ -1,9 +1,9 @@
-.. _cellbasic:
+.. _halfspace:
 
 =========
-CellBasic
+Halfspace
 =========
 
-.. doxygenclass:: CellBasic
+.. doxygenclass:: Halfspace
    :project: OpenMOC
    :members:

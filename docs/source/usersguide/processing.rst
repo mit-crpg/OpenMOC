@@ -244,6 +244,36 @@ The code snippet below illustrates one possible configuration of parameters to t
 .. note:: The fission rates are not normalized in any way - this is left to the user's discretion during data processing.
 
 
+Non-uniform meshes
+------------------
+
+Non-uniform Cartesian meshes can be defined using a different mesh class, defined on the C++ side but callable from Python. They can be defined by defining the non-uniform widths in each direction, as shown below,
+
+.. code-block:: python
+
+    import openmoc
+
+    # Setup and run simulation
+    ...
+
+    # Create a non-uniform lattice, with no offset
+    lattice = openmoc.Lattice()
+    lattice.setNumX(4)
+    lattice.setNumX(4)
+    lattice.setNumZ(1)
+    lattice.setWidthsX([1,2,2,1])
+    lattice.setWidthsY([2,1,2,2])
+    lattice.setWidthsZ([4])
+    lattice.computeSizes()
+
+    # Create OpenMOC Mesh on which to tally fission rates
+    mesh = openmoc.Mesh()
+    mesh.setLattice(lattice)
+
+    # Tally OpenMOC fission rates on the Mesh and return NumPy array
+    fiss_rates = mesh.getReactionRates(openmoc.FISSION_RX, volume_average=False)
+
+
 ----------------------
 Geometry Visualization
 ----------------------
@@ -261,6 +291,7 @@ Parameter            Type                       Default    Optional   Note
 ===================  =========================  =========  =========  ===========================================
 ``track_generator``  ``TrackGenerator``         None       No         The tracks of interest
 ``get_figure``       boolean                    False      Yes        Whether to return the Matplotlib ``Figure``
+``plot_3D``          boolean                    False      Yes        Whether to plot 2D (default) or 3D tracks
 ===================  =========================  =========  =========  ===========================================
 
 **Table 8**: Parameters for the ``openmoc.plotter.plot_tracks(...)`` routine.
@@ -302,6 +333,7 @@ Parameter            Type                       Default    Optional   Note
 ===================  =========================  =========  =========  ===========================================
 ``track_generator``  ``TrackGenerator``         None       No         The tracks of interest
 ``get_figure``       boolean                    False      Yes        Whether to return the Matplotlib ``Figure``
+``plot_3D``          boolean                    False      Yes        Whether to plot 2D (default) or 3D segments
 ===================  =========================  =========  =========  ===========================================
 
 **Table 9**: Parameters for the ``openmoc.plotter.plot_segments(...)`` routine.
@@ -346,7 +378,9 @@ Parameter        Type             Default        Optional   Note
 ``gridsize``     integer          250            Yes        The pixel resolution
 ``xlim``         2-tuple          None           Yes        The min/max :math:`x`-coordinates to plot
 ``ylim``         2-tuple          None           Yes        The min/max :math:`y`-coordinates to plot
-``zcoord``       float            None           Yes        The level along the :math:`z`-axis to plot
+``zlim``         2-tuple          None           Yes        The min/max :math:`z`-coordinates to plot
+``plane``        string           :math:`xy`     Yes        Which plane to plot in (:math:`xy`, :math:`xz`, :math:`yz`)
+``offset``       float            0              Yes        The level along the remaining axis to plot at
 ``get_figure``   boolean          False          Yes        Whether to return the Matplotlib ``Figure``
 ``library``      string           'matplotlib'   Yes        The plotting library to use ('matplotlib' or 'pil')
 ===============  ===============  =============  =========  ========================================================
@@ -392,7 +426,9 @@ Parameter        Type             Default        Optional   Note
 ``gridsize``     integer          250            Yes        The pixel resolution
 ``xlim``         2-tuple          None           Yes        The min/max :math:`x`-coordinates to plot
 ``ylim``         2-tuple          None           Yes        The min/max :math:`y`-coordinates to plot
-``zcoord``       float            None           Yes        The level along the :math:`z`-axis to plot
+``zlim``         2-tuple          None           Yes        The min/max :math:`z`-coordinates to plot
+``plane``        string           :math:`xy`     Yes        Which plane to plot in (:math:`xy`, :math:`xz`, :math:`yz`)
+``offset``       float            0              Yes        The level along the remaining axis to plot at
 ``get_figure``   boolean          False          Yes        Whether to return the Matplotlib ``Figure``
 ``library``      string           'matplotlib'   Yes        The plotting library to use ('matplotlib' or 'pil')
 ===============  ===============  =============  =========  ========================================================
@@ -439,6 +475,9 @@ Parameter          Type             Default        Optional   Note
 ``gridsize``       integer          250            Yes        The pixel resolution
 ``xlim``           2-tuple          None           Yes        The min/max :math:`x`-coordinates to plot
 ``ylim``           2-tuple          None           Yes        The min/max :math:`y`-coordinates to plot
+``zlim``           2-tuple          None           Yes        The min/max :math:`z`-coordinates to plot
+``plane``          string           :math:`xy`     Yes        Which plane to plot in (:math:`xy`, :math:`xz`, :math:`yz`)
+``offset``         float            0              Yes        The level along the remaining axis to plot at
 ``centroids``      boolean          False          Yes        Whether to plot the FSR centroids
 ``marker_type``    string           ``'o'``        Yes        The marker type to use for FSR centroids
 ``marker_size``    integer          2              Yes        The marker size to use for FSR centroids
@@ -488,6 +527,9 @@ Parameter        Type             Default        Optional   Note
 ``gridsize``     integer          250            Yes        The pixel resolution
 ``xlim``         2-tuple          None           Yes        The min/max :math:`x`-coordinates to plot
 ``ylim``         2-tuple          None           Yes        The min/max :math:`y`-coordinates to plot
+``zlim``         2-tuple          None           Yes        The min/max :math:`z`-coordinates to plot
+``plane``        string           :math:`xy`     Yes        Which plane to plot in (:math:`xy`, :math:`xz`, :math:`yz`)
+``offset``       float            0              Yes        The level along the remaining axis to plot at
 ``get_figure``   boolean          False          Yes        Whether to return the Matplotlib ``Figure``
 ``library``      string           'matplotlib'   Yes        The plotting library to use ('matplotlib' or 'pil')
 ===============  ===============  =============  =========  ========================================================
@@ -548,6 +590,9 @@ Parameter           Type             Default        Optional   Note
 ``gridsize``        integer          250            Yes        The pixel resolution
 ``xlim``            2-tuple          None           Yes        The min/max :math:`x`-coordinates to plot
 ``ylim``            2-tuple          None           Yes        The min/max :math:`y`-coordinates to plot
+``zlim``            2-tuple          None           Yes        The min/max :math:`z`-coordinates to plot
+``plane``           string           :math:`xy`     Yes        Which plane to plot in (:math:`xy`, :math:`xz`, :math:`yz`)
+``offset``          float            None           Yes        The level along the remaining axis to plot at
 ``get_figure``      boolean          False          Yes        Whether to return the Matplotlib ``Figure``
 ``library``         string           'matplotlib'   Yes        The plotting library to use ('matplotlib' or 'pil')
 ==================  ===============  =============  =========  ========================================================
@@ -658,6 +703,9 @@ Parameter               Type                 Default        Optional   Note
 ``gridsize``            integer              250            Yes        The pixel resolution
 ``xlim``                2-tuple              None           Yes        The min/max :math:`x`-coordinates to plot
 ``ylim``                2-tuple              None           Yes        The min/max :math:`y`-coordinates to plot
+``zlim``                2-tuple              None           Yes        The min/max :math:`z`-coordinates to plot
+``plane``               string               :math:`xy`     Yes        Which plane to plot in (:math:`xy`, :math:`xz`, :math:`yz`)
+``offset``              float                0              Yes        The level along the remaining axis to plot at
 ``get_figure``          boolean              False          Yes        Whether to return the Matplotlib ``Figure``
 ``library``             string               'matplotlib'   Yes        The plotting library to use ('matplotlib' or 'pil')
 ======================  ===================  =============  =========  =====================================================
@@ -690,6 +738,50 @@ A depiction of the energy-integrated FSR fission rates for the C5G7 benchmark (:
 
 **Figure 9**: The energy-integrated FSR fission rates in the C5G7 benchmark problem.
 
+
+.. note:: The runtime required by the plotting routine scales with the number of pixels in the image (the square of the ``gridsize`` parameter).
+
+-----------------------------
+Flux eigenmodes Visualization
+-----------------------------
+
+The ``openmoc.plotter`` module includes routines to plot the eigenmodes of the flux in each flat source region. To plot the eigenmodes, use the ``plot_eigenmode_fluxes(...)`` routine in the ``openmoc.plotter`` module. The parameters accepted by this routine are described in :ref:`Table 16 <table_plot_eigenmode_fluxes>`.
+
+.. _table_plot_eigenmode_fluxes:
+
+======================  ===================  =============  =========  =====================================================
+Parameter               Type                 Default        Optional   Note
+======================  ===================  =============  =========  =====================================================
+``solver``              ``IRAMSolver``       None           No         The ``IRAMSolver`` used to converge the flux modes
+``eigenmodes``          list                 None           No         Create separate plots for each eigenmode
+``energy_groups``       list                 [1]            Yes        Create separate plots for each energy group
+``norm``                boolean              False          Yes        Whether to normalize the fission rates
+``gridsize``            integer              250            Yes        The pixel resolution
+``xlim``                2-tuple              None           Yes        The min/max :math:`x`-coordinates to plot
+``ylim``                2-tuple              None           Yes        The min/max :math:`y`-coordinates to plot
+``zlim``                2-tuple              None           Yes        The min/max :math:`z`-coordinates to plot
+``plane``               string               :math:`xy`     Yes        Which plane to plot in (:math:`xy`, :math:`xz`, :math:`yz`)
+``offset``              float                0              Yes        The level along the remaining axis to plot at
+``get_figure``          boolean              False          Yes        Whether to return the Matplotlib ``Figure``
+``library``             string               'matplotlib'   Yes        The plotting library to use ('matplotlib' or 'pil')
+======================  ===================  =============  =========  =====================================================
+
+**Table 16**: Parameters for the ``openmoc.plotter.plot_eigenmode_fluxes(...)`` routine.
+
+The code snippet below illustrates one possible configuration of parameters to the routine.
+
+.. code-block:: python
+
+    import openmoc.plotter
+
+    # Setup geometry and generate tracks
+    ...
+
+    # Setup IRAMSolver and converge the eigenmodes
+    ...
+
+    # Plot the eigenmodes in each FSR in a 500 x 500 pixel image
+    openmoc.plotter.plot_eigenmode_fluxes(IRAMSolver, eigenmodes=[1], gridsize=500)
 
 .. note:: The runtime required by the plotting routine scales with the number of pixels in the image (the square of the ``gridsize`` parameter).
 
@@ -728,6 +820,9 @@ Property                  Type                      Default                     
 ``gridsize``              integer                   250                         The pixel resolution
 ``xlim``                  2-tuple                   None                        The min/max :math:`x`-coordinates to plot
 ``ylim``                  2-tuple                   None                        The min/max :math:`y`-coordinates to plot
+``zlim``                  2-tuple                   None                        The min/max :math:`z`-coordinates to plot
+``plane``                 string                    :math:`xy`                  Which plane to plot in (:math:`xy`, :math:`xz`, :math:`yz`)
+``offset``                float                     0                           The level along the remaining axis to plot at
 ``title``                 string                    None                        The minor title string
 ``suptitle``              string                    None                        The major title string
 ``norm``                  boolean                   False                       Normalize the plotted data to unity
@@ -811,7 +906,7 @@ The code snippet below illustrates the use of this routine.
 
     openmoc.plotter.plot_quadrature(solver)
 
-A depiction of the Tabuchi-Yamamoto polar quadrature used by default in OpenMOC is illustrated in :ref:`Figure 11 <figure_quadrature>`.
+A depiction of the Tabuchi-Yamamoto polar quadrature used by default (for 2D simulations, Gauss Legendre in 3D) in OpenMOC is illustrated in :ref:`Figure 11 <figure_quadrature>`.
 
 .. _figure_quadrature:
 
@@ -820,7 +915,7 @@ A depiction of the Tabuchi-Yamamoto polar quadrature used by default in OpenMOC 
    :figclass: align-center
    :width: 400px
 
-   **Figure 11**: The Tabuchi-Yamamoto polar quadrature used as the default in OpenMOC.
+   **Figure 11**: The Tabuchi-Yamamoto polar quadrature used as the default in 2D OpenMOC simulations.
 
 
 .. _dictionary: http://docs.python.org/2/library/stdtypes.html#mapping-types-dict

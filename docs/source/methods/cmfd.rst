@@ -6,7 +6,7 @@ Coarse Mesh Finite Difference Acceleration
 
 While MOC offers many benefits including treatment of complex geometries and amenability to parallelization, it suffers from slow convergence which necessitates the use of acceleration methods. Numerous acceleration schemes have been proposed for MOC such as CMFD [Smith-1983]_, coarse mesh rebalance (CMR) [Yamamoto-2002]_, [Yamamoto-2005]_, [Yamamoto-2008]_, [Lewis]_, and low order transport operator acceleration [Li]_ with CMFD being the most widely adopted due to its simplicity and acceleration performance. OpenMOC uses the CMFD nonlinear diffusion acceleration (NDA) scheme to reduce the number of iterations required for convergence. Acceleration schemes, such as NDA, are necessary when solving full-core problems which require thousands of power iterations in LWR problems that tend to have high dominance ratios. CMFD was first proposed by Smith [1]_ and has been widely used in accelerating neutron diffusion and transport problems for many years. In particular, it has been shown that CMFD acceleration gives :math:`>` 100x speedups on large LWR problems [Smith-2002]_.
 
-CMFD acceleration functions by using the solution of a coarse mesh diffusion problem to accelerate the convergence of a fine mesh transport problem. It is implemented by overlaying a 2D cartesian mesh over an FSR mesh. :ref:`Figure 1 <figure-fsr-mesh-regions>` gives an illustration of the FSR mesh layout and coarse mesh layout used for solving a 17 x 17 PWR assembly problem.
+CMFD acceleration functions by using the solution of a coarse mesh diffusion problem to accelerate the convergence of a fine mesh transport problem. It is implemented by overlaying a 2D (or 3D) cartesian mesh over an FSR mesh. :ref:`Figure 1 <figure-fsr-mesh-regions>` gives an illustration of the FSR mesh layout and coarse mesh layout used for solving a 17 x 17 PWR assembly problem.
 
 .. _figure-fsr-mesh-regions:
 
@@ -260,7 +260,7 @@ As shown in :ref:`Figure 1 <figure-fsr-mesh-regions>` the CMFD mesh is often app
     \alpha_{{\mathbf{g}},p}^{i,j,x} = \left( \frac{1 + exp[-\gamma^{i,j,x}_{\mathbf{g},p}]}{1 - exp[-\gamma^{i,j,x}_{\mathbf{g},p}]} \right) - \frac{2}{\gamma^{i,j,x}_{\mathbf{g},p}} \\
     \gamma^{i,j,x}_{\mathbf{g},p} = \frac{\Delta x^{i,j}}{3 D_{\mathbf{g}}^{i,j} \cos (\theta_p)}
 
-Note that the effective diffusion coefficient depends on the width of the cell and is therefore directional in a 2D mesh. :eq:`eqn-optic-thick-d` can also be used to compute the effective diffusion coefficient in the y-direction, which will differ from the effective diffusion coefficient in the x-direction if the cell is not square. As the size of the cell approaches zero and the optical thickness of the cell approaches the optically thin limit, the effective diffusion coefficient will approach the material diffusion coefficient. For simplicity, we continue to use the surface diffusion coefficient terms in the rest of this thesis without the "eff" superscript.
+Note that the effective diffusion coefficient depends on the width of the cell and is therefore directional in a 2D (or 3D) mesh. :eq:`eqn-optic-thick-d` can also be used to compute the effective diffusion coefficient in the y-direction, which will differ from the effective diffusion coefficient in the x-direction if the cell is not square. As the size of the cell approaches zero and the optical thickness of the cell approaches the optically thin limit, the effective diffusion coefficient will approach the material diffusion coefficient. For simplicity, we continue to use the surface diffusion coefficient terms in the rest of this thesis without the "eff" superscript.
 
 
 .. _corner-crossings
@@ -358,7 +358,7 @@ We can condense the CMFD diffusion equations down to matrix form to get the foll
 
    A \phi = \frac{1}{k_{eff}} M \phi
 
-The matrices can be arranged in either a group-wise or cell-wise ordering. The CMFD implementation in OpenMOC uses a cell-wise order where the A matrix is composed of a block diagonal with blocks of size G x G and four off-diagonals for transport to neighboring cells as shown in :ref:`Figure 8 <figure-cmfd-matrix>`.
+The matrices can be arranged in either a group-wise or cell-wise ordering. The CMFD implementation in OpenMOC uses a cell-wise order where the A matrix is composed of a block diagonal with blocks of size G x G and four off-diagonals (six in 3D) for transport to neighboring cells as shown in :ref:`Figure 8 <figure-cmfd-matrix>`.
 
 .. _figure-cmfd-matrix:
 
@@ -367,7 +367,7 @@ The matrices can be arranged in either a group-wise or cell-wise ordering. The C
    :figclass: align-center
    :width: 800 px
 
-   **Figure 8**: CMFD mesh layout (left) and spy of CMFD A matrix (right) for a 4 x 4 infinite lattice pin-cell problem with 7 energy group cross sections.
+   **Figure 8**: CMFD mesh layout (left) and spy of CMFD A matrix (right) for a 2D 4 x 4 infinite lattice pin-cell problem with 7 energy group cross sections.
 
 In :ref:`Section 7.7 <cmfd-accel-moc>` we discuss how this matrix equation will be solved and used to accelerate the solution of the MOC solve.
 
@@ -434,6 +434,28 @@ Instead of splitting the corner currents during the MOC fixed source iteration, 
 
    **Figure 9**: Successive over-relaxation numerical flux inversion.
 
+.. _cmfd-quadratic-axial:
+
+Quadratic axial interpolation
+=============================
+
+For LWR problems, the flux variations in the axial directions are usually rather smooth, as the geometries are somewhat homogeneous in that direction. The CMFD can take advantage of this fast and use a quadratic fit for the update ratio, which can reduce the number of iterations to convergence by as much as 20%. The quadratic shape is created using the update ratios for the cells directly above and directly below the current cell, and every FSR in the current cell get a different flux update ratio based on that fit. Currently, there are two options implemented, the update ratio can either be evaluated at the FSR centroid location, or the update ratio can be chosen so that the integral of the flux is conserved over the FSR.
+
+.. _axial-interp:
+
+.. figure:: ../../img/cmfd-axial-interpolation.png
+   :align: center
+   :figclass: align-center
+   :width: 600 px
+
+   **Figure 10**: Quadratic interpolation of the update ratio, on the black curve. The quadratic shapes are created using the top and bottom neighbor CMFD cells.
+
+.. _domain-decomposition:
+
+Domain decomposition
+====================
+
+When running OpenMOC with multiple MPI processes handling each a different part of the computation domain, the CMFD solver is also domain decomposed. The CMFD matrices are created by each process for that domain only, and the linear solver solves the linear system on the process' domain. Since domains are coupled together, the CMFD matrix construction involves communicating currents and diffusion coefficients in border cells, and each linear solve involves the communication of fluxes in the boundary cells.
 
 References
 ==========

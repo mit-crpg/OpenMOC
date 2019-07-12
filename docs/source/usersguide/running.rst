@@ -57,7 +57,46 @@ To submit this script (``my-job.pbs``) your job to TORQUE, simply use the follow
 .. _Cobalt: https://www.alcf.anl.gov/user-guides/cobalt-job-control
 .. _other flags: https://www.osc.edu/supercomputing/batch-processing-at-osc/pbs-directives-summary
 
+------------------------
+Submitting a SLURM Job
+------------------------
 
+To schedule a job to run your code on a cluster using the SLURM job scheduler, you will need to write a submission script. This script will need to specify the desired compute resources (number of nodes and processors per node), the maximum walltime, among other flags. An example script requesting a single node with 12 cores for one hour is presented below:
+
+.. code-block:: guess 
+
+   #!/bin/sh
+   ###################################################
+   # Specify nodes, processors per node, maximum
+   # running time and memory
+   ###################################################
+
+   #SBATCH -N 1
+   #SBATCH -n 12
+   #SBATCH --time=1:00:00
+   #SBATCH --mem 120000  #in MB
+
+   ###################################################
+   # Select partition and customize name of output
+   ###################################################
+
+   #SBATCH -p sched_mit_nse
+   #SBATCH -o stderror-%j.out
+
+   ###################################################
+   # Run OpenMOC
+   ###################################################
+ 
+   python your-script.py <option1> <option2> ...
+
+
+To submit this script (``my-job``) your job to SLURM, simply use the following command in the console:
+
+    sbatch my-job
+
+To run your script interactively instead, simply use the following command in the console:
+
+    srun -p <partition_name> -I -N 1 --pty -t 0:60:00 --mem 124000 python your-script.py <option1> ...
 
 ------------------------
 Submitting a Cobalt_ Job
@@ -96,9 +135,20 @@ Reports all supported OpenMOC runtime options to the screen.
 The number of azimuthal angles for ray tracing. The default is 4.
 
 
-.. option:: -s, --track-spacing=<0.1>
+.. option:: -s, --azim-spacing=<0.1>
 
-The track spacing (in cm) for ray tracing. The default is 0.1 cm.
+The track azimuthal spacing (in cm) for ray tracing. The default is 0.1 cm.
+
+
+.. option:: -p, --num-polar=<6>
+
+The number of polar angles for 3D ray tracing. The default is 3/6 (2D/3D).
+
+
+.. option:: -l, --polar-spacing=<1.5>
+
+The track spacing in the axial direction (in cm) for ray tracing. The default is 1.5 cm.
+
 
 .. option:: -i, --max-iters=<1000>
 
@@ -115,12 +165,12 @@ The tolerance on the convergence. The default is 1E-5.
 The number of OpenMP threads to use. This option only applies to scripts which use OpenMOC's :cpp:class:`CPUSolver`, or derived classes such as :cpp:class:`VectorizedSolver`. The default is the number of CPU cores available on the machine of interest.
 
 
-.. option:: -b, --num-gpu-threadblocks=<64>
+.. option:: -b, --num-threadblocks=<64>
 
 The number of CUDA threadblocks. This option only applies to scripts which use OpenMOC's :cpp:class:`GPUSolver` class. The default is 64 threadblocks.
 
 
-.. option:: -g, --num-gpu-threads=<64>
+.. option:: -g, --num-threads-per-block=<64>
 
 The number of CUDA threads per threadblock. This option only applies to scripts which use OpenMOC's :cpp:class:`GPUSolver` class. This value must be a multiple of the number of threads in a CUDA warp_. At the time of this writing, nearly all NVIDIA GPUs have a warp size of 32, though this may change for future NVIDIA GPUs. If the value set for this option is not a multiple of 32, the CUDA source code will round up to the nearest multiple of 32 threads. The default is 64 threads. 
 

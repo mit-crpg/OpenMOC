@@ -1077,6 +1077,8 @@ def plot_eigenmode_fluxes(iramsolver, eigenmodes=[], energy_groups=[1],
     ----------
     iramsolver : openmoc.krylov.IRAMSolver
         An OpenMOC IRAM solver used to compute the flux eigenmodes
+    eigenmodes : Iterable of Integral
+        The indexes of the eigenmodes to plot, 1 is the first mode
     energy_groups : Iterable of Integral
         The energy groups to plot (starting at 1 for the highest energy)
     norm : bool

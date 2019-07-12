@@ -1,9 +1,9 @@
-.. _circle:
+.. _region:
 
 ======
-Circle
+Region
 ======
 
-.. doxygenclass:: Circle
+.. doxygenclass:: Region
    :project: OpenMOC
    :members:

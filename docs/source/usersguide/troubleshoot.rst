@@ -7,6 +7,8 @@ Troubleshooting
 If you are experiencing problems trying to compile OpenMOC, first check if the
 error you are receiving is among the following options.
 
+If not, you may email the `mailing list`_, and a developer or another user may help you.
+
 
 -------------------------
 Problems with Compilation

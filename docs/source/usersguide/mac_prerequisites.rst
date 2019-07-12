@@ -25,13 +25,13 @@ There are a few prerequisites which must be installed on your machine before you
 
       OpenMOC extensively uses Python for rapid data processing and visualization. OpenMOC uses a mixture of fast, compiled C/C++/CUDA code with Python bindingssuch that users are entirely insulated from having to write in C/C++ or CUDA, and can simply write a Python script with calls to OpenMOC.
 
-      Currently, OpenMOC has been tested with Python versions 2.6, 2.7, 3.1 and 3.2. Even if you already have Python installed, it is recommended that you install it again using MacPorts to ensure that it is properly configured with ``g++``. You can easily install version 2.7 using MacPorts as follows::
+      Currently, OpenMOC has been tested with Python versions 2.6, 2.7, 3.1 to 3.7. Even if you already have Python installed, it is recommended that you install it again using MacPorts to ensure that it is properly configured with ``g++``. You can easily install version 3.7 using MacPorts as follows::
 
-	sudo port install python27
+	sudo port install python37
 
       Finally, you must set this version of ``python`` as the default for Macports::
 
-	sudo port select --set python python27
+	sudo port select --set python python37
 
 
     * Git_
@@ -52,7 +52,7 @@ There are a few prerequisites which must be installed on your machine before you
 
       NumPy is a commonly used, general purpose numerical array creation and manipulation package for Python. OpenMOC uses NumPy to seamlessly transfer numerical data between Python and the C/C++ back-end compiled code. To install NumPy using MacPorts, use the following command::
 
-	sudo port install py27-numpy
+	sudo port install py37-numpy
 
 .. admonition:: Optional
 
@@ -60,7 +60,7 @@ There are a few prerequisites which must be installed on your machine before you
 
       The matplotlib Python package is a general purpose utility for plotting and visualizations. OpenMOC uses matplotlib in the ``openmoc.plotter`` module to generate plots, such as flux and power distributions. Although matplotlib and the ``openmoc.plotter`` modules are not required for an OpenMOC simulation, visualizations can be a helpful tool in debugging and input model validation. To install matplotlib using MacPorts issue the following command::
 
-	sudo port install py27-matplotlib
+	sudo port install py37-matplotlib
 
 
     * h5py_
@@ -69,7 +69,7 @@ There are a few prerequisites which must be installed on your machine before you
       
       To install h5py using MacPorts, issue the following command::
       
-        sudo port install py27-h5py
+        sudo port install py37-h5py
 
 
 .. _GitHub: https://github.com/mit-crpg/OpenMOC

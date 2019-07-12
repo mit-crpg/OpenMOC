@@ -258,7 +258,7 @@ def get_sigma_by_group(material, rxn_type, g):
 def store_simulation_state(solver, fluxes=False, sources=False,
                            fission_rates=False, use_hdf5=False,
                            filename='simulation-state',
-                           directory = 'simulation-states',
+                           directory='simulation-states',
                            append=True, note=''):
     """Store all of the data for an OpenMOC simulation to a binary file for
     downstream data processing.
