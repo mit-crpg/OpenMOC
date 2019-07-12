@@ -16,8 +16,9 @@ RUN apt-get install python3.7 -y
 ENV TZ=US
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN apt-get install git swig python-dev python-numpy python-matplotlib python-h5py -y
+RUN apt-get install git swig python3-dev python3-numpy python3-matplotlib python3-h5py -y
 
 #Build OpenMOC
 WORKDIR "/OpenMOC"
-RUN python setup.py install
+RUN python3 setup.py install --user
+RUN python3 setup.py install --user
