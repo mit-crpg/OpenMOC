@@ -6,6 +6,11 @@ Installing Prerequisites on Mac OS X
 
 There are a few prerequisites which must be installed on your machine before you will be able to build and install OpenMOC. All of the prerequisites can easily be installed using a standard package manager, such as MacPorts_ for Mac OS X. The following instructions detail which packages are needed, with instructions on how to install them using MacPorts.
 
+A preferred alternative to using Macports is using anaconda to install Python packages. Anaconda will automatically manage the package versions, ensuring compatibility. Anaconda will also allow you to install packages on a system where you don't have admin priviledges. Once you have Anaconda (or Miniconda installed), you can install all OpenMOC's Python dependencies with::
+
+    conda config --append channels conda-forge
+    conda install swig numpy matplotlib h5py pillow
+
 .. note:: It is important to install the following prerequisite packages in the order given - in particular, Python must be installed before NumPy and Matplotlib.
 
 .. admonition:: Required
@@ -69,8 +74,29 @@ There are a few prerequisites which must be installed on your machine before you
       
       To install h5py using MacPorts, issue the following command::
       
-        sudo port install py37-h5py
+    sudo port install py37-h5py
 
+
+    * pillow_
+
+      The PIL (or its fork pillow) package is used to compare images in the test suite, to check that the plotter module is working properly. It is not required outside of the test suite.
+      To install PIL or pillow on Ubuntu, issue the following command::
+
+    sudo port install python-pil
+
+    * scipy_
+
+      The scipy package is used for the Krylov solver. It is not required for running a regular MOC (+CMFD) solve
+      To install pillow on Ubuntu, issue the following command::
+
+    sudo port install python-scipy
+
+    * mpi4py_
+
+      The mpi4py package is used to run domain-decomposed simulations from Python. It is not required for using OpenMOC on a single machine.
+      To install pillow on Ubuntu, issue the following command::
+
+    sudo port install python-mpi4py
 
 .. _GitHub: https://github.com/mit-crpg/OpenMOC
 .. _MacPorts: http://www.macports.org/
@@ -83,3 +109,6 @@ There are a few prerequisites which must be installed on your machine before you
 .. _matplotlib: http://matplotlib.org/
 .. _h5py: http://www.h5py.org/
 .. _HDF5: http://www.hdfgroup.org/HDF5/
+.. _pillow: https://pillow.readthedocs.io/en/stable/
+.. _scipy: https://www.scipy.org/
+.. _mpi4py: https://mpi4py.readthedocs.io/en/stable/

@@ -5,7 +5,7 @@
 /* Include docstrings generated from Doxygen and doxy2swig.py */
 %include docstring.i
 
-%module(docstring=DOCSTRING) openmoc
+%module(docstring=DOCSTRING, moduleimport="import _openmoc") openmoc
 
 /* Import rules for Python/C++ transferrable memory ownership */
 %include thisown.i

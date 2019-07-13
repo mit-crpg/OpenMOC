@@ -50,8 +50,6 @@ A preferred alternative to apt-get is using anaconda to install Python packages.
 	
 	sudo apt-get install swig
 
-.. warning:: SWIG 4.0 is currently not supported. Please use SWIG 3.0.x
-
 
     * NumPy_
 
