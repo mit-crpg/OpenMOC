@@ -20,6 +20,7 @@ class TrackingPinCellCMFDTestHarness(TrackingTestHarness):
     def _setup(self):
         """Initialize the materials, geometry, and tracks."""
         super(TrackingPinCellCMFDTestHarness, self)._create_geometry()
+        super(TrackingPinCellCMFDTestHarness, self)._create_trackgenerator()
 
         # Initialize track objects
         self.tracks['Diagonal Track'] = openmoc.Track()
@@ -30,17 +31,16 @@ class TrackingPinCellCMFDTestHarness(TrackingTestHarness):
         self.tracks['Reverse Diagonal Track'] = openmoc.Track()
 
         # Set track trajectories and locations
-        self.tracks['Diagonal Track'].setValues(-2, -2, 0, 2, 2, 0,\
-                                                math.atan(1))
+        self.tracks['Diagonal Track'].setValues(-2, -2, 2, 2, math.atan(1))
         offset = math.sqrt(2) - 2
-        self.tracks['Tangent Track'].setValues(offset, -2, 0, 2, -offset,\
-                                               0, math.atan(1))
+        self.tracks['Tangent Track'].setValues(offset, -2, 2, -offset,\
+                                               math.atan(1))
         offset -= 1e-6
-        self.tracks['Nudged Tangent Track'].setValues(offset, -2, 0, 2,\
-                                                      -offset, 0, math.atan(1))
-        self.tracks['Horizontal Track'].setValues(-2, 0, 0, 2, 0, 0, 0)
-        self.tracks['Vertical Track'].setValues(0, -2, 0, 0, 2, 0, math.pi/2)
-        self.tracks['Reverse Diagonal Track'].setValues(2, 2, 0, -2, -2, 0,\
+        self.tracks['Nudged Tangent Track'].setValues(offset, -2, 2,\
+                                                      -offset, math.atan(1))
+        self.tracks['Horizontal Track'].setValues(-2, 0, 2, 0, 0)
+        self.tracks['Vertical Track'].setValues(0, -2, 0, 2, math.pi/2)
+        self.tracks['Reverse Diagonal Track'].setValues(2, 2, -2, -2,\
                                                         math.pi + math.atan(1))
 
     def _run_openmoc(self):

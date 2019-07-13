@@ -37,9 +37,9 @@ class MultiSimFixedSourceTestHarness(MultiSimTestHarness):
                 root_cell = cell
 
         # Apply VACUUM BCs on all bounding surfaces
-        surfaces = self.input_set.geometry.getAllSurfaces()
+        surfaces = root_cell.getSurfaces()
         for surface_id in surfaces:
-            surface = surfaces[surface_id]
+            surface = surfaces[surface_id]._surface
             surface.setBoundaryType(openmoc.VACUUM)
 
         # Replace fissionable infinite medium material with C5G7 water

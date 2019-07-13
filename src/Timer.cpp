@@ -106,7 +106,7 @@ void Timer::printSplits() {
     curr_msg = (*iter).first;
     curr_split = (*iter).second;
 
-    curr_msg.resize(REPORT_WIDTH, '.');
+    curr_msg.resize(53, '.');
     formatted_msg << curr_msg;
 
     log_printf(RESULT, "%s%1.4E sec", formatted_msg.str().c_str(), curr_split);
@@ -136,3 +136,64 @@ void Timer::clearSplit(const char* msg) {
 void Timer::clearSplits() {
   _timer_splits.clear();
 }
+
+
+//TODO This function is not really about time, it could be moved elsewhere.
+/**
+ * @brief Read memory usage file (on a HPC installation), and process it to make
+ *        it more readable. Used for profiling.
+ * @param vm_usage total use of virtual memory
+ * @param resident_set total use of resident memory
+ */
+void Timer::processMemUsage(double& vm_usage, double& resident_set) {
+
+   vm_usage     = 0.0;
+   resident_set = 0.0;
+
+   /* Open file containing memory info */
+   std::ifstream stat_stream("/proc/self/stat", std::ios_base::in);
+
+   /* Read in dummy data */
+   std::string tmp;
+   for (int i=0; i < 22; i++)
+     stat_stream >> tmp;
+
+   /* Read in virtual and resident memory */
+   unsigned long vsize;
+   stat_stream >> vsize;
+   long rss;
+   stat_stream >> rss;
+   stat_stream.close();
+
+   /* Calculate memory usage */
+   long page_size_kb = sysconf(_SC_PAGE_SIZE) / 1024;
+   vm_usage = (double) vsize / 1024.0 / 1024.0;
+   resident_set = rss * page_size_kb / 1024.0;
+}
+
+
+/**
+ * @brief Transfer timer data across all domains.
+ * @param comm a MPI communicator to transfer data
+ */
+#ifdef MPIx
+void Timer::reduceTimer(MPI_Comm comm) {
+
+  std::map<std::string, double>::iterator iter;
+  for (iter = _timer_splits.begin(); iter != _timer_splits.end(); ++iter) {
+
+    /* Collapse timing results down to one value for each category */
+    double curr_split = (*iter).second;
+    double total_split = 0;
+    MPI_Reduce(&curr_split, &total_split, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
+
+    /* On the main node, average over the number of ranks, update result */
+    if (fabs(total_split) > FLT_EPSILON) {
+      int num_ranks;
+      MPI_Comm_size(comm, &num_ranks);
+      total_split /= num_ranks;
+      (*iter).second = total_split;
+    }
+  }
+}
+#endif

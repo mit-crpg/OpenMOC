@@ -8,7 +8,10 @@ A Beginner's Guide to OpenMOC
 What does OpenMOC do?
 ---------------------
 
-
+OpenMOC is a neutron transport solver. It solves the neutron transport equation in a nuclear system, like
+a fuel assembly or even a reactor core. This allows the reactor engineers to know where the power is
+generated in the system, which is the starting point for solving other physics, like thermal hydraulics or
+the fuel depletion.
 
 -----------------
 How does it work?
@@ -16,8 +19,9 @@ How does it work?
 
 In order to do anything, the code first needs to have a model of some problem of
 interest. This could be a nuclear reactor or any other physical system with
-fissioning material. You, as the code user, will need to describe the model so
-that the code can do something with it. A basic model consists of a few things:
+fissioning material or a neutron source. You, as the code user, will need to
+describe the model so that the code can do something with it. A basic model consists
+of a few things:
 
 - **Geometry** - A description of the geometry split into regions of homogeneous materials.
 - **Materials** - A description of the nuclear cross-sections for each material

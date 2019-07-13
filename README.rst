@@ -2,13 +2,16 @@
 OpenMOC
 =======
 
+
 .. image:: https://api.travis-ci.org/mit-crpg/OpenMOC.svg?branch=develop
     :target: https://travis-ci.org/mit-crpg/OpenMOC
 .. image:: https://coveralls.io/repos/github/mit-crpg/OpenMOC/badge.svg?branch=develop
     :target: https://coveralls.io/github/mit-crpg/OpenMOC?branch=develop
 .. image:: https://img.shields.io/badge/powered%20by-OpenMOC-blue.svg
     :target: https://mit-crpg.github.io/OpenMOC/
-.. image:: https://img.shields.io/badge/license-MIT%20License-brightgreen.svg
+.. image:: https://img.shields.io/badge/pypi-v0.4.0-orange.svg
+    :target: https://pypi.python.org/pypi/openmoc/0.4.0
+.. image:: https://img.shields.io/badge/license-MIT%20License-brightgreen.svg    
     :target: https://mit-crpg.github.io/OpenMOC/license.html
 .. image:: https://img.shields.io/badge/anucene-Elsevier-lightgray.svg
     :target: http://www.sciencedirect.com/science/article/pii/S0306454913006634
@@ -72,6 +75,6 @@ OpenMOC is approved for distribution under the MIT/X license_.
 .. _installation instructions: https://mit-crpg.github.io/OpenMOC/usersguide/install.html
 .. _license: https://mit-crpg.github.io/OpenMOC/license.html
 .. _Nuclear Science & Engineering Department: http://web.mit.edu/nse/
-.. _IPython Notebook: https://gist.github.com/wbinventor/8c5d2ffbb86f11735610
+.. _IPython Notebook: http://nbviewer.ipython.org/gist/anonymous/abbce6824bceda49a615
 .. _contact: https://mit-crpg.github.io/OpenMOC/developers.html
 .. _users group: https://groups.google.com/forum/#!forum/openmoc-users

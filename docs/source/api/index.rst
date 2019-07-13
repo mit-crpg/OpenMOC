@@ -15,10 +15,18 @@ Solvers
 
     solver
     cpusolver
+    cpulssolver
     gpusolver
-    threadprivatesolver
     vectorizedsolver
-    vectorizedprivatesolver
+
+----------------------
+Transport acceleration
+----------------------
+
+.. toctree::
+    :maxdepth: 1
+
+    cmfd
 
 --------
 Geometry
@@ -27,18 +35,20 @@ Geometry
 .. toctree::
     :maxdepth: 1
 
+    geometry
+    universe
+    lattice
+    cell
+    cellfill
+    region
+    halfspace
     surface
     plane
     xplane
     yplane
     zplane
-    circle
-    cell
-    cellfill
-    cellbasic
-    universe
-    lattice
-    geometry
+    zcylinder
+
 
 -----------
 Ray Tracing
@@ -51,6 +61,7 @@ Ray Tracing
     track
     segment
     trackgenerator
+    trackgenerator3D
     quadrature
 
 

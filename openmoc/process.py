@@ -84,7 +84,7 @@ def get_scalar_fluxes(solver, fsrs='all', groups='all'):
 
     # Extract all of the FSR scalar fluxes
     if groups == 'all' and fsrs == 'all':
-        num_fsrs = solver.getGeometry().getNumFSRs()
+        num_fsrs = int(solver.getGeometry().getNumTotalFSRs())
         num_groups = solver.getGeometry().getNumEnergyGroups()
         num_fluxes = num_groups * num_fsrs
         fluxes = solver.getFluxes(num_fluxes)
@@ -93,7 +93,7 @@ def get_scalar_fluxes(solver, fsrs='all', groups='all'):
 
     # Build a list of FSRs to iterate over
     if fsrs == 'all':
-        num_fsrs = solver.getGeometry().getNumFSRs()
+        num_fsrs = int(solver.getGeometry().getNumTotalFSRs())
         fsrs = np.arange(num_fsrs)
     else:
         num_fsrs = len(fsrs)
@@ -156,13 +156,14 @@ def compute_fission_rates(solver, use_hdf5=False):
     geometry = solver.getGeometry()
 
     # Compute the volume-weighted fission rates for each FSR
-    fsr_fission_rates = solver.computeFSRFissionRates(geometry.getNumFSRs())
+    fsr_fission_rates = \
+        solver.computeFSRFissionRates(int(geometry.getNumTotalFSRs()))
 
     # Initialize fission rates dictionary
     fission_rates_sum = {}
 
     # Loop over FSRs and populate fission rates dictionary
-    for fsr in range(geometry.getNumFSRs()):
+    for fsr in range(int(geometry.getNumTotalFSRs())):
 
         if geometry.findFSRMaterial(fsr).isFissionable():
 
@@ -221,7 +222,8 @@ def get_sigma_by_group(material, rxn_type, g):
     ----------
     material : openmoc.Material
         Material that we are getting the cross sections from
-    rxn_type : {'flux', 'total', 'scatter', 'fission', 'nu-fission'}
+    rxn_type : {'flux', 'total', 'scatter',
+                'fission', 'nu-fission'}
         Reaction type we are loading the cross section for
     g : integer
         Energy group index (starts at 0).
@@ -256,7 +258,7 @@ def get_sigma_by_group(material, rxn_type, g):
 def store_simulation_state(solver, fluxes=False, sources=False,
                            fission_rates=False, use_hdf5=False,
                            filename='simulation-state',
-                           directory = 'simulation-states',
+                           directory='simulation-states',
                            append=True, note=''):
     """Store all of the data for an OpenMOC simulation to a binary file for
     downstream data processing.
@@ -381,7 +383,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     track_generator = solver.getTrackGenerator()
 
     # Retrieve useful data from the Solver, Geometry and TrackGenerator
-    num_FSRs = geometry.getNumFSRs()
+    num_FSRs = int(geometry.getNumTotalFSRs())
     num_materials = geometry.getNumMaterials()
     num_groups = geometry.getNumEnergyGroups()
     zcoord = track_generator.getZCoord()
@@ -908,7 +910,47 @@ class Mesh(object):
         else:
             return mesh_x, mesh_y, mesh_z
 
-    def tally_fission_rates(self, solver, volume='integrated'):
+    @classmethod
+    def from_lattice(cls, lattice, division=1):
+        """Create a mesh from an existing lattice
+
+        Parameters
+        ----------
+        lattice : openmoc.Lattice
+            Uniform rectangular lattice used as a template for this mesh.
+        division : int
+            Number of mesh cells per lattice cell.
+            If not specified, there will be 1 mesh cell per lattice cell.
+
+        Returns
+        -------
+        openmoc.process.Mesh
+            Mesh instance
+
+        """
+        cv.check_type("lattice", lattice, openmoc.Lattice)
+        cv.check_type("division", division, Integral)
+        if lattice.getNonUniform():
+           raise ValueError("Lattice must be uniform.")
+        
+        shape = np.array((lattice.getNumX(), lattice.getNumY(),
+                          lattice.getNumZ()))
+        width = np.array((lattice.getWidthX(), lattice.getWidthY(),
+                          lattice.getWidthZ()))
+        lleft = np.array((lattice.getMinX(), lattice.getMinY(),
+                          lattice.getMinZ()))
+        uright = lleft + shape*width
+        uright[np.isinf(width)] = np.inf
+
+        mesh = cls()
+        mesh.width = width
+        mesh.lower_left = lleft
+        mesh.upper_right = uright
+        mesh.dimension = [s*division for s in shape]
+
+        return mesh
+    
+    def tally_fission_rates(self, solver, volume='integrated', nu=False):
         """Compute the fission rates in each mesh cell.
 
         NOTE: This method assumes that the mesh perfectly aligns with the
@@ -925,6 +967,8 @@ class Mesh(object):
             The solver used to compute the flux
         volume : {'averaged' ,'integrated'}
             Compute volume-averaged or volume-integrated fission rates
+        nu : bool
+            Find 'nu-fission' rates instead of 'fission' rates
 
         Returns
         -------
@@ -938,10 +982,11 @@ class Mesh(object):
         cv.check_value('volume', volume, ('averaged', 'integrated'))
 
         geometry = solver.getGeometry()
-        num_fsrs = geometry.getNumFSRs()
+        num_fsrs = int(geometry.getNumTotalFSRs())
 
         # Compute the volume- and energy-integrated fission rates for each FSR
-        fission_rates = solver.computeFSRFissionRates(geometry.getNumFSRs())
+        fission_rates = \
+            solver.computeFSRFissionRates(int(geometry.getNumTotalFSRs()), nu)
 
         # Initialize a 2D or 3D NumPy array in which to tally
         tally = np.zeros(tuple(self.dimension), dtype=np.float)
@@ -976,8 +1021,8 @@ class Mesh(object):
         ----------
         solver : {openmoc.CPUSolver, openmoc.GPUSolver, openmoc.VectorizedSolver}
             The solver used to compute the flux
-        rxn_type : {'flux', 'total', 'scatter', 'fission', 'nu-fission'}
-            The cross section or reaction type to tally
+        rxn_type : {'flux', 'total', 'scatter',
+                'fission', 'nu-fission'}
         volume : {'averaged', 'integrated'}
             Compute volume-averaged or volume-integrated tallies
         energy : {'by_group', 'integrated'}
@@ -1053,7 +1098,7 @@ class Mesh(object):
         # Extract parameters from the Geometry
         geometry = solver.getGeometry()
         num_groups = geometry.getNumEnergyGroups()
-        num_fsrs = geometry.getNumFSRs()
+        num_fsrs = int(geometry.getNumTotalFSRs())
 
         # Coefficients must be specified as a dict, ndarray or DataFrame
         if domain_type in ['material', 'cell']:

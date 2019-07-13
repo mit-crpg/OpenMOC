@@ -1,12 +1,6 @@
 [  NORMAL ]  This is a normal message
 [SEPARATOR]  *******************************************************************
 [  HEADER ]  *******************  This is a header message  ********************
-[  HEADER ]  This is a very very very very very very very very very long header
-[  HEADER ]  ...  message
-[  TITLE  ]  *******************************************************************
-[  TITLE  ]  This is a very very very very very very very very very very long
-[  TITLE  ]  ...  title message
-[  TITLE  ]  *******************************************************************
 [  TITLE  ]  *******************************************************************
 [  TITLE  ]                        This is a title message                      
 [  TITLE  ]  *******************************************************************
@@ -16,12 +10,6 @@
 [  NORMAL ]  This is a normal message
 [SEPARATOR]  *******************************************************************
 [  HEADER ]  *******************  This is a header message  ********************
-[  HEADER ]  This is a very very very very very very very very very long header
-[  HEADER ]  ...  message
-[  TITLE  ]  *******************************************************************
-[  TITLE  ]  This is a very very very very very very very very very very long
-[  TITLE  ]  ...  title message
-[  TITLE  ]  *******************************************************************
 [  TITLE  ]  *******************************************************************
 [  TITLE  ]                        This is a title message                      
 [  TITLE  ]  *******************************************************************

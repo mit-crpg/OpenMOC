@@ -10,7 +10,7 @@ This quick install guide outlines the basic steps needed to install OpenMOC on y
 Installing from Source on Linux or Mac OS X
 -------------------------------------------
 
-All OpenMOC source code is hosted on GitHub_. To download and install OpenMOC, you need to install Git_ and the GNU C++ compiler_. In addition, you need to install Python_ version 2.6 or later and the following Python packages on your machine: SWIG_, NumPy_, matplotlib_, and h5py_. These packages can easily be installed using a package manager for Linux and Mac OS (see :ref:`Installation <install>` for more details). The following command will install all required and optional dependencies on Ubuntu 12.04 or later::
+All OpenMOC source code is hosted on GitHub_. To download and install OpenMOC, you need to install Git_ and the GNU C++ compiler_. In addition, you need to install Python_ version 3.1 or later and the following Python packages on your machine: SWIG_, NumPy_, matplotlib_, and h5py_. These packages can easily be installed using a package manager for Linux and Mac OS (see :ref:`Installation <install>` for more details). The following command will install all required and optional dependencies on Ubuntu 12.04 or later::
 
     sudo apt-get install build-essential git swig python-dev python-numpy python-matplotlib python-h5py
 
@@ -27,6 +27,7 @@ This will build a shared library accessible as a Python package named ``openmoc`
     import openmoc
 
 .. warning:: The :option:`--user` flag should be used verbatim and should **NOT** be replaced with your username.
+.. warning:: Python 2.6 is no longer officially supported with OpenMOC, however the number of incompatibilities with Python 2 is currently very low.
 
 
 .. _GitHub: https://github.com/mit-crpg/OpenMOC

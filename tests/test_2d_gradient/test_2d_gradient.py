@@ -28,17 +28,13 @@ class TwoDGradientTestHarness(TestHarness):
                 root_cell = cell
 
         # Apply VACUUM BCs on the xmin and ymax surfaces
-        surfaces = self.input_set.geometry.getAllSurfaces()
+        surfaces = root_cell.getSurfaces()
         for surface_id in surfaces:
-            surface = surfaces[surface_id]
-            if surface.getSurfaceType() == openmoc.XPLANE:
-                surface = openmoc.castSurfaceToXPlane(surface)
-                if surface.getX() == -1.25:
-                    surface.setBoundaryType(openmoc.VACUUM)
-            if surface.getSurfaceType() == openmoc.YPLANE:
-                surface = openmoc.castSurfaceToYPlane(surface)
-                if surface.getY() == +1.25:
-                    surface.setBoundaryType(openmoc.VACUUM)
+            surface = surfaces[surface_id]._surface
+            if surface.getName() == 'xmin':
+                surface.setBoundaryType(openmoc.VACUUM)
+            if surface.getName() == 'ymax':
+                surface.setBoundaryType(openmoc.VACUUM)
 
     def __init__(self):
         super(TwoDGradientTestHarness, self).__init__()

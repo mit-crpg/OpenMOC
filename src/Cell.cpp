@@ -1,10 +1,12 @@
 #include "Cell.h"
+#include <set>
+#include <cmath>
 
 
 int Cell::_n = 0;
 
 static int auto_id = DEFAULT_INIT_ID;
-
+static std::set<int> used_ids;
 
 /**
  * @brief Returns an auto-generated unique Cell ID.
@@ -12,18 +14,22 @@ static int auto_id = DEFAULT_INIT_ID;
  *          OpenMOC input files. The method makes use of a static Cell
  *          ID which is incremented each time the method is called to enable
  *          unique generation of monotonically increasing IDs. The method's
- *          first ID begins at 10000. Hence, user-defined Cell IDs greater
- *          than or equal to 10000 are prohibited.
+ *          first ID begins at 1,000,000. Hence, user-defined Cell IDs greater
+ *          than or equal to 1,000,000 are prohibited.
  */
 int cell_id() {
   int id = auto_id;
   auto_id++;
+  while (used_ids.find(id) != used_ids.end()) {
+    id = auto_id;
+    auto_id++;
+  }
   return id;
 }
 
 
 /**
- * @brief Resets the auto-generated unique Cell ID counter to 10000.
+ * @brief Resets the auto-generated unique Cell ID counter to 1,000,000.
  */
 void reset_cell_id() {
   auto_id = DEFAULT_INIT_ID;
@@ -60,6 +66,9 @@ Cell::Cell(int id, const char* name) {
   else
     _id = id;
 
+  /* Add the ID to the used set */
+  used_ids.insert(_id);
+
   _uid = _n;
   _n++;
 
@@ -68,16 +77,17 @@ Cell::Cell(int id, const char* name) {
 
   _cell_type = UNFILLED;
   _region = NULL;
+  _current_region = NULL;
   _fill = NULL;
   _volume = 0.;
   _num_instances = 0;
 
   _rotated = false;
-  memset(&_rotation, 0., 3);
-  memset(&_rotation_matrix, 0., 9);
+  memset(&_rotation, 0., 3*sizeof(double));
+  memset(&_rotation_matrix, 0., 9*sizeof(double));
 
   _translated = false;
-  memset(&_translation, 0., 3);
+  memset(&_translation, 0., 3*sizeof(double));
 
   _num_rings = 0;
   _num_sectors = 0;
@@ -89,10 +99,15 @@ Cell::Cell(int id, const char* name) {
  * @brief Destructor clears vector of Surface pointers bounding the Cell.
  */
 Cell::~Cell() {
+
   if (_name != NULL)
     delete [] _name;
   if (_region != NULL)
     delete _region;
+  /* Materials are deleted separately from cells, since multiple cells
+      can share the same material */
+  /* Universes are also deleted separately, since Universes can have been
+     defined in your input scripts, rather than loaded from a Geometry file */
 }
 
 
@@ -115,7 +130,7 @@ int Cell::getId() const {
 
 
 /**
- * @brief Return the user-defined name of the Cell
+ * @brief Return the user-defined name of the Cell.
  * @return the Cell name
  */
 char* Cell::getName() const {
@@ -129,15 +144,6 @@ char* Cell::getName() const {
  */
 cellType Cell::getType() const {
   return _cell_type;
-}
-
-
-/**
- * @brief Return the Cell's Region spatial domain.
- * @return the Cell's Region
- */
-Region* Cell::getRegion() {
-  return _region;
 }
 
 
@@ -162,6 +168,15 @@ Universe* Cell::getFillUniverse() {
     log_printf(ERROR, "Unable to get Universe fill from Cell ID=%d", _id);
 
   return (Universe*)_fill;
+}
+
+
+/**
+ * @brief Return the Cell's Region, its spatial domain.
+ * @return the Cell's Region
+ */
+Region* Cell::getRegion() {
+  return _region;
 }
 
 
@@ -216,11 +231,12 @@ double Cell::getPhi(std::string units) {
 
   /* Return phi in degrees or radians */
   if (degrees.compare(units) == 0)
-    return _rotation[0] * M_PI / 180.;
+    return _rotation[0] / M_PI * 180.;
   else if (radians.compare(units) == 0)
     return _rotation[0];
-  else
-    log_printf(ERROR, "Unable to return phi in units %s", units.c_str());
+
+  log_printf(ERROR, "Unable to return phi in units %s", units.c_str());
+  return -1;
 }
 
 
@@ -235,11 +251,12 @@ double Cell::getTheta(std::string units) {
 
   /* Return theta in degrees or radians */
   if (degrees.compare(units) == 0)
-    return _rotation[1] * M_PI / 180.;
+    return _rotation[1] / M_PI * 180.;
   else if (radians.compare(units) == 0)
     return _rotation[1];
-  else
-    log_printf(ERROR, "Unable to return theta in units %s", units.c_str());
+
+  log_printf(ERROR, "Unable to return theta in units %s", units.c_str());
+  return -1;
 }
 
 
@@ -254,11 +271,12 @@ double Cell::getPsi(std::string units) {
 
   /* Return psi in degrees or radians */
   if (degrees.compare(units) == 0)
-    return _rotation[2] * M_PI / 180.;
+    return _rotation[2] / M_PI * 180.;
   else if (radians.compare(units) == 0)
     return _rotation[2];
-  else
-    log_printf(ERROR, "Unable to return psi in units %s", units.c_str());
+
+  log_printf(ERROR, "Unable to return psi in units %s", units.c_str());
+  return -1;
 }
 
 
@@ -279,7 +297,7 @@ double* Cell::getRotationMatrix() {
  *          and would be called from within Python as follows:
  *
  * @code
- *          rotation = cell.retrieveRotation(3)
+ *          rotation = cell.getRotation(3)
  * @endcode
  *
  * @param rotation an array of rotation angles of length 3 for x, y and z
@@ -287,7 +305,7 @@ double* Cell::getRotationMatrix() {
  * @param units the angular units in "radians" or "degrees" (default)
  */
 void Cell::retrieveRotation(double* rotations, int num_axes,
-			    std::string units) {
+                            std::string units) {
   if (num_axes != 3)
     log_printf(ERROR, "Unable to get rotation with %d axes for Cell %d. "
                "The rotation array should be length 3.", num_axes, _id);
@@ -359,74 +377,158 @@ int Cell::getNumSectors() {
 
 
 /**
- * @brief Return the minimum reachable x-coordinate in the Cell's Region.
+ * @brief Return the minimum reachable x-coordinate in the Cell.
  * @return the minimum x-coordinate
  */
 double Cell::getMinX() {
-  if (_region == NULL)
-    return -INFINITY;
-  else
-    return _region->getMinX();
+
+  if (_rotated || _translated)
+    log_printf(WARNING, "Cell rotations and translations are ignored, minX may "
+               "be inaccurate");
+
+  double min_x = -std::numeric_limits<double>::infinity();
+
+  /* Look in region for minimum */
+  if (_region != NULL)
+    min_x = _region->getMinX();
+
+  /* If region has an infinite min_x, it could be that some Halfspaces are only
+     kept in the Parent's region */
+  if (getParent() != NULL &&
+      std::abs(min_x) == std::numeric_limits<double>::infinity())
+    min_x = getParent()->getMinX();
+
+  return min_x;
 }
 
 
 /**
- * @brief Return the maximum reachable x-coordinate in the Cell's Region.
+ * @brief Return the maximum reachable x-coordinate in the Cell.
  * @return the maximum x-coordinate
  */
 double Cell::getMaxX() {
-  if (_region == NULL)
-    return INFINITY;
-  else
-    return _region->getMaxX();
+
+  if (_rotated || _translated)
+    log_printf(WARNING, "Cell rotations and translations are ignored, maxX may "
+               "be inaccurate");
+
+  double max_x = +std::numeric_limits<double>::infinity();
+
+  /* Look in region for maximum */
+  if (_region != NULL)
+    max_x = _region->getMaxX();
+
+  /* If region has an infinite max_x, it could be that some Halfspaces are only
+     kept in the Parent's region */
+  if (getParent() != NULL &&
+      std::abs(max_x) == std::numeric_limits<double>::infinity())
+    max_x = getParent()->getMaxX();
+
+  return max_x;
 }
 
 
 /**
- * @brief Return the minimum reachable y-coordinate in the Cell's Region.
+ * @brief Return the minimum reachable y-coordinate in the Cell.
  * @return the minimum y-coordinate
  */
 double Cell::getMinY() {
-  if (_region == NULL)
-    return -INFINITY;
-  else
-    return _region->getMinY();
+
+  if (_rotated || _translated)
+    log_printf(WARNING, "Cell rotations and translations are ignored, minY may "
+               "be inaccurate");
+
+  double min_y = -std::numeric_limits<double>::infinity();
+
+  /* Look in region for minimum */
+  if (_region != NULL)
+    min_y = _region->getMinY();
+
+  /* If region has an infinite min_y, it could be that some Halfspaces are only
+     kept in the Parent's region */
+  if (getParent() != NULL &&
+      std::abs(min_y) == std::numeric_limits<double>::infinity())
+    min_y = getParent()->getMinY();
+
+  return min_y;
 }
 
 
 /**
- * @brief Return the maximum reachable y-coordinate in the Cell's Region.
+ * @brief Return the maximum reachable y-coordinate in the Cell.
  * @return the maximum y-coordinate
  */
 double Cell::getMaxY() {
-  if (_region == NULL)
-    return INFINITY;
-  else
-    return _region->getMaxY();
+
+  if (_rotated || _translated)
+    log_printf(WARNING, "Cell rotations and translations are ignored, maxY may "
+               "be inaccurate");
+
+  double max_y = +std::numeric_limits<double>::infinity();
+
+  /* Look in region for maximum */
+  if (_region != NULL)
+    max_y = _region->getMaxY();
+
+  /* If region has an infinite max_y, it could be that some Halfspaces are only
+     kept in the Parent's region */
+  if (getParent() != NULL &&
+      std::abs(max_y) == std::numeric_limits<double>::infinity())
+    max_y = getParent()->getMaxY();
+
+  return max_y;
 }
 
 
 /**
- * @brief Return the minimum reachable z-coordinate in the Cell's Region.
+ * @brief Return the minimum reachable z-coordinate in the Cell.
  * @return the minimum z-coordinate
  */
 double Cell::getMinZ() {
-  if (_region == NULL)
-    return -INFINITY;
-  else
-    return _region->getMinZ();
+
+  if (_rotated || _translated)
+    log_printf(DEBUG, "Cell rotations and translations are ignored, minZ may "
+               "be inaccurate");
+
+  double min_z = -std::numeric_limits<double>::infinity();
+
+  /* Look in region for minimum */
+  if (_region != NULL)
+    min_z = _region->getMinZ();
+
+  /* If region has an infinite min_z, it could be that some Halfspaces are only
+     kept in the Parent's region */
+  if (getParent() != NULL &&
+      std::abs(min_z) == std::numeric_limits<double>::infinity())
+    min_z = getParent()->getMinZ();
+
+  return min_z;
 }
 
 
 /**
- * @brief Return the maximum reachable z-coordinate in the Cell's Region.
+ * @brief Return the maximum reachable z-coordinate in the Cell.
  * @return the maximum z-coordinate
  */
 double Cell::getMaxZ() {
-  if (_region == NULL)
-    return INFINITY;
-  else
-    return _region->getMaxZ();
+
+  if (_rotated || _translated)
+    log_printf(DEBUG, "Cell rotations and translations are ignored, maxZ may "
+               "be inaccurate");
+
+  double max_z = +std::numeric_limits<double>::infinity();
+
+  /* Look in region for maximum */
+  if (_region != NULL)
+    max_z = _region->getMaxZ();
+
+  /* If region has an infinite max_z, it could be that some Halfspaces are only
+     kept in the Parent's region */
+  if (getParent() != NULL &&
+      std::abs(max_z) == std::numeric_limits<double>::infinity())
+    max_z = getParent()->getMaxZ();
+
+  return max_z;
 }
 
 
@@ -436,10 +538,20 @@ double Cell::getMaxZ() {
  * @return the boundary condition at the minimum x-coordinate
  */
 boundaryType Cell::getMinXBoundaryType() {
-  if (_region == NULL)
-    return BOUNDARY_NONE;
-  else
-    return _region->getMinXBoundaryType();
+
+  //FIXME Cell rotations are not taken into account
+  boundaryType boundary = BOUNDARY_NONE;
+
+  /* Look in region for min x boundary */
+  if (_region != NULL)
+    boundary = _region->getMinXBoundaryType();
+
+  /* If no boundary was found in the region, it may be that the boundary
+     is in the Parent cell's region */
+  if (getParent() != NULL && boundary == BOUNDARY_NONE)
+    boundary = getParent()->getMinXBoundaryType();
+
+  return boundary;
 }
 
 
@@ -449,10 +561,20 @@ boundaryType Cell::getMinXBoundaryType() {
  * @return the boundary condition at the maximum x-coordinate
  */
 boundaryType Cell::getMaxXBoundaryType() {
-  if (_region == NULL)
-    return BOUNDARY_NONE;
-  else
-    return _region->getMaxXBoundaryType();
+
+  //FIXME Cell rotations are not taken into account
+  boundaryType boundary = BOUNDARY_NONE;
+
+  /* Look in region for max x boundary */
+  if (_region != NULL)
+    boundary = _region->getMaxXBoundaryType();
+
+  /* If no boundary was found in the region, it may be that the boundary
+     is in the Parent cell's region */
+  if (getParent() != NULL && boundary == BOUNDARY_NONE)
+    boundary = getParent()->getMaxXBoundaryType();
+
+  return boundary;
 }
 
 
@@ -462,10 +584,20 @@ boundaryType Cell::getMaxXBoundaryType() {
  * @return the boundary condition at the minimum y-coordinate
  */
 boundaryType Cell::getMinYBoundaryType() {
-  if (_region == NULL)
-    return BOUNDARY_NONE;
-  else
-    return _region->getMinYBoundaryType();
+
+  //FIXME Cell rotations are not taken into account
+  boundaryType boundary = BOUNDARY_NONE;
+
+  /* Look in region for min y boundary */
+  if (_region != NULL)
+    boundary = _region->getMinYBoundaryType();
+
+  /* If no boundary was found in the region, it may be that the boundary
+     is in the Parent cell's region */
+  if (getParent() != NULL && boundary == BOUNDARY_NONE)
+    boundary = getParent()->getMinYBoundaryType();
+
+  return boundary;
 }
 
 
@@ -475,23 +607,100 @@ boundaryType Cell::getMinYBoundaryType() {
  * @return the boundary condition at the maximum y-coordinate
  */
 boundaryType Cell::getMaxYBoundaryType() {
-  if (_region == NULL)
-    return BOUNDARY_NONE;
-  else
-    return _region->getMaxYBoundaryType();
+
+  //FIXME Cell rotations are not taken into account
+  boundaryType boundary = BOUNDARY_NONE;
+
+  /* Look in region for max y boundary */
+  if (_region != NULL)
+    boundary = _region->getMaxYBoundaryType();
+
+  /* If no boundary was found in the region, it may be that the boundary
+     is in the Parent cell's region */
+  if (getParent() != NULL && boundary == BOUNDARY_NONE)
+    boundary = getParent()->getMaxYBoundaryType();
+
+  return boundary;
+}
+
+
+/**
+ * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
+ *        the minimum reachable z-coordinate in the Cell.
+ * @return the boundary condition at the minimum z-coordinate
+ */
+boundaryType Cell::getMinZBoundaryType() {
+
+  //FIXME Cell rotations are not taken into account
+  boundaryType boundary = BOUNDARY_NONE;
+
+  /* Look in region for min z boundary */
+  if (_region != NULL)
+    boundary = _region->getMinZBoundaryType();
+
+  /* If no boundary was found in the region, it may be that the boundary
+     is in the Parent cell's region */
+  if (getParent() != NULL && boundary == BOUNDARY_NONE)
+    boundary = getParent()->getMinZBoundaryType();
+
+  return boundary;
+}
+
+
+/**
+ * @brief Return the boundary condition (REFLECTIVE, VACUUM, or INTERFACE) at
+ *        the maximum reachable z-coordinate in the Cell.
+ * @return the boundary condition at the maximum z-coordinate
+ */
+boundaryType Cell::getMaxZBoundaryType() {
+
+  //FIXME Cell rotations are not taken into account
+  boundaryType boundary = BOUNDARY_NONE;
+
+  /* Look in region for max z boundary */
+  if (_region != NULL)
+    boundary = _region->getMaxZBoundaryType();
+
+  /* If no boundary was found in the region, it may be that the boundary
+     is in the Parent cell's region */
+  if (getParent() != NULL && boundary == BOUNDARY_NONE)
+    boundary = getParent()->getMaxZBoundaryType();
+
+  return boundary;
+}
+
+
+/**
+ * @brief Return the number of Surfaces in the Cell.
+ * @return the number of Surfaces
+ */
+int Cell::getNumSurfaces() const {
+  std::map<int, Halfspace*> all_surfaces;
+  if (_region != NULL)
+    all_surfaces = _region->getAllSurfaces();
+  return all_surfaces.size();
 }
 
 
 /**
  * @brief Return the std::map of Halfspace object pointers for all
  *        surfaces within the Region bounding the Cell.
- * @return std::map of Halfspace object pointers
+ * @return std::map of Halfspace object pointers with surface ID as a key.
  */
-std::map<int, Halfspace*> Cell::getSurfaces() {
+std::map<int, Halfspace*> Cell::getSurfaces() const {
   std::map<int, Halfspace*> all_surfaces;
   if (_region != NULL)
     all_surfaces = _region->getAllSurfaces();
   return all_surfaces;
+}
+
+
+/**
+ * @brief Return the std::vector of neighbor Cells to this Cell.
+ * @return std::vector of neighbor Cell pointers
+ */
+std::vector<Cell*> Cell::getNeighbors() const {
+  return _neighbors;
 }
 
 
@@ -615,18 +824,6 @@ void Cell::setName(const char* name) {
 
 
 /**
- * @brief Sets the Region bounding the Cell
- * @details NOTE: This method deep copies the Region and stores
- *          the copy. Any changes made to the Region will not be
- *          reflected in the Region copy stored by the Cell.
- * @param region the Region bounding the Cell
- */
-void Cell::setRegion(Region* region) {
-  _region = region->clone();
-}
-
-
-/**
  * @brief Sets the Material filling this Cell.
  * @param fill the Material filling this Cell
  */
@@ -643,6 +840,18 @@ void Cell::setFill(Material* fill) {
 void Cell::setFill(Universe* fill) {
   _cell_type = FILL;
   _fill = fill;
+}
+
+
+/**
+ * @brief Sets the Region this Cell lives in.
+ * @details NOTE: This method deep copies the Region and stores
+ *          the copy. Any changes made to the Region will not be
+ *          reflected in the Region copy stored by the Cell.
+ * @param region the Region bounding the Cell
+ */
+void Cell::setRegion(Region* region) {
+  _region = region->clone();
 }
 
 
@@ -674,6 +883,7 @@ void Cell::setNumInstances(int num_instances) {
   _num_instances = num_instances;
 }
 
+
 /**
  * @brief Set the Cell's rotation angles about the x, y and z axes.
  * @details This method is a helper function to allow OpenMOC users to assign
@@ -699,6 +909,11 @@ void Cell::setRotation(double* rotation, int num_axes, std::string units) {
     log_printf(ERROR, "Unable to set rotation with %d axes for Cell %d. "
                "The rotation array should be length 3.", num_axes, _id);
 
+  if (_cell_type == MATERIAL)
+    log_printf(ERROR, "Rotations cannot be defined on material cells, "
+               "create a rotated cell, containing a universe, containing "
+               "the material cell.");
+
   std::string degrees("degrees");
   std::string radians("radians");
 
@@ -723,7 +938,7 @@ void Cell::setRotation(double* rotation, int num_axes, std::string units) {
   _rotation_matrix[0] = cos(theta) * cos(phi);
   _rotation_matrix[1] = cos(theta) * sin(phi);
   _rotation_matrix[2] = -sin(theta);
-  _rotation_matrix[3] = sin(psi) * sin(theta) * cos(psi) -
+  _rotation_matrix[3] = sin(psi) * sin(theta) * cos(phi) -
                         cos(psi) * sin(phi);
   _rotation_matrix[4] = sin(psi) * sin(theta) * sin(phi) +
                         cos(psi) * cos(phi);
@@ -771,6 +986,11 @@ void Cell::setTranslation(double* translation, int num_axes) {
     log_printf(ERROR, "Unable to set translation for %d axes for Cell %d. "
                "The translation array should be length 3.", num_axes, _id);
 
+  if (_cell_type == MATERIAL)
+    log_printf(ERROR, "Translations cannot be defined on material cells, "
+               "create a translated cell, containing a universe, containing "
+               "the current material cell ID %d.", _id);
+
   for (int i=0; i < 3; i++)
     _translation[i] = translation[i];
 
@@ -787,7 +1007,10 @@ void Cell::setNumRings(int num_rings) {
     log_printf(ERROR, "Unable to give %d rings to Cell %d since this is "
                "a negative number", num_rings, _id);
 
-  _num_rings = num_rings;
+  if (num_rings == 1)
+    _num_rings = 0;
+  else
+    _num_rings = num_rings;
 }
 
 
@@ -821,11 +1044,16 @@ void Cell::setParent(Cell* parent) {
 
 
 /**
- * @brief Insert a Surface into this Cell's bounding Region.
+ * @brief Insert a Surface into this Cell's bounding Region, assuming that an
+ *        intersection between the region and the halfspace is desired.
  * @param halfspace the Surface halfspace (+/-1)
  * @param surface a pointer to the Surface
  */
 void Cell::addSurface(int halfspace, Surface* surface) {
+
+  if (halfspace != -1 && halfspace != +1)
+    log_printf(ERROR, "Unable to add surface %d to cell %d since the halfspace"
+               " %d is not -1 or 1", surface->getId(), _id, halfspace);
 
   Halfspace* new_halfspace = new Halfspace(halfspace, surface);
 
@@ -834,14 +1062,117 @@ void Cell::addSurface(int halfspace, Surface* surface) {
     _region = new_halfspace;
   else{
     if (dynamic_cast<Intersection*>(_region))
-      _region->addNode(new_halfspace);
+      _region->addNode(new_halfspace, false);
     else {
       Intersection* intersection = new Intersection();
-      intersection->addNode(_region);
-      intersection->addNode(new_halfspace);
+      intersection->addNode(_region, false);
+      intersection->addNode(new_halfspace, false);
       _region = intersection;
     }
   }
+}
+
+
+ /**
+  * @brief Insert a Surface into this Cell's bounding Region.
+  * @param halfspace the Surface halfspace (+/-1)
+  * @param surface a pointer to the Surface
+  */
+ void Cell::addSurfaceInRegion(int halfspace, Surface* surface) {
+
+   /* Create a new halfspace */
+   Halfspace* new_halfspace = new Halfspace(halfspace, surface);
+
+  /* Assign the Halfspace as the Cell's Region if it has none */
+  if (_region == NULL)
+    _region = new_halfspace;
+  /* Else add Halfspace to region */
+  else
+    _current_region->addNode(new_halfspace, false);
+}
+
+
+/**
+ * @brief Removes a Surface from this Cell's container of bounding Surfaces.
+ * @param surface a pointer to the Surface to remove
+ */
+void Cell::removeSurface(Surface* surface) {
+
+  //FIXME This map cannot be modified, it's a const
+  std::map<int, Halfspace*> surfaces = getSurfaces();
+  if (surface != NULL && surfaces.find(surface->getId()) != surfaces.end()) {
+    delete surfaces[surface->getId()];
+    surfaces.erase(surface->getId());
+  }
+}
+
+
+ /**
+  * @brief Insert a logical node (intersection or union) into the cell region.
+  * @details This method creates a node in a tree of regions. The leaves, or the
+  *          nodes at the very bottom of the tree, are halfspaces. The region
+             is defined by that tree.
+  * @param region_type the logical operation
+  */
+ void Cell::addLogicalNode(int region_type) {
+
+   /* Create new region if void */
+   if (_region == NULL) {
+     if (region_type == INTERSECTION) {
+       Intersection* intersection = new Intersection();
+       _region = intersection;
+     }
+     else if (region_type == UNION) {
+       Union* _union = new Union();
+       _region = _union;
+     }
+     else if (region_type == COMPLEMENT) {
+       Complement* complement = new Complement();
+       _region = complement;
+     }
+     _current_region = _region;
+  }
+  /* Add node under current region, and move current region to said node */
+  else {
+    if (region_type == INTERSECTION) {
+      Intersection* intersection = new Intersection();
+      intersection->setParentRegion(_current_region);
+      _current_region->addNode(intersection, false);
+      _current_region = intersection;
+    }
+    else if (region_type == UNION) {
+      Union* _union = new Union();
+      _union->setParentRegion(_current_region);
+      _current_region->addNode(_union, false);
+      _current_region = _union;
+    }
+    else if (region_type == COMPLEMENT) {
+      Complement* complement = new Complement();
+      complement->setParentRegion(_current_region);
+      _current_region->addNode(complement, false);
+      _current_region = complement;
+    }
+  }
+}
+
+
+/**
+ * @brief Climb up the logical tree of regions.
+ */
+void Cell::goUpOneRegionLogical() {
+  _current_region = _current_region->getParentRegion();
+}
+
+
+/**
+ * @brief Add a neighboring Cell to this Cell's collection of neighbors.
+ * @param cell a pointer to the neighboring Cell
+ */
+void Cell::addNeighborCell(Cell* cell) {
+
+  /* Add the neighbor Cell if it is not already in the collection */
+  if (std::find(_neighbors.begin(), _neighbors.end(), cell) == _neighbors.end())
+    _neighbors.push_back(cell);
 }
 
 
@@ -860,17 +1191,17 @@ bool Cell::containsPoint(Point* point) {
     if (_cell_type == FILL) {
       Universe* univ = static_cast<Universe*>(_fill);
       if (univ->getType() == SIMPLE)
-	return univ->containsPoint(point);
+        return univ->containsPoint(point);
       else {
-	Lattice* latt = static_cast<Lattice*>(_fill);
-	return latt->containsPoint(point);
+        Lattice* latt = static_cast<Lattice*>(_fill);
+        return latt->containsPoint(point);
       }
     }
     else
       return true;
   }
 
-  /* Query the Cell's bounding Region */
+  /* If not, query the Cell's bounding Region */
   else
     return _region->containsPoint(point);
 }
@@ -905,6 +1236,26 @@ double Cell::minSurfaceDist(LocalCoords* coords) {
 
 
 /**
+ * @brief Computes the minimum distance to a Surface from a Point with a given
+ *        trajectory at a certain angle.
+ * @details If the trajectory will not intersect any of the Surfaces in the
+ *          Cell returns INFINITY.
+ * @param point the Point of interest
+ * @param azim the azimuthal angle of the trajectory
+ *        (in radians from \f$[0,2\pi]\f$)
+ * @param polar the polar angle of the trajectory
+ *        (in radians from \f$[0,\pi]\f$)
+ * @param min_intersection a pointer to the intersection Point that is found
+ */
+double Cell::minSurfaceDist(Point* point, double azim, double polar) {
+  if (_region == NULL)
+    return INFINITY;
+  else
+    return _region->minSurfaceDist(point, azim, polar);
+}
+
+
+/**
  * @brief Returns true if this Cell is filled with a fissionable Material.
  * @details If the Cell is filled by a Material, this method will simply query
  *          the filling Material. If the Cell is filled by a Universe, this
@@ -928,7 +1279,7 @@ bool Cell::isFissionable() {
  * @brief Create a duplicate of the Cell.
  * @return a pointer to the clone
  */
-Cell* Cell::clone() {
+Cell* Cell::clone(bool clone_region) {
 
   /* Construct new Cell */
   Cell* new_cell = new Cell();
@@ -942,14 +1293,14 @@ Cell* Cell::clone() {
   else
     new_cell->setFill((Universe*)_fill);
 
+  /* Clone the Cell's Region (cloning is done in setRegion) */
+  if (_region != NULL && clone_region)
+    new_cell->setRegion(_region);
+
   if (_rotated)
     new_cell->setRotation(_rotation, 3, "radians");
   if (_translated)
     new_cell->setTranslation(_translation, 3);
-
-  /* Clone the Cell's Region */
-  if (_region != NULL)
-    new_cell->setRegion(_region->clone());
 
   return new_cell;
 }
@@ -972,7 +1323,7 @@ void Cell::sectorize(std::vector<Cell*>& subcells) {
   /* A container for each of the bounding planes for the sector Cells */
   std::vector<Plane*> planes;
 
-  log_printf(DEBUG, "Sectorizing Cell %d with %d sectors",_id, _num_sectors);
+  log_printf(DEBUG, "Sectorizing Cell %d with %d sectors", _id, _num_sectors);
 
   /* Create each of the bounding planes for the sector Cells */
   for (int i=0; i < _num_sectors; i++) {
@@ -994,7 +1345,7 @@ void Cell::sectorize(std::vector<Cell*>& subcells) {
   for (int i=0; i < _num_sectors; i++) {
 
     /* Create new Cell clone for this sector Cell */
-    Cell* sector = clone();
+    Cell* sector = clone(false);
 
     sector->setNumSectors(0);
     sector->setNumRings(0);
@@ -1002,14 +1353,22 @@ void Cell::sectorize(std::vector<Cell*>& subcells) {
     log_printf(DEBUG, "Creating a new sector Cell %d for Cell %d",
                sector->getId(), _id);
 
-    /* Add new bounding planar Surfaces to the clone */
-    sector->addSurface(+1, planes.at(i));
-
     if (_num_sectors != 2) {
+      /* Add new bounding planar Surfaces to the clone */
+      sector->addSurface(+1, planes.at(i));
+
       if (i+1 < _num_sectors)
         sector->addSurface(-1, planes.at(i+1));
       else
         sector->addSurface(-1, planes.at(0));
+    }
+    else {
+      /* For _num_sectors==2, planes[0] and planes[1] are actually the same but
+         opposite direction, so the two adjacent sectors will have the same
+         Halfspace value, which will cause trouble when a point is on the plane.
+         This is to avoid this trouble. */
+      int halfspace = (i==0? +1 : -1);
+      sector->addSurface(halfspace, planes.at(0));
     }
 
     /* Store the clone in the parent Cell's container of sector Cells */
@@ -1045,14 +1404,13 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
 
   /* See if the Cell contains 1 or 2 ZCYLINDER Surfaces */
   std::map<int, Halfspace*>::iterator iter1;
-  std::map<int, Halfspace*> all_surfaces = getSurfaces();
-  for (iter1=all_surfaces.begin(); iter1 != all_surfaces.end(); ++iter1) {
+  std::map<int, Halfspace*> _surfaces = getSurfaces();
+  for (iter1=_surfaces.begin(); iter1 != _surfaces.end(); ++iter1) {
 
     /* Determine if any of the Surfaces is a ZCylinder */
     if (iter1->second->getSurface()->getSurfaceType() == ZCYLINDER) {
       int halfspace = iter1->second->getHalfspace();
-      ZCylinder* zcylinder =
-	static_cast<ZCylinder*>(iter1->second->getSurface());
+      ZCylinder* zcylinder = static_cast<ZCylinder*>(iter1->second->getSurface());
 
       /* Outermost bounding ZCylinder */
       if (halfspace == -1) {
@@ -1077,21 +1435,23 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
   }
 
   /* Error checking */
-  if (num_zcylinders == 0)
-    log_printf(ERROR, "Unable to ringify Cell %d since it does not "
-              "contain any ZCYLINDER type Surface(s)", _id);
+  if (num_zcylinders == 0) {
+    log_printf(WARNING, "Unable to ringify Cell %d: %s since it does not "
+              "contain any ZCYLINDER type Surface(s)", _id, _name);
+    return;
+  }
 
   if (num_zcylinders > 2)
-    log_printf(NORMAL, "Unable to ringify Cell %d since it "
+    log_printf(ERROR, "Unable to ringify Cell %d since it "
                "contains more than 2 ZCYLINDER Surfaces", _id);
 
-  if (x1 != x2 && num_zcylinders == 2)
+  if (fabs(x1 - x2) > FLT_EPSILON && num_zcylinders == 2)
     log_printf(ERROR, "Unable to ringify Cell %d since it contains "
                "ZCylinder %d centered at x=%f and ZCylinder %d at x=%f. "
                "Both ZCylinders must have the same center.",
                _id, zcylinder1->getId(), x1, zcylinder2->getId(), x2);
 
-  if (y1 != y2 && num_zcylinders == 2)
+  if (fabs(y1 - y2) > FLT_EPSILON && num_zcylinders == 2)
     log_printf(ERROR, "Unable to ringify Cell %d since it contains "
                "ZCylinder %d centered at y=%f and ZCylinder %d at y=%f. "
                "Both ZCylinders must have the same center.",
@@ -1114,8 +1474,13 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
 
   /* If there is no outer bounding surface, make the rings have the same
    * radius increment (e.g. moderator in a pin cell universe). */
-  if (halfspace1 == 0)
+  if (halfspace1 == 0){
     increment = fabs(radius1 - radius2) / _num_rings;
+
+    /* Heuristic to improve area-balancing for low number of rings */
+    if (fabs(radius1 - max_radius) < FLT_EPSILON && _num_rings < 3)
+      increment = 1.5 * (radius1 - radius2) / _num_rings;
+  }
 
   /* If there is an outer bounding surface, make the rings have the same
    * area (e.g. fuel in a pin cell universe).*/
@@ -1167,6 +1532,7 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
         else
           ring->addSurface(+1, *(iter2+1));
 
+
         /* Store the clone in the parent Cell's container of ring Cells */
         rings.push_back(ring);
       }
@@ -1177,7 +1543,7 @@ void Cell::ringify(std::vector<Cell*>& subcells, double max_radius) {
       log_printf(DEBUG, "Creating new ring in un-sectorized Cell %d",_id);
 
       /* Create a new Cell clone */
-      Cell* ring = clone();
+      Cell* ring = clone(false);
       ring->setNumSectors(0);
       ring->setNumRings(0);
 
@@ -1238,6 +1604,34 @@ void Cell::subdivideCell(double max_radius) {
 
 
 /**
+ * @brief Build a collection of neighboring Cells for optimized ray tracing.
+ */
+void Cell::buildNeighbors() {
+
+  Surface* surface;
+  int halfspace;
+
+  /* Add this Cell to the neighbor lists of all this cell's surfaces */
+  std::map<int, Halfspace*>::iterator iter;
+  std::map<int, Halfspace*> _surfaces = getSurfaces();
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter) {
+    surface = iter->second->_surface;
+    halfspace = iter->second->_halfspace;
+    surface->addNeighborCell(halfspace, this);
+  }
+
+  /* Make recursive call to the Cell's fill Universe */
+  if (_cell_type == FILL) {
+    Universe* fill = static_cast<Universe*>(_fill);
+    if (fill->getType() == SIMPLE)
+      static_cast<Universe*>(fill)->buildNeighbors();
+    else
+      static_cast<Lattice*>(fill)->buildNeighbors();
+  }
+}
+
+
+/**
  * @brief Convert this Cell's attributes to a string format.
  * @return a character array of this Cell's attributes
  */
@@ -1254,7 +1648,7 @@ std::string Cell::toString() {
     string << ", type = FILL, "
            << ", fill id = " << static_cast<Universe*>(_fill)->getId();
   }
-  else if(_cell_type == MATERIAL) {
+  else if (_cell_type == MATERIAL) {
     string << ", type = MATERIAL"
            << ", fill id = " << static_cast<Material*>(_fill)->getId();
   }
@@ -1270,6 +1664,16 @@ std::string Cell::toString() {
     string << _translation[1] << ", " << _translation[2] << ")";
   }
 
+  string << ", # surfaces = " << getNumSurfaces();
+
+  /** Add string data for the Surfaces in this Cell */
+  std::map<int, Halfspace*>::iterator iter;
+  std::map<int, Halfspace*> _surfaces = getSurfaces();
+  string << ", Surfaces: ";
+  for (iter = _surfaces.begin(); iter != _surfaces.end(); ++iter)
+    string << std::showpos << "\nhalfspace = " << iter->second->_halfspace
+           << ", " << iter->second->_surface->toString();
+
   return string.str();
 }
 
@@ -1280,4 +1684,21 @@ std::string Cell::toString() {
  */
 void Cell::printString() {
   log_printf(NORMAL, toString().c_str());
+}
+
+
+/**
+ * @brief Obtain and return the number of ZCylinders in the cell's surfaces
+ * @return the number of ZCylinders used to define this cell's region
+ */
+int Cell::getNumZCylinders() {
+
+  std::map<int, Halfspace*>::iterator iter;
+  std::map<int, Halfspace*> _surfaces = getSurfaces();
+  int num = 0;
+  for (iter=_surfaces.begin(); iter != _surfaces.end(); ++iter)
+    if (iter->second->getSurface()->getSurfaceType() == ZCYLINDER)
+      num++;
+
+  return num;
 }

@@ -2,5 +2,5 @@
 
 set -ev
 
-# Run all tests with coverage
+# Run all tests
 ./run_tests.py -c

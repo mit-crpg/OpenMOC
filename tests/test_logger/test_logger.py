@@ -37,10 +37,6 @@ class LoggerTestHarness(TestHarness):
         openmoc.log_printf(openmoc.NORMAL, 'This is a normal message')
         openmoc.log_printf(openmoc.SEPARATOR, 'This is a separator message')
         openmoc.log_printf(openmoc.HEADER, 'This is a header message')
-        openmoc.log_printf(openmoc.HEADER, 'This is a very very very very very '
-             'very very very very long header message')
-        openmoc.log_printf(openmoc.TITLE, 'This is a very very very very very '
-             'very very very very very long title message')
         openmoc.log_printf(openmoc.TITLE, 'This is a title message')
         openmoc.log_printf(openmoc.WARNING, 'This is a warning message')
         openmoc.log_printf(openmoc.CRITICAL, 'This is a critical message')
@@ -52,10 +48,6 @@ class LoggerTestHarness(TestHarness):
         py_printf('NORMAL', 'This is a normal message')
         py_printf('SEPARATOR', 'This is a separator message')
         py_printf('HEADER', 'This is a header message')
-        py_printf('HEADER', 'This is a very very very very very '
-             'very very very very long header message')
-        py_printf('TITLE', 'This is a very very very very very '
-             'very very very very very long title message')
         py_printf('TITLE', 'This is a title message')
         py_printf('WARNING', 'This is a warning message')
         py_printf('CRITICAL', 'This is a critical message')

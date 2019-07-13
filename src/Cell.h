@@ -15,6 +15,8 @@
 #endif
 #include "Material.h"
 #include "Region.h"
+#include "Surface.h"
+#include "Point.h"
 #include <limits>
 #include <string>
 #endif
@@ -70,11 +72,14 @@ private:
   /** The type of Cell (ie MATERIAL or FILL) */
   cellType _cell_type;
 
+  /** A pointer to the Material or Universe filling this Cell */
+  void* _fill;
+
   /** A pointer to the Region bounding the Cell */
   Region* _region;
 
-  /** A pointer to the Material or Universe filling this Cell */
-  void* _fill;
+  /** A pointer to the Region currently examined while transfering geometry */
+  Region* _current_region;
 
   /** The volume / area of the Cell computed from overlapping segments */
   double _volume;
@@ -106,6 +111,9 @@ private:
   /** A parent Cell if cloned by another Cell */
   Cell* _parent;
 
+  /* Vector of neighboring Cells */
+  std::vector<Cell*> _neighbors;
+
   void ringify(std::vector<Cell*>& subcells, double max_radius);
   void sectorize(std::vector<Cell*>& subcells);
 
@@ -116,9 +124,9 @@ public:
   int getId() const;
   char* getName() const;
   cellType getType() const;
-  Region* getRegion();
   Material* getFillMaterial();
   Universe* getFillUniverse();
+  Region* getRegion();
   double getVolume();
   int getNumInstances();
   bool isRotated();
@@ -129,7 +137,7 @@ public:
   double* getRotationMatrix();
   double* getTranslation();
   void retrieveRotation(double* rotations, int num_axes,
-			std::string units="degrees");
+                        std::string units="degrees");
   void retrieveTranslation(double* translations, int num_axes);
   int getNumRings();
   int getNumSectors();
@@ -143,18 +151,24 @@ public:
   boundaryType getMaxXBoundaryType();
   boundaryType getMinYBoundaryType();
   boundaryType getMaxYBoundaryType();
-  std::map<int, Halfspace*> getSurfaces();
+  boundaryType getMinZBoundaryType();
+  boundaryType getMaxZBoundaryType();
+  int getNumSurfaces() const;
+  std::map<int, Halfspace*> getSurfaces() const;
+  std::vector<Cell*> getNeighbors() const;
   bool hasParent();
   Cell* getParent();
   Cell* getOldestAncestor();
+
+  int getNumZCylinders();
 
   std::map<int, Cell*> getAllCells();
   std::map<int, Universe*> getAllUniverses();
 
   void setName(const char* name);
-  void setRegion(Region* region);
   void setFill(Material* fill);
   void setFill(Universe* fill);
+  void setRegion(Region* region);
   void setVolume(double volume);
   void incrementVolume(double volume);
   void setNumInstances(int num_instances);
@@ -165,14 +179,21 @@ public:
   void setNumSectors(int num_sectors);
   void setParent(Cell* parent);
   void addSurface(int halfspace, Surface* surface);
+  void addSurfaceInRegion(int halfspace, Surface* surface);
+  void addLogicalNode(int region_type);
+  void goUpOneRegionLogical();
+  void removeSurface(Surface* surface);
+  void addNeighborCell(Cell* cell);
 
   bool isFissionable();
   bool containsPoint(Point* point);
   bool containsCoords(LocalCoords* coords);
+  double minSurfaceDist(Point* point, double azim, double polar);
   double minSurfaceDist(LocalCoords* coords);
 
-  Cell* clone();
+  Cell* clone(bool clone_region=true);
   void subdivideCell(double max_radius);
+  void buildNeighbors();
 
   std::string toString();
   void printString();

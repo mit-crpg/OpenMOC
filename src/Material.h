@@ -12,29 +12,29 @@
 #ifdef SWIG
 #include "Python.h"
 #endif
+#include "constants.h"
 #include "log.h"
 #include "linalg.h"
 #include <sstream>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <malloc.h>
 #endif
 
-#ifdef ICPC
-/** Word-aligned memory allocation for Intel's compiler */
-#define MM_FREE(array) _mm_free(array)
-
-/** Word-aligned memory allocation for Intel's compiler */
+#ifdef INTEL
+/** Aligned memory allocation for Intel's compiler */
 #define MM_MALLOC(size,alignment) _mm_malloc(size, alignment)
 
+/** Aligned memory deallocation for Intel's compiler */
+#define MM_FREE(array) _mm_free(array)
+
 #else
+/** Aligned memory allocation for GNU's compiler */
+#define MM_MALLOC(size,alignment) memalign(alignment, size)
 
-/** Word-aligned memory deallocation for GNU's compiler */
+/** Aligned memory deallocation for GNU's compiler */
 #define MM_FREE(array) free(array)
-
-/** Word-aligned memory allocation for GNU's compiler */
-#define MM_MALLOC(size,alignment) malloc(size)
-
 #endif
 
 
@@ -70,8 +70,14 @@ private:
   /** An array of the total cross-sections for each energy group */
   FP_PRECISION* _sigma_t;
 
+  /** Max total cross section */
+  FP_PRECISION _max_sigma_t;
+
   /** A 2D array of the scattering cross-section matrix from/into each group */
   FP_PRECISION* _sigma_s;
+
+  /** An array of the absorption cross-sections for each energy group */
+  FP_PRECISION* _sigma_a;
 
   /** An array of the fission cross-sections for each energy group */
   FP_PRECISION* _sigma_f;
@@ -107,13 +113,16 @@ public:
   int getNumInstances();
   int getNumEnergyGroups() const;
   FP_PRECISION* getSigmaT();
+  FP_PRECISION getMaxSigmaT();
   FP_PRECISION* getSigmaS();
+  FP_PRECISION* getSigmaA();
   FP_PRECISION* getSigmaF();
   FP_PRECISION* getNuSigmaF();
   FP_PRECISION* getChi();
   FP_PRECISION* getFissionMatrix();
   FP_PRECISION getSigmaTByGroup(int group);
   FP_PRECISION getSigmaSByGroup(int origin, int destination);
+  FP_PRECISION getSigmaAByGroup(int group);
   FP_PRECISION getSigmaFByGroup(int group);
   FP_PRECISION getNuSigmaFByGroup(int group);
   FP_PRECISION getChiByGroup(int group);
@@ -140,12 +149,12 @@ public:
   void setNuSigmaFByGroup(double xs, int group);
   void setSigmaSByGroup(double xs, int origin, int destination);
   void setChiByGroup(double xs, int group);
+  void setSigmaAByGroup(double xs, int group);
 
   void buildFissionMatrix();
   void transposeProductionMatrices();
   void alignData();
   Material* clone();
-  void copyFrom(Material* material);
 
   std::string toString();
   void printString();

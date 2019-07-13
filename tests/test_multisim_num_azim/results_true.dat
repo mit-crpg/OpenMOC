@@ -1,6 +1,6 @@
 # tracks: 116	# segments: 196
-# tracks: 212	# segments: 404
-# tracks: 420	# segments: 812
-Iters: 260	keff:  1.04665E+00
-Iters: 255	keff:  1.04411E+00
-Iters: 254	keff:  1.04572E+00
+# tracks: 212	# segments: 380
+# tracks: 420	# segments: 748
+Iters: 261	keff:  1.04666E+00
+Iters: 257	keff:  1.04413E+00
+Iters: 256	keff:  1.04574E+00

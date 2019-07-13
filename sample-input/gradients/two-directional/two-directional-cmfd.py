@@ -34,6 +34,7 @@ top.setBoundaryType(openmoc.REFLECTIVE)
 bottom.setBoundaryType(openmoc.REFLECTIVE)
 
 geometry.setCmfd(cmfd)
+geometry.initializeFlatSourceRegions()
 
 ###############################################################################
 ########################   Creating the TrackGenerator   ######################

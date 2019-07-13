@@ -10,8 +10,8 @@ static int auto_id = DEFAULT_INIT_ID;
  *          OpenMOC input files. The method makes use of a static surface
  *          ID which is incremented each time the method is called to enable
  *          unique generation of monotonically increasing IDs. The method's
- *          first ID begins at 10000. Hence, user-defined surface IDs greater
- *          than or equal to 10000 are prohibited.
+ *          first ID begins at 1,000,000. Hence, user-defined surface IDs
+ *          greater than or equal to 1,000,000 are prohibited.
  */
 int surface_id() {
   int id = auto_id;
@@ -21,7 +21,7 @@ int surface_id() {
 
 
 /**
- * @brief Resets the auto-generated unique Surface ID counter to 10000.
+ * @brief Resets the auto-generated unique Surface ID counter to 1,000,000.
  */
 void reset_surface_id() {
   auto_id = DEFAULT_INIT_ID;
@@ -67,6 +67,10 @@ Surface::Surface(const int id, const char* name) {
   setName(name);
 
   _boundary_type = BOUNDARY_NONE;
+
+  /* Initialize empty vectors of neighbor Cells for each halfspace */
+  _neighbors[-1] = new std::vector<Cell*>();
+  _neighbors[+1] = new std::vector<Cell*>();
 }
 
 
@@ -74,8 +78,17 @@ Surface::Surface(const int id, const char* name) {
  * @brief Destructor.
  */
 Surface::~Surface() {
+
   if (_name != NULL)
     delete [] _name;
+
+  if (!_neighbors.empty()) {
+    _neighbors[-1]->clear();
+    _neighbors[+1]->clear();
+    delete _neighbors[-1];
+    delete _neighbors[+1];
+    _neighbors.clear();
+  }
 }
 
 
@@ -98,7 +111,7 @@ int Surface::getId() const {
 
 
 /**
- * @brief Return the user-defined name of the Surface
+ * @brief Return the user-defined name of the Surface.
  * @return the Surface name
  */
 char* Surface::getName() const {
@@ -107,7 +120,7 @@ char* Surface::getName() const {
 
 
 /**
- * @brief Return the type of Surface (ie, XPLANE, ZCYLINDER, etc).
+ * @brief Return the type of Surface (ie, XPLANE, ZYCLINDER, etc).
  * @return the Surface type
  */
 surfaceType Surface::getSurfaceType() {
@@ -117,8 +130,8 @@ surfaceType Surface::getSurfaceType() {
 
 /**
  * @brief Returns the type of boundary conditions for this Surface (REFLECTIVE,
- *        VACUUM or BOUNDARY_NONE)
- * @return the type of boundary condition type for this Surface
+ *        VACUUM or BOUNDARY_NONE).
+ * @return the boundary condition type for this Surface
  */
 boundaryType Surface::getBoundaryType() {
   return _boundary_type;
@@ -126,7 +139,49 @@ boundaryType Surface::getBoundaryType() {
 
 
 /**
- * @brief Sets the name of the Surface
+ * @brief Returns the minimum coordinate in the axis direction of the
+ *        surface.
+ * @param axis The axis of interest (0 = x, 1 = y, 2 = z)
+ * @param halfspace the halfspace to consider
+ * @return the minimum coordinate in the axis direction
+ */
+double Surface::getMin(int axis, int halfspace) {
+  if (axis == 0)
+    return getMinX(halfspace);
+  else if (axis == 1)
+    return getMinY(halfspace);
+  else if (axis == 2)
+    return getMinZ(halfspace);
+  else
+    log_printf(ERROR, "Could not retrieve minimum Surface coordinate since axis"
+                      " is not recognized");
+  return 0;
+}
+
+
+/**
+ * @brief Returns the maximum coordinate in the axis direction of the
+ *        surface.
+ * @param axis The axis of interest (0 = x, 1 = y, 2 = z)
+ * @param halfspace the halfspace to consider
+ * @return the maximum coordinate in the axis direction
+ */
+double Surface::getMax(int axis, int halfspace) {
+  if (axis == 0)
+    return getMaxX(halfspace);
+  else if (axis == 1)
+    return getMaxY(halfspace);
+  else if (axis == 2)
+    return getMaxZ(halfspace);
+  else
+    log_printf(ERROR, "Could not retrieve minimum Surface coordinate since axis"
+                      " is not recognized");
+  return 0;
+}
+
+
+/**
+ * @brief Sets the name of the Surface.
  * @param name the Surface name string
  */
 void Surface::setName(const char* name) {
@@ -144,7 +199,6 @@ void Surface::setName(const char* name) {
 }
 
 
-
 /**
  * @brief Sets the boundary condition type (ie, VACUUM or REFLECTIVE) for this
  *        Surface.
@@ -152,6 +206,43 @@ void Surface::setName(const char* name) {
  */
 void Surface::setBoundaryType(boundaryType boundary_type) {
   _boundary_type = boundary_type;
+}
+
+
+/**
+ * @brief Adds a neighbor Cell to this Surface's collection of neighbors.
+ * @param halfspace the +/-1 halfspace for the neighboring Cell
+ * @param cell a pointer to the neighboring Cell
+ */
+void Surface::addNeighborCell(int halfspace, Cell* cell) {
+
+  if (halfspace != -1 && halfspace != +1)
+    log_printf(ERROR, "Unable to add neighbor Cell %d to Surface %d since the "
+               "halfspace %d is not -1 or 1", cell->getId(), _id, halfspace);
+
+  /* Get pointer to vector of neighbor Cells for this halfspace */
+  std::vector<Cell*>* neighbors = _neighbors[halfspace];
+
+  /* Add the neighbor Cell if the collection does not already contain it */
+  if (std::find(neighbors->begin(), neighbors->end(), cell) == neighbors->end())
+    neighbors->push_back(cell);
+
+  /* Update Cells with the neighbor Cells on the opposite Surface halfspace */
+  std::vector<Cell*>::iterator iter1;
+  std::vector<Cell*>::iterator iter2;
+  for (iter1 = _neighbors[-1]->begin();
+       iter1 != _neighbors[-1]->end(); ++iter1) {
+    for (iter2 = _neighbors[1]->begin();
+         iter2 != _neighbors[1]->end(); ++iter2)
+      (*iter1)->addNeighborCell(*iter2);
+  }
+
+  for (iter1 = _neighbors[1]->begin();
+       iter1 != _neighbors[1]->end(); ++iter1) {
+    for (iter2 = _neighbors[-1]->begin();
+         iter2 != _neighbors[-1]->end(); ++iter2)
+      (*iter1)->addNeighborCell(*iter2);
+  }
 }
 
 
@@ -192,12 +283,13 @@ double Surface::getMinDistance(LocalCoords* coords) {
 
   Point* point = coords->getPoint();
   double phi = coords->getPhi();
+  double polar = coords->getPolar();
 
   /* Point array for intersections with this Surface */
   Point intersections[2];
 
   /* Find the intersection Point(s) */
-  int num_inters = this->intersection(point, phi, intersections);
+  int num_inters = this->intersection(point, phi, polar, intersections);
   double distance = INFINITY;
 
   /* If there is one intersection Point */
@@ -251,7 +343,7 @@ Plane::Plane(const double A, const double B,
 
 
 /**
- * @brief Returns the minimum x value of -INFINITY
+ * @brief Returns the minimum x value of -INFINITY.
  * @param halfspace the halfspace of the Surface to consider
  * @return the minimum x value of -INFINITY
  */
@@ -271,7 +363,7 @@ double Plane::getMaxX(int halfspace) {
 
 
 /**
- * @brief Returns the minimum y value of -INFINITY
+ * @brief Returns the minimum y value of -INFINITY.
  * @param halfspace the halfspace of the Surface to consider
  * @return the minimum y value of -INFINITY
  */
@@ -291,7 +383,7 @@ double Plane::getMaxY(int halfspace) {
 
 
 /**
- * @brief Returns the minimum z value of -INFINITY
+ * @brief Returns the minimum z value of -INFINITY.
  * @param halfspace the halfspace of the Surface to consider
  * @return the minimum z value of -INFINITY
  */
@@ -348,42 +440,42 @@ double Plane::getD() {
 
 /**
 * @brief Finds the intersection Point with this Plane from a given Point and
-*        trajectory defined by an angle.
+*        trajectory defined by an azim/polar.
 * @param point pointer to the Point of interest
-* @param angle the angle defining the trajectory in radians
+* @param azim the azimuthal angle defining the trajectory in radians
+* @param polar the polar angle defining the trajectory in radians
 * @param points pointer to a Point to store the intersection Point
 * @return the number of intersection Points (0 or 1)
 */
-inline int Plane::intersection(Point* point, double angle, Point* points) {
+int Plane::intersection(Point* point, double azim, double polar, Point* points) {
 
   double x0 = point->getX();
   double y0 = point->getY();
   double z0 = point->getZ();
-  double l;
 
   int num = 0;                /* number of intersections */
-  double xcurr, ycurr, zcurr; /* coordinates of current intersection point */
-  double mx = cos(angle);
-  double my = sin(angle);
 
   /* The track and plane are parallel */
-  if ((fabs(mx) < 1.e-10 && fabs(_A) > 1.e-10) ||
-      (fabs(my) < 1.e-10 && fabs(_B) > 1.e-10))
+  double mx = sin(polar) * cos(azim);
+  double my = sin(polar) * sin(azim);
+  double mz = cos(polar);
+
+  if (fabs(_A*mx + _B*my + _C*mz) < 1.e-10)
     return 0;
 
   /* The track is not parallel to the plane */
-  else{
+  else {
 
-    l = - (_A*x0 + _B*y0 + _C*z0 + _D) /
-      (_A * mx + _B * my);
-    xcurr = x0 + l * mx;
-    ycurr = y0 + l * my;
-    zcurr = z0;
+    double l = - (_A*x0 + _B*y0 + _C*z0 + _D) /
+      (_A * mx + _B * my + _C * mz);
+    double xcurr = x0 + l * mx;
+    double ycurr = y0 + l * my;
+    double zcurr = z0 + l * mz;
 
-    if (l > 0.0) {
-      points[num].setCoords(xcurr, ycurr, zcurr);
+    if (l > 0.0)
       num++;
-    }
+
+    points[0].setCoords(xcurr, ycurr, zcurr);
   }
 
   return num;
@@ -404,8 +496,7 @@ std::string Plane::toString() {
   string << "Surface ID = " << _id
          << ", name = " << _name
          << ", type = PLANE "
-         << ", A = " << _A << ", B = " << _B << ", C = " << _C
-         << ", D = " << _D;
+         << ", A = " << _A << ", B = " << _B << ", C = " << _C << ", D = " << _D;
 
   return string.str();
 }
@@ -473,7 +564,7 @@ double XPlane::getMaxX(int halfspace) {
 /**
  * @brief Converts this XPlane's attributes to a character array.
  * @details The character array returned conatins the type of Plane (ie,
- *          XPLANE) and the A, B, C, and D coefficients in the
+ *          XPLANE) and the A, B, and C coefficients in the
  *          quadratic Surface equation and the location of the Plane on
  *          the x-axis.
  * @return a character array of this XPlane's attributes
@@ -553,9 +644,9 @@ double YPlane::getMaxY(int halfspace) {
 
 
 /**
- * @brief Converts this yplane's attributes to a character array
+ * @brief Converts this YPlane's attributes to a character array.
  * @details The character array returned conatins the type of Plane (ie,
- *          YPLANE) and the A, B, C, and D coefficients in the quadratic
+ *          YPLANE) and the A, B, and C coefficients in the quadratic
  *          Surface equation and the location of the Plane on the y-axis.
  * @return a character array of this YPlane's attributes
  */
@@ -636,7 +727,7 @@ double ZPlane::getMaxZ(int halfspace) {
 /**
  * @brief Converts this ZPlane's attributes to a character array.
  * @details The character array returned conatins the type of Plane (ie,
- *          ZPLANE) and the A, B, C, and D coefficients in the
+ *          ZPLANE) and the A, B, and C coefficients in the
  *          quadratic Surface equation and the location of the Plane along
  *          the z-axis.
  * @return a character array of this ZPlane's attributes
@@ -657,7 +748,7 @@ std::string ZPlane::toString() {
 
 
 /**
- * @brief constructor.
+ * @brief Constructor.
  * @param x the x-coordinte of the ZCylinder center
  * @param y the y-coordinate of the ZCylinder center
  * @param radius the radius of the ZCylinder
@@ -665,8 +756,8 @@ std::string ZPlane::toString() {
  * @param name the optional Surface name
  */
 ZCylinder::ZCylinder(const double x, const double y,
-                     const double radius, const int id, const char* name):
-    Surface(id, name) {
+               const double radius, const int id, const char* name):
+  Surface(id, name) {
 
   _surface_type = ZCYLINDER;
   _A = 1.;
@@ -771,78 +862,118 @@ double ZCylinder::getMaxZ(int halfspace) {
 
 
 /**
- * @brief Finds the intersection Point with this zcylinder from a given Point and
- *        trajectory defined by an angle (0, 1, or 2 points).
+ * @brief Finds the intersection Point with this zcylinder from a given Point
+ *        and trajectory defined by an azim/polar angles (0, 1, or 2 points).
  * @param point pointer to the Point of interest
- * @param angle the angle defining the trajectory in radians
- * @param points pointer to a an array of Points to store intersection Points
+ * @param azim the azimuthal angle defining the trajectory in radians
  * @param polar the polar angle defining the trajectory in radians
+ * @param points pointer to a an array of Points to store intersection Points
  * @return the number of intersection Points (0 or 1)
  */
-int ZCylinder::intersection(Point* point, double angle, Point* points) {
+int ZCylinder::intersection(Point* point, double azim, double polar, Point* points) {
 
   double x0 = point->getX();
   double y0 = point->getY();
   double z0 = point->getZ();
-  double xcurr, ycurr, zcurr;
+  double xcurr = 0;
+  double ycurr = 0;
+  double zcurr = 0;
   int num = 0;                        /* Number of intersection Points */
-  double a, b, c, q, discr;
 
   /* If the track is vertical in y */
-  if ((fabs(angle - M_PI_2)) < 1.0e-10) {
+  if ((fabs(azim - M_PI_2)) < 1.0e-10 || (fabs(azim - 3.0 * M_PI_2)) < 1.0e-10) {
 
     /* Solve for where the line x = x0 and the Surface F(x,y) intersect
      * Find the y where F(x0, y) = 0
      * Substitute x0 into F(x,y) and rearrange to put in
-     * the form of the quadratic formula: ay^2 + by + c = 0 
-     * This is simplified for a z-cylinder with a vertical axis */
-    a = 1.;
-    b = _D;
-    c = _A * x0 * x0 + _C * x0 + _E;
+     * the form of the quadratic formula: ay^2 + by + c = 0 */
+    double a = 1.0;
+    double b = _D;
+    double c = _A * x0 * x0 + _C * x0 + _E;
 
-    discr = b*b - 4*c;
+    double discr = b*b - 4*c;
 
     /* There are no intersections */
     if (discr < 0)
       return 0;
 
     /* There is one intersection (ie on the Surface) */
-    else if (discr == 0) {
-      xcurr = x0;
-      ycurr = -b / 2;
-      zcurr = z0;
+    else if (fabs(discr) < FLT_EPSILON) {
+      double xcurr = x0;
+      double ycurr = -b / 2;
+      double interior = pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0);
+      if (interior < 0.0)
+        interior = 0.0;
+      zcurr = z0 + sqrt(interior) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
 
       /* Check that point is in same direction as angle */
-      if (angle < M_PI && ycurr > y0)
-        num++;
-      else if (angle > M_PI && ycurr < y0)
-        num++;
-
-      return num;
+      if (azim < M_PI && ycurr > y0) {
+        if (zcurr > z0 && polar < M_PI_2)
+          num++;
+        else if (zcurr < z0 && polar > M_PI_2)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
+      }
+      else if (azim > M_PI && ycurr < y0) {
+        if (zcurr > z0 && polar < M_PI_2)
+          num++;
+        else if (zcurr < z0 && polar > M_PI_2)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
+      }
     }
 
     /* There are two intersections */
     else {
       xcurr = x0;
-      ycurr = (-b + sqrt(discr)) / 2;
-      zcurr = z0;
+      if (discr < 0.0)
+        discr = 0.0;
+      ycurr = (-b + sqrt(discr)) / (2 * a);
+      double interior = pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0);
+      if (interior < 0.0)
+        interior = 0.0;
+      zcurr = z0 + sqrt(interior) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (angle < M_PI && ycurr > y0)
-        num++;
-      else if (angle > M_PI && ycurr < y0)
-        num++;
+      if (azim < M_PI && ycurr > y0) {
+        if (zcurr > z0 && polar < M_PI_2)
+          num++;
+        else if (zcurr < z0 && polar > M_PI_2)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
+      }
+      else if (azim > M_PI && ycurr < y0) {
+        if (zcurr > z0 && polar < M_PI_2)
+          num++;
+        else if (zcurr < z0 && polar > M_PI_2)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
+      }
 
       xcurr = x0;
-      ycurr = (-b - sqrt(discr)) / 2;
-      zcurr = z0;
+      ycurr = (-b - sqrt(discr)) / (2 * a);
+      zcurr = z0 + sqrt(interior) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (angle < M_PI && ycurr > y0)
-        num++;
-      else if (angle > M_PI && ycurr < y0)
-        num++;
-
-      return num;
+      if (azim < M_PI && ycurr > y0) {
+        if (zcurr > z0 && polar < M_PI_2)
+          num++;
+        else if (zcurr < z0 && polar > M_PI_2)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
+      }
+      else if (azim > M_PI && ycurr < y0) {
+        if (zcurr > z0 && polar < M_PI_2)
+          num++;
+        else if (zcurr < z0 && polar > M_PI_2)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
+      }
     }
   }
 
@@ -854,78 +985,114 @@ int ZCylinder::intersection(Point* point, double angle, Point* points) {
      * rearrange to put in the form of the quadratic formula:
      * ax^2 + bx + c = 0
      */
-    double m = tan(angle);
-    q = y0 - m * x0;
-    a = 1 + m * m;
-    b = 2 * m * q + _C + _D * m;
-    c = q * q + _D * q + _E;
+    double m = tan(azim);
+    double q = y0 - m * x0;
+    double a = 1 + m * m;
+    double b = 2 * m * q + _C + _D * m;
+    double c = q * q + _D * q + _E;
 
-    discr = b*b - 4*a*c;
+    double discr = b*b - 4*a*c;
 
     /* Boolean value describing whether the track is traveling to the right */
-    bool right = angle < M_PI / 2. || angle > 3. * M_PI / 2.;
+    bool right = azim < M_PI / 2. || azim > 3. * M_PI / 2.;
 
     /* There are no intersections */
     if (discr < 0)
       return 0;
 
     /* There is one intersection (ie on the Surface) */
-    else if (discr == 0) {
-
-      /* Determine the point of intersection */
+    else if (fabs(discr) < FLT_EPSILON) {
+      double interior = pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0);
+      if (interior < 0.0)
+        interior = 0.0;
       xcurr = -b / (2*a);
       ycurr = y0 + m * (points[num].getX() - x0);
-      zcurr = z0;
+      zcurr = z0 + sqrt(interior) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
 
       /* Increase the number of intersections if the intersection is in the
        * direction of the track is heading */
-      if (right && xcurr > x0)
-        num++;
-      else if (!right && xcurr < x0)
-        num++;
-
-      return num;
+      if (right && xcurr > x0) {
+        if (zcurr > z0 && polar < M_PI_2)
+          num++;
+        else if (zcurr < z0 && polar > M_PI_2)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
+      }
+      else if (!right && xcurr < x0) {
+        if (zcurr > z0 && polar < M_PI_2)
+          num++;
+        else if (zcurr < z0 && polar > M_PI_2)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
+      }
     }
 
     /* There are two intersections */
     else {
 
-      /* Determine the point of intersection */
+      /* Determine first point of intersection */
       xcurr = (-b + sqrt(discr)) / (2*a);
       ycurr = y0 + m * (xcurr - x0);
-      zcurr = z0;
+      double interior = pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0);
+      zcurr = z0 + sqrt(interior) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
 
       /* Increase the number of intersections if the intersection is in the
        * direction of the track is heading */
-      if (right && xcurr > x0)
-        num++;
-      else if (!right && xcurr < x0)
-        num++;
+      if (right && xcurr > x0) {
+        if (zcurr > z0 && polar < M_PI_2)
+          num++;
+        else if (zcurr < z0 && polar > M_PI/2.0)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
+      }
+      else if (!right && xcurr < x0) {
+        if (zcurr > z0 && polar < M_PI_2)
+          num++;
+        else if (zcurr < z0 && polar > M_PI_2)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
+      }
 
-      /* Determine the point of intersection */
+      /* Determine second point of intersection */
       xcurr = (-b - sqrt(discr)) / (2*a);
       ycurr = y0 + m * (xcurr - x0);
-      zcurr = z0;
+      interior = pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0);
+      zcurr = z0 + sqrt(interior) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
 
       /* Increase the number of intersections if the intersection is in the
        * direction of the track is heading */
-      if (right && xcurr > x0)
-        num++;
-      else if (!right && xcurr < x0)
-        num++;
-
-      return num;
+      if (right && xcurr > x0) {
+        if (zcurr > z0 && polar < M_PI_2)
+          num++;
+        else if (zcurr < z0 && polar > M_PI_2)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
+      }
+      else if (!right && xcurr < x0) {
+        if (zcurr > z0 && polar < M_PI/2.0)
+          num++;
+        else if (zcurr < z0 && polar > M_PI/2.0)
+          num++;
+        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
+          num++;
+      }
     }
   }
+  return num;
 }
 
 
 /**
  * @brief Converts this ZCylinder's attributes to a character array.
- * @details The character array returned conatins the type of Plane (ie,
+ * @details The character array returned contains the type of Plane (ie,
  *          ZCYLINDER) and the A, B, C, D and E coefficients in the
  *          quadratic Surface equation.
  * @return a character array of this ZCylinder's attributes
@@ -935,7 +1102,7 @@ std::string ZCylinder::toString() {
   std::stringstream string;
 
   string << "Surface ID = " << _id
-         << ", name " << _name
+         << ", name = " << _name
          << ", type = ZCYLINDER "
          << ", A = " << _A << ", B = " << _B
          << ", C = " << _C << ", D = " << _D << ", E = " << _E

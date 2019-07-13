@@ -1,80 +1,19 @@
 import openmoc
+from geometry import *
+from openmoc import plotter as plotter
 
 ###############################################################################
 #                          Main Simulation Parameters
 ###############################################################################
 
-opts = openmoc.options.Options()
+options = openmoc.options.Options()
 
-openmoc.log.set_log_level('NORMAL')
-
-
-###############################################################################
-#                            Creating Materials
-###############################################################################
-
-openmoc.log.py_printf('NORMAL', 'Importing materials data from HDF5...')
-
-materials = openmoc.materialize.load_from_hdf5('c5g7-mgxs.h5', '../')
-
-
-###############################################################################
-#                            Creating Surfaces
-###############################################################################
-
-openmoc.log.py_printf('NORMAL', 'Creating surfaces...')
-
-zcylinder = openmoc.ZCylinder(x=0.0, y=0.0, radius=1.0, name='pin')
-left = openmoc.XPlane(x=-2.0, name='left')
-right = openmoc.XPlane(x=2.0, name='right')
-top = openmoc.YPlane(y=2.0, name='top')
-bottom = openmoc.YPlane(y=-2.0, name='bottom')
-
-left.setBoundaryType(openmoc.REFLECTIVE)
-right.setBoundaryType(openmoc.REFLECTIVE)
-top.setBoundaryType(openmoc.REFLECTIVE)
-bottom.setBoundaryType(openmoc.REFLECTIVE)
-
-
-###############################################################################
-#                             Creating Cells
-###############################################################################
-
-openmoc.log.py_printf('NORMAL', 'Creating cells...')
-
-fuel = openmoc.Cell(name='fuel')
-fuel.setFill(materials['UO2'])
-fuel.addSurface(halfspace=-1, surface=zcylinder)
-
-moderator = openmoc.Cell(name='moderator')
-moderator.setFill(materials['Water'])
-moderator.addSurface(halfspace=+1, surface=zcylinder)
-moderator.addSurface(halfspace=+1, surface=left)
-moderator.addSurface(halfspace=-1, surface=right)
-moderator.addSurface(halfspace=+1, surface=bottom)
-moderator.addSurface(halfspace=-1, surface=top)
-
-
-###############################################################################
-#                            Creating Universes
-###############################################################################
-
-openmoc.log.py_printf('NORMAL', 'Creating universes...')
-
-root_universe = openmoc.Universe(name='root universe')
-root_universe.addCell(fuel)
-root_universe.addCell(moderator)
-
-
-###############################################################################
-#                         Creating the Geometry
-###############################################################################
-
-
-openmoc.log.py_printf('NORMAL', 'Creating geometry...')
-
-geometry = openmoc.Geometry()
-geometry.setRootUniverse(root_universe)
+num_threads = options.num_omp_threads
+azim_spacing = options.azim_spacing
+num_azim = options.num_azim
+num_polar = options.num_polar
+tolerance = options.tolerance
+max_iters = options.max_iters
 
 
 ###############################################################################
@@ -83,9 +22,9 @@ geometry.setRootUniverse(root_universe)
 
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
-track_generator = openmoc.TrackGenerator(geometry, 32,
-                                         .01)
-track_generator.setNumThreads(opts.num_omp_threads)
+track_generator = openmoc.TrackGenerator(geometry, num_azim, azim_spacing)
+track_generator.setNumThreads(num_threads)
+track_generator.setZCoord(0.1)
 track_generator.generateTracks()
 
 
@@ -93,14 +32,11 @@ track_generator.generateTracks()
 #                            Running a Simulation
 ###############################################################################
 
-solver = openmoc.CPUSolver(track_generator)
-solver.setNumThreads(opts.num_omp_threads)
-solver.setConvergenceThreshold(opts.tolerance)
-solver.computeEigenvalue(opts.max_iters)
+solver = openmoc.CPULSSolver(track_generator)
+solver.setNumThreads(num_threads)
+solver.setConvergenceThreshold(tolerance)
+solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
-
-openmoc.process.store_simulation_state(solver, use_hdf5=True)
-#simulation_state = openmoc.process.restore_simulation_state(filename='states.h5')
 
 
 ###############################################################################
@@ -109,13 +45,14 @@ openmoc.process.store_simulation_state(solver, use_hdf5=True)
 
 openmoc.log.py_printf('NORMAL', 'Plotting data...')
 
-openmoc.plotter.plot_quadrature(solver)
-openmoc.plotter.plot_tracks(track_generator)
-openmoc.plotter.plot_segments(track_generator)
-openmoc.plotter.plot_materials(geometry)
-openmoc.plotter.plot_cells(geometry)
-openmoc.plotter.plot_flat_source_regions(geometry)
-openmoc.plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7])
-openmoc.plotter.plot_energy_fluxes(solver, fsrs=range(geometry.getNumFSRs()))
+plotter.plot_quadrature(solver)
+plotter.plot_tracks(track_generator)
+plotter.plot_segments(track_generator)
+plotter.plot_materials(geometry, gridsize=500, plane='xy', offset=0.)
+plotter.plot_cells(geometry, gridsize=500, plane='xy', offset=0.)
+plotter.plot_flat_source_regions(geometry, gridsize=500, plane='xy', offset=0.)
+plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7], \
+  plane='xy', offset=0.)
+plotter.plot_energy_fluxes(solver, fsrs=range(geometry.getNumFSRs()))
 
 openmoc.log.py_printf('TITLE', 'Finished')

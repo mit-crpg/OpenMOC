@@ -29,16 +29,44 @@
 
 
 /**
- * @enum quadratureType
+ * @enum QuadratureType
  * @brief The types of quadrature sets supported by OpenMOC.
  */
-enum quadratureType {
+enum QuadratureType {
   TABUCHI_YAMAMOTO,
   LEONARD,
   GAUSS_LEGENDRE,
   EQUAL_WEIGHT,
   EQUAL_ANGLE
 };
+
+/** Shorthand for vectors of floats */
+typedef std::vector<double> DoubleVec;
+typedef DoubleVec::const_iterator DVCI;
+
+/** Template function for writing vectors to a stream */
+template <typename T>
+  std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
+  if (vec.size() == 0) {
+    os << "EMPTY";
+  }
+
+  else {
+
+    using CI = typename std::vector<T>::const_iterator;
+
+    os << "[";
+    for (CI cit = vec.begin(); cit != vec.end(); ++cit) {
+      if (cit != vec.begin()) {
+        os << ", ";
+      }
+      os << *cit;
+    }
+    os << "]";
+  }
+  return os;
+}
+
 
 
 /**
@@ -50,94 +78,109 @@ class Quadrature {
 protected:
 
   /** The quadrature type being used */
-  quadratureType _quad_type;
+  QuadratureType _quad_type;
 
   /** The number of azimuthal angles in (0, 2*PI) */
-  int _num_azim;
+  size_t _num_azim;
 
   /** The number of polar angles in (0, PI) */
-  int _num_polar;
+  size_t _num_polar;
 
   /** An array of the sines of quadrature polar angles */
-  FP_PRECISION** _sin_thetas;
+  std::vector<DoubleVec> _sin_thetas;
 
   /** An array of the quadrature polar angles */
-  double** _thetas;
+  std::vector<DoubleVec> _thetas;
 
   /** An array of the quadrature azimuthal angles */
-  double* _phis;
+  DoubleVec _phis;
 
   /** The actual track azimuthal spacing (cm) by azimuthal angle */
-  FP_PRECISION* _azim_spacings;
+  DoubleVec _azim_spacings;
 
   /** An array of the quadrature azimuthal weights */
-  FP_PRECISION* _azim_weights;
+  DoubleVec _azim_weights;
+
+  /** The actual track polar spacing (cm) by (azim, polar) */
+  std::vector<DoubleVec> _polar_spacings;
 
   /** An array of the quadrature polar weights */
-  FP_PRECISION** _polar_weights;
+  std::vector<DoubleVec> _polar_weights;
 
   /** An array of the total weights for each azimuthal/polar angle pair */
-  FP_PRECISION** _total_weights;
+  std::vector<DoubleVec> _total_weights;
 
-
-  /* Templates for setting the same values to complimentary and supplimentary
+  /* Templates for setting the same values to complimentary and supplementary
    * angles */
   template <typename T>
-  void setPolarValues(T** array, int azim_index, int polar_index, T value) {
-    array[azim_index][polar_index] = value;
-    array[_num_azim/2 - azim_index - 1][polar_index] = value;
-    array[azim_index][_num_polar - polar_index - 1] = value;
-    array[_num_azim/2 - azim_index - 1][_num_polar - polar_index - 1] = value;
+  void setPolarValues(std::vector< std::vector<T> >& vec, size_t azim_index,
+                      size_t polar_index, T value) {
+    size_t c_azim_index  = _num_azim/2 - azim_index - 1;
+    size_t s_polar_index = _num_polar - polar_index - 1;
+    vec.at(azim_index).at(polar_index)     = value;
+    vec.at(c_azim_index).at(polar_index)   = value;
+    vec.at(azim_index).at(s_polar_index)   = value;
+    vec.at(c_azim_index).at(s_polar_index) = value;
   }
 
   template <typename T>
-  void setAzimuthalValues(T* array, int azim_index, T value) {
-    array[azim_index] = value;
-    array[_num_azim/2 - azim_index - 1] = value;
+  void setAzimuthalValues(std::vector<T>& vec, size_t azim_index, T value) {
+    vec.at(azim_index)                   = value;
+    vec.at(_num_azim/2 - azim_index - 1) = value;
   }
 
-  /* Functions to delete and reset allocated arrays */
-  void deletePolarArrays();
-  void deleteAllArrays();
-
+  template <typename T>
+  static void resize2D(std::vector< std::vector<T> >& vec, size_t dim1,
+                       size_t dim2) {
+    vec.resize(dim1);
+    for (size_t i = 0; i < dim1; ++i)
+    {
+        vec.at(i).resize(dim2);
+    }
+  }
 
 public:
 
   Quadrature();
-  virtual ~Quadrature();
 
-  int getNumPolarAngles() const;
-  int getNumAzimAngles() const;
-  FP_PRECISION getSinTheta(int azim, int polar);
-  double getTheta(int azim, int polar);
-  double getPhi(int azim);
-  FP_PRECISION getAzimWeight(int azim);
-  FP_PRECISION getPolarWeight(int azim, int polar);
-  FP_PRECISION getWeight(int azim, int polar);
-  FP_PRECISION getWeightInline(int azim, int polar);
-  FP_PRECISION** getSinThetas();
-  double** getThetas();
-  double* getPhis();
-  FP_PRECISION* getAzimWeights();
-  FP_PRECISION** getPolarWeights();
-  quadratureType getQuadratureType();
-  FP_PRECISION* getAzimSpacings();
-  FP_PRECISION getAzimSpacing(int azim);
+  size_t getNumPolarAngles() const;
+  size_t getNumAzimAngles() const;
+  double getSinTheta(size_t azim, size_t polar) const;
+  double getSinThetaInline(size_t azim, size_t polar) const;
+  double getTheta(size_t azim, size_t polar) const;
+  double getPhi(size_t azim) const;
+  double getAzimWeight(size_t azim) const;
+  double getPolarWeight(size_t azim, size_t polar) const;
+  double getWeight(size_t azim, size_t polar) const;
+  double getWeightInline(size_t azim, size_t polar) const;
+  const std::vector<DoubleVec>& getSinThetas() const;
+  const std::vector<DoubleVec>& getThetas() const;
+  const DoubleVec& getPhis() const;
+  const DoubleVec& getAzimWeights() const;
+  const std::vector<DoubleVec>& getPolarWeights() const;
+  QuadratureType getQuadratureType() const;
+  const DoubleVec& getAzimSpacings() const;
+  double getAzimSpacing(size_t azim) const;
+  const std::vector<DoubleVec>& getPolarSpacings() const;
+  double getPolarSpacing(size_t azim, size_t polar) const;
 
-  virtual void setNumAzimAngles(const int num_azim);
-  virtual void setNumPolarAngles(const int num_polar);
-  void setThetas(double* thetas, int num_azim_times_polar);
-  void setPolarWeights(FP_PRECISION* weights, int num_azim_times_polar);
-  void setTheta(double theta, int azim, int polar);
-  void setPhi(double phi, int azim);
-  void setAzimSpacing(FP_PRECISION spacing, int azim);
-  void setAzimWeight(double weight, int azim);
-  void setPolarWeight(FP_PRECISION weight, int azim, int polar);
+  virtual void setNumAzimAngles(size_t num_azim);
+  virtual void setNumPolarAngles(size_t num_polar);
+  void setThetas(const DoubleVec& thetas);
+  void setPolarWeights(const DoubleVec& weights);
+  void setTheta(double theta, size_t azim, size_t polar);
+  void setPhi(double phi, size_t azim);
+  void setAzimSpacing(double spacing, size_t azim);
+  void setPolarSpacing(double spacing, size_t azim, size_t polar);
+  void setAzimWeight(double weight, size_t azim);
+  void setPolarWeight(double weight, size_t azim, size_t polar);
 
   virtual void initialize();
   virtual void precomputeWeights(bool solve_3D);
 
-  std::string toString();
+  std::string toString() const;
+
+  friend std::ostream& operator<<(std::ostream& os, const Quadrature& quad);
 };
 
 
@@ -152,7 +195,7 @@ private:
 
 public:
   TYPolarQuad();
-  void setNumPolarAngles(const int num_polar);
+  void setNumPolarAngles(size_t num_polar);
   void initialize();
   void precomputeWeights(bool solve_3D);
 };
@@ -168,7 +211,7 @@ private:
 
 public:
   LeonardPolarQuad();
-  void setNumPolarAngles(const int num_polar);
+  void setNumPolarAngles(size_t num_polar);
   void initialize();
   void precomputeWeights(bool solve_3D);
 };
@@ -186,17 +229,26 @@ private:
   /** the roots to the Legendre polynomial of degree _num_polar */
   std::vector <double> _roots;
 
+  /** the roots which have been adjusted to allow for periodic tracks */
+  std::vector <double> _adjusted_roots;
+
+  /** Whether to updated weights based on adjusted polar angles */
+  bool _correct_weights;
+
 public:
   GLPolarQuad();
-  void setNumPolarAngles(const int num_polar);
+  void setNumPolarAngles(size_t num_polar);
+  void useCorrectedWeights(bool use_corrected_weights);
   void initialize();
   void precomputeWeights(bool solve_3D);
+  DoubleVec getCorrectedWeights(size_t azim) const;
 
-  double legendrePolynomial(int n, double x);
-  double logDerivLegendre(int n, double x);
-  double secondLogDerivLegendre(int n, double x);
-  std::vector <double> getLegendreRoots(int n);
-  std::vector <double> getGLWeights(std::vector <double> roots, int n);
+  static double legendrePolynomial(size_t n, double x);
+  static double logDerivLegendre(size_t n, double x);
+  static double secondLogDerivLegendre(size_t n, double x);
+  static double getSingleWeight(double root, size_t n);
+  static DoubleVec getLegendreRoots(size_t n);
+  static DoubleVec getGLWeights(const DoubleVec& roots, size_t n);
 };
 
 
@@ -211,7 +263,7 @@ private:
 
 public:
   EqualWeightPolarQuad();
-  void setNumPolarAngles(const int num_polar);
+  void setNumPolarAngles(size_t num_polar);
   void initialize();
   void precomputeWeights(bool solve_3D);
 };
@@ -228,21 +280,37 @@ private:
 
 public:
   EqualAnglePolarQuad();
-  void setNumPolarAngles(const int num_polar);
+  void setNumPolarAngles(size_t num_polar);
   void initialize();
   void precomputeWeights(bool solve_3D);
 };
 
 
 /**
+ * @brief Returns the \f$ sin(\theta)\f$ value for a particular polar angle.
+ * @param azim index of the azimthal angle of interest
+ * @param polar index of the polar angle of interest
+ * @return the value of \f$ \sin(\theta) \f$ for this azimuthal and polar angle
+ * @details azim must be between 0 and _num_azim / 2
+ */
+inline double Quadrature::getSinThetaInline(size_t azim, size_t polar) const {
+
+  if (azim >= _num_azim/2)
+    azim = _num_azim - azim - 1;
+
+  return _sin_thetas[azim][polar];
+}
+
+
+/**
  * @brief Returns the total weight for Tracks with the given azimuthal and
  *        polar indexes without error checking and inlined
- * @details Angular weights are multiplied by Track spcings
+ * @details Angular weights are multiplied by Track spacings
  * @param azim index of the azimuthal angle of interest
  * @param polar index of the polar angle of interest
  * @return the total weight of each Track with the given indexes
  */
-inline FP_PRECISION Quadrature::getWeightInline(int azim, int polar) {
+inline double Quadrature::getWeightInline(size_t azim, size_t polar) const {
   return _total_weights[azim][polar];
 }
 

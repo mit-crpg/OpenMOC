@@ -4,12 +4,9 @@
  * @date March 10, 2017
  * @author William Boyd, MIT, Course 22 (wboyd@mit.edu)
  */
-
-
-#ifndef REGION_H_
+ #ifndef REGION_H_
 #define REGION_H_
-
-#ifdef __cplusplus
+ #ifdef __cplusplus
 #ifdef SWIG
 #include "Python.h"
 #endif
@@ -18,13 +15,11 @@
 #include <limits>
 #endif
 
-
 /* Forward declarations to resolve circular dependencies */
 class Intersection;
 class Union;
 class Complement;
 class Halfspace;
-
 
 /**
  * @enum regionType
@@ -33,18 +28,13 @@ class Halfspace;
 enum regionType {
   /** The intersection of one or more regions */
   INTERSECTION,
-
   /** The union of one or more regions */
   UNION,
-
   /** The complement of a region */
   COMPLEMENT,
-
   /** The side of a surface */
   HALFSPACE
-
 };
-
 
 /**
  * @class Region Region.h "src/Region.h"
@@ -54,19 +44,32 @@ class Region {
 
 protected:
 
-  /** The type of Region (ie, UNION, INTERSECTION, etc) */
+   /** The type of Region (ie, UNION, INTERSECTION, etc) */
   regionType _region_type;
 
-  /** A collection of the nodes within the Region */
+   /** A collection of the nodes within the Region */
   std::vector<Region*> _nodes;
 
-public:
-  virtual ~Region();
-  virtual void addNode(Region* node);
-  virtual std::vector<Region*> getNodes();
-  virtual std::map<int, Halfspace*> getAllSurfaces();
-  regionType getRegionType();
+  /** The parent region, a region which has this region among its nodes */
+  Region* _parent_region;
 
+public:
+  Region();
+  virtual ~Region();
+
+  /* Functions for constructing the Region / other Regions */
+  virtual void addNode(Region* node, bool clone=true);
+  void removeHalfspace(Surface* surface, int halfspace);
+  regionType getRegionType();
+  void setParentRegion(Region* node);
+  Region* getParentRegion();
+
+  /* Getter functions */
+  virtual std::vector<Region*> getNodes();
+  virtual std::vector<Region*> getAllNodes();
+  virtual std::map<int, Halfspace*> getAllSurfaces();
+
+  /* Worker functions */
   virtual double getMinX();
   virtual double getMaxX();
   virtual double getMinY();
@@ -77,12 +80,13 @@ public:
   virtual boundaryType getMaxXBoundaryType();
   virtual boundaryType getMinYBoundaryType();
   virtual boundaryType getMaxYBoundaryType();
-
+  virtual boundaryType getMinZBoundaryType();
+  virtual boundaryType getMaxZBoundaryType();
   virtual bool containsPoint(Point* point) =0;
+  virtual double minSurfaceDist(Point* point, double azim, double polar=M_PI_2);
   virtual double minSurfaceDist(LocalCoords* coords);
   virtual Region* clone();
 };
-
 
 /**
  * @class Intersection Region.h "src/Region.h"
@@ -95,18 +99,16 @@ public:
   bool containsPoint(Point* point);
 };
 
-
 /**
  * @class Union Region.h "src/Region.h"
  * @brief A union of two or more Regions.
  */
 class Union : public Region {
 
- public:
+public:
   Union();
   bool containsPoint(Point* point);
 };
-
 
 /**
  * @class Complement Region.h "src/Region.h"
@@ -116,10 +118,9 @@ class Complement : public Region {
 
 public:
   Complement();
-  bool containsPoint(Point* point);  
+  void addNode(Region* node, bool clone=true);
+  bool containsPoint(Point* point);
 };
-
-
 
 /**
  * @class Halfspace Region.h "src/Region.h"
@@ -127,22 +128,20 @@ public:
  */
 class Halfspace : public Region {
 
-private:
+public:
 
   /** A pointer to the Surface object */
   Surface* _surface;
 
   /** The halfspace associated with this surface */
   int _halfspace;
-  
-public:
+
   Halfspace(int halfspace, Surface* surface);
   Halfspace* clone();
-
   Surface* getSurface();
   int getHalfspace();
+  void reverseHalfspace();
   std::map<int, Halfspace*> getAllSurfaces();
-
   double getMinX();
   double getMaxX();
   double getMinY();
@@ -153,11 +152,12 @@ public:
   boundaryType getMaxXBoundaryType();
   boundaryType getMinYBoundaryType();
   boundaryType getMaxYBoundaryType();
-
-  bool containsPoint(Point* point);  
+  boundaryType getMinZBoundaryType();
+  boundaryType getMaxZBoundaryType();
+  bool containsPoint(Point* point);
+  double minSurfaceDist(Point* point, double azim, double polar=M_PI_2);
   double minSurfaceDist(LocalCoords* coords);
 };
-
 
 /**
  * @class RectangularPrism Region.h "src/Region.h"
@@ -166,8 +166,9 @@ public:
 class RectangularPrism : public Intersection {
 
 public:
-  RectangularPrism(double width_x, double width_y,
-		   double origin_x=0., double origin_y=0.);
+  RectangularPrism(double width_x, double width_y, double origin_x=0.,
+                   double origin_y=0., double width_z=3E300,
+                   double origin_z=0.);
   void setBoundaryType(boundaryType boundary_type);
 };
 

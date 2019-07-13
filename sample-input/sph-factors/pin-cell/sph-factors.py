@@ -30,7 +30,10 @@ openmoc_geometry = \
 openmoc_materials = \
     openmoc.materialize.load_openmc_mgxs_lib(mgxs_lib, openmoc_geometry)
 
-# Initialize an OpenMOC TrackGenerator and Solver
+# Initialize FSRs
+openmoc_geometry.initializeFlatSourceRegions()
+
+# Initialize an OpenMOC TrackGenerator
 track_generator = openmoc.TrackGenerator(
     openmoc_geometry, opts.num_azim, opts.azim_spacing)
 track_generator.generateTracks()

@@ -37,5 +37,5 @@ Bug Fixes
 - `732017`_ : Bug fix for openmoc.compatible.casmo module's k-infinity parser
 
 .. _0936be : https://github.com/mit-crpg/OpenMOC/commit/0936bec595e88a423e86e5b4e84accd32b11e647
-.. _189733: https://github.com/mit-crpg/OpenMOC/commit/1897dd76ce0821cc2038477ab5b814de205bb602
+.. _189733 : https://github.com/mit-crpg/OpenMOC/commit/1897dd76ce0821cc2038477ab5b814de205bb602
 .. _732017 : https://github.com/mit-crpg/OpenMOC/commit/732017226be65857b6d838393e5a000d11a79583

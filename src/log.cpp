@@ -68,6 +68,20 @@ static char title_char = '*';
  */
 static int line_length = 67;
 
+/* Rank of the domain */
+static int rank = 0;
+
+/* Number of domains */
+static int num_ranks = 1;
+
+#ifdef MPIx
+/* MPI communicator to transfer data with */
+static MPI_Comm _MPI_comm;
+
+/* Boolean to test if MPI is used */
+static bool _MPI_present = false;
+#endif
+
 
 /**
  * @var log_error_lock
@@ -85,6 +99,7 @@ static omp_lock_t log_error_lock;
  *          is reported and program execution is terminated.
  */
 void initialize_logger() {
+
   /* Initialize OpenMP mutex lock for ERROR messages with exceptions */
   omp_init_lock(&log_error_lock);
 }
@@ -153,6 +168,7 @@ char get_separator_character() {
   return separator_char;
 }
 
+
 /**
  * @brief Sets the character to be used when printing HEADER log messages.
  * @param c the character for HEADER log messages
@@ -164,7 +180,7 @@ void set_header_character(char c) {
 
 /**
  * @brief Returns the character used to format HEADER type log messages.
- * @return the character used for HEADER type log messages
+ * @return the character used for HEADER log messages
  */
 char get_header_character() {
   return header_char;
@@ -209,44 +225,59 @@ void set_log_level(const char* new_level) {
 
   if (strcmp("DEBUG", new_level) == 0) {
     log_level = DEBUG;
-    log_printf(INFO, "Logging level set to DEBUG");
+    log_printf(INFO_ONCE, "Logging level set to DEBUG");
   }
   else if (strcmp("INFO", new_level) == 0) {
     log_level = INFO;
-    log_printf(INFO, "Logging level set to INFO");
+    log_printf(INFO_ONCE, "Logging level set to INFO");
   }
   else if (strcmp("NORMAL", new_level) == 0) {
     log_level = NORMAL;
-    log_printf(INFO, "Logging level set to NORMAL");
+    log_printf(INFO_ONCE, "Logging level set to NORMAL");
   }
   else if (strcmp("SEPARATOR", new_level) == 0) {
     log_level = SEPARATOR;
-    log_printf(INFO, "Logging level set to SEPARATOR");
+    log_printf(INFO_ONCE, "Logging level set to SEPARATOR");
   }
   else if (strcmp("HEADER", new_level) == 0) {
     log_level = HEADER;
-    log_printf(INFO, "Logging level set to HEADER");
+    log_printf(INFO_ONCE, "Logging level set to HEADER");
   }
   else if (strcmp("TITLE", new_level) == 0) {
     log_level = TITLE;
-    log_printf(INFO, "Logging level set to TITLE");
+    log_printf(INFO_ONCE, "Logging level set to TITLE");
   }
   else if (strcmp("WARNING", new_level) == 0) {
     log_level = WARNING;
-    log_printf(INFO, "Logging level set to WARNING");
+    log_printf(INFO_ONCE, "Logging level set to WARNING");
   }
   else if (strcmp("CRITICAL", new_level) == 0) {
     log_level = CRITICAL;
-    log_printf(INFO, "Logging level set to CRITICAL");
+    log_printf(INFO_ONCE, "Logging level set to CRITICAL");
   }
   else if (strcmp("RESULT", new_level) == 0) {
     log_level = RESULT;
-    log_printf(INFO, "Logging level set to RESULT");
+    log_printf(INFO_ONCE, "Logging level set to RESULT");
+  }
+  else if (strcmp("UNITTEST", new_level) == 0) {
+    log_level = UNITTEST;
+    log_printf(INFO_ONCE, "Logging level set to UNITTEST");
   }
   else if (strcmp("ERROR", new_level) == 0) {
       log_level = ERROR;
-      log_printf(INFO, "Logging level set to ERROR");
+      log_printf(INFO_ONCE, "Logging level set to ERROR");
   }
+}
+
+
+/**
+ * @brief Sets the minimum log message level which will be printed to the
+ *        console and to the log file. This is an overloaded version to handle 
+ *        a logLevel type input.
+ * @param new_level the minimum logging level as an int(or enum type logLevel)
+ */
+void set_log_level(int new_level) {
+  log_level = (logLevel)new_level;
 }
 
 
@@ -254,44 +285,8 @@ void set_log_level(const char* new_level) {
  * @brief Return the minimum level for log messages printed to the screen.
  * @return the minimum level for log messages
  */
-const char* get_log_level() {
-
-  std::string level;
-
-  switch (log_level) {
-  case (DEBUG):
-    level = "DEBUG";
-    break;
-  case (INFO):
-    level = "INFO";
-    break;
-  case (NORMAL):
-    level = "NORMAL";
-    break;
-  case (SEPARATOR):
-    level = "SEPARATOR";
-    break;
-  case (HEADER):
-    level = "HEADER";
-    break;
-  case (TITLE):
-    level = "TITLE";
-    break;
-  case (WARNING):
-    level = "WARNING";
-    break;
-  case (CRITICAL):
-    level = "CRITICAL";
-    break;
-  case (RESULT):
-    level = "RESULT";
-    break;
-  case (ERROR):
-    level = "ERROR";
-    break;
-  }
-
-  return level.c_str();
+int get_log_level() {
+  return log_level;
 }
 
 
@@ -304,29 +299,20 @@ const char* get_log_level() {
  */
 void log_printf(logLevel level, const char* format, ...) {
 
+  char message[1024];
+  std::string msg_string;
   if (level >= log_level) {
     va_list args;
+
     va_start(args, format);
-
-    int size = 256;
-    char* buffer = new char[size];
-    std::string msg_string;
-    int n = vsnprintf(buffer, size, format, args);
-
-    /* Resize buffer as needed for strings longer than 256 characters */
-    if (size <= n) {
-      delete [] buffer;
-      buffer = new char[n+1];
-      n = vsnprintf(buffer, n+1, format, args);
-    }
-
-    std::string msg = std::string(buffer);
+    vsprintf(message, format, args);
     va_end(args);
 
     /* Append the log level to the message */
     switch (level) {
     case (DEBUG):
       {
+        std::string msg = std::string(message);
         std::string level_prefix = "[  DEBUG  ]  ";
 
         /* If message is too long for a line, split into many lines */
@@ -341,6 +327,34 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (INFO):
       {
+        std::string msg = std::string(message);
+        std::stringstream ss;
+#ifdef MPIx
+        if (rank < 10)
+          ss << "[  INFO " << rank << " ]  ";
+        else
+          ss << "[  INFO " << rank << "]  ";
+#else
+        ss << "[  INFO   ]  ";
+#endif
+        std::string level_prefix = ss.str();
+
+        /* If message is too long for a line, split into many lines */
+        if (int(msg.length()) > line_length)
+          msg_string = create_multiline_msg(level_prefix, msg);
+
+        /* Puts message on single line */
+        else
+          msg_string = level_prefix + msg + "\n";
+
+        break;
+      }
+    case (INFO_ONCE):
+      {
+        if (rank != 0)
+          return;
+
+        std::string msg = std::string(message);
         std::string level_prefix = "[  INFO   ]  ";
 
         /* If message is too long for a line, split into many lines */
@@ -355,6 +369,10 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (NORMAL):
       {
+        if (rank != 0)
+          return;
+
+        std::string msg = std::string(message);
         std::string level_prefix = "[  NORMAL ]  ";
 
         /* If message is too long for a line, split into many lines */
@@ -367,66 +385,94 @@ void log_printf(logLevel level, const char* format, ...) {
 
         break;
       }
-    case (SEPARATOR):
+    case (NODAL):
       {
-        std::string pad = std::string(line_length, separator_char);
-        std::string level_prefix = std::string("[SEPARATOR]  ");
+
+        std::string msg = std::string(message);
         std::stringstream ss;
-        ss << level_prefix << pad << "\n";
-        msg_string = ss.str();
-        break;
-      }
-    case (HEADER):
-      {
-        std::string level_prefix = std::string("[  HEADER ]  ");
+#ifdef MPIx
+        if (rank < 10)
+          ss << "[  NODE " << rank << " ]  ";
+        else
+          ss << "[  NODE " << rank << "]  ";
+#else
+        ss << "[  NORMAL ]  ";
+#endif
+        std::string level_prefix = ss.str();
 
         /* If message is too long for a line, split into many lines */
         if (int(msg.length()) > line_length)
           msg_string = create_multiline_msg(level_prefix, msg);
 
         /* Puts message on single line */
-        else{
-          int size = strlen(buffer);
-          int halfpad = (line_length - 4 - size) / 2;
-          std::string pad1 = std::string(halfpad, header_char);
-          std::string pad2 = std::string(halfpad +
+        else
+          msg_string = level_prefix + msg + "\n";
+
+        break;
+      }
+
+    case (SEPARATOR):
+      {
+        if (rank != 0)
+          return;
+        std::string pad = std::string(line_length, separator_char);
+        std::string prefix = std::string("[SEPARATOR]  ");
+        std::stringstream ss;
+        ss << prefix << pad << "\n";
+        msg_string = ss.str();
+        break;
+      }
+    case (HEADER):
+      {
+        if (rank != 0)
+          return;
+        int size = strlen(message);
+        int halfpad = (line_length - 4 - size) / 2;
+        std::string pad1 = std::string(halfpad, header_char);
+        std::string pad2 = std::string(halfpad +
                            (line_length - 4 - size) % 2, header_char);
-          std::stringstream ss;
-          ss << level_prefix << pad1 << "  " << buffer << "  " << pad2 << "\n";
-          msg_string = ss.str();
-        }
+        std::string prefix = std::string("[  HEADER ]  ");
+        std::stringstream ss;
+        ss << prefix << pad1 << "  " << message << "  " << pad2 << "\n";
+        msg_string = ss.str();
         break;
       }
     case (TITLE):
       {
-        std::string level_prefix = std::string("[  TITLE  ]  ");
-
-        /* If message is too long for a line, split into many lines */
-        if (int(msg.length()) > line_length){
-          msg_string = create_multiline_msg(level_prefix, msg);
-          std::stringstream ss;
-          ss << level_prefix << std::string(line_length, title_char) << "\n";
-          ss << msg_string;
-          ss << level_prefix << std::string(line_length, title_char) << "\n";
-          msg_string = ss.str();
-        }
-
-        /* Puts message on single line */
-        else{
-          int size = strlen(buffer);
-          int halfpad = (line_length - size) / 2;
-          std::string pad = std::string(halfpad, ' ');
-
-          std::stringstream ss;
-          ss << level_prefix << std::string(line_length, title_char) << "\n";
-          ss << level_prefix << pad << buffer << pad << "\n";
-          ss << level_prefix << std::string(line_length, title_char) << "\n";
-          msg_string = ss.str();
-        }
+        if (rank != 0)
+          return;
+        int size = strlen(message);
+        int halfpad = (line_length - size) / 2;
+        std::string pad = std::string(halfpad, ' ');
+        std::string prefix = std::string("[  TITLE  ]  ");
+        std::stringstream ss;
+        ss << prefix << std::string(line_length, title_char) << "\n";
+        ss << prefix << pad << message << pad << "\n";
+        ss << prefix << std::string(line_length, title_char) << "\n";
+        msg_string = ss.str();
         break;
       }
     case (WARNING):
       {
+        std::string msg = std::string(message);
+        std::string level_prefix = "[ WARNING ]  ";
+
+        /* If message is too long for a line, split into many lines */
+        if (int(msg.length()) > line_length)
+          msg_string = create_multiline_msg(level_prefix, msg);
+
+        /* Puts message on single line */
+        else
+          msg_string = level_prefix + msg + "\n";
+
+        break;
+      }
+    case (WARNING_ONCE):
+      {
+        if (rank != 0)
+          return;
+
+        std::string msg = std::string(message);
         std::string level_prefix = "[ WARNING ]  ";
 
         /* If message is too long for a line, split into many lines */
@@ -441,6 +487,7 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (CRITICAL):
       {
+        std::string msg = std::string(message);
         std::string level_prefix = "[ CRITICAL]  ";
 
         /* If message is too long for a line, split into many lines */
@@ -455,7 +502,25 @@ void log_printf(logLevel level, const char* format, ...) {
       }
     case (RESULT):
       {
+        if (rank != 0)
+          return;
+        std::string msg = std::string(message);
         std::string level_prefix = "[  RESULT ]  ";
+
+        /* If message is too long for a line, split into many lines */
+        if (int(msg.length()) > line_length)
+          msg_string = create_multiline_msg(level_prefix, msg);
+
+        /* Puts message on single line */
+        else
+          msg_string = level_prefix + msg + "\n";
+
+        break;
+      }
+    case (UNITTEST):
+      {
+        std::string msg = std::string(message);
+        std::string level_prefix = "[   TEST  ]  ";
 
         /* If message is too long for a line, split into many lines */
         if (int(msg.length()) > line_length)
@@ -470,6 +535,7 @@ void log_printf(logLevel level, const char* format, ...) {
     case (ERROR):
       {
         /* Create message based on runtime error stack */
+        std::string msg = std::string(message);
         std::string level_prefix = "";
 
         /* If message is too long for a line, split into many lines */
@@ -484,6 +550,11 @@ void log_printf(logLevel level, const char* format, ...) {
 
     /* If this is our first time logging, add a header with date, time */
     if (!logging) {
+
+      /*
+      if (rank != 0)
+        return;
+      */
 
       /* If output directory was not defined by user, then log file is
        * written to a "log" subdirectory. Create it if it doesn't exist */
@@ -514,15 +585,26 @@ void log_printf(logLevel level, const char* format, ...) {
     log_file.close();
 
     /* Write the log message to the shell */
+    //FIXME Too much output tends to segfault, locking output blocks test suite
     if (level == ERROR) {
       omp_set_lock(&log_error_lock);
-      {
-        throw std::logic_error(msg_string.c_str());
+#ifdef MPIx
+      if (_MPI_present) {
+        printf("%s", "[  ERROR  ]  ");
+        printf("%s", &msg_string[0]);
+        fflush(stdout);
+        MPI_Abort(_MPI_comm, 0);
       }
+#endif
       omp_unset_lock(&log_error_lock);
+      throw std::logic_error(&msg_string[0]);
     }
-    else
-      printf("%s", msg_string.c_str());
+    else {
+      printf("%s", &msg_string[0]);
+#ifndef SWIG
+      fflush(stdout);
+#endif
+    }
   }
 }
 
@@ -547,20 +629,20 @@ std::string create_multiline_msg(std::string level, std::string message) {
   std::string msg_string;
 
   /* Loop over msg creating substrings for each line */
-  while (end <= size + line_length) {
+  while (end < size + line_length) {
 
     /* Append log level to the beginning of each line */
     msg_string += level;
-
-    /* Find the current full length substring for line */
-    substring = message.substr(start, line_length);
 
     /* Begin multiline messages with ellipsis */
     if (start != 0)
       msg_string += "... ";
 
+    /* Find the current full length substring for line*/
+    substring = message.substr(start, line_length);
+
     /* Truncate substring to last complete word */
-    if (end <= size) {
+    if (end < size-1) {
       int endspace = substring.find_last_of(" ");
       if (message.at(endspace+1) != ' ' &&
           endspace != int(std::string::npos)) {
@@ -586,3 +668,18 @@ std::string create_multiline_msg(std::string level, std::string message) {
 
   return msg_string;
 }
+
+
+/**
+ * @brief Set the rank of current domain in the communicator. Only rank 0 print
+ *        to stdout or a logfile, except for prints with log_level NODAL.
+ * @param comm a MPI communicator to transfer data with
+ */
+#ifdef MPIx
+void log_set_ranks(MPI_Comm comm) {
+  _MPI_comm = comm;
+  _MPI_present = true;
+  MPI_Comm_size(comm, &num_ranks);
+  MPI_Comm_rank(comm, &rank);
+}
+#endif

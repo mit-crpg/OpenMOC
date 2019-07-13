@@ -2,13 +2,11 @@
 
 import os
 import sys
-import hashlib
 sys.path.insert(0, os.pardir)
 sys.path.insert(0, os.path.join(os.pardir, 'openmoc'))
 from testing_harness import TestHarness
 from input_set import SimpleLatticeInput
 import openmoc.process as process
-import numpy as np
 
 
 class MeshReactionRateTallyTestHarness(TestHarness):
@@ -18,6 +16,11 @@ class MeshReactionRateTallyTestHarness(TestHarness):
     def __init__(self):
         super(MeshReactionRateTallyTestHarness, self).__init__()
         self.input_set = SimpleLatticeInput()
+
+        # Change spacing to avoid having rays start on lattice planes
+        # Those rays are problematic because they cross through fuel pins
+        # parallelly to sector planes.
+        self.spacing = 0.12
 
     def _run_openmoc(self):
         """Run an OpenMOC eigenvalue calculation."""
@@ -34,7 +37,7 @@ class MeshReactionRateTallyTestHarness(TestHarness):
         mesh.lower_left = [-2., -2.]
         mesh.upper_right = [2., 2.]
         mesh.width = [1., 1.]
-        
+
         outstr = ""
         for rxn in ('fission', 'flux', 'total', 'nu-fission', 'scatter'):
             # Tally OpenMOC reaction rates on the Mesh

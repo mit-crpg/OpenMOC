@@ -49,11 +49,10 @@ For example, the following command would build and install the ``openmoc`` modul
 
 Similarly, the following command would build and install the ``openmoc`` module with default compiler (gcc), as well was the ``openmoc.cuda`` module, each with single precision and `debug symbols`_::
   
-  python setup.py install --user --with-cuda --sp=single --debug-mode
+  python setup.py install --user --with-cuda --fp=single --debug-mode
 
 
 .. _setup_file:
-
 
 ----------
 Setup File
@@ -447,7 +446,7 @@ options that can be executed from the :file:`OpenMOC/profile/` directory:
 
   * **make** - Compiles the OpenMOC source files with the C++ input file
     indicated by the ``case`` variable in the Makefile. The default is 
-    :file:`OpenMOC/profile/models/c5g7/c5g7-cmfd.cpp`.
+    :file:`OpenMOC/profile/models/run_time_standard/run_time_standard.cpp`.
   * **make all** - Compiles the OpenMOC source files with all input
     files given in the Makefile indicated in the variable ``cases``.
   * **make run** - Runs the OpenMOC C++ input file indicated by the ``case``
@@ -456,9 +455,19 @@ options that can be executed from the :file:`OpenMOC/profile/` directory:
   * **make clean** - Deletes all output files formed from compiling OpenMOC source 
     and input files described in the ``cases`` variable in the Makefile.
 
-------------------------
-Building C++ Input Files
-------------------------
+.. note:: Make_ does not handle all source dependencies, it is advised to delete the obj/ directory after changing any function's arguments or if using link time optimization
+
+---------------------------------------
+Building a multi-purpose C++ executable
+---------------------------------------
+
+The default case built with the Makefile is :file:`OpenMOC/profile/models/run_time_standard/run_time_standard.cpp`.
+:file:`run_time_standard` is an OpenMOC executable that can read ".geo" geometry files, and takes the simulation parameters as command line input.
+This can help users run large number of cases with the C++ build without recompiling.
+
+-----------------------------------
+Building individual C++ Input Files
+-----------------------------------
 
 It is advised to first compile the included example C++ inputs provided in the 
 :file:`OpenMOC/profile/models/` directory. After ensuring the inputs compile and
@@ -509,12 +518,14 @@ Makefile, presented as variables detailed in :ref:`Table 2 <table_makefile_optio
 =========================  ===============================================  ==============================   =========================
 Variable                   Description                                      Allowed Values                   Default Value
 =========================  ===============================================  ==============================   =========================
-``COMPILER``               Specifies the compiler                           gnu, intel, clang, bluegene      gnu
+``COMPILER``               Specifies the compiler                           gnu, intel, clang, bluegene      mpicc
 ``OPENMP``                 Flag to turn on OpenMP parallelism               yes, no                          yes
 ``OPTIMIZE``               Flag to turn on compiler optimizations           yes, no                          yes
 ``DEBUG``                  Flag to turn on vector reports and debug mode    yes, no                          no
 ``PROFILE``                Creates a :file:`gmon.out` file for profiling    yes, no                          no
+``INFO``                   Display information on compiler optimization     yes, no                          no
 ``PRECISION``              Specifies the floating point precision           single, double                   single
+``CMFD_PRECISION``         Specifies the floating point precision in CMFD   single, double                   single
 =========================  ===============================================  ==============================   =========================
 
 **Table 2**: Makefile compiler options for the alternative C++ build system.
@@ -525,6 +536,21 @@ as the input file. The executable can be called directly based on its location
 or it can be run using the **make run** command described previously with a 
 modification of the ``case`` variable in the Makefile.
 
+
+Geometry files (.geo)
+---------------------
+
+For complex geometries, it may be preferable to load the geometry in Python first and dump it to a ".geo" file, which can then be read by a C++ executable.
+
+.. code-block:: python
+
+    # Dump geometry to file
+    geometry.dumpToFile("path_to_file")
+
+.. code-block:: C++
+
+    // Load geometry from .geo file
+    geometry.loadFromFile("path_to_file");
 
 .. _distutils: http://docs.python.org/2/library/distutils.html
 .. _make: http://www.gnu.org/software/make/

@@ -19,8 +19,11 @@ enum boundaryType {
   /** A reflective boundary condition */
   REFLECTIVE,
 
-  /** A reflective boundary condition */
+  /** A periodic boundary condition */
   PERIODIC,
+
+  /* Boundary between two domains (only in domain-decomposed geometry) */
+  INTERFACE,
 
   /** No boundary type (typically an interface between flat source regions) */
   BOUNDARY_NONE

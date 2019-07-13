@@ -7,11 +7,20 @@
  *          for computing exponentials.
  */
 ExpEvaluator::ExpEvaluator() {
-  _interpolate = true;
+  _interpolate = false;
   _exp_table = NULL;
   _quadrature = NULL;
   _max_optical_length = MAX_OPTICAL_LENGTH;
   _exp_precision = EXP_PRECISION;
+  _sin_theta_no_offset = 0.0;
+  _inverse_sin_theta_no_offset = 0.0;
+  _linear_source = false;
+  _num_exp_terms = 3;
+  _azim_index = 0;
+  _polar_index = 0;
+  _num_polar_terms = 0;
+  _inverse_exp_table_spacing = 1.0;
+  _exp_table_spacing = 1.0;
 }
 
 
@@ -20,17 +29,16 @@ ExpEvaluator::ExpEvaluator() {
  */
 ExpEvaluator::~ExpEvaluator() {
   if (_exp_table != NULL)
-    delete [] _exp_table;
+    free(_exp_table);
 }
 
 
 /**
  * @brief Set the Quadrature to use when computing exponentials.
- * @param quadrature a Quadrature object pointer
+ * @param polar_quad a Quadrature object pointer
  */
 void ExpEvaluator::setQuadrature(Quadrature* quadrature) {
   _quadrature = quadrature;
-  _num_polar = _quadrature->getNumPolarAngles();
 }
 
 
@@ -80,6 +88,15 @@ void ExpEvaluator::useInterpolation() {
  */
 void ExpEvaluator::useIntrinsic() {
   _interpolate = false;
+}
+
+
+/**
+ * @brief Use linear source exponentials.
+ */
+void ExpEvaluator::useLinearSource() {
+  _linear_source = true;
+  _num_exp_terms = 9;
 }
 
 
@@ -156,60 +173,197 @@ FP_PRECISION* ExpEvaluator::getExpTable() {
 
 /**
  * @brief If using linear interpolation, builds the table for each polar angle.
- * @param tolerance the minimum acceptable interpolation accuracy
+ * @param azim_index the azimuthal index to get the adjusted polar angle in 3D
+ * @param polar_index the polar angle index
+ * @param solve_3D whether the geometry is 3D or not
  */
-void ExpEvaluator::initialize() {
+void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
+
+  /* Check for a valid Quadrature */
+  if (_quadrature == NULL)
+    log_printf(ERROR, "A Quadrature must be set before an Exponential "
+               "Evaluator can be initialized");
+
+  /* Extract the number of azimuthal and polar angles */
+  int num_azim = _quadrature->getNumAzimAngles();
+  int num_polar = _quadrature->getNumPolarAngles();
+
+  /* Check for a valid azimuthal angle index */
+  if (azim_index < 0 || azim_index > num_azim / 4)
+    log_printf(ERROR, "Invalid azimuthal angle index of %d. The index must be "
+               "betwen 0 and %d", azim_index, num_azim/4);
+
+  /* Check for a valid polar angle index */
+  if (polar_index < 0 || polar_index > num_polar / 2)
+    log_printf(ERROR, "Invalid polar angle index of %d. The index must be "
+               "betwen 0 and %d", polar_index, num_polar/2);
+
+  /* Record the azimuthal angle index */
+  _azim_index = azim_index;
+
+  /* Determine the base polar angle index and maximum offset */
+  if (solve_3D) {
+    _polar_index = polar_index;
+    _num_polar_terms = 1;
+  }
+  else {
+    _polar_index = 0;
+    _num_polar_terms = num_polar / 2;
+  }
+
+  /* Record the inverse sine for the base polar angle */
+  _sin_theta_no_offset = _quadrature->getSinTheta(azim_index,
+                                                  polar_index);
+  _inverse_sin_theta_no_offset = 1.0 / _sin_theta_no_offset;
 
   /* If no exponential table is needed, return */
-  if (!_interpolate)
+  if (_interpolate)
+    log_printf(WARNING_ONCE, "Interpolation tables are commented out in source"
+                " code for optimization purposes");
     return;
 
-  log_printf(INFO, "Initializing exponential interpolation table...");
+  log_printf(DEBUG, "Initializing exponential interpolation table...");
 
-  /* Set size of interpolation table */
-  int num_polar = _quadrature->getNumPolarAngles();
+  /* Set size of interpolation table for linear interpolation */
   int num_array_values = _max_optical_length * sqrt(1. / (8. * _exp_precision));
-  FP_PRECISION exp_table_spacing = _max_optical_length / num_array_values;
+
+  /* Adjust for quadratic interpolation */
+  num_array_values /= 4;
+  //FIXME This division by four doesn't have solid theoretical grounds
+
+  if (num_array_values < MIN_EXP_INTERP_POINTS)
+    num_array_values = MIN_EXP_INTERP_POINTS;
+
+  if (num_array_values > 1e5) {
+    log_printf(WARNING, "Reducing exponential table size from %d to %d",
+               num_array_values, 1e5);
+    num_array_values = 1e5;
+  }
+
+  log_printf(INFO, "Creating exponential lookup table with %d interpolation "
+             "points", num_array_values);
+
+  _exp_table_spacing = _max_optical_length / num_array_values;
 
   /* Increment the number of vaues in the array to ensure that a tau equal to
    * max_optical_length resides as the final entry in the table */
   num_array_values += 1;
 
   /* Compute the reciprocal of the table entry spacing */
-  _inverse_exp_table_spacing = 1.0 / exp_table_spacing;
+  _inverse_exp_table_spacing = 1.0 / _exp_table_spacing;
 
-  /* Allocate array for the table */
+  /* Delete old table */
   if (_exp_table != NULL)
     delete [] _exp_table;
 
-  _table_size = 2 * num_polar * num_array_values;
-  _exp_table = new FP_PRECISION[_table_size];
-
-  FP_PRECISION expon;
-  FP_PRECISION intercept;
-  FP_PRECISION slope;
-  FP_PRECISION sin_theta;
-  FP_PRECISION tau;
+  /* Allocate array for the table */
+  _table_size = num_array_values * _num_exp_terms * _num_polar_terms;
+  _exp_table = (FP_PRECISION*) memalign(VEC_ALIGNMENT, 
+               _table_size * sizeof(FP_PRECISION));
 
   /* Create exponential linear interpolation table */
   for (int i=0; i < num_array_values; i++) {
-    for (int p=0; p < num_polar; p++) {
-      sin_theta = _quadrature->getSinTheta(0, p);
+    for (int p=0; p < _num_polar_terms; p++) {
 
-      /* Use the optical length at the start of the interval for the first value
-       * to avoid exponential values greater than one. */
-      if (i == 0)
-        tau = i * exp_table_spacing;
+      int index = _num_exp_terms * (_num_polar_terms * i + p);
 
-      /* Use the optical length at the interval mid-point to reduce error. */
-      else
-        tau = (i + 0.5) * exp_table_spacing;
+      int current_polar = _polar_index + p;
+      FP_PRECISION sin_theta = _quadrature->getSinTheta(azim_index,
+                                                        current_polar);
+      FP_PRECISION inv_sin_theta = 1.0 / sin_theta;
 
-      expon = exp(- tau / sin_theta);
-      intercept = expon * (1 + tau / sin_theta);
-      slope = - expon / sin_theta;
-      _exp_table[_num_polar * i + 2 * p] = slope;
-      _exp_table[_num_polar * i + 2 * p + 1] = intercept;
+      FP_PRECISION tau_a = i * _exp_table_spacing;
+      FP_PRECISION tau_m = tau_a * inv_sin_theta;
+      FP_PRECISION exponential = exp(-tau_m);
+
+      FP_PRECISION inv_sin_theta_2 = inv_sin_theta * inv_sin_theta;
+      FP_PRECISION tau_a_2 = tau_a * tau_a;
+      FP_PRECISION sin_theta_2 = sin_theta * sin_theta;
+
+      FP_PRECISION exp_const_1;
+      FP_PRECISION exp_const_2;
+      FP_PRECISION exp_const_3;
+
+      /* Compute F1 */
+      if (tau_a < 0.01) {
+        exp_const_1 = inv_sin_theta;
+        exp_const_2 = -0.5 * inv_sin_theta * inv_sin_theta;
+        exp_const_3 = inv_sin_theta * inv_sin_theta_2 / 6;
+        exp_const_1 += exp_const_2 * tau_a + exp_const_3 * tau_a_2;
+      }
+      else {
+        exp_const_1 = (1.0 - exponential) / tau_a;
+        exp_const_2 = (exponential * (1.0 + tau_m) - 1) / (tau_a * tau_a);
+        exp_const_3 = 0.5 / (tau_a * tau_a * tau_a) *
+            (2.0 - exponential * (tau_m * tau_m + 2.0 * tau_m + 2.0));
+      }
+
+      _exp_table[index] = exp_const_1;
+      _exp_table[index+1] = exp_const_2;
+      _exp_table[index+2] = exp_const_3;
+
+      if (_linear_source) {
+
+        /* Compute F2 */
+        if (tau_a < 0.01) {
+          exp_const_2 = inv_sin_theta_2 * inv_sin_theta / 6;
+          exp_const_3 = -inv_sin_theta_2 * inv_sin_theta_2 / 12;
+          exp_const_1 = exp_const_2 * tau_a + exp_const_3 * tau_a_2;
+        }
+        else {
+          exp_const_1 = (tau_m - 2.0 + exponential * (2.0 + tau_m)) / tau_a_2;
+          exp_const_2 = -(tau_m - 4.0 + exponential * (tau_m * tau_m + 3 * tau_m
+              + 4.0)) / (tau_a_2 * tau_a);
+          exp_const_3 = 0.5 * (2.0 * tau_m - 12.0 + exponential * (12.0 +
+              tau_m * (10.0 + tau_m * (4.0 + tau_m)))) / (tau_a_2 * tau_a_2);
+        }
+
+        _exp_table[index+3] = exp_const_1;
+        _exp_table[index+4] = exp_const_2;
+        _exp_table[index+5] = exp_const_3;
+
+        /* Compute H */
+        if (tau_a < 0.01) {
+          exp_const_1 = 0.5 * inv_sin_theta;
+          exp_const_2 = -1.0 * inv_sin_theta_2 / 3.0;
+          exp_const_3 = inv_sin_theta_2 * inv_sin_theta / 8.0;
+          exp_const_1 += exp_const_2 * tau_a + exp_const_3 * tau_a_2;
+        }
+        else {
+          exp_const_1 = (1.0 - exponential * (1 + tau_m)) / (tau_a * tau_m);
+          exp_const_2 = (exponential * (tau_m * (tau_m + 2.0) + 2.0) - 2.0) 
+              / (tau_m * tau_a_2);
+          exp_const_3 = 0.5 * (6.0 - exponential * (6.0 + tau_m * (6.0 + tau_m
+              * (3 + tau_m)))) / (tau_m * tau_a_2 * tau_a);
+        }
+        _exp_table[index+6] = exp_const_1;
+        _exp_table[index+7] = exp_const_2;
+        _exp_table[index+8] = exp_const_3;
+      }
     }
   }
+}
+
+
+/**
+ * @brief Deep copies an ExpEvaluator, for developing purposes.
+ * @return the copied ExpEvaluator
+ */
+ExpEvaluator* ExpEvaluator::deepCopy() {
+
+  ExpEvaluator* new_evaluator = new ExpEvaluator();
+
+  if (_interpolate)
+    new_evaluator->useInterpolation();
+  else
+    new_evaluator->useIntrinsic();
+
+  if (_linear_source)
+    new_evaluator->useLinearSource();
+
+  new_evaluator->setQuadrature(_quadrature);
+  new_evaluator->setMaxOpticalLength(_max_optical_length);
+  new_evaluator->setExpPrecision(_exp_precision);
+
+  return new_evaluator;
 }

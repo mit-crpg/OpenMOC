@@ -18,6 +18,7 @@ openmoc.log.py_printf('TITLE', 'Computing %d forward eigenmodes', num_modes)
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
 from geometry import geometry
+geometry.initializeFlatSourceRegions()
 track_generator = openmoc.TrackGenerator(geometry, opts.num_azim,
                                          opts.azim_spacing)
 track_generator.setNumThreads(opts.num_omp_threads)

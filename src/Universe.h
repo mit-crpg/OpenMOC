@@ -12,6 +12,7 @@
 #ifdef SWIG
 #include "Python.h"
 #endif
+#include "constants.h"
 #include "LocalCoords.h"
 #include "boundary_type.h"
 #include <limits>
@@ -25,7 +26,6 @@ class LocalCoords;
 class Cell;
 class Surface;
 class Material;
-struct surface_halfspace;
 
 
 int universe_id();
@@ -35,7 +35,7 @@ void maximize_universe_id(int universe_id);
 
 /**
  * @enum universeType
- * @brief The type of universe
+ * @brief The type of universe.
  */
 enum universeType{
 
@@ -49,11 +49,11 @@ enum universeType{
 
 /**
  * @class Universe Universe.h "src/Universe.h"
- * @brief A Universe represents an unbounded space in the 3D.
- * @details A Universe contains cell which are bounded subspaces in 3D which
- *          together form the Universe. Universes allow for complex, repeating
- *          (i.e. lattices) geometries to be simply represented with as few data
- *          structures as possible.
+ * @brief A Universe represents an unbounded space in 3D.
+ * @details A Universe contains cell which are bounded subspaces in 3D
+ *          which together form the Universe. Universes allow
+ *          for complex, repeating (i.e. lattices) geometries to be simply
+ *          represented with as few data structures as possible.
  */
 class Universe {
 
@@ -81,6 +81,25 @@ protected:
    *  with a non-zero fission cross-section and is fissionable */
   bool _fissionable;
 
+  /** The extrema of the Universe */
+  double _min_x;
+  double _max_x;
+  double _min_y;
+  double _max_y;
+  double _min_z;
+  double _max_z;
+
+  /** A flag for determining if boundaries are up to date */
+  bool _boundaries_inspected;
+
+  /** The boundaryTypes of the universe */
+  boundaryType _min_x_bound;
+  boundaryType _max_x_bound;
+  boundaryType _min_y_bound;
+  boundaryType _max_y_bound;
+  boundaryType _min_z_bound;
+  boundaryType _max_z_bound;
+
 public:
 
   Universe(const int id=-1, const char* name="");
@@ -100,6 +119,8 @@ public:
   boundaryType getMaxXBoundaryType();
   boundaryType getMinYBoundaryType();
   boundaryType getMaxYBoundaryType();
+  boundaryType getMinZBoundaryType();
+  boundaryType getMaxZBoundaryType();
 
   Cell* getCell(int cell_id);
   std::map<int, Cell*> getCells() const;
@@ -108,6 +129,8 @@ public:
   std::map<int, Universe*> getAllUniverses();
   bool isFissionable();
 
+  void resetBoundaries();
+  void calculateBoundaries();
   void setName(const char* name);
   void setType(universeType type);
   void addCell(Cell* cell);
@@ -117,6 +140,7 @@ public:
   Cell* findCell(LocalCoords* coords);
   void setFissionability(bool fissionable);
   void subdivideCells(double max_radius=INFINITY);
+  void buildNeighbors();
 
   virtual std::string toString();
   void printString();
@@ -142,19 +166,37 @@ private:
   /** The number of Lattice cells along the z-axis */
   int _num_z;
 
-  /** The width of each Lattice cell (cm) along the x-axis */
+  /** True if the lattice is non-uniform */
+  bool _non_uniform;
+
+  /** The width of each Lattice cell (cm) along the x-axis
+      (uniform lattices only) */
   double _width_x;
 
-  /** The width of each Lattice cell (cm) along the y-axis */
+  /** x-direction dimensions of non-uniform lattice meshes */
+  std::vector<double> _widths_x;
+  std::vector<double> _accumulate_x;
+
+  /** The width of each Lattice cell (cm) along the y-axis 
+      (uniform lattices only) */
   double _width_y;
 
-  /** The width of each Lattice cell (cm) along the z-axis */
+  /** y-direction dimensions of non-uniform lattice meshes */
+  std::vector<double> _widths_y;
+  std::vector<double> _accumulate_y;
+
+  /** The width of each Lattice cell (cm) along the z-axis 
+      (uniform lattices only) */
   double _width_z;
+
+  /** z-direction dimensions of non-uniform lattice meshes */
+  std::vector<double> _widths_z;
+  std::vector<double> _accumulate_z;
 
   /** The coordinates of the offset for the Universe */
   Point _offset;
 
-  /** A container of Universes ? */
+  /** A container of Universes */
   std::vector< std::vector< std::vector< std::pair<int, Universe*> > > >
       _universes;
 
@@ -163,7 +205,7 @@ public:
   Lattice(const int id=-1, const char* name="");
   virtual ~Lattice();
 
-  void setOffset(double x, double y, double z);
+  void setOffset(double x, double y, double z=0.0);
   Point* getOffset();
   int getNumX() const;
   int getNumY() const;
@@ -171,6 +213,13 @@ public:
   double getWidthX() const;
   double getWidthY() const;
   double getWidthZ() const;
+  bool getNonUniform() const;
+  const std::vector<double>& getWidthsX() const;
+  const std::vector<double>& getWidthsY() const;
+  const std::vector<double>& getWidthsZ() const;
+  const std::vector<double>& getAccumulateX() const;
+  const std::vector<double>& getAccumulateY() const;
+  const std::vector<double>& getAccumulateZ() const;
   double getMinX();
   double getMaxX();
   double getMinY();
@@ -178,10 +227,11 @@ public:
   double getMinZ();
   double getMaxZ();
 
-  Universe* getUniverse(int lat_x, int lat_y, int lat_z) const;
+  Universe* getUniverse(int lat_x, int lat_y, int lat_z=0) const;
   std::vector< std::vector< std::vector< std::pair<int, Universe*> > > >*
       getUniverses();
   std::map<int, Universe*> getUniqueUniverses();
+  std::map<int, double> getUniqueRadius(std::map<int, Universe*> unique_universes);
   std::map<int, Cell*> getAllCells();
   std::map<int, Universe*> getAllUniverses();
 
@@ -189,15 +239,23 @@ public:
   void setNumY(int num_y);
   void setNumZ(int num_z);
   void setWidth(double width_x, double width_y,
-                double width_z=std::numeric_limits<double>::max());
+                double width_z=std::numeric_limits<double>::infinity());
+  void setNonUniform(bool non_uniform);
+  void setWidthsX(std::vector<double> widthsx);
+  void setWidthsY(std::vector<double> widthsy);
+  void setWidthsZ(std::vector<double> widthsz);
+  void setAccumulateX(std::vector<double> accumulatex);
+  void setAccumulateY(std::vector<double> accumulatey);
+  void setAccumulateZ(std::vector<double> accumulatez);
   void setUniverses(int num_z, int num_y, int num_x, Universe** universes);
   void updateUniverse(int lat_x, int lat_y, int lat_z, Universe* universe);
   void removeUniverse(Universe* universe);
   void subdivideCells(double max_radius=INFINITY);
+  void buildNeighbors();
 
   bool containsPoint(Point* point);
   Cell* findCell(LocalCoords* coords);
-  double minSurfaceDist(LocalCoords* coords);
+  double minSurfaceDist(Point* point, double azim, double polar=M_PI/2.0);
 
   int getLatX(Point* point);
   int getLatY(Point* point);
@@ -205,13 +263,20 @@ public:
 
   int getLatticeCell(Point* point);
   int getLatticeSurface(int cell, Point* point);
-  double getDistanceToSurface(int cell, Point* point, int surface);
+  int getLatticeSurfaceOTF(int cell, double z, int surface_2D);
 
   std::string toString();
   void printString();
+
+  /* Set XYZ widths of non-uniform meshes */
+  void setWidths(std::vector<double> widths_x, std::vector<double> widths_y, 
+                 std::vector<double> widths_z);
+  void computeSizes();
+
+  /* For debug use */
+  void printLatticeSizes();
+
 };
-
-
 
 /**
  * @brief A helper struct for the Universe::findCell() method.
@@ -239,6 +304,5 @@ template<typename tMap>
 second_t<typename tMap::value_type> pair_second(const tMap& map) {
   return second_t<typename tMap::value_type>();
 }
-
 
 #endif /* UNIVERSE_H_ */

@@ -9,8 +9,8 @@ static int auto_id = DEFAULT_INIT_ID;
  *          OpenMOC input files. The method makes use of a static Material
  *          ID which is incremented each time the method is called to enable
  *          unique generation of monotonically increasing IDs. The method's
- *          first ID begins at 10000. Hence, user-defined material IDs greater
- *          than or equal to 10000 is prohibited.
+ *          first ID begins at 1,000,000. Hence, user-defined material IDs greater
+ *          than or equal to 1,000,000 is prohibited.
  */
 int material_id() {
   int id = auto_id;
@@ -20,7 +20,7 @@ int material_id() {
 
 
 /**
- * @brief Resets the auto-generated unique Material ID counter to 10000.
+ * @brief Resets the auto-generated unique Material ID counter to 1,000,000.
  */
 void reset_material_id() {
   auto_id = DEFAULT_INIT_ID;
@@ -58,16 +58,19 @@ Material::Material(int id, const char* name) {
     _id = id;
 
   _name = NULL;
-  setName(name);
+  if (name != NULL)
+    setName(name);
 
   _volume = 0.;
   _num_instances = 0;
 
-  /* Initialize a dummy number of energy groups */
+  /* Initialize a dummy number groups */
   _num_groups = -1;
 
   _sigma_t = NULL;
+  _max_sigma_t = -1;
   _sigma_s = NULL;
+  _sigma_a = NULL;
   _sigma_f = NULL;
   _nu_sigma_f = NULL;
   _chi = NULL;
@@ -113,10 +116,13 @@ Material::~Material() {
   /* Data is not vector aligned */
   else {
     if (_sigma_t != NULL)
-      delete [] _sigma_t;
+      free(_sigma_t);
 
     if (_sigma_s != NULL)
       delete [] _sigma_s;
+
+    if (_sigma_a != NULL)
+      delete [] _sigma_a;
 
     if (_sigma_f != NULL)
       delete [] _sigma_f;
@@ -134,7 +140,7 @@ Material::~Material() {
 
 
 /**
- * @brief Return the Material's user-defined ID
+ * @brief Return the Material's user-defined ID.
  * @return the Material's user-defined ID
  */
 int Material::getId() const {
@@ -143,7 +149,7 @@ int Material::getId() const {
 
 
 /**
- * @brief Return the user-defined name of the Material
+ * @brief Return the user-defined name of the Material.
  * @return the Material name
  */
 char* Material::getName() const {
@@ -196,6 +202,15 @@ FP_PRECISION* Material::getSigmaT() {
 
 
 /**
+ * @brief Return the maximum of the Material's total cross-sections.
+ * @return the maximum of the Material's total cross-sections.
+ */
+FP_PRECISION Material::getMaxSigmaT() {
+  return _max_sigma_t;
+}
+
+
+/**
  * @brief Return the array of the Material's scattering cross-section matrix.
  * @return the pointer to the Material's array of scattering cross-sections
  */
@@ -205,6 +220,35 @@ FP_PRECISION* Material::getSigmaS() {
                "cross-section since it has not yet been set", _id);
 
   return _sigma_s;
+}
+
+
+/**
+ * @brief Return the array of the Material's absorption group cross-sections.
+ * @return the pointer to the Material's array of absorption cross-sections
+ */
+FP_PRECISION* Material::getSigmaA() {
+
+  if (_num_groups <= 0)
+    log_printf(ERROR, "Unable to return Material %d's absorption "
+               "cross-section since it has %d groups", _id, _num_groups);
+
+  if (_sigma_s == NULL || _sigma_t == NULL)
+    log_printf(ERROR, "Unable to return Material %d's absorption "
+               "cross-section since scattering and total have not been set",
+               _id);
+
+  /* If not initialized, compute _sigma_a the absorption cross section */
+  if (_sigma_a == NULL) {
+    _sigma_a = new FP_PRECISION[_num_groups];
+    for (int g=0; g < _num_groups; g++) {
+      _sigma_a[g] = _sigma_t[g];
+      for (int gp=0; gp < _num_groups; gp++)
+        _sigma_a[g] -= _sigma_s[gp*_num_groups + g];
+    }
+  }
+
+  return _sigma_a;
 }
 
 
@@ -255,8 +299,7 @@ FP_PRECISION* Material::getChi() {
  */
 FP_PRECISION* Material::getFissionMatrix() {
   if (_fiss_matrix == NULL)
-    log_printf(ERROR, "Unable to return Material %d's fission matrix "
-               "since it has not yet been built", _id);
+    buildFissionMatrix();
 
   return _fiss_matrix;
 }
@@ -298,6 +341,36 @@ FP_PRECISION Material::getSigmaSByGroup(int origin, int destination) {
                origin, destination, _id, _num_groups);
 
   return _sigma_s[(destination-1)*_num_groups + (origin-1)];
+}
+
+
+/**
+ * @brief Get the Material's absorption cross section for some energy group.
+ * @param group the energy group
+ * @return the absorption cross section
+ */
+FP_PRECISION Material::getSigmaAByGroup(int group) {
+
+  if (group <= 0 || group > _num_groups)
+    log_printf(ERROR, "Unable to get sigma_a for group %d for Material "
+               "%d which contains %d energy groups", group, _id, _num_groups);
+
+  if (_sigma_s == NULL || _sigma_t == NULL)
+    log_printf(ERROR, "Unable to return Material %d's absorption "
+               "cross-section since scattering and total have not been set",
+               _id);
+
+  /* If not initialized, compute _sigma_a the absorption cross section */
+  if (_sigma_a == NULL) {
+    _sigma_a = new FP_PRECISION[_num_groups];
+    for (int g=0; g < _num_groups; g++) {
+      _sigma_a[g] = _sigma_t[g];
+      for (int gp=0; gp < _num_groups; gp++)
+        _sigma_a[g] -= _sigma_s[gp*_num_groups + g];
+    }
+  }
+
+  return _sigma_a[group-1];
 }
 
 
@@ -363,8 +436,7 @@ FP_PRECISION Material::getChiByGroup(int group) {
  */
 FP_PRECISION Material::getFissionMatrixByGroup(int origin, int destination) {
   if (_fiss_matrix == NULL)
-    log_printf(ERROR, "Unable to return Material %d's fission matrix "
-               "cross section since it has not yet been built", _id);
+    buildFissionMatrix();
 
   else if (origin <= 0 || destination <= 0 ||
            origin > _num_groups || destination > _num_groups)
@@ -406,7 +478,7 @@ int Material::getNumVectorGroups() {
 
 
 /**
- * @brief Sets the name of the Material.
+ * @brief Sets the name of the Material
  * @param name the Material name string
  */
 void Material::setName(const char* name) {
@@ -469,7 +541,7 @@ void Material::incrementNumInstances() {
  */
 void Material::setNumEnergyGroups(const int num_groups) {
 
-  if (num_groups < 0)
+  if (num_groups < 1)
     log_printf(ERROR, "Unable to set the number of energy groups for "
                "material %d to %d", _id, num_groups);
 
@@ -514,18 +586,19 @@ void Material::setNumEnergyGroups(const int num_groups) {
   }
 
   /* Allocate memory for data arrays */
-  _sigma_t = new FP_PRECISION[_num_groups];
+  _sigma_t = (FP_PRECISION*) memalign(VEC_ALIGNMENT,
+                                      _num_groups*sizeof(FP_PRECISION));
   _sigma_f = new FP_PRECISION[_num_groups];
   _nu_sigma_f = new FP_PRECISION[_num_groups];
   _chi = new FP_PRECISION[_num_groups];
   _sigma_s = new FP_PRECISION[_num_groups*_num_groups];
 
   /* Assign the null vector to each data array */
-  memset(_sigma_t, 0.0, sizeof(FP_PRECISION) * _num_groups);
-  memset(_sigma_f, 0.0, sizeof(FP_PRECISION) * _num_groups);
-  memset(_nu_sigma_f, 0.0, sizeof(FP_PRECISION) * _num_groups);
-  memset(_chi, 0.0, sizeof(FP_PRECISION) * _num_groups);
-  memset(_sigma_s, 0.0, sizeof(FP_PRECISION) * _num_groups * _num_groups);
+  memset(_sigma_t, 0, sizeof(FP_PRECISION) * _num_groups);
+  memset(_sigma_f, 0, sizeof(FP_PRECISION) * _num_groups);
+  memset(_nu_sigma_f, 0, sizeof(FP_PRECISION) * _num_groups);
+  memset(_chi, 0, sizeof(FP_PRECISION) * _num_groups);
+  memset(_sigma_s, 0, sizeof(FP_PRECISION) * _num_groups * _num_groups);
 }
 
 
@@ -540,12 +613,12 @@ void Material::setNumEnergyGroups(const int num_groups) {
  *          might be called in Python is as follows:
  *
  * @code
- *          sigma_t = numpy.array([0.05, 0.1, 0.15, ... ])
+ *          sigma_t = numpy.array([0.05, 0.1, 0.15, ...])
  *          material = openmoc.Material(openmoc.material_id())
  *          material.setSigmaT(sigma_t)
  * @endcode
  *
- *          NOTE: This routine will override an zero-valued cross-sections
+ *          NOTE: This routine will override any zero-valued cross-sections
  *          (e.g., in void or gap regions) with a minimum value of 1E-10 to
  *          avoid numerical issues in the MOC solver.
  *
@@ -563,12 +636,15 @@ void Material::setSigmaT(double* xs, int num_groups) {
 
     /* If the cross-section is near zero (e.g., within (-1E-10, 1E-10)) */
     if (fabs(xs[i]) < ZERO_SIGMA_T) {
-      log_printf(INFO, "Overriding zero tot. MGXS in "
+      log_printf(INFO_ONCE, "Overriding zero cross-section in "
                  "group %d for Material %d with 1E-10", i, _id);
       _sigma_t[i] = FP_PRECISION(ZERO_SIGMA_T);
     }
     else
       _sigma_t[i] = FP_PRECISION(xs[i]);
+
+    /* Update the maximum total cross-section */
+    _max_sigma_t = std::max(_max_sigma_t, _sigma_t[i]);
   }
 }
 
@@ -586,12 +662,15 @@ void Material::setSigmaTByGroup(double xs, int group) {
 
     /* If the cross-section is near zero (e.g., within (-1E-10, 1E-10)) */
     if (fabs(xs) < ZERO_SIGMA_T) {
-      log_printf(INFO, "Overriding zero tot. MGXS in "
+      log_printf(INFO_ONCE, "Overriding zero cross-section in "
                  "group %d for Material %d with 1E-10", group, _id);
       _sigma_t[group-1] = FP_PRECISION(ZERO_SIGMA_T);
     }
     else
       _sigma_t[group-1] = FP_PRECISION(xs);
+
+  /* Update the maximum total cross-section */
+  _max_sigma_t = std::max(_max_sigma_t, _sigma_t[group-1]);
 }
 
 
@@ -661,9 +740,10 @@ void Material::setSigmaS(double* xs, int num_groups_squared) {
  */
 void Material::setSigmaSByGroup(double xs, int origin, int destination) {
 
-  if (origin <= 0 || destination <= 0 || origin > _num_groups || destination > _num_groups)
-    log_printf(ERROR, "Unable to set sigma_s for group %d -> %d for Material %d "
-               "which contains %d energy groups",
+  if (origin <= 0 || destination <= 0 || origin > _num_groups || 
+      destination > _num_groups)
+    log_printf(ERROR, "Unable to set sigma_s for group %d -> %d for Material %d"
+               " which contains %d energy groups",
                origin, destination, _id, _num_groups);
 
   _sigma_s[_num_groups*(destination-1) + (origin-1)] = xs;
@@ -693,7 +773,8 @@ void Material::setSigmaF(double* xs, int num_groups) {
 
   if (_num_groups != num_groups)
     log_printf(ERROR, "Unable to set sigma_f with %d groups for Material "
-               "%d which contains %d energy groups", num_groups, _id, _num_groups);
+               "%d which contains %d energy groups", num_groups, _id,
+               _num_groups);
 
   for (int i=0; i < _num_groups; i++)
     _sigma_f[i] = xs[i];
@@ -723,15 +804,9 @@ void Material::setSigmaFByGroup(double xs, int group) {
 
   _sigma_f[group-1] = xs;
 
-  /* Determine whether or not this Material is fissionable */
-  _fissionable = false;
-
-  for (int i=0; i < _num_groups; i++) {
-    if (_sigma_f[i] > 0.0 || _nu_sigma_f[i] > 0.0) {
-      _fissionable = true;
-      return;
-    }
-  }
+  /* If the SigmaF input is positive, this material is fissionable */
+  if (xs > 0)
+    _fissionable = true;
 }
 
 
@@ -791,15 +866,9 @@ void Material::setNuSigmaFByGroup(double xs, int group) {
 
   _nu_sigma_f[group-1] = xs;
 
-  /* Determine whether or not this Material is fissionable */
-  _fissionable = false;
-
-  for (int i=0; i < _num_groups; i++) {
-    if (_sigma_f[i] > 0.0 || _nu_sigma_f[i] > 0.0) {
-      _fissionable = true;
-      return;
-    }
-  }
+  /* If the SigmaF input is positive, this material is fissionable */
+  if (xs > 0)
+    _fissionable = true;
 }
 
 
@@ -833,7 +902,7 @@ void Material::setChi(double* xs, int num_groups) {
     chi_sum += xs[i];
 
   for (int i=0; i < _num_groups; i++) {
-    if (chi_sum == 0)
+    if (fabs(chi_sum) < FLT_EPSILON)
       _chi[i] = xs[i];
     else
       _chi[i] = xs[i] / chi_sum;
@@ -857,6 +926,28 @@ void Material::setChiByGroup(double xs, int group) {
 
 
 /**
+ * @brief Set the Material's absorption cross-section for some energy group.
+ * @details The absorption cross section is computed by OpenMOC when needed,
+ *          but the user can set it manually, to replace absorption by another
+ *          cross section as absorption is not needed when determining Keff from
+ *          fission rates.
+ * @param xs the absorption cross-section
+ * @param group the energy group
+ */
+void Material::setSigmaAByGroup(double xs, int group) {
+
+  if (group <= 0 || group > _num_groups)
+    log_printf(ERROR, "Unable to set sigma_a for group %d for Material "
+               "%d which contains %d energy groups", group, _id, _num_groups);
+
+  if (_sigma_a == NULL)
+    _sigma_a = new FP_PRECISION[_num_groups];
+
+  _sigma_a[group-1] = FP_PRECISION(xs);
+}
+
+
+/**
  * @brief Builds the fission matrix from chi and the fission cross-section.
  * @details The fission matrix is constructed as the outer product of the
  *          chi and fission cross-section vectors. This routine is intended
@@ -866,7 +957,7 @@ void Material::buildFissionMatrix() {
 
   if (_num_groups == 0)
     log_printf(ERROR, "Unable to build Material %d's fission matrix "
-	       "since the number of energy groups has not been set", _id);
+           "since the number of energy groups has not been set", _id);
   else if (_nu_sigma_f == NULL)
     log_printf(ERROR, "Unable to build Material %d's fission matrix "
               "since its nu-fission cross-section has not been set", _id);
@@ -909,7 +1000,10 @@ void Material::alignData() {
     log_printf(ERROR, "Unable to align Material %d data since the "
                "cross-sections have not yet been set\n", _id);
 
-  _num_vector_groups = (_num_groups / VEC_LENGTH) + 1;
+  if (_fiss_matrix == NULL)
+    buildFissionMatrix();
+
+  _num_vector_groups = _num_groups / VEC_LENGTH + (_num_groups % VEC_LENGTH != 0);
 
   /* Allocate memory for the new aligned xs data */
   int size = _num_vector_groups * VEC_LENGTH * sizeof(FP_PRECISION);
@@ -919,6 +1013,7 @@ void Material::alignData() {
   FP_PRECISION* new_sigma_f = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
   FP_PRECISION* new_nu_sigma_f=(FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
   FP_PRECISION* new_chi = (FP_PRECISION*)MM_MALLOC(size, VEC_ALIGNMENT);
+  //FIXME Sigma_a is not copied
 
   /* The fission and scattering matrices will be the number of vector
    * groups wide (SIMD) and the actual number of groups long since
@@ -940,8 +1035,8 @@ void Material::alignData() {
   }
 
   size *= _num_vector_groups * VEC_LENGTH;
-  memset(new_fiss_matrix, 0.0, size);
-  memset(new_sigma_s, 0.0, size);
+  memset(new_fiss_matrix, 0, size);
+  memset(new_sigma_s, 0, size);
 
   /* Copy materials data from unaligned arrays into new aligned arrays */
   size = _num_groups * sizeof(FP_PRECISION);
@@ -1035,37 +1130,6 @@ Material* Material::clone() {
     clone->buildFissionMatrix();
 
   return clone;
-}
-
-
-/**
- * @brief Copy another Material's cross section data into this Material.
- * @details This method performs a deep copy of the other Material's
- *          cross section data arrays for use by this Material.
- * @param material a pointer to the Material with data to copy
- */
-void Material::copyFrom(Material* material) {
-
-  /* Set the number of energy groups */
-  int num_groups = material->getNumEnergyGroups();
-  setNumEnergyGroups(num_groups);
-
-  FP_PRECISION* sigma_t = material->getSigmaT();
-  FP_PRECISION* sigma_f = material->getSigmaF();
-  FP_PRECISION* nu_sigma_f = material->getNuSigmaF();
-  FP_PRECISION* chi = material->getChi();
-
-  for (int i=0; i < _num_groups; i++) {
-    setSigmaTByGroup((double)sigma_t[i], i+1);
-    setSigmaFByGroup((double)sigma_f[i], i+1);
-    setNuSigmaFByGroup((double)nu_sigma_f[i], i+1);
-    setChiByGroup((double)chi[i], i+1);
-
-    for (int j=0; j < _num_groups; j++)
-      setSigmaSByGroup((double)material->getSigmaSByGroup(i+1,j+1), i+1, j+1);
-  }
-
-  buildFissionMatrix();
 }
 
 

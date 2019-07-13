@@ -11,13 +11,18 @@ import openmoc
 
 
 class SimpleLatticeAdjointTestHarness(TestHarness):
-    """An adjoint eigenvalue calculation for a 4x4 lattice with 7-group C5G7 
+    """An adjoint eigenvalue calculation for a 4x4 lattice with 7-group C5G7
     cross section data."""
 
     def __init__(self):
         super(SimpleLatticeAdjointTestHarness, self).__init__()
         self.input_set = SimpleLatticeInput()
         self.calculation_mode = openmoc.ADJOINT
+
+        # Change spacing to avoid having rays start on lattice planes
+        # Those rays are problematic because they cross through fuel pins
+        # parallelly to sector planes.
+        self.spacing = 0.12
 
     def _get_results(self, num_iters=True, keff=True, fluxes=True,
                      num_fsrs=False, num_tracks=False, num_segments=False,

@@ -28,7 +28,7 @@ class MultiSimNumGroupsTestHarness(MultiSimTestHarness):
         # Extract infinite medium material from input set
         material = self.input_set.materials['infinite medium']
 
-        # Setup 2-group multi-group cross sections
+        # Setup 1-group multi-group cross sections
         material.setName('1-group infinite medium')
         material.setNumEnergyGroups(1)
         material.setNuSigmaF(np.array([0.0994076580]))

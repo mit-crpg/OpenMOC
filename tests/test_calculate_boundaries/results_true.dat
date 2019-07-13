@@ -1,0 +1,30 @@
+[  NORMAL ]  MinX: -50.000000
+[  NORMAL ]  MinXBoundaryType: PERIODIC
+[SEPARATOR]  *******************************************************************
+[  NORMAL ]  MinY: -50.000000
+[  NORMAL ]  MinYBoundaryType: PERIODIC
+[SEPARATOR]  *******************************************************************
+[  NORMAL ]  MinZ: -50.000000
+[  NORMAL ]  MinZBoundaryType: PERIODIC
+[SEPARATOR]  *******************************************************************
+[  NORMAL ]  MaxX: 50.000000
+[  NORMAL ]  MaxXBoundaryType: PERIODIC
+[SEPARATOR]  *******************************************************************
+[  NORMAL ]  MaxY: 50.000000
+[  NORMAL ]  MaxYBoundaryType: PERIODIC
+[SEPARATOR]  *******************************************************************
+[  NORMAL ]  MaxZ: 50.000000
+[  NORMAL ]  MaxZBoundaryType: PERIODIC
+[SEPARATOR]  *******************************************************************
+[  NORMAL ]  MinX: 10.000000
+[  NORMAL ]  MinXBoundaryType: 0
+[  NORMAL ]  MinY: 30.000000
+[  NORMAL ]  MinYBoundaryType: 0
+[  NORMAL ]  MinZ: 50.000000
+[  NORMAL ]  MinZBoundaryType: 2
+[  NORMAL ]  MaxX: 20.000000
+[  NORMAL ]  MaxXBoundaryType: 1
+[  NORMAL ]  MaxY: 40.000000
+[  NORMAL ]  MaxYBoundaryType: 1
+[  NORMAL ]  MaxZ: 60.000000
+[  NORMAL ]  MaxZBoundaryType: 1

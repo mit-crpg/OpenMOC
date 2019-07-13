@@ -9,26 +9,26 @@ import openmc.mgxs
 # Instantiate some Materials and register the appropriate Nuclides
 uo2 = openmc.Material(name='UO2 Fuel')
 uo2.set_density('g/cm3', 10.29769)
-uo2.add_nuclide('U-235', 5.5815e-4)
-uo2.add_nuclide('U-238', 2.2408e-2)
-uo2.add_nuclide('O-16', 4.5829e-2)
+uo2.add_nuclide('U235', 5.5815e-4)
+uo2.add_nuclide('U238', 2.2408e-2)
+uo2.add_nuclide('O16', 4.5829e-2)
 
 helium = openmc.Material(name='Helium')
 helium.set_density('g/cm3', 0.001598)
-helium.add_nuclide('He-4', 2.4044e-4)
+helium.add_nuclide('He4', 2.4044e-4)
 
 zircaloy = openmc.Material(name='Zircaloy 4')
 zircaloy.set_density('g/cm3', 6.55)
-zircaloy.add_nuclide('O-16', 3.0743e-4)
-zircaloy.add_nuclide('Fe-56', 1.3610e-4)
-zircaloy.add_nuclide('Zr-90', 2.1827e-2)
+zircaloy.add_nuclide('O16', 3.0743e-4)
+zircaloy.add_nuclide('Fe56', 1.3610e-4)
+zircaloy.add_nuclide('Zr90', 2.1827e-2)
 
 borated_water = openmc.Material(name='Borated Water')
 borated_water.set_density('g/cm3', 0.740582)
-borated_water.add_nuclide('B-10', 8.0042e-6)
-borated_water.add_nuclide('B-11', 3.2218e-5)
-borated_water.add_nuclide('H-1', 4.9457e-2)
-borated_water.add_nuclide('O-16', 2.4672e-2)
+borated_water.add_nuclide('B10', 8.0042e-6)
+borated_water.add_nuclide('B11', 3.2218e-5)
+borated_water.add_nuclide('H1', 4.9457e-2)
+borated_water.add_nuclide('O16', 2.4672e-2)
 borated_water.add_s_alpha_beta('HH2O')
 
 # Instantiate a MaterialsFile, register all Materials, and export to XML
