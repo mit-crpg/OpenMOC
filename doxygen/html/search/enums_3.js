@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['quadraturetype',['quadratureType',['../Quadrature_8h.html#abaf5f877e7f8a13548058dcb876c4de1',1,'Quadrature.h']]]
+  ['quadraturetype',['QuadratureType',['../Quadrature_8h.html#a1f7ec9c419eaece1b4ca0fb2bd6b12df',1,'Quadrature.h']]]
 ];

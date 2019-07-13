@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['header',['HEADER',['../log_8h.html#a5096002e05063d13577205e0bc5f0564a2e57918a09d25b07a664e505d50a97f6',1,'log.h']]]
+  ['global',['GLOBAL',['../Solver_8h.html#aebd848a192d91fb04ad8c78d342476ddafde1bb5ef04b28059e61df449501f1c0',1,'Solver.h']]]
 ];

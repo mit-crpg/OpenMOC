@@ -1,17 +1,24 @@
 var searchData=
 [
   ['unfilled',['UNFILLED',['../Cell_8h.html#a274ceed3b07859c48505f65b1fe42328ad9e1258e7568701f46d838d7c10e7407',1,'Cell.h']]],
+  ['union',['Union',['../classUnion.html',1,'Union'],['../classUnion.html#a340efbea2be0bbfbdff844daab7a3e23',1,'Union::Union()'],['../Region_8h.html#a2c25b4a3d851e2d45d7a435a73598323a4cf5e96eb7880eb38df303a6e5759afd',1,'UNION():&#160;Region.h']]],
+  ['unittest',['UNITTEST',['../log_8h.html#a5096002e05063d13577205e0bc5f0564a7d4213bd412f92318544af232a0481e6',1,'log.h']]],
   ['univ',['UNIV',['../LocalCoords_8h.html#a9b2c6f3fe231906f231afd6ae7293871a65a2a55bc0cbbb11fedd1f47574b355d',1,'LocalCoords.h']]],
   ['universe',['Universe',['../classUniverse.html',1,'Universe'],['../classUniverse.html#ab4409d53a8078c1a92d59d98704f0ea8',1,'Universe::Universe()']]],
   ['universe_2eh',['Universe.h',['../Universe_8h.html',1,'']]],
   ['universe_5fid',['universe_id',['../Universe_8h.html#a6e3466ba5b768da78702a4a60d18d84e',1,'Universe.cpp']]],
   ['universetype',['universeType',['../Universe_8h.html#a123911615dcd5c50bea706d32683a02a',1,'Universe.h']]],
-  ['update',['update',['../classParallelHashMap.html#a7ba0d89f6d3cc711518fe6f7f8c9f15a',1,'ParallelHashMap']]],
-  ['updateboundaryflux',['updateBoundaryFlux',['../classCmfd.html#a8e2162ab4e1b55d2240f5c41184d73d3',1,'Cmfd']]],
+  ['update',['update',['../classParallelHashMap.html#a5427d607a49019d6a653f814b77ec0ac',1,'ParallelHashMap']]],
   ['updatemostlocal',['updateMostLocal',['../classLocalCoords.html#a371080a986073525f2e0572345e438c7',1,'LocalCoords']]],
   ['updateuniverse',['updateUniverse',['../classLattice.html#ae385adfa867ab697f4743f8058195049',1,'Lattice']]],
+  ['useaxialinterpolation',['useAxialInterpolation',['../classCmfd.html#a913c1f513f6afd53178450dd23be2cdc',1,'Cmfd']]],
+  ['usecorrectedweights',['useCorrectedWeights',['../classGLPolarQuad.html#a9ef3b2468120d03ccf4aee186f0103c7',1,'GLPolarQuad']]],
   ['useexponentialinterpolation',['useExponentialInterpolation',['../classSolver.html#a627f677bdb8a621a632b581bc976b2a5',1,'Solver']]],
   ['useexponentialintrinsic',['useExponentialIntrinsic',['../classSolver.html#a5400c11874dac7f00ade6e7c2d573aee',1,'Solver']]],
+  ['usefluxlimiting',['useFluxLimiting',['../classCmfd.html#a6dd4e1474a6a9a17c0eb906efe5040de',1,'Cmfd']]],
+  ['useglobalzmesh',['useGlobalZMesh',['../classTrackGenerator3D.html#a2b5f8afc6468e4ea5f7ce137e4da74f5',1,'TrackGenerator3D']]],
   ['useinterpolation',['useInterpolation',['../classExpEvaluator.html#a6e61b20b470fd3e5220dc9bfd7298259',1,'ExpEvaluator']]],
-  ['useintrinsic',['useIntrinsic',['../classExpEvaluator.html#a8bfb18e215131cdb6907f38762277275',1,'ExpEvaluator']]]
+  ['useintrinsic',['useIntrinsic',['../classExpEvaluator.html#a8bfb18e215131cdb6907f38762277275',1,'ExpEvaluator']]],
+  ['uselinearsource',['useLinearSource',['../classExpEvaluator.html#a793424e9e2a2527934127be43c42855a',1,'ExpEvaluator']]],
+  ['usesymmetry',['useSymmetry',['../classGeometry.html#a703063d3805e4099f430f58cf4b7e831',1,'Geometry']]]
 ];

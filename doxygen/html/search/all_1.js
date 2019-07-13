@@ -1,13 +1,21 @@
 var searchData=
 [
+  ['accumulatelinearfluxcontribution',['accumulateLinearFluxContribution',['../classCPULSSolver.html#a338c8f026ac9e635b4f7f1c81e866d70',1,'CPULSSolver']]],
+  ['accumulatescalarfluxcontribution',['accumulateScalarFluxContribution',['../classCPUSolver.html#afd74ecad267ceddc87ed027108c89caf',1,'CPUSolver']]],
   ['addcell',['addCell',['../classUniverse.html#af045c632c9b336f8d4f7be20c5a510a1',1,'Universe']]],
-  ['addfsrtocell',['addFSRToCell',['../classCmfd.html#a2b8c8dd72d9b4fe1ec7b91a84bbad208',1,'Cmfd']]],
+  ['addfsrtocell',['addFSRToCell',['../classCmfd.html#a5de46f701b5dc2a1e79b1291ad1529aa',1,'Cmfd']]],
+  ['addlogicalnode',['addLogicalNode',['../classCell.html#a96ef6ccaacc148133ef13ed14e9d4142',1,'Cell']]],
   ['addneighborcell',['addNeighborCell',['../classCell.html#ac4c64ce76107c458901a0132e37e6348',1,'Cell::addNeighborCell()'],['../classSurface.html#a14d88790704251456967f0e75ec670d3',1,'Surface::addNeighborCell()']]],
-  ['addsegment',['addSegment',['../classTrack.html#af10963fb25999a8d7763deb52d6ecdd8',1,'Track']]],
-  ['addsourcetoscalarflux',['addSourceToScalarFlux',['../classGPUSolver.html#a28c2d3394b9a5f82af948dfdbfbd153f',1,'GPUSolver::addSourceToScalarFlux()'],['../classCPUSolver.html#a92a92ed2553ba853b9a8f63114d1a844',1,'CPUSolver::addSourceToScalarFlux()'],['../classSolver.html#a431c793e0164e134d35fecf9e1e56434',1,'Solver::addSourceToScalarFlux()'],['../classVectorizedSolver.html#ac079f92b22b16a7584662fe36817495b',1,'VectorizedSolver::addSourceToScalarFlux()']]],
+  ['addnode',['addNode',['../classRegion.html#ab6e9fbac9c25937ec967826dcefc42ab',1,'Region::addNode()'],['../classComplement.html#adf32c33b07e46d7bd4ae22c3f6f20635',1,'Complement::addNode()']]],
+  ['addsegment',['addSegment',['../classTrack.html#a08af057318f555da880a391718837ea0',1,'Track']]],
+  ['addsourcetoscalarflux',['addSourceToScalarFlux',['../classGPUSolver.html#a28c2d3394b9a5f82af948dfdbfbd153f',1,'GPUSolver::addSourceToScalarFlux()'],['../classCPULSSolver.html#a2c48d8781c40b0987108d008378fb465',1,'CPULSSolver::addSourceToScalarFlux()'],['../classCPUSolver.html#a92a92ed2553ba853b9a8f63114d1a844',1,'CPUSolver::addSourceToScalarFlux()'],['../classSolver.html#a431c793e0164e134d35fecf9e1e56434',1,'Solver::addSourceToScalarFlux()'],['../classVectorizedSolver.html#ac079f92b22b16a7584662fe36817495b',1,'VectorizedSolver::addSourceToScalarFlux()']]],
   ['addsurface',['addSurface',['../classCell.html#aaf1680b706b11b4b0121aef6a4a81009',1,'Cell']]],
+  ['addsurfaceinregion',['addSurfaceInRegion',['../classCell.html#a8e6d44d3d36b8b0922f45c1ff7924db7',1,'Cell']]],
   ['adjoint',['ADJOINT',['../Solver_8h.html#af4ed2fd8f2a36b1d62b04b256d5507e6a9de8670f73522a2526f9dababeaf852a',1,'Solver.h']]],
-  ['adjustcoords',['adjustCoords',['../classLocalCoords.html#aad6f1c22cea1fc9a4df5b6fb857cf5a0',1,'LocalCoords']]],
+  ['adjustcoords',['adjustCoords',['../classLocalCoords.html#a6cb89ee2f74c3500db81c6922ba76cb5',1,'LocalCoords']]],
   ['aligndata',['alignData',['../classMaterial.html#a68937e22f1c8369a4f03506c8a356cb6',1,'Material']]],
-  ['at',['at',['../classFixedHashMap.html#a7d5bc36fb02fe12a9d0012506b967dd4',1,'FixedHashMap::at()'],['../classParallelHashMap.html#a6cda5180df433c3ccf15feb6898a7110',1,'ParallelHashMap::at()']]]
+  ['allocatetallies',['allocateTallies',['../classCmfd.html#a580cb3c7683471604230d0f961dd0ad6',1,'Cmfd']]],
+  ['allocatetemporarysegments',['allocateTemporarySegments',['../classTrackGenerator.html#a6430171624df66bc58b4acbcfcf885ac',1,'TrackGenerator']]],
+  ['allownegativefluxes',['allowNegativeFluxes',['../classSolver.html#a926f0ff33743d465eb12550b0401a467',1,'Solver']]],
+  ['at',['at',['../classFixedHashMap.html#a017a8a21826cab053f6c344723cb9013',1,'FixedHashMap::at()'],['../classParallelHashMap.html#acf39233c7dfb4b0595616f372e2657de',1,'ParallelHashMap::at()']]]
 ];

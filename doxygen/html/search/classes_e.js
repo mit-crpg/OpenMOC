@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['yplane',['YPlane',['../classYPlane.html',1,'']]]
+  ['union',['Union',['../classUnion.html',1,'']]],
+  ['universe',['Universe',['../classUniverse.html',1,'']]]
 ];

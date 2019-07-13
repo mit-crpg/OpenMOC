@@ -1,5 +1,5 @@
 var classSegmentationKernel =
 [
-    [ "SegmentationKernel", "classSegmentationKernel.html#a7930390119f5e1d09ae5e33695735df8", null ],
-    [ "execute", "classSegmentationKernel.html#a9dc952f358667bab2b4637f9586e804c", null ]
+    [ "SegmentationKernel", "classSegmentationKernel.html#a97319904321274bfc2ac550f184ed01b", null ],
+    [ "execute", "classSegmentationKernel.html#ab4aec6537c6ec83818c3595343488c77", null ]
 ];

@@ -1,34 +1,23 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>5. Track Generation &mdash; OpenMOC Documentation</title>
-    
+    <title>5. Track Generation &#8212; OpenMOC Documentation</title>
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.1.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
-    <link rel="up" title="Theory and Methodology" href="index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="6. Coarse Mesh Finite Difference Acceleration" href="cmfd.html" />
     <link rel="prev" title="4. Constructive Solid Geometry" href="constructive_solid_geometry.html" /> 
-  </head>
-  <body role="document">
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -41,8 +30,8 @@
         <li class="right" >
           <a href="constructive_solid_geometry.html" title="4. Constructive Solid Geometry"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Theory and Methodology</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Theory and Methodology</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -56,65 +45,73 @@
 <p>The method of characteristics uses tracks across the geometry to discretize the azimuthal and polar angle domains as well as the spatial domain. The way in which an MOC code generates tracks affects the quadrature weights <img class="math" src="../_images/math/de0d3e1c3e8c05c6c08b5e454201672d3b015463.png" alt="w_{p}"/>, <img class="math" src="../_images/math/4a18465cc1478f6ef907bd0721439f202c7b4008.png" alt="w_{m}"/>, and <img class="math" src="../_images/math/ca99756e8e4a364556f4c19165ea3f68901089ef.png" alt="w_{k}"/> used to compute the angular and spatial integrals in the transport equation. This section describes the methodology used to generate tracks in OpenMOC and the corresponding angular and spatial quadrature weights.</p>
 <div class="section" id="cyclic-tracks">
 <span id="id2"></span><h2>5.1. Cyclic Tracks<a class="headerlink" href="#cyclic-tracks" title="Permalink to this headline">¶</a></h2>
-<p>OpenMOC uses <em>global tracking</em> such that each track spans the entire extent of the simulation domain. By symmetry, tracks only need to be represented for azimuthal angles in the range <img class="math" src="../_images/math/6895b6524163cabd1fce0d1364163eb791e15dad.png" alt="\phi \in [0, \pi]"/> since a track with angle <img class="math" src="../_images/math/10e009bdb83f96c5f47c58b34d5d4b12ef268d5b.png" alt="\phi"/> will have the same start and end points as a track with angle <img class="math" src="../_images/math/17ef1022260c45e60abddf784ff7f801076a5e40.png" alt="\phi + \pi"/>. <em>Complementary angles</em> are pairs of angles <img class="math" src="../_images/math/c4902b123dafcd1b5e96cc446d5a2a3d90265e2c.png" alt="(\phi, \alpha)"/> in the azimuthal quadrature where <img class="math" src="../_images/math/7f82331030dd64a74d98039ff7221314c823e6a1.png" alt="\alpha = \pi - \phi"/>. Tracks for complementary angles have a <em>track spacing</em> such that they intersect at the boundaries of the geometry and form closed cycles. An illustration of OpenMOC&#8217;s track layout for eight azimuthal angles is given in <a class="reference internal" href="#figure-cyclic-tracks"><span class="std std-ref">Figure 1</span></a>.</p>
-<div class="align-center figure" id="id14">
+<p>OpenMOC uses <em>global tracking</em> such that each track spans the entire extent of the simulation domain. By symmetry, tracks only need to be represented for azimuthal angles in the range <img class="math" src="../_images/math/6895b6524163cabd1fce0d1364163eb791e15dad.png" alt="\phi \in [0, \pi]"/> since a track with angle <img class="math" src="../_images/math/10e009bdb83f96c5f47c58b34d5d4b12ef268d5b.png" alt="\phi"/> will have the same start and end points as a track with angle <img class="math" src="../_images/math/17ef1022260c45e60abddf784ff7f801076a5e40.png" alt="\phi + \pi"/>. <em>Complementary angles</em> are pairs of angles <img class="math" src="../_images/math/c4902b123dafcd1b5e96cc446d5a2a3d90265e2c.png" alt="(\phi, \alpha)"/> in the azimuthal quadrature where <img class="math" src="../_images/math/7f82331030dd64a74d98039ff7221314c823e6a1.png" alt="\alpha = \pi - \phi"/>. Tracks for complementary angles have a <em>track spacing</em> such that they intersect at the boundaries of the geometry and form closed cycles. An illustration of OpenMOC’s track layout for eight azimuthal angles is given in <a class="reference internal" href="#figure-cyclic-tracks"><span class="std std-ref">Figure 1</span></a>.</p>
+<div class="align-center figure" id="id15">
 <span id="figure-cyclic-tracks"></span><a class="reference internal image-reference" href="../_images/cyclic-tracks.png"><img alt="../_images/cyclic-tracks.png" src="../_images/cyclic-tracks.png" style="width: 300px;" /></a>
 <p class="caption"><span class="caption-text"><strong>Figure 1</strong>: Global cyclic tracks across a square.</span></p>
 </div>
-<p>Cyclic tracking is important since it allows for a simple treatment of reflective boundary conditions. Boundary conditions must be respected for the track outgoing fluxes at each iteration. Vacuum boundary conditions on a surface can be implemented for the MOC formulation by ensuring that each track originating along that surface has zero incoming flux, while tallying outgoing flux as leakage. Reflective boundary conditions are easily implemented since complementary angles guarantee that tracks wrap around the geometry in closed cycles. No approximations need to be made for each track&#8217;s incoming flux since it is exactly the outgoing flux of another track in the cycle.</p>
+<p>Cyclic tracking is important since it allows for a simple treatment of reflective boundary conditions. Boundary conditions must be respected for the track outgoing fluxes at each iteration. Vacuum boundary conditions on a surface can be implemented for the MOC formulation by ensuring that each track originating along that surface has zero incoming flux, while tallying outgoing flux as leakage. Reflective boundary conditions are easily implemented since complementary angles guarantee that tracks wrap around the geometry in closed cycles. No approximations need to be made for each track’s incoming flux since it is exactly the outgoing flux of another track in the cycle.</p>
 <p>The key parameters necessary for track generation in an OpenMOC simulation are the number of azimuthal angles <img class="math" src="../_images/math/23bc4514ecb25618b6df976903fd229f9646bbfa.png" alt="n_{a}"/>, the spacing between tracks <img class="math" src="../_images/math/d104947ac01177c2ee1e736751b35ec66dd28fa8.png" alt="t_{s}"/>, and the total width and height of the geometry, <img class="math" src="../_images/math/8659700e6646cd91bc02c32affaa5ec046ee9935.png" alt="w"/> and <img class="math" src="../_images/math/cbb80ad77aa7a5e227d5a46bc44d235284106cfc.png" alt="h"/>, respectively. OpenMOC computes the appropriate azimuthal angles to form cyclic tracks prior to track generation and ray tracing. The algorithm used by OpenMOC attempts to divide up the azimuthal space <img class="math" src="../_images/math/7fb3ef29eddf02871b48acad7a187b09fa66cb5c.png" alt="\phi \in [0, 2\pi]"/> as evenly as possible. In particular, for index <img class="math" src="../_images/math/124bb7e772139b08c66d9da5c866016068ed7119.png" alt="m \in \{1, 2, ..., M\}"/>, the desired azimuthal angle <img class="math" src="../_images/math/06d72499c4b6baefb2d5f45d9e1bb372a2a12cf3.png" alt="\phi_{m}"/> is the following:</p>
 <div class="math" id="equation-desired-azim-angle">
-<p><span class="eqno">(1)</span><img src="../_images/math/d475b6cf99aef3d6b6eb4b3da14c8bcc849962b1.png" alt="\phi_{m} = \frac{2\pi}{n_{a}}(m - 0.5)"/></p>
+<p><span class="eqno">(1)</span><img src="../_images/math/3a1c9c4c2c1ac63fe68ccdb978b36e909b5ef983.png" alt="\phi_{m} = \frac{2\pi}{n_{a}}(m - 0.5)"/></p>
 </div><p>This angle is then used to compute the number of tracks <img class="math" src="../_images/math/b724942c3d198b9ff61126a443d743ea717599dd.png" alt="n_{y}"/> and <img class="math" src="../_images/math/1cc1f1fcabdfac29dbf924b2d676a9127ac23124.png" alt="n_{x}"/> for angle <img class="math" src="../_images/math/c4bb40dd65eae6c11b325989b14e0b8d35e4e3ef.png" alt="m"/> originating from the left and bottom boundaries of the geometry using the floor function:</p>
 <div class="math" id="equation-num-tracks-bottom">
-<p><span class="eqno">(2)</span><img src="../_images/math/6b21ca47d07107185b4a8fdfc0dddac36fff3f9d.png" alt="n_{y} = \left\lfloor\frac{w}{t_{s}}|\sin\phi_{m}|\right\rfloor + 1"/></p>
+<p><span class="eqno">(2)</span><img src="../_images/math/452446ff6fd416f8d65699329d373ae386592f3c.png" alt="n_{y} = \left\lfloor\frac{w}{t_{s}}|\sin\phi_{m}|\right\rfloor + 1"/></p>
 </div><div class="math" id="equation-num-tracks-left">
-<p><span class="eqno">(3)</span><img src="../_images/math/12f7ec6d5c6b31bd5dfea177fe0e12b35886a969.png" alt="n_{x} = \left\lfloor{\frac{h}{t_{s}}|\cos\phi_{m}|}\right\rfloor + 1"/></p>
+<p><span class="eqno">(3)</span><img src="../_images/math/4d0f58d250383588848acd95cf0285ce96baccfb.png" alt="n_{x} = \left\lfloor{\frac{h}{t_{s}}|\cos\phi_{m}|}\right\rfloor + 1"/></p>
 </div><p>Given <img class="math" src="../_images/math/b724942c3d198b9ff61126a443d743ea717599dd.png" alt="n_{y}"/> and <img class="math" src="../_images/math/1cc1f1fcabdfac29dbf924b2d676a9127ac23124.png" alt="n_{x}"/>, an <em>effective angle</em> <img class="math" src="../_images/math/9885bcc699e3ce17779c6d9cc16aef097ba61445.png" alt="\phi_{m,eff}"/> is computed as a correction to the desired azimuthal angle <img class="math" src="../_images/math/06d72499c4b6baefb2d5f45d9e1bb372a2a12cf3.png" alt="\phi_{m}"/> to ensure cyclic track wrapping:</p>
 <div class="math" id="equation-effective-azim-angle">
-<p><span class="eqno">(4)</span><img src="../_images/math/b64cc33811f73ca580f24df453d3143546d6b1e7.png" alt="\phi_{m,eff} = \tan^{-1}\left(\frac{hn_{x}}{wn_{y}}\right)"/></p>
-</div><p>Although OpenMOC will abide by a user&#8217;s request for the number of azimuthal angles, an <em>effective spacing</em> <img class="math" src="../_images/math/1dbc2995109c7b885a09dd00ce6f7e7ad1b31e62.png" alt="t_{s,m,eff}"/> must be computed and used instead of that specified by the user in order for the tracks wrap around the geometry. The effective spacing is unique for each azimuthal angle <img class="math" src="../_images/math/c4bb40dd65eae6c11b325989b14e0b8d35e4e3ef.png" alt="m"/>, and is computed as follows:</p>
+<p><span class="eqno">(4)</span><img src="../_images/math/5b0b30c84d5c8172a0d34c32bd82b700a7081fe8.png" alt="\phi_{m,eff} = \tan^{-1}\left(\frac{hn_{x}}{wn_{y}}\right)"/></p>
+</div><p>Although OpenMOC will abide by a user’s request for the number of azimuthal angles, an <em>effective spacing</em> <img class="math" src="../_images/math/1dbc2995109c7b885a09dd00ce6f7e7ad1b31e62.png" alt="t_{s,m,eff}"/> must be computed and used instead of that specified by the user in order for the tracks wrap around the geometry. The effective spacing is unique for each azimuthal angle <img class="math" src="../_images/math/c4bb40dd65eae6c11b325989b14e0b8d35e4e3ef.png" alt="m"/>, and is computed as follows:</p>
 <div class="math" id="equation-effective-spacing">
-<p><span class="eqno">(5)</span><img src="../_images/math/5b4fba7f09da0040d5e1658ebb9eb55314f292e7.png" alt="t_{s,m,eff} = \frac{w}{n_{x}}\sin\phi_{m,eff}"/></p>
+<p><span class="eqno">(5)</span><img src="../_images/math/f265cb6faf1286212f199f68fd6db1ca7efc2cdd.png" alt="t_{s,m,eff} = \frac{w}{n_{x}}\sin\phi_{m,eff}"/></p>
 </div><p>The reader should note that this method for computing the effective track spacing in OpenMOC ensures that the following condition is always true:</p>
 <div class="math" id="equation-effective-spacing-criterion">
-<p><span class="eqno">(6)</span><img src="../_images/math/e8e6fdf51690cfd8c240fad3718597f291001cdc.png" alt="t_{s,m,eff} \;\;\; \le \;\;\; t_{s}"/></p>
+<p><span class="eqno">(6)</span><img src="../_images/math/a99d3482526ea58c0591bfae8843e5e67acdce26.png" alt="t_{s,m,eff} \;\;\; \le \;\;\; t_{s}"/></p>
 </div></div>
+<div class="section" id="modular-ray-tracing">
+<span id="id3"></span><h2>5.2. Modular Ray Tracing<a class="headerlink" href="#modular-ray-tracing" title="Permalink to this headline">¶</a></h2>
+<p>For domain decomposed situations, all domains have the same shape and are treated independently by the track generator. By cutting ray tracing into similar modules, tracks naturally line up between neighboring domains. Track fluxes are then transferred naturally during the transport sweep from one domain to another along each track. <a class="reference internal" href="#modular-rt"><span class="std std-ref">Figure 2</span></a> illustrates this.</p>
+<div class="align-center figure" id="id16">
+<span id="modular-rt"></span><a class="reference internal image-reference" href="../_images/ray-tracing-2d_periodic_track_cycles.png"><img alt="../_images/ray-tracing-2d_periodic_track_cycles.png" src="../_images/ray-tracing-2d_periodic_track_cycles.png" style="width: 600px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Figure 2</strong>: Modular ray tracing in the four domains ensures the track line up at each boundary</span></p>
+</div>
+</div>
 <div class="section" id="azimuthal-angle-quadrature">
-<span id="id3"></span><h2>5.2. Azimuthal Angle Quadrature<a class="headerlink" href="#azimuthal-angle-quadrature" title="Permalink to this headline">¶</a></h2>
-<p>OpenMOC uses a product quadrature set that uncouples the azimuthal angle quadrature from the polar angle quadrature. The azimuthal angle quadrature set is computed based on the fraction of azimuthal angular space &#8220;owned&#8221; by each azimuthal angle. In this section, the variable transformation <img class="math" src="../_images/math/73d6e30ba2a8adfd3e331882f48286cc636d1b05.png" alt="\phi_{m} \gets \phi_{m,eff}"/> has been made such that the effective azimuthal angle is used throughout. The azimuthal angle quadrature weight specification is given in <a href="#equation-azimuthal-quadrature-1">(7)</a>, <a href="#equation-azimuthal-quadrature-2">(8)</a>, and <a href="#equation-azimuthal-quadrature-3">(9)</a>.</p>
+<span id="id4"></span><h2>5.3. Azimuthal Angle Quadrature<a class="headerlink" href="#azimuthal-angle-quadrature" title="Permalink to this headline">¶</a></h2>
+<p>OpenMOC uses a product quadrature set that uncouples the azimuthal angle quadrature from the polar angle quadrature. The azimuthal angle quadrature set is computed based on the fraction of azimuthal angular space “owned” by each azimuthal angle. In this section, the variable transformation <img class="math" src="../_images/math/73d6e30ba2a8adfd3e331882f48286cc636d1b05.png" alt="\phi_{m} \gets \phi_{m,eff}"/> has been made such that the effective azimuthal angle is used throughout. The azimuthal angle quadrature weight specification is given in <a class="reference internal" href="#equation-azimuthal-quadrature-1">(7)</a>, <a class="reference internal" href="#equation-azimuthal-quadrature-2">(8)</a>, and <a class="reference internal" href="#equation-azimuthal-quadrature-3">(9)</a>.</p>
 <div class="math" id="equation-azimuthal-quadrature-1">
-<p><span class="eqno">(7)</span><img src="../_images/math/37a2cac66917d13f5fb7b21af2ad69aac596517e.png" alt="w_{m} = \frac{1}{2\pi}\left[\frac{\phi_{m+1} - \phi_{m}}{2} + \phi_{m}\right] &amp; \;\; \text{if} \;\;\; m = 1"/></p>
+<p><span class="eqno">(7)</span><img src="../_images/math/c06831833963f124cdeea51c7795cce1eb7ca7ec.png" alt="w_{m} = \frac{1}{2\pi}\left[\frac{\phi_{m+1} - \phi_{m}}{2} + \phi_{m}\right] &amp; \;\; \text{if} \;\;\; m = 1"/></p>
 </div><div class="math" id="equation-azimuthal-quadrature-2">
-<p><span class="eqno">(8)</span><img src="../_images/math/31e899012f0ec208b3b6d171d9182edf70a74c48.png" alt="w_{m} = \frac{1}{2\pi}\left[\frac{\phi_{m+1} - \phi_{m}}{2} + \frac{\phi_{m} - \phi_{m-1}}{2}\right] &amp; \;\; \text{if} \;\;\; 1 &lt; m &lt; M"/></p>
+<p><span class="eqno">(8)</span><img src="../_images/math/1bc2aadcadb19e1cb0353663e4cbdb7bcbf66807.png" alt="w_{m} = \frac{1}{2\pi}\left[\frac{\phi_{m+1} - \phi_{m}}{2} + \frac{\phi_{m} - \phi_{m-1}}{2}\right] &amp; \;\; \text{if} \;\;\; 1 &lt; m &lt; M"/></p>
 </div><div class="math" id="equation-azimuthal-quadrature-3">
-<p><span class="eqno">(9)</span><img src="../_images/math/81ebec4163f5ac860b1dd4a529b01d25cb0a775c.png" alt="w_{m} = \frac{1}{2\pi}\left[2\pi - \phi_{m} + \frac{\phi_{m} - \phi_{m-1}}{2}\right] &amp; \;\; \text{if} \;\;\; m = M"/></p>
+<p><span class="eqno">(9)</span><img src="../_images/math/8cf846346444d2233139cb23f76806e2f3d6741b.png" alt="w_{m} = \frac{1}{2\pi}\left[2\pi - \phi_{m} + \frac{\phi_{m} - \phi_{m-1}}{2}\right] &amp; \;\; \text{if} \;\;\; m = M"/></p>
 </div></div>
 <div class="section" id="polar-angle-quadrature">
-<span id="id4"></span><h2>5.3. Polar Angle Quadrature<a class="headerlink" href="#polar-angle-quadrature" title="Permalink to this headline">¶</a></h2>
-<p>In OpenMOC, there are five polar quadrature sets that couple with the standard constant-angle azimuthal quadrature set. These include equal angles, equal weights, Gauss Legendre, Leonard, and Tabuchi Yamamoto polar quadrature sets. The formulas for computing the angles and weights of the equal angles and equal weights quadrature sets, given below, are described in the Handbook of Nuclear Engineering <a class="reference internal" href="#cacuci" id="id5">[Cacuci]</a>. The angles and weights for the Gauss Legendre, Leonard, and Tabuchi Yamamoto quadrature sets were taken from reference without modification <a class="reference internal" href="../usersguide/input.html#yamamoto" id="id6">[Yamamoto]</a>, <a class="reference internal" href="#cacuci" id="id7">[Cacuci]</a>.</p>
-<p>For the equal angles and equal weights quadrature sets, the user inputs the number of polar angles in <img class="math" src="../_images/math/4dbe0601d7c7db8b873cdac7e69beeb2b234c186.png" alt="[0,\frac{\pi}{2}]"/>, P, and then the angles and corresponding weights are computed. The relations for computing the angles, <img class="math" src="../_images/math/2f7847e09804174463e73527117220adac748af2.png" alt="\theta_p"/>, and corresponding weights are given as equations <a href="#equation-equal-angles-quad-1">(10)</a>, <a href="#equation-equal-angles-quad-2">(11)</a>, and <a href="#equation-equal-angles-quad-3">(12)</a>. The angle boundaries used to compute the angles and weights start at <img class="math" src="../_images/math/973fe93e2cb0e327393fff24e1b9369e208d5c38.png" alt="\bar{\theta}_p = 0"/>.</p>
+<span id="id5"></span><h2>5.4. Polar Angle Quadrature<a class="headerlink" href="#polar-angle-quadrature" title="Permalink to this headline">¶</a></h2>
+<p>In OpenMOC, there are five polar quadrature sets that couple with the standard constant-angle azimuthal quadrature set. These include equal angles, equal weights, Gauss Legendre, Leonard, and Tabuchi Yamamoto polar quadrature sets. The formulas for computing the angles and weights of the equal angles and equal weights quadrature sets, given below, are described in the Handbook of Nuclear Engineering <a class="reference internal" href="#cacuci" id="id6">[Cacuci]</a>. The angles and weights for the Gauss Legendre, Leonard, and Tabuchi Yamamoto quadrature sets were taken from reference without modification <a class="reference internal" href="../usersguide/input.html#yamamoto" id="id7">[Yamamoto]</a>, <a class="reference internal" href="#cacuci" id="id8">[Cacuci]</a>.</p>
+<p>For the equal angles and equal weights quadrature sets, the user inputs the number of polar angles in <img class="math" src="../_images/math/4dbe0601d7c7db8b873cdac7e69beeb2b234c186.png" alt="[0,\frac{\pi}{2}]"/>, P, and then the angles and corresponding weights are computed. The relations for computing the angles, <img class="math" src="../_images/math/2f7847e09804174463e73527117220adac748af2.png" alt="\theta_p"/>, and corresponding weights are given as equations <a class="reference internal" href="#equation-equal-angles-quad-1">(10)</a>, <a class="reference internal" href="#equation-equal-angles-quad-2">(11)</a>, and <a class="reference internal" href="#equation-equal-angles-quad-3">(12)</a>. The angle boundaries used to compute the angles and weights start at <img class="math" src="../_images/math/973fe93e2cb0e327393fff24e1b9369e208d5c38.png" alt="\bar{\theta}_p = 0"/>.</p>
 <div class="math" id="equation-equal-angles-quad-1">
-<p><span class="eqno">(10)</span><img src="../_images/math/5556a88a72a8f30882d4ec2a827a86c69556b509.png" alt="\bar{\theta}_p = \bar{\theta}_{p-1} + \frac{\pi}{2 \cdot P}"/></p>
+<p><span class="eqno">(10)</span><img src="../_images/math/431e161ff4b9809bc8be91bd570d8dce545462f6.png" alt="\bar{\theta}_p = \bar{\theta}_{p-1} + \frac{\pi}{2 \cdot P}"/></p>
 </div><div class="math" id="equation-equal-angles-quad-2">
-<p><span class="eqno">(11)</span><img src="../_images/math/bd0b7aed32624eecb734cd25b4ee21da6687ab9e.png" alt="\theta_p = cos^{-1} \bigg\{ \frac{1}{2} \Big[ cos \big(\bar{\theta}_p\big) + cos \big(\bar{\theta}_{p-1}\big) \Big] \bigg\}"/></p>
+<p><span class="eqno">(11)</span><img src="../_images/math/13d7e1e8ec21786e45c2672ace7018ae31fbeee4.png" alt="\theta_p = cos^{-1} \bigg\{ \frac{1}{2} \Big[ cos \big(\bar{\theta}_p\big) + cos \big(\bar{\theta}_{p-1}\big) \Big] \bigg\}"/></p>
 </div><div class="math" id="equation-equal-angles-quad-3">
-<p><span class="eqno">(12)</span><img src="../_images/math/2efbf007c871597fe9d6da08c995596f277ca41c.png" alt="w_p = cos \big(\theta_{p-1}\big) - cos \big(\theta_p\big)"/></p>
-</div><p>The equations for the equal weights quadrature set are the same as the equations for the equal angles quadrature set, except for the recursion relation for the angle boundaries, which is given in <a href="#equation-equal-weights-quad-1">(13)</a>. The angle boundaries also start at <img class="math" src="../_images/math/973fe93e2cb0e327393fff24e1b9369e208d5c38.png" alt="\bar{\theta}_p = 0"/>.</p>
+<p><span class="eqno">(12)</span><img src="../_images/math/921b8477c5fccc063cef7b4341f4e67f30bb65fa.png" alt="w_p = cos \big(\theta_{p-1}\big) - cos \big(\theta_p\big)"/></p>
+</div><p>The equations for the equal weights quadrature set are the same as the equations for the equal angles quadrature set, except for the recursion relation for the angle boundaries, which is given in <a class="reference internal" href="#equation-equal-weights-quad-1">(13)</a>. The angle boundaries also start at <img class="math" src="../_images/math/973fe93e2cb0e327393fff24e1b9369e208d5c38.png" alt="\bar{\theta}_p = 0"/>.</p>
 <div class="math" id="equation-equal-weights-quad-1">
-<p><span class="eqno">(13)</span><img src="../_images/math/ea161e57d7f9bbd99ab841eb597ebbbbb4cac57c.png" alt="\bar{\theta}_p = cos^{-1} \bigg\{ cos \big(\bar{\theta}_{p-1}\big) - \frac{1}{P} \bigg\}"/></p>
-</div><p>Users can also input a custom polar quadrature set by manually setting the weights and sines of the polar angles. The quadrature recommended by <a class="reference internal" href="../usersguide/input.html#yamamoto" id="id8">[Yamamoto]</a> is used by default for the polar angles and weights in OpenMOC. Example code on how to instantiate the different polar quadrature objects is provided in the <a class="reference internal" href="../usersguide/index.html#usersguide"><span class="std std-ref">Users Guide</span></a>.</p>
+<p><span class="eqno">(13)</span><img src="../_images/math/af8ebaca5309c2db21b115711b783f5ff3ff0885.png" alt="\bar{\theta}_p = cos^{-1} \bigg\{ cos \big(\bar{\theta}_{p-1}\big) - \frac{1}{P} \bigg\}"/></p>
+</div><p>Users can also input a custom polar quadrature set by manually setting the weights and sines of the polar angles. The quadrature recommended by <a class="reference internal" href="../usersguide/input.html#yamamoto" id="id9">[Yamamoto]</a> is used by default for the polar angles and weights in OpenMOC. Example code on how to instantiate the different polar quadrature objects is provided in the <a class="reference internal" href="../usersguide/index.html#usersguide"><span class="std std-ref">Users Guide</span></a>.</p>
 </div>
 <div class="section" id="spatial-quadrature">
-<span id="id9"></span><h2>5.4. Spatial Quadrature<a class="headerlink" href="#spatial-quadrature" title="Permalink to this headline">¶</a></h2>
+<span id="id10"></span><h2>5.5. Spatial Quadrature<a class="headerlink" href="#spatial-quadrature" title="Permalink to this headline">¶</a></h2>
 <p>Track segments are used to approximate the area integral across each flat source region. In particular, the effective track spacing <img class="math" src="../_images/math/1dbc2995109c7b885a09dd00ce6f7e7ad1b31e62.png" alt="t_{s,m,eff}"/> defines the quadrature weights used in the spatial integral in the transport equation.</p>
-<div class="math">
-<p><span class="eqno">(14)</span><img src="../_images/math/0021636b2dadcc75cad0d52683eb98e96bfd8946.png" alt="\forall \; m \in \{1, ..., M\} \;\;,\;\; \forall \; k \in K(m) \;\;\;\; w_{k} = t_{s,m,eff}"/></p>
+<div class="math" id="equation-methods-track-generation-0">
+<p><span class="eqno">(14)</span><img src="../_images/math/3acecfed54731a3369f7357ed58c13f3e783924c.png" alt="\forall \; m \in \{1, ..., M\} \;\;,\;\; \forall \; k \in K(m) \;\;\;\; w_{k} = t_{s,m,eff}"/></p>
 </div></div>
 <div class="section" id="ray-tracing">
-<span id="id10"></span><h2>5.5. Ray Tracing<a class="headerlink" href="#ray-tracing" title="Permalink to this headline">¶</a></h2>
+<span id="id11"></span><h2>5.6. Ray Tracing<a class="headerlink" href="#ray-tracing" title="Permalink to this headline">¶</a></h2>
 <p>Ray tracing is a technique for computing the intersection points of trajectories with surfaces. The image processing and graphics communities have been the primary users and developers of ray tracing techniques over the years, and a subset of these algorithms have been applied to neutron transport. In the case of the method of characteristics, ray tracing is used to intersect characteristic tracks with the surfaces used to make up a model. In particular, ray tracing is used to compute the length <img class="math" src="../_images/math/c2fb4423e3b9e4f8e1799b5e2b124498f60a5e45.png" alt="l_{k,i}"/> of a segment for track <img class="math" src="../_images/math/e9203da50e1059455123460d4e716c9c7f440cc3.png" alt="k"/> across each flat source region <img class="math" src="../_images/math/a581f053bbfa5115f42c13094857cdd12a37ec49.png" alt="i"/>.</p>
-<p>The primary computation in ray tracing for MOC is to take a track segment&#8217;s starting location <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> and direction vector <img class="math" src="../_images/math/1f59d75a7396b110ca07515a8a7fad245829600c.png" alt="\hat{u}"/> and compute the distance that the track spans across a given cell. The <em>track segmentation</em> process repeatedly performs this computation for each track from its start to end point on the boundaries of the geometry. There are four primary operations that one must be able to perform to ray trace a track across the geometry:</p>
+<p>The primary computation in ray tracing for MOC is to take a track segment’s starting location <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> and direction vector <img class="math" src="../_images/math/1f59d75a7396b110ca07515a8a7fad245829600c.png" alt="\hat{u}"/> and compute the distance that the track spans across a given cell. The <em>track segmentation</em> process repeatedly performs this computation for each track from its start to end point on the boundaries of the geometry. There are four primary operations that one must be able to perform to ray trace a track across the geometry:</p>
 <ul class="simple">
 <li>Determine which universe the starting point <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> resides in</li>
 <li>Determine which cell the starting point <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> resides in</li>
@@ -123,69 +120,79 @@
 </ul>
 <p>The following four sections describe each of the algorithms used to perform each of these four ray tracing operations in OpenMOC.</p>
 <div class="section" id="universe-finding-algorithm">
-<span id="id11"></span><h3>5.5.1. Universe-Finding Algorithm<a class="headerlink" href="#universe-finding-algorithm" title="Permalink to this headline">¶</a></h3>
-<p>The first algorithm needed for track segmentation is the ability to find the universe corresponding to a given location <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/>. The universe-finding algorithm used in OpenMOC is described in <a class="reference internal" href="#algorithm-find-universe"><span class="std std-ref">Algorithm 1</span></a>. This algorithm requires the location <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> input along with the outermost lattice <img class="math" src="../_images/math/0a5711c7a37994043b2bc3bb374adca232491762.png" alt="L"/> in the model. The algorithm computes the lattice cell in which <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> resides and either returns the universe filling that lattice cell, or recursively calls itself using the lattice filling the lattice cell. In the latter case, the coordinates of the location <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> must first be translated to the <em>local coordinate system</em> within the lattice cell, as reflected in <a class="reference internal" href="#algorithm-find-universe"><span class="std std-ref">Algorithm 1</span></a>. The algorithm completes by returning the universe along with the coordinates of the location within the universe&#8217;s local coordinate system.</p>
-<div class="align-center figure" id="id15">
+<span id="id12"></span><h3>5.6.1. Universe-Finding Algorithm<a class="headerlink" href="#universe-finding-algorithm" title="Permalink to this headline">¶</a></h3>
+<p>The first algorithm needed for track segmentation is the ability to find the universe corresponding to a given location <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/>. The universe-finding algorithm used in OpenMOC is described in <a class="reference internal" href="#algorithm-find-universe"><span class="std std-ref">Algorithm 1</span></a>. This algorithm requires the location <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> input along with the outermost lattice <img class="math" src="../_images/math/0a5711c7a37994043b2bc3bb374adca232491762.png" alt="L"/> in the model. The algorithm computes the lattice cell in which <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> resides and either returns the universe filling that lattice cell, or recursively calls itself using the lattice filling the lattice cell. In the latter case, the coordinates of the location <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> must first be translated to the <em>local coordinate system</em> within the lattice cell, as reflected in <a class="reference internal" href="#algorithm-find-universe"><span class="std std-ref">Algorithm 1</span></a>. The algorithm completes by returning the universe along with the coordinates of the location within the universe’s local coordinate system.</p>
+<div class="align-center figure" id="id17">
 <span id="algorithm-find-universe"></span><a class="reference internal image-reference" href="../_images/find-universe-algorithm.png"><img alt="../_images/find-universe-algorithm.png" src="../_images/find-universe-algorithm.png" style="width: 900px;" /></a>
 <p class="caption"><span class="caption-text"><strong>Algorithm 1</strong>: Universe-finding algorithm.</span></p>
 </div>
 <p><a class="reference internal" href="#figure-nested-lattice-coordinates"><span class="std std-ref">Figure 3</span></a> illustrates one possible model with two <em>nested lattices</em> and the local coordinate transformations made using this algorithm. Here, <img class="math" src="../_images/math/1cc1f1fcabdfac29dbf924b2d676a9127ac23124.png" alt="n_{x}"/> and <img class="math" src="../_images/math/b724942c3d198b9ff61126a443d743ea717599dd.png" alt="n_{y}"/> represent the number of lattice cells along the <img class="math" src="../_images/math/188c175aac0a8a9c22499336711b5d7256407254.png" alt="x"/> and <img class="math" src="../_images/math/b124ff74afb0914bb434e8fb849eb56d734412f8.png" alt="y"/> axes, while <img class="math" src="../_images/math/cbb80ad77aa7a5e227d5a46bc44d235284106cfc.png" alt="h"/> and <img class="math" src="../_images/math/8659700e6646cd91bc02c32affaa5ec046ee9935.png" alt="w"/> represent the total height and width of the lattice, respectively. Numerical subscripts are used to identify the appropriate lattice level.</p>
-<div class="align-center figure" id="id16">
+<div class="align-center figure" id="id18">
 <span id="figure-nested-lattice-coordinates"></span><a class="reference internal image-reference" href="../_images/nested-coordinates.png"><img alt="../_images/nested-coordinates.png" src="../_images/nested-coordinates.png" style="width: 400px;" /></a>
 <p class="caption"><span class="caption-text"><strong>Figure 3</strong>: Local coordinates within nested lattices.</span></p>
 </div>
 <p>The reader should note that this algorithm assumes that <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> is within the bounds of the lattice. In practice, a significant amount of error checking is involved to ensure that this algorithm is robust to user input as well as floating point roundoff errors from the coordinate transformations at each recursive call.</p>
 </div>
 <div class="section" id="cell-finding-algorithm">
-<span id="id12"></span><h3>5.5.2. Cell-Finding Algorithm<a class="headerlink" href="#cell-finding-algorithm" title="Permalink to this headline">¶</a></h3>
+<span id="id13"></span><h3>5.6.2. Cell-Finding Algorithm<a class="headerlink" href="#cell-finding-algorithm" title="Permalink to this headline">¶</a></h3>
 <p>The second algorithm needed for track segmentation is the ability to find the cell corresponding to a given location <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/>. The cell-finding algorithm is described in <a class="reference internal" href="#algorithm-find-cell"><span class="std std-ref">Algorithm 2</span></a>. The algorithm first finds the universe <img class="math" src="../_images/math/e5fc41b391867da81606413e3389c7efc73abaf0.png" alt="u"/> in which <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> resides using <a class="reference internal" href="#algorithm-find-universe"><span class="std std-ref">Algorithm 1</span></a>. Next, the algorithm loops over all cells in the universe <img class="math" src="../_images/math/6847f7a46922adc712a70807642f99ac21c4fe11.png" alt="c \in u"/>. For each cell <img class="math" src="../_images/math/65868d23a5bfe5b3b2d819386b19c14fa36af134.png" alt="c"/>, the algorithm iterates over each surface <img class="math" src="../_images/math/030ca9e9132e5293b43b937ca6690f0b5702d7f0.png" alt="s \in c"/> and multiplies the halfspace of the surface in the cell <img class="math" src="../_images/math/b6ba45884c4d4c9474aef3b723242c5f6b6bc762.png" alt="Hf(c,s) = \pm 1"/> with the potential function evaluated at the point of interest <img class="math" src="../_images/math/824c89467322fbc9f8e878fe88c7adfba6cd73a6.png" alt="f_{s}(x,y)"/>. There are three possible outcomes from this computation:</p>
 <div class="math" id="equation-halfspace-evaluation-1">
-<p><span class="eqno">(15)</span><img src="../_images/math/cb48e69ce73658d2beca6a46f4ca58e38975dfaf.png" alt="sgn(Hf(c,s) \times f_{s}(x,y)) = +1 &amp; \; \Rightarrow \;\; \text{$(x,y)$ is in the halfspace}"/></p>
+<p><span class="eqno">(15)</span><img src="../_images/math/24a0f16dfd77f51f007300fe9b9c5320e5268701.png" alt="sgn(Hf(c,s) \times f_{s}(x,y)) = +1 &amp; \; \Rightarrow \;\; \text{$(x,y)$ is in the halfspace}"/></p>
 </div><div class="math" id="equation-halfspace-evaluation-2">
-<p><span class="eqno">(16)</span><img src="../_images/math/f2df45e29ef988bc8cdcaab137d24a4be4531ff3.png" alt="sgn(Hf(c,s) \times f_{s}(x,y)) = 0 &amp; \; \Rightarrow \;\; \text{$(x,y)$ is on the surface}"/></p>
+<p><span class="eqno">(16)</span><img src="../_images/math/447f0be2a2973e9adbfe04dd72ea9897ad6d4741.png" alt="sgn(Hf(c,s) \times f_{s}(x,y)) = 0 &amp; \; \Rightarrow \;\; \text{$(x,y)$ is on the surface}"/></p>
 </div><div class="math" id="equation-halfspace-evaluation-3">
-<p><span class="eqno">(17)</span><img src="../_images/math/4cf5c27dc1da7de3beb4f01d16369b0acfad96ff.png" alt="sgn(Hf(c,s) \times f_{s}(x,y)) = -1 &amp; \; \Rightarrow \;\; \text{$(x,y)$ is in the opposite halfspace}"/></p>
+<p><span class="eqno">(17)</span><img src="../_images/math/405e544980a63dc28bb9736f2918c4658eb680b3.png" alt="sgn(Hf(c,s) \times f_{s}(x,y)) = -1 &amp; \; \Rightarrow \;\; \text{$(x,y)$ is in the opposite halfspace}"/></p>
 </div><p>For simplicity, the assumption is made that the point <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> is not on any surface in the geometry, or more formally, <img class="math" src="../_images/math/b7145e4d647e1e62bc6178c2721d54936933a919.png" alt="\forall \; s \;\; f_{s}(x,y) \neq 0"/>. If any cell is found in which the potential evaluated at <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> and the halfspace of the corresponding surface each have the same sign for all surfaces in the cell, then the point <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> uniquely resides in the cell and it is returned by the algorithm.</p>
 <p>The reader should note that <img class="math" src="../_images/math/2896029bf849ce5906696aa3cd43c9e0e3b064ef.png" alt="L_{base}"/> in the following algorithm refers to the base lattice or universe that is used to encapsulate the outermost level of the geometry.</p>
-<div class="align-center figure" id="id17">
+<div class="align-center figure" id="id19">
 <span id="algorithm-find-cell"></span><a class="reference internal image-reference" href="../_images/find-cell-algorithm.png"><img alt="../_images/find-cell-algorithm.png" src="../_images/find-cell-algorithm.png" style="width: 900px;" /></a>
 <p class="caption"><span class="caption-text"><strong>Algorithm 2</strong>: Cell-finding algorithm.</span></p>
 </div>
 </div>
 <div class="section" id="distance-to-nearest-surface-algorithm">
-<span id="surface-distance-algorithm"></span><h3>5.5.3. Distance-to-Nearest Surface Algorithm<a class="headerlink" href="#distance-to-nearest-surface-algorithm" title="Permalink to this headline">¶</a></h3>
+<span id="surface-distance-algorithm"></span><h3>5.6.3. Distance-to-Nearest Surface Algorithm<a class="headerlink" href="#distance-to-nearest-surface-algorithm" title="Permalink to this headline">¶</a></h3>
 <p>The third algorithm that is needed for ray tracing is used to find the distance to the nearest surface to <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> along the trajectory vector <img class="math" src="../_images/math/976c654a0f1ab8febd8371ae77e428960e8b4506.png" alt="\hat{n}"/>. This algorithm builds upon each of the previous two as it only evaluates surfaces bounding the cell in which <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> resides.</p>
 <p>The distance-to-nearest surface algorithm is described in <a class="reference internal" href="#algorithm-minimum-surface-distance"><span class="std std-ref">Algorithm 3</span></a>. The algorithm simply iterates over each surface <img class="math" src="../_images/math/6859317dd1b439cef34131bcd4bafee8393444e0.png" alt="s"/> in the cell <img class="math" src="../_images/math/65868d23a5bfe5b3b2d819386b19c14fa36af134.png" alt="c"/> and solves for the distance(s) to the surface. The algorithm keeps track of the minimum distance <img class="math" src="../_images/math/e404cab934c61364d1a6a3a9be12eae530d8d7f1.png" alt="d_{min}"/> it has evaluated to a surface at each step and returns the final value after iterating through all of the surfaces.</p>
-<div class="align-center figure" id="id18">
+<div class="align-center figure" id="id20">
 <span id="algorithm-minimum-surface-distance"></span><a class="reference internal image-reference" href="../_images/min-surf-dist-algorithm.png"><img alt="../_images/min-surf-dist-algorithm.png" src="../_images/min-surf-dist-algorithm.png" style="width: 900px;" /></a>
 <p class="caption"><span class="caption-text"><strong>Algorithm 3</strong>: Minimum surface distance algorithm.</span></p>
 </div>
 </div>
 <div class="section" id="next-intersection-point-algorithm">
-<span id="id13"></span><h3>5.5.4. Next Intersection Point Algorithm<a class="headerlink" href="#next-intersection-point-algorithm" title="Permalink to this headline">¶</a></h3>
+<span id="id14"></span><h3>5.6.4. Next Intersection Point Algorithm<a class="headerlink" href="#next-intersection-point-algorithm" title="Permalink to this headline">¶</a></h3>
 <p>The final algorithm needed for ray tracing is to compute the intersection point of a point <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> along a trajectory vector <img class="math" src="../_images/math/1f59d75a7396b110ca07515a8a7fad245829600c.png" alt="\hat{u}"/> with the nearest surface. The preceding algorithm is used to compute the parametrized distance to the intersection. This algorithm simply adds the parametrized distance multiplied by the trajectory vector to <img class="math" src="../_images/math/5f81ea407dc24031569231ab2cd28222176f38ca.png" alt="(x,y)"/> as described in <a class="reference internal" href="#algorithm-next-intersection-point"><span class="std std-ref">Algorithm 4</span></a>.</p>
-<div class="align-center figure" id="id19">
+<div class="align-center figure" id="id21">
 <span id="algorithm-next-intersection-point"></span><a class="reference internal image-reference" href="../_images/next-intersection-point-algorithm.png"><img alt="../_images/next-intersection-point-algorithm.png" src="../_images/next-intersection-point-algorithm.png" style="width: 900px;" /></a>
 <p class="caption"><span class="caption-text"><strong>Algorithm 4</strong>: Find nearest surface intersection point algorithm.</span></p>
 </div>
 </div>
 <div class="section" id="track-segmentation-algorithm">
-<span id="track-segmentation"></span><h3>5.5.5. Track Segmentation Algorithm<a class="headerlink" href="#track-segmentation-algorithm" title="Permalink to this headline">¶</a></h3>
-<p>Each of the preceding algorithms collectively define all of the logic that is necessary for ray tracing in the constructive solid geometry formulation. <a class="reference internal" href="#algorithm-ray-tracing"><span class="std std-ref">Algorithm 5</span></a> defines the complete process of track segmentation for each track in the geometry. The algorithm defines a nested loop over all azimuthal angles <img class="math" src="../_images/math/c4bb40dd65eae6c11b325989b14e0b8d35e4e3ef.png" alt="m"/> and tracks <img class="math" src="../_images/math/e9203da50e1059455123460d4e716c9c7f440cc3.png" alt="k"/>. For each track, the algorithm begins with the track starting location and trajectory vector and ray traces across the geometry by computing intersection points with each surface along the trajectory&#8217;s path. At each step, the length of each track segment in each cell (FSR) is computed and a pair of the segment length <img class="math" src="../_images/math/c2fb4423e3b9e4f8e1799b5e2b124498f60a5e45.png" alt="l_{k,i}"/> and flat source region index <img class="math" src="../_images/math/a581f053bbfa5115f42c13094857cdd12a37ec49.png" alt="i"/> is appended to an ordered list of track segments within the track.</p>
+<span id="track-segmentation"></span><h3>5.6.5. Track Segmentation Algorithm<a class="headerlink" href="#track-segmentation-algorithm" title="Permalink to this headline">¶</a></h3>
+<p>Each of the preceding algorithms collectively define all of the logic that is necessary for ray tracing in the constructive solid geometry formulation. <a class="reference internal" href="#algorithm-ray-tracing"><span class="std std-ref">Algorithm 5</span></a> defines the complete process of track segmentation for each track in the geometry. The algorithm defines a nested loop over all azimuthal angles <img class="math" src="../_images/math/c4bb40dd65eae6c11b325989b14e0b8d35e4e3ef.png" alt="m"/> and tracks <img class="math" src="../_images/math/e9203da50e1059455123460d4e716c9c7f440cc3.png" alt="k"/>. For each track, the algorithm begins with the track starting location and trajectory vector and ray traces across the geometry by computing intersection points with each surface along the trajectory’s path. At each step, the length of each track segment in each cell (FSR) is computed and a pair of the segment length <img class="math" src="../_images/math/c2fb4423e3b9e4f8e1799b5e2b124498f60a5e45.png" alt="l_{k,i}"/> and flat source region index <img class="math" src="../_images/math/a581f053bbfa5115f42c13094857cdd12a37ec49.png" alt="i"/> is appended to an ordered list of track segments within the track.</p>
 <p>This algorithm relies upon the use of a small numerical parameter <img class="math" src="../_images/math/19bc0073dde1bcd1a8e6a32b251e80cced668f04.png" alt="\epsilon"/> which is typically chosen to be <img class="math" src="../_images/math/269435a5d5273bd7237630944032e7b2e8f9ac59.png" alt="10^{-6}"/> for single precision and <img class="math" src="../_images/math/a2fef5208f519a2c91c8bfbbfe1c9bd7fc93b983.png" alt="10^{-12}"/> for double precision floating point numbers. This parameter allows the end point for each track segment to be perturbed slightly to force it to lie within the adjacent cell in order to meet the assumption that no point lies directly on a surface (declared in order for <a class="reference internal" href="#algorithm-find-cell"><span class="std std-ref">Algorithm 5</span></a> to perform properly).</p>
-<div class="align-center figure" id="id20">
+<div class="align-center figure" id="id22">
 <span id="algorithm-ray-tracing"></span><a class="reference internal image-reference" href="../_images/ray-tracing-algorithm.png"><img alt="../_images/ray-tracing-algorithm.png" src="../_images/ray-tracing-algorithm.png" style="width: 900px;" /></a>
 <p class="caption"><span class="caption-text"><strong>Algorithm 5</strong>: Track segmentation algorithm.</span></p>
 </div>
 </div>
 </div>
+<div class="section" id="on-the-fly-ray-tracing">
+<span id="otf-ray-tracing"></span><h2>5.7. On-The-Fly Ray Tracing<a class="headerlink" href="#on-the-fly-ray-tracing" title="Permalink to this headline">¶</a></h2>
+<p>Most MOC solvers generate tracks &amp; segments, save them in memory, then solve the MOC equations over the segments. For 3D simulations, the memory cost would be prohibitive. OpenMOC proposes two On-The-Fly approaches to 3D track generation. 3D tracks are generated from a corresponding 2D track as show in <a class="reference internal" href="#otf-rt"><span class="std std-ref">Figure 4</span></a>. Only the segment information from the 2D track and the index of the 3D track is required to generate the 3D track on-the-fly and find its intersections with the geometry to form segments. One approach generates a full 3D track, which crosses the entire geometry, then solves the MOC equations along it, and the other generates a full 3D stack of tracks before solving the MOC equations.</p>
+<p>Stacked tracks can be generated when the geometry is axially extruded, which means that all cell surfaces are either parallel or perpendicular to the Z-direction. This particular configuration simplifies ray tracing, allowing for increased performance.</p>
+<div class="align-center figure" id="id23">
+<span id="otf-rt"></span><a class="reference internal image-reference" href="../_images/ray-tracing-3d-track_cycles.png"><img alt="../_images/ray-tracing-3d-track_cycles.png" src="../_images/ray-tracing-3d-track_cycles.png" style="width: 400px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Figure 4</strong>: 3D tracks generated from a 2D track</span></p>
+</div>
+<p>More details on On-The-Fly ray tracing can be found in <a href="#id24"><span class="problematic" id="id25">`G. Gunow PhD Thesis`_</span></a>.</p>
+</div>
 <div class="section" id="references">
-<h2>5.6. References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<h2>5.8. References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
 <table class="docutils citation" frame="void" id="cacuci" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[Cacuci]</td><td><em>(<a class="fn-backref" href="#id5">1</a>, <a class="fn-backref" href="#id7">2</a>)</em> <ol class="last upperalpha simple" start="4">
-<li>Cacuci, et. al. &#8220;Handbook of Nuclear Engineering&#8221; <em>Springer Science+Business Media</em>, New York, NY, pp. 1111-1113 (2010).</li>
+<tr><td class="label">[Cacuci]</td><td><em>(<a class="fn-backref" href="#id6">1</a>, <a class="fn-backref" href="#id8">2</a>)</em> <ol class="last upperalpha simple" start="4">
+<li>Cacuci, et. al. “Handbook of Nuclear Engineering” <em>Springer Science+Business Media</em>, New York, NY, pp. 1111-1113 (2010).</li>
 </ol>
 </td></tr>
 </tbody>
@@ -206,18 +213,20 @@
   <ul>
 <li><a class="reference internal" href="#">5. Track Generation</a><ul>
 <li><a class="reference internal" href="#cyclic-tracks">5.1. Cyclic Tracks</a></li>
-<li><a class="reference internal" href="#azimuthal-angle-quadrature">5.2. Azimuthal Angle Quadrature</a></li>
-<li><a class="reference internal" href="#polar-angle-quadrature">5.3. Polar Angle Quadrature</a></li>
-<li><a class="reference internal" href="#spatial-quadrature">5.4. Spatial Quadrature</a></li>
-<li><a class="reference internal" href="#ray-tracing">5.5. Ray Tracing</a><ul>
-<li><a class="reference internal" href="#universe-finding-algorithm">5.5.1. Universe-Finding Algorithm</a></li>
-<li><a class="reference internal" href="#cell-finding-algorithm">5.5.2. Cell-Finding Algorithm</a></li>
-<li><a class="reference internal" href="#distance-to-nearest-surface-algorithm">5.5.3. Distance-to-Nearest Surface Algorithm</a></li>
-<li><a class="reference internal" href="#next-intersection-point-algorithm">5.5.4. Next Intersection Point Algorithm</a></li>
-<li><a class="reference internal" href="#track-segmentation-algorithm">5.5.5. Track Segmentation Algorithm</a></li>
+<li><a class="reference internal" href="#modular-ray-tracing">5.2. Modular Ray Tracing</a></li>
+<li><a class="reference internal" href="#azimuthal-angle-quadrature">5.3. Azimuthal Angle Quadrature</a></li>
+<li><a class="reference internal" href="#polar-angle-quadrature">5.4. Polar Angle Quadrature</a></li>
+<li><a class="reference internal" href="#spatial-quadrature">5.5. Spatial Quadrature</a></li>
+<li><a class="reference internal" href="#ray-tracing">5.6. Ray Tracing</a><ul>
+<li><a class="reference internal" href="#universe-finding-algorithm">5.6.1. Universe-Finding Algorithm</a></li>
+<li><a class="reference internal" href="#cell-finding-algorithm">5.6.2. Cell-Finding Algorithm</a></li>
+<li><a class="reference internal" href="#distance-to-nearest-surface-algorithm">5.6.3. Distance-to-Nearest Surface Algorithm</a></li>
+<li><a class="reference internal" href="#next-intersection-point-algorithm">5.6.4. Next Intersection Point Algorithm</a></li>
+<li><a class="reference internal" href="#track-segmentation-algorithm">5.6.5. Track Segmentation Algorithm</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#references">5.6. References</a></li>
+<li><a class="reference internal" href="#on-the-fly-ray-tracing">5.7. On-The-Fly Ray Tracing</a></li>
+<li><a class="reference internal" href="#references">5.8. References</a></li>
 </ul>
 </li>
 </ul>
@@ -231,18 +240,20 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/methods/track_generation.txt"
+      <li><a href="../_sources/methods/track_generation.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -261,14 +272,14 @@
         <li class="right" >
           <a href="constructive_solid_geometry.html" title="4. Constructive Solid Geometry"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" >Theory and Methodology</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Theory and Methodology</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
+        &#169; Copyright 2012-2019, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
     </div>
 <script type="text/javascript">
 

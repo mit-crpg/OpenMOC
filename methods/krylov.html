@@ -1,34 +1,23 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>7. Krylov Subspace Methods &mdash; OpenMOC Documentation</title>
-    
+    <title>8. Krylov Subspace Methods &#8212; OpenMOC Documentation</title>
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.1.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
-    <link rel="up" title="Theory and Methodology" href="index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="User’s Guide" href="../usersguide/index.html" />
-    <link rel="prev" title="6. Coarse Mesh Finite Difference Acceleration" href="cmfd.html" /> 
-  </head>
-  <body role="document">
+    <link rel="prev" title="7. Coarse Mesh Finite Difference Acceleration" href="cmfd.html" /> 
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -39,10 +28,10 @@
           <a href="../usersguide/index.html" title="User’s Guide"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="cmfd.html" title="6. Coarse Mesh Finite Difference Acceleration"
+          <a href="cmfd.html" title="7. Coarse Mesh Finite Difference Acceleration"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Theory and Methodology</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Theory and Methodology</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -52,35 +41,35 @@
           <div class="body" role="main">
             
   <div class="section" id="krylov-subspace-methods">
-<span id="krylov"></span><h1>7. Krylov Subspace Methods<a class="headerlink" href="#krylov-subspace-methods" title="Permalink to this headline">¶</a></h1>
+<span id="krylov"></span><h1>8. Krylov Subspace Methods<a class="headerlink" href="#krylov-subspace-methods" title="Permalink to this headline">¶</a></h1>
 <p>The MOC equations are traditionally solved using a non-linear power iteration method.  This is not the only way to solve MOC, but many of the alternatives require the equations to be rewritten in a linear fashion.  To convert into a linear operator form, we need to essentially repeat the derivation shown in <a class="reference internal" href="method_of_characteristics.html#method-of-characteristics"><span class="std std-ref">Section 2</span></a>, with a slight modification.  Starting with the Boltzmann transport equation:</p>
 <div class="math">
-<p><img src="../_images/math/eeb04eaba8d4160405abbe3ae29e475f7460c097.png" alt="\mathbf{\Omega} \cdot \nabla \Psi(\mathbf{r},\mathbf{\Omega},E) + \Sigma^T(\mathbf{r},E)\Psi(\mathbf{r},\mathbf{\Omega},E) = \int_{0}^{\infty} \mathrm{d}E' \int_{4\pi} \mathrm{d}\mathbf{\Omega'}\Sigma^S(\mathbf{r},{\mathbf{\Omega'}\rightarrow\mathbf{\Omega}},{E'\rightarrow E}) \Psi(\mathbf{r},\mathbf{\Omega'},E') + \frac{\chi(\mathbf{r},E)}{4\pi k_{eff}} \int_{0}^{\infty} \mathrm{d}E' \nu\Sigma^F(\mathbf{r},E') \int_{4\pi} \mathrm{d}\mathbf{\Omega'}\Psi(\mathbf{r},\mathbf{\Omega'},E')"/></p>
+<p><img src="../_images/math/f21cfaa802d25b74bd98a5d029a3344641b3323d.png" alt="\mathbf{\Omega} \cdot \nabla \Psi(\mathbf{r},\mathbf{\Omega},E) + \Sigma^T(\mathbf{r},E)\Psi(\mathbf{r},\mathbf{\Omega},E) = \int_{0}^{\infty} \mathrm{d}E' \int_{4\pi} \mathrm{d}\mathbf{\Omega'}\Sigma^S(\mathbf{r},{\mathbf{\Omega'}\rightarrow\mathbf{\Omega}},{E'\rightarrow E}) \Psi(\mathbf{r},\mathbf{\Omega'},E') + \frac{\chi(\mathbf{r},E)}{4\pi k_{eff}} \int_{0}^{\infty} \mathrm{d}E' \nu\Sigma^F(\mathbf{r},E') \int_{4\pi} \mathrm{d}\mathbf{\Omega'}\Psi(\mathbf{r},\mathbf{\Omega'},E')"/></p>
 </div><p>Instead of replacing the right hand side with <img class="math" src="../_images/math/0cd5641fcb4386e75e61d722611c936b7186b018.png" alt="Q(\mathbf{r}, \mathbf{\Omega}, E)"/>, we replace it with a fission and a scatter source.  The idea is to factor out the eigenvalue.  The resulting source terms are:</p>
 <p><strong>Scatter Source</strong></p>
 <div class="math">
-<p><img src="../_images/math/74240e35a5ebb5b5596a6c02aeae2c112c99f74d.png" alt="Q^S(\mathbf{r}, \mathbf{\Omega}, E) &amp;= \int_{0}^{\infty} \mathrm{d}E' \int_{4\pi} \mathrm{d}\mathbf{\Omega'}\Sigma^S(\mathbf{r},{\mathbf{\Omega'}\rightarrow\mathbf{\Omega}},{E'\rightarrow E}) \Psi(\mathbf{r},\mathbf{\Omega'},E')"/></p>
+<p><img src="../_images/math/0dce4d9a18cf97c4a7c82948c16396a7817d93e3.png" alt="Q^S(\mathbf{r}, \mathbf{\Omega}, E) &amp;= \int_{0}^{\infty} \mathrm{d}E' \int_{4\pi} \mathrm{d}\mathbf{\Omega'}\Sigma^S(\mathbf{r},{\mathbf{\Omega'}\rightarrow\mathbf{\Omega}},{E'\rightarrow E}) \Psi(\mathbf{r},\mathbf{\Omega'},E')"/></p>
 </div><p><strong>Fission Source</strong></p>
 <div class="math">
-<p><img src="../_images/math/990b55ba8d3bbbe067a7229fba7ed7934b2be855.png" alt="\frac{1}{k_\text{eff}} Q^F(\mathbf{r}, \mathbf{\Omega}, E) &amp;= \frac{\chi(\mathbf{r},E)}{4\pi k_\text{eff}} \int_{0}^{\infty} \mathrm{d}E' \nu\Sigma^F(\mathbf{r},E') \int_{4\pi} \mathrm{d}\mathbf{\Omega'}\Psi(\mathbf{r},\mathbf{\Omega'},E')"/></p>
+<p><img src="../_images/math/d6d3d562af76fdc7ea9e84806757d35c99f5a727.png" alt="\frac{1}{k_\text{eff}} Q^F(\mathbf{r}, \mathbf{\Omega}, E) &amp;= \frac{\chi(\mathbf{r},E)}{4\pi k_\text{eff}} \int_{0}^{\infty} \mathrm{d}E' \nu\Sigma^F(\mathbf{r},E') \int_{4\pi} \mathrm{d}\mathbf{\Omega'}\Psi(\mathbf{r},\mathbf{\Omega'},E')"/></p>
 </div><p>Similar to before, the transport equation can be more concisely written as:</p>
 <div class="math">
-<p><img src="../_images/math/b7ba838cc3c17ef3ba387647fdc8d23e1cc02e79.png" alt="\mathbf{\Omega} \cdot \nabla \Psi(\mathbf{r},\mathbf{\Omega},E) + \Sigma^T(\mathbf{r},E)\Psi(\mathbf{r},\mathbf{\Omega},E) =  Q^S(\mathbf{r}, \mathbf{\Omega}, E) +\frac{1}{k_\text{eff}} Q^F(\mathbf{r}, \mathbf{\Omega}, E)"/></p>
+<p><img src="../_images/math/196968fb5e24cf403aaddbeda1eaa35a0dbce5b2.png" alt="\mathbf{\Omega} \cdot \nabla \Psi(\mathbf{r},\mathbf{\Omega},E) + \Sigma^T(\mathbf{r},E)\Psi(\mathbf{r},\mathbf{\Omega},E) =  Q^S(\mathbf{r}, \mathbf{\Omega}, E) +\frac{1}{k_\text{eff}} Q^F(\mathbf{r}, \mathbf{\Omega}, E)"/></p>
 </div><p>From here, we follow the exact same process all the way to the end.  The MOC sweep operator <img class="math" src="../_images/math/a9d30f8e4fc0426c355f60e35bef5f44f45e3c5d.png" alt="\mathcal{T}"/> (explicitly for a vacuum boundary condition, as non-vacuum conditions add another non-linearity) is given by the following equation:</p>
 <div class="math">
-<p><img src="../_images/math/bfe5ea723be58aaebb7c80d2306ffd1b10a88f22.png" alt="\Phi_{i,g} = \mathcal{T}(Q_{i,g}) \Phi_{i,g} &amp;= \frac{4\pi}{\Sigma_{i,g}}\left[Q_{i,g} + \frac{1}{A_i}\displaystyle\sum\limits_{k\in A_{i}}\omega_{m(k)}\omega_{p(k)}\omega_{k}\sin\theta_{p(k)}\Delta\Psi_{k,i,g}(Q_{i,g}) \right]"/></p>
+<p><img src="../_images/math/7edc1edffe9e0d8b9932b26306c94c30ae9ebea2.png" alt="\Phi_{i,g} = \mathcal{T}(Q_{i,g}) \Phi_{i,g} &amp;= \frac{4\pi}{\Sigma_{i,g}}\left[Q_{i,g} + \frac{1}{A_i}\displaystyle\sum\limits_{k\in A_{i}}\omega_{m(k)}\omega_{p(k)}\omega_{k}\sin\theta_{p(k)}\Delta\Psi_{k,i,g}(Q_{i,g}) \right]"/></p>
 </div><p>Since this is the linear Boltzmann transport equation, we can separate the sources (as was done earlier), solve for them separately, and add the results back together.  Each source will generate its own angular fluxes as well.</p>
 <div class="math">
-<p><img src="../_images/math/1a33676a24fa64b30028c318d327a1e27934df69.png" alt="\Phi_{i,g} = \mathcal{T}(Q^S_{i,g}) \Phi_{i,g} + \frac{1}{k_\text{eff}}\mathcal{T}(Q^F_{i,g}) \Phi_{i,g}"/></p>
+<p><img src="../_images/math/0de6d2ee8679f99ecd24a7a1484e28ea726ef30a.png" alt="\Phi_{i,g} = \mathcal{T}(Q^S_{i,g}) \Phi_{i,g} + \frac{1}{k_\text{eff}}\mathcal{T}(Q^F_{i,g}) \Phi_{i,g}"/></p>
 </div><p>One can now view the above equation in the light of linear algebra, as each of these new <img class="math" src="../_images/math/a9d30f8e4fc0426c355f60e35bef5f44f45e3c5d.png" alt="\mathcal{T}"/> operators no longer have any dependence on the eigenvalue, and are themselves linear with respect to the flux.  They can now be treated as linear operators and manipulated.</p>
 <div class="math">
-<p><img src="../_images/math/7f999f0f08160cda96a54922f6942d1e7d9636cf.png" alt="\Phi &amp;= \mathcal{T}(Q^S) \Phi + \frac{1}{k_\text{eff}} \mathcal{T} (Q^F) \Phi"/></p>
+<p><img src="../_images/math/179f32fdeaff2a18f734b780a92e854df323d2ba.png" alt="\Phi &amp;= \mathcal{T}(Q^S) \Phi + \frac{1}{k_\text{eff}} \mathcal{T} (Q^F) \Phi"/></p>
 </div><div class="math">
-<p><img src="../_images/math/ac2cacf43e09e849c49f8282d26ec21c12d16766.png" alt="\Phi &amp;= \mathbf{T}_S \Phi + \frac{1}{k_\text{eff}} \mathbf{T}_F \Phi"/></p>
+<p><img src="../_images/math/2d4782491c0063b138df955f8642aa781b229df2.png" alt="\Phi &amp;= \mathbf{T}_S \Phi + \frac{1}{k_\text{eff}} \mathbf{T}_F \Phi"/></p>
 </div><div class="math">
-<p><img src="../_images/math/bc4c8d0adfefcf64c7b64aa33a83f1c567435be1.png" alt="k_\text{eff}\left(\mathbf{I} - \mathbf{T}_S\right) \Phi &amp;= \mathbf{T}_F \Phi"/></p>
+<p><img src="../_images/math/c9ce0d0bc94ab64e9b300a2b115c446dccc80e1a.png" alt="k_\text{eff}\left(\mathbf{I} - \mathbf{T}_S\right) \Phi &amp;= \mathbf{T}_F \Phi"/></p>
 </div><div class="math">
-<p><img src="../_images/math/9b9bf23e1ce1b05f1d5ced662dce95f43ca841eb.png" alt="k_\text{eff} \Phi &amp;= \left(\mathbf{I} - \mathbf{T}_S\right)^{-1}\mathbf{T}_F \Phi"/></p>
+<p><img src="../_images/math/9749056319aed435a84a89a47ab649f771aa7eee.png" alt="k_\text{eff} \Phi &amp;= \left(\mathbf{I} - \mathbf{T}_S\right)^{-1}\mathbf{T}_F \Phi"/></p>
 </div><p>As each term here is not defined as a matrix, but as a linear operator, any algorithm that operates on it must necessarily only use operator-vector products.  Krylov subspace algorithms, such as the generalized minimal residual method (GMRES) for the inversion, and implicitly restarted Arnoldi iteration (IRAM) for the eigenvalue problem itself, are ideal.  IRAM also gives the added benefit of being able to calculate multiple eigenmodes of the problem, which can be used in stability analysis and dominance ratio calculations.</p>
 </div>
 
@@ -95,25 +84,27 @@
             </a></p>
   <h4>Previous topic</h4>
   <p class="topless"><a href="cmfd.html"
-                        title="previous chapter">6. Coarse Mesh Finite Difference Acceleration</a></p>
+                        title="previous chapter">7. Coarse Mesh Finite Difference Acceleration</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="../usersguide/index.html"
-                        title="next chapter">User&#8217;s Guide</a></p>
+                        title="next chapter">User’s Guide</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/methods/krylov.txt"
+      <li><a href="../_sources/methods/krylov.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -130,16 +121,16 @@
           <a href="../usersguide/index.html" title="User’s Guide"
              >next</a> |</li>
         <li class="right" >
-          <a href="cmfd.html" title="6. Coarse Mesh Finite Difference Acceleration"
+          <a href="cmfd.html" title="7. Coarse Mesh Finite Difference Acceleration"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" >Theory and Methodology</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Theory and Methodology</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
+        &#169; Copyright 2012-2019, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
     </div>
 <script type="text/javascript">
 

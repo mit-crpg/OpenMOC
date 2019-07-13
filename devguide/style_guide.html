@@ -1,34 +1,23 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>6. Style Guide for OpenMOC &mdash; OpenMOC Documentation</title>
-    
+    <title>6. Style Guide for OpenMOC &#8212; OpenMOC Documentation</title>
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.1.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
-    <link rel="up" title="Developer’s Guide" href="index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="7. Documentation" href="documentation.html" />
     <link rel="prev" title="5. Debugging OpenMOC" href="debugging.html" /> 
-  </head>
-  <body role="document">
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -41,8 +30,8 @@
         <li class="right" >
           <a href="debugging.html" title="5. Debugging OpenMOC"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Developer&#8217;s Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Developer’s Guide</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -55,7 +44,8 @@
 <span id="style-guide"></span><h1>6. Style Guide for OpenMOC<a class="headerlink" href="#style-guide-for-openmoc" title="Permalink to this headline">¶</a></h1>
 <p>In order to keep the OpenMOC code base consistent in style, this guide specifies
 a number of rules which should be adhered to when modified existing code or
-adding new code in OpenMC.</p>
+adding new code in OpenMC. This guide should mostly agree with the <a href="#id3"><span class="problematic" id="id4">`Google style guides`_</span></a>
+for Python and C++.</p>
 <div class="section" id="general-rules">
 <h2>6.1. General Rules<a class="headerlink" href="#general-rules" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -69,8 +59,8 @@ adding new code in OpenMC.</p>
 <p>The following describes some of the rules for source code syntax, including the class naming convention, rules for class methods and attributes as well as normal routines and variables.</p>
 <div class="section" id="class-names">
 <h3>6.2.1. Class Names<a class="headerlink" href="#class-names" title="Permalink to this headline">¶</a></h3>
-<p>Class names are <a class="reference external" href="http://en.wikipedia.org/wiki/CamelCase">CamelCase</a> starting with a <strong>capital</strong> letter and without <strong>&#8220;_&#8221;</strong> between words as illustrated in the C++ snippet below:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cm">/* Yes */</span>
+<p>Class names are <a class="reference external" href="http://en.wikipedia.org/wiki/CamelCase">CamelCase</a> starting with a <strong>capital</strong> letter and without <strong>“_”</strong> between words as illustrated in the C++ snippet below:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* Yes */</span>
 <span class="n">class</span> <span class="n">MyClass</span> <span class="p">{</span>
   <span class="p">...</span>
 <span class="p">};</span>
@@ -89,8 +79,8 @@ adding new code in OpenMC.</p>
 </div>
 <div class="section" id="class-methods">
 <h3>6.2.2. Class Methods<a class="headerlink" href="#class-methods" title="Permalink to this headline">¶</a></h3>
-<p>Class methods are <a class="reference external" href="http://en.wikipedia.org/wiki/CamelCase">camelCase</a> starting with a <strong>lowercase</strong> letter and without <strong>&#8220;_&#8221;</strong> between words as illustrated in the Python snippet below:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyClass</span><span class="p">:</span>
+<p>Class methods are <a class="reference external" href="http://en.wikipedia.org/wiki/CamelCase">camelCase</a> starting with a <strong>lowercase</strong> letter and without <strong>“_”</strong> between words as illustrated in the Python snippet below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyClass</span><span class="p">:</span>
 
   <span class="c1"># Yes</span>
   <span class="k">def</span> <span class="nf">getterMethod</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -108,8 +98,8 @@ adding new code in OpenMC.</p>
 </div>
 <div class="section" id="class-attributes">
 <h3>6.2.3. Class Attributes<a class="headerlink" href="#class-attributes" title="Permalink to this headline">¶</a></h3>
-<p>Class attributes are <strong>private</strong> and <strong>lowercase</strong> which start with <strong>&#8220;_&#8221;</strong> and with &#8220;_&#8221; between words as illustrated in the C++ snippet below:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="n">class</span> <span class="n">MyClass</span> <span class="p">{</span>
+<p>Class attributes are <strong>private</strong> and <strong>lowercase</strong> which start with <strong>“_”</strong> and with “_” between words as illustrated in the C++ snippet below:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">class</span> <span class="n">MyClass</span> <span class="p">{</span>
 
   <span class="nl">private</span><span class="p">:</span>
 
@@ -130,8 +120,8 @@ adding new code in OpenMC.</p>
 </div>
 <div class="section" id="function-names">
 <h3>6.2.4. Function Names<a class="headerlink" href="#function-names" title="Permalink to this headline">¶</a></h3>
-<p>Functions (not class methods) are all <strong>lowercase</strong> with <strong>&#8220;_&#8221;</strong> between words as illustrated in the Python snippet below:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Yes</span>
+<p>Functions (not class methods) are all <strong>lowercase</strong> with <strong>“_”</strong> between words as illustrated in the Python snippet below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Yes</span>
 <span class="k">def</span> <span class="nf">my_function</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
   <span class="o">...</span>
 
@@ -147,8 +137,8 @@ adding new code in OpenMC.</p>
 </div>
 <div class="section" id="variable-names">
 <h3>6.2.5. Variable Names<a class="headerlink" href="#variable-names" title="Permalink to this headline">¶</a></h3>
-<p>Temporary variables (e.g. variables defined within the scope of a function) are <strong>lowercase</strong> with <strong>&#8220;_&#8221;</strong> between words as illustrated in the C/C++ snippet below:</p>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">my_function</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span>
+<p>Temporary variables (e.g. variables defined within the scope of a function) are <strong>lowercase</strong> with <strong>“_”</strong> between words as illustrated in the C/C++ snippet below:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">my_function</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span>
 
   <span class="cm">/* Yes */</span>
   <span class="kt">int</span> <span class="n">first_variable</span><span class="p">;</span>
@@ -172,7 +162,7 @@ adding new code in OpenMC.</p>
 <ul class="simple">
 <li><strong>C/C++ functions</strong> should be preceded by Doxygen-style comments as illustrated in the following code snippet:</li>
 </ul>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/**</span>
 <span class="cm"> * @brief Single precision A*X plus Y</span>
 <span class="cm"> * @details Multiplies single precision vectors a and x and</span>
 <span class="cm"> *          adds vector y. The output vector is stored in y.</span>
@@ -192,7 +182,7 @@ adding new code in OpenMC.</p>
 <ul class="simple">
 <li><strong>C/C++ class</strong> definitions in a header file should be preceded by Doxygen-style comments as illustrated in the following code snippet:</li>
 </ul>
-<div class="highlight-c"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/**</span>
 <span class="cm"> * @file Person.h</span>
 <span class="cm"> * @brief The Person class.</span>
 <span class="cm"> * @date January 23, 2014.</span>
@@ -232,7 +222,7 @@ adding new code in OpenMC.</p>
 <ul class="simple">
 <li><strong>Python functions</strong> should be preceded by Doxygen-style comments as illustrated in the following code snippet:</li>
 </ul>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1">##</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">##</span>
 <span class="c1"># @brief Single precision A*X plus Y</span>
 <span class="c1"># @details Multiplies single precision vectors a and x and</span>
 <span class="c1">#          adds vector y. The output vector is stored in y.</span>
@@ -248,7 +238,7 @@ adding new code in OpenMC.</p>
 <ul class="simple">
 <li><strong>Python classes</strong> should be preceded by Doxygen-style comments as illustrated in the following code snippet:</li>
 </ul>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1">##</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">##</span>
 <span class="c1"># @file Person.py</span>
 <span class="c1"># @brief The Person class.</span>
 <span class="c1"># @date January 23, 2014.</span>
@@ -266,7 +256,7 @@ adding new code in OpenMC.</p>
   <span class="c1">##</span>
   <span class="c1"># @brief The default person constructor.</span>
   <span class="c1"># @return A handle to a person object.</span>
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="n">_name</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="n">_age</span> <span class="o">=</span> <span class="bp">None</span>
 
@@ -303,11 +293,11 @@ adding new code in OpenMC.</p>
 <div class="section" id="indentation">
 <h2>6.5. Indentation<a class="headerlink" href="#indentation" title="Permalink to this headline">¶</a></h2>
 <p>For readability, OpenMOC uses tabs composed of <strong>2 white spaces</strong> per indentation level. For your convenience in adhering to this policy, you may update your text editor (gedit, emacs, vim, etc.) preferences to use a tab width of 2 spaces and to insert spaces instead of tabs. Emacs users should include the following line in their .emacs file:</p>
-<div class="highlight-common-lisp"><div class="highlight"><pre><span></span><span class="p">(</span><span class="nv">setq-default</span> <span class="nv">indent-tabs-mode</span> <span class="no">nil</span><span class="p">)</span>
+<div class="highlight-common-lisp notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="nv">setq-default</span> <span class="nv">indent-tabs-mode</span> <span class="no">nil</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>vim users should include the following line in their .vimrc file:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nb">set</span> <span class="n">expandtab</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span> <span class="n">expandtab</span>
 </pre></div>
 </div>
 </div>
@@ -318,13 +308,13 @@ adding new code in OpenMC.</p>
 <blockquote>
 <div><ul>
 <li><p class="first">In function calls:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Yes</span><span class="p">:</span> <span class="n">myfunc</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">z</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Yes</span><span class="p">:</span> <span class="n">myfunc</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">z</span><span class="p">)</span>
 <span class="n">No</span><span class="p">:</span> <span class="n">myfunc</span> <span class="p">(</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">(</span> <span class="mi">2</span> <span class="p">),</span> <span class="n">z</span> <span class="p">)</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first">In logical expressions, use one space around operators but nowhere else:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Yes</span><span class="p">:</span> <span class="k">if</span><span class="p">(</span><span class="n">variable</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="n">then</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Yes</span><span class="p">:</span> <span class="k">if</span><span class="p">(</span><span class="n">variable</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="n">then</span>
 <span class="n">No</span><span class="p">:</span> <span class="k">if</span> <span class="p">(</span> <span class="n">variable</span><span class="o">==</span><span class="mi">2</span> <span class="p">)</span> <span class="n">then</span>
 </pre></div>
 </div>
@@ -372,18 +362,20 @@ adding new code in OpenMC.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/devguide/style_guide.txt"
+      <li><a href="../_sources/devguide/style_guide.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -402,14 +394,14 @@ adding new code in OpenMC.</p>
         <li class="right" >
           <a href="debugging.html" title="5. Debugging OpenMOC"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" >Developer&#8217;s Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Developer’s Guide</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
+        &#169; Copyright 2012-2019, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
     </div>
 <script type="text/javascript">
 

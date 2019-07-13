@@ -1,14 +1,12 @@
 var Mesh_8h =
 [
     [ "Mesh", "classMesh.html", "classMesh" ],
-    [ "_USE_MATH_DEFINES", "Mesh_8h.html#a525335710b53cb064ca56b936120431e", null ],
-    [ "fluxType", "Mesh_8h.html#a440dd3f1f3e84411806c942ae9df2483", [
-      [ "PRIMAL", "Mesh_8h.html#a440dd3f1f3e84411806c942ae9df2483ab6a6dd2cfc5b8fd6060e8a50573bb3ee", null ],
-      [ "PRIMAL_UPDATE", "Mesh_8h.html#a440dd3f1f3e84411806c942ae9df2483a390d851db41aa374a07e11a4fbbc56f4", null ],
-      [ "ADJOINT", "Mesh_8h.html#a440dd3f1f3e84411806c942ae9df2483a9de8670f73522a2526f9dababeaf852a", null ]
-    ] ],
-    [ "solveType", "Mesh_8h.html#a0cdedba974328b9119267e5e8cf77114", [
-      [ "DIFFUSION", "Mesh_8h.html#a0cdedba974328b9119267e5e8cf77114a64b145492a27539220bb4a4cb95af90c", null ],
-      [ "MOC", "Mesh_8h.html#a0cdedba974328b9119267e5e8cf77114a68bfc3f7998aafb72168d9a1a3545bb9", null ]
+    [ "Vector3D", "Mesh_8h.html#a8f466bde8be5c2dde25f0b09a5327b82", null ],
+    [ "RxType", "Mesh_8h.html#a8ca5a604d8f71fc9cf6ae4b413caf114", [
+      [ "FISSION_RX", "Mesh_8h.html#a8ca5a604d8f71fc9cf6ae4b413caf114a1ed9c784159092a273119fc74d4f873b", null ],
+      [ "NUFISSION_RX", "Mesh_8h.html#a8ca5a604d8f71fc9cf6ae4b413caf114ac1fa1c7c914c622d6c096d7d33ada8f8", null ],
+      [ "TOTAL_RX", "Mesh_8h.html#a8ca5a604d8f71fc9cf6ae4b413caf114ad7fcb95d7ab93cc001223dcc13f171ab", null ],
+      [ "ABSORPTION_RX", "Mesh_8h.html#a8ca5a604d8f71fc9cf6ae4b413caf114a4ac5433ddb830bf28008ce51495ab412", null ],
+      [ "FLUX_RX", "Mesh_8h.html#a8ca5a604d8f71fc9cf6ae4b413caf114ae180d5698f7c3b4cd8d49db211bd7418", null ]
     ] ]
 ];

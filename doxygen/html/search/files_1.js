@@ -4,5 +4,6 @@ var searchData=
   ['clone_2eh',['clone.h',['../clone_8h.html',1,'']]],
   ['cmfd_2eh',['Cmfd.h',['../Cmfd_8h.html',1,'']]],
   ['constants_2eh',['constants.h',['../constants_8h.html',1,'']]],
+  ['cpulssolver_2eh',['CPULSSolver.h',['../CPULSSolver_8h.html',1,'']]],
   ['cpusolver_2eh',['CPUSolver.h',['../CPUSolver_8h.html',1,'']]]
 ];

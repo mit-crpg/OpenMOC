@@ -1,34 +1,41 @@
 \form#0:$ \frac{Q}{\Sigma_t} $
 \form#1:$ \nu $
 \form#2:$ \chi $
-\form#3:$1 / (3 * \Sigma_t)$
-\form#4:$ \hat{D} $
-\form#5:$ \tilde{D} $
-\form#6:$ 4\pi $
-\form#7:$ \frac{1}{4\pi} $
-\form#8:$ \Sigma_a $
-\form#9:$ \Sigma_s $
-\form#10:$ \Sigma_t $
-\form#11:$ k_{eff} $
-\form#12:$ 1 - exp(-\tau/sin(\theta_p)) $
-\form#13:$ E_{0} $
-\form#14:$ E_{1} $
-\form#15:$ \nu\Sigma_{f}(E_{0}) * \chi(E_{1})$
-\form#16:$ \Chi $
-\form#17:$ sin(\theta)$
-\form#18:$ \sin(\theta) $
-\form#19:$ sin\theta_{p} $
-\form#20:$ \nu\Sigma_f\Phi $
-\form#21:$ Sigma_s\Phi $
-\form#22:$ A * x + B * y + C * z + D = 0 $
-\form#23:$ f(x,y) $
-\form#24:$f$
-\form#25:$ \theta \in [0, \pi] $
-\form#26:$ [0, 2\pi] $
-\form#27:$ 2\pi $
-\form#28:$ [0, \pi] $
-\form#29:$ exp(-\frac{\Sigma_t * l}{sin(\theta)}) $
-\form#30:$ l\Sigma_t $
-\form#31:$ 1 - exp(-\frac{l\Sigma_t}{sin(\theta_p)}) $
-\form#32:$ \theta_{p} $
-\form#33:$ \phi $
+\form#3:$[0,2\pi]$
+\form#4:$[0,\pi]$
+\form#5:$1 / (3 * \Sigma_t)$
+\form#6:$ \hat{D} $
+\form#7:$ \tilde{D} $
+\form#8:$ 4\pi $
+\form#9:$ \frac{1}{4\pi} $
+\form#10:$ \Sigma_a $
+\form#11:$ \Sigma_s $
+\form#12:$ \Sigma_t $
+\form#13:$ k_{eff} $
+\form#14:$ E_{0} $
+\form#15:$ E_{1} $
+\form#16:$ \nu\Sigma_{f}(E_{0}) * \chi(E_{1})$
+\form#17:$ \Chi $
+\form#18:$ sin(\theta)$
+\form#19:$ \sin(\theta) $
+\form#20:$ sin\theta_{p} $
+\form#21:$ \theta_{p} $
+\form#22:$ \phi $
+\form#23:$ \nu\Sigma_f\Phi $
+\form#24:$ \Sigma_s\Phi $
+\form#25:$ A * x + B * y + C * z + D = 0 $
+\form#26:$ f(x,y) $
+\form#27:$f$
+\form#28:$ \phi \in [0, 2 \pi] $
+\form#29:$ \phi \in [0, \pi] $
+\form#30:$ \theta \in [0, \pi] $
+\form#31:$ \theta \in [0, \frac{\pi}{2}] $
+\form#32:$ [0, 2\pi] $
+\form#33:$ 2\pi $
+\form#34:$ [0, 2 \pi] $
+\form#35:$ [0, \pi] $
+\form#36:$ \pi $
+\form#37:$ k_{eff} = \frac{\displaystyle\sum_{i \in I} \displaystyle\sum_{g \in G} \nu \Sigma^F_g \Phi V_{i}} {\displaystyle\sum_{i \in I} \displaystyle\sum_{g \in G} (\Sigma^T_g \Phi V_{i} - \Sigma^S_g \Phi V_{i} - L_{i,g})} $
+\form#38:$ exp(-\frac{\Sigma_t * l}{sin(\theta)}) $
+\form#39:$ l\Sigma_t $
+\form#40:$ 1 - exp(-\frac{l\Sigma_t}{sin(\theta_p)}) $
