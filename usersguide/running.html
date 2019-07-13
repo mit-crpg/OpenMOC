@@ -1,34 +1,23 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>5. Running OpenMOC &mdash; OpenMOC Documentation</title>
-    
+    <title>5. Running OpenMOC &#8212; OpenMOC Documentation</title>
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.1.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
-    <link rel="up" title="User’s Guide" href="index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="6. Troubleshooting" href="troubleshoot.html" />
     <link rel="prev" title="4. Data Processing and Visualization" href="processing.html" /> 
-  </head>
-  <body role="document">
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -41,8 +30,8 @@
         <li class="right" >
           <a href="processing.html" title="4. Data Processing and Visualization"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">User&#8217;s Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">User’s Guide</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -57,14 +46,14 @@
 <div class="section" id="running-openmoc-in-the-shell">
 <h2>5.1. Running OpenMOC in the Shell<a class="headerlink" href="#running-openmoc-in-the-shell" title="Permalink to this headline">¶</a></h2>
 <p>If you wish to run your code from the shell, simply type the following in the console:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">your</span><span class="o">-</span><span class="n">script</span><span class="o">.</span><span class="n">py</span> <span class="o">&lt;</span><span class="n">option1</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">option2</span><span class="o">&gt;</span> <span class="o">...</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">your</span><span class="o">-</span><span class="n">script</span><span class="o">.</span><span class="n">py</span> <span class="o">&lt;</span><span class="n">option1</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">option2</span><span class="o">&gt;</span> <span class="o">...</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="submitting-a-torque-job">
 <h2>5.2. Submitting a <a class="reference external" href="http://www.adaptivecomputing.com/products/open-source/torque/">TORQUE</a> Job<a class="headerlink" href="#submitting-a-torque-job" title="Permalink to this headline">¶</a></h2>
 <p>To schedule a job to run your code on a cluster using the TORQUE job scheduler, you will need to write a submission script. This script will need to specify the desired compute resources (number of nodes and processors per node), the maximum walltime, among <a class="reference external" href="https://www.osc.edu/supercomputing/batch-processing-at-osc/pbs-directives-summary">other flags</a>. An example script requesting a single node with 12 cores for one hour is presented below:</p>
-<div class="highlight-guess"><div class="highlight"><pre><span></span><span class="ch">#!/bin/sh</span>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/sh</span>
 <span class="c1">###################################################</span>
 <span class="c1"># Specify nodes, processors per node and maximum</span>
 <span class="c1"># running time</span>
@@ -87,79 +76,126 @@
 python your-script.py &lt;option1&gt; &lt;option2&gt; ...
 </pre></div>
 </div>
-<p>To submit this script (<code class="docutils literal"><span class="pre">my-job.pbs</span></code>) your job to TORQUE, simply use the following command in the console:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">qsub</span> <span class="n">my</span><span class="o">-</span><span class="n">job</span><span class="o">.</span><span class="n">pbs</span>
+<p>To submit this script (<code class="docutils literal notranslate"><span class="pre">my-job.pbs</span></code>) your job to TORQUE, simply use the following command in the console:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">qsub</span> <span class="n">my</span><span class="o">-</span><span class="n">job</span><span class="o">.</span><span class="n">pbs</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="submitting-a-slurm-job">
+<h2>5.3. Submitting a SLURM Job<a class="headerlink" href="#submitting-a-slurm-job" title="Permalink to this headline">¶</a></h2>
+<p>To schedule a job to run your code on a cluster using the SLURM job scheduler, you will need to write a submission script. This script will need to specify the desired compute resources (number of nodes and processors per node), the maximum walltime, among other flags. An example script requesting a single node with 12 cores for one hour is presented below:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/sh</span>
+<span class="c1">###################################################</span>
+<span class="c1"># Specify nodes, processors per node, maximum</span>
+<span class="c1"># running time and memory</span>
+<span class="c1">###################################################</span>
+
+<span class="c1">#SBATCH -N 1</span>
+<span class="c1">#SBATCH -n 12</span>
+<span class="c1">#SBATCH --time=1:00:00</span>
+<span class="c1">#SBATCH --mem 120000  #in MB</span>
+
+<span class="c1">###################################################</span>
+<span class="c1"># Select partition and customize name of output</span>
+<span class="c1">###################################################</span>
+
+<span class="c1">#SBATCH -p sched_mit_nse</span>
+<span class="c1">#SBATCH -o stderror-%j.out</span>
+
+<span class="c1">###################################################</span>
+<span class="c1"># Run OpenMOC</span>
+<span class="c1">###################################################</span>
+
+python your-script.py &lt;option1&gt; &lt;option2&gt; ...
+</pre></div>
+</div>
+<p>To submit this script (<code class="docutils literal notranslate"><span class="pre">my-job</span></code>) your job to SLURM, simply use the following command in the console:</p>
+<blockquote>
+<div>sbatch my-job</div></blockquote>
+<p>To run your script interactively instead, simply use the following command in the console:</p>
+<blockquote>
+<div>srun -p &lt;partition_name&gt; -I -N 1 –pty -t 0:60:00 –mem 124000 python your-script.py &lt;option1&gt; …</div></blockquote>
 </div>
 <div class="section" id="submitting-a-cobalt-job">
-<h2>5.3. Submitting a <a class="reference external" href="https://www.alcf.anl.gov/user-guides/cobalt-job-control">Cobalt</a> Job<a class="headerlink" href="#submitting-a-cobalt-job" title="Permalink to this headline">¶</a></h2>
+<h2>5.4. Submitting a <a class="reference external" href="https://www.alcf.anl.gov/user-guides/cobalt-job-control">Cobalt</a> Job<a class="headerlink" href="#submitting-a-cobalt-job" title="Permalink to this headline">¶</a></h2>
 <p>Cobalt is a job scheduler that is used on large scale machines at Argonne National Laboratory Leadership Computing Facility (<a class="reference external" href="http://www.alcf.anl.gov/">ALCF</a>), namely the IBM BlueGene machines, such as <a class="reference external" href="https://www.alcf.anl.gov/mira">Mira</a>. To schedule a job to run your code on a cluster using Cobalt, you can submit your job using <strong class="program">qsub</strong> with options to specify the desired compute resources (number of nodes and processors per node), the maximum walltime, etc.</p>
 <p>An example command to request a single node for 20 minutes is presented below:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">qsub</span> <span class="o">-</span><span class="n">A</span> <span class="o">&lt;</span><span class="n">your</span><span class="o">-</span><span class="n">alcf</span><span class="o">-</span><span class="n">account</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">n</span> <span class="mi">1</span> <span class="o">-</span><span class="n">t</span> <span class="mi">20</span> <span class="o">--</span><span class="n">mode</span><span class="o">=</span><span class="n">c1</span> <span class="o">--</span><span class="n">env</span> <span class="n">PYTHONPATH</span><span class="o">=&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">_openmoc</span><span class="o">.</span><span class="n">so</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="nb">any</span><span class="o">-</span><span class="n">other</span><span class="o">-</span><span class="n">openmoc</span><span class="o">-</span><span class="n">shared</span><span class="o">-</span><span class="n">library</span><span class="o">-</span><span class="n">file</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">python</span><span class="o">&gt;/</span><span class="n">python</span> <span class="n">your</span><span class="o">-</span><span class="n">script</span><span class="o">.</span><span class="n">py</span> <span class="o">&lt;</span><span class="n">option1</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">option2</span><span class="o">&gt;</span> <span class="o">...</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">qsub</span> <span class="o">-</span><span class="n">A</span> <span class="o">&lt;</span><span class="n">your</span><span class="o">-</span><span class="n">alcf</span><span class="o">-</span><span class="n">account</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">n</span> <span class="mi">1</span> <span class="o">-</span><span class="n">t</span> <span class="mi">20</span> <span class="o">--</span><span class="n">mode</span><span class="o">=</span><span class="n">c1</span> <span class="o">--</span><span class="n">env</span> <span class="n">PYTHONPATH</span><span class="o">=&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">_openmoc</span><span class="o">.</span><span class="n">so</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="nb">any</span><span class="o">-</span><span class="n">other</span><span class="o">-</span><span class="n">openmoc</span><span class="o">-</span><span class="n">shared</span><span class="o">-</span><span class="n">library</span><span class="o">-</span><span class="n">file</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">python</span><span class="o">&gt;/</span><span class="n">python</span> <span class="n">your</span><span class="o">-</span><span class="n">script</span><span class="o">.</span><span class="n">py</span> <span class="o">&lt;</span><span class="n">option1</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">option2</span><span class="o">&gt;</span> <span class="o">...</span>
 </pre></div>
 </div>
-<p>NOTE: You must specify the path to the location where OpenMOC was installed in the <span class="target" id="index-0"></span><code class="xref std std-envvar docutils literal"><span class="pre">PYTHONPATH</span></code> environment variable. For OpenMOC ditributions built with the <a class="reference internal" href="install.html#cmdoption--user"><code class="xref std std-option docutils literal"><span class="pre">--user</span></code></a> option, this location will be <cite>~/.local/lib/pythonX.X/site-packages/...</cite>. In particular, the <span class="target" id="index-1"></span><code class="xref std std-envvar docutils literal"><span class="pre">PYTHONPATH</span></code> given to <strong class="program">qsub</strong> must include the path to all OpenMOC shared libraries (files with a <code class="docutils literal"><span class="pre">.so</span></code> extension) needed for your script (<em>i.e.</em>, <code class="docutils literal"><span class="pre">_openmoc.so</span></code> for the <code class="docutils literal"><span class="pre">openmoc</span></code> Python module).</p>
+<p>NOTE: You must specify the path to the location where OpenMOC was installed in the <span class="target" id="index-0"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> environment variable. For OpenMOC ditributions built with the <a class="reference internal" href="install.html#cmdoption-user"><code class="xref std std-option docutils literal notranslate"><span class="pre">--user</span></code></a> option, this location will be <cite>~/.local/lib/pythonX.X/site-packages/…</cite>. In particular, the <span class="target" id="index-1"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> given to <strong class="program">qsub</strong> must include the path to all OpenMOC shared libraries (files with a <code class="docutils literal notranslate"><span class="pre">.so</span></code> extension) needed for your script (<em>i.e.</em>, <code class="docutils literal notranslate"><span class="pre">_openmoc.so</span></code> for the <code class="docutils literal notranslate"><span class="pre">openmoc</span></code> Python module).</p>
 </div>
 <div class="section" id="runtime-options">
-<span id="id1"></span><h2>5.4. Runtime Options<a class="headerlink" href="#runtime-options" title="Permalink to this headline">¶</a></h2>
+<span id="id1"></span><h2>5.5. Runtime Options<a class="headerlink" href="#runtime-options" title="Permalink to this headline">¶</a></h2>
 <p>This section provides a brief overview of each of the runtime options that are supported by OpenMOC. The runtime arguments and the method to retrieve them in a Python script are elaborated upon further in <a class="reference internal" href="input.html#simulation-params"><span class="std std-ref">Simulation Parameters</span></a>. Each of these can be passed into your Python script as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">your</span><span class="o">-</span><span class="n">script</span><span class="o">.</span><span class="n">py</span> <span class="o">&lt;</span><span class="n">option1</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">option2</span><span class="o">&gt;</span> <span class="o">...</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">your</span><span class="o">-</span><span class="n">script</span><span class="o">.</span><span class="n">py</span> <span class="o">&lt;</span><span class="n">option1</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">option2</span><span class="o">&gt;</span> <span class="o">...</span>
 </pre></div>
 </div>
 <dl class="option">
 <dt id="cmdoption-h">
-<span id="cmdoption--help"></span><code class="descname">-h</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--help</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-h" title="Permalink to this definition">¶</a></dt>
+<code class="descname">-h</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--help</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-h" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <p>Reports all supported OpenMOC runtime options to the screen.</p>
 <dl class="option">
 <dt id="cmdoption-a">
-<span id="cmdoption--num-azim"></span><code class="descname">-a</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--num-azim</code><code class="descclassname">=&lt;4&gt;</code><a class="headerlink" href="#cmdoption-a" title="Permalink to this definition">¶</a></dt>
+<code class="descname">-a</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--num-azim</code><code class="descclassname">=&lt;4&gt;</code><a class="headerlink" href="#cmdoption-a" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <p>The number of azimuthal angles for ray tracing. The default is 4.</p>
 <dl class="option">
 <dt id="cmdoption-s">
-<span id="cmdoption--track-spacing"></span><code class="descname">-s</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--track-spacing</code><code class="descclassname">=&lt;0.1&gt;</code><a class="headerlink" href="#cmdoption-s" title="Permalink to this definition">¶</a></dt>
+<code class="descname">-s</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--azim-spacing</code><code class="descclassname">=&lt;0.1&gt;</code><a class="headerlink" href="#cmdoption-s" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<p>The track spacing (in cm) for ray tracing. The default is 0.1 cm.</p>
+<p>The track azimuthal spacing (in cm) for ray tracing. The default is 0.1 cm.</p>
+<dl class="option">
+<dt id="cmdoption-p">
+<code class="descname">-p</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--num-polar</code><code class="descclassname">=&lt;6&gt;</code><a class="headerlink" href="#cmdoption-p" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>The number of polar angles for 3D ray tracing. The default is 3/6 (2D/3D).</p>
+<dl class="option">
+<dt id="cmdoption-l">
+<code class="descname">-l</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--polar-spacing</code><code class="descclassname">=&lt;1.5&gt;</code><a class="headerlink" href="#cmdoption-l" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>The track spacing in the axial direction (in cm) for ray tracing. The default is 1.5 cm.</p>
 <dl class="option">
 <dt id="cmdoption-i">
-<span id="cmdoption--max-iters"></span><code class="descname">-i</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--max-iters</code><code class="descclassname">=&lt;1000&gt;</code><a class="headerlink" href="#cmdoption-i" title="Permalink to this definition">¶</a></dt>
+<code class="descname">-i</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--max-iters</code><code class="descclassname">=&lt;1000&gt;</code><a class="headerlink" href="#cmdoption-i" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <p>The maximum number of source convergence iterations. The MOC solvers will execute as many iterations needed to converge the source, up to this limiting value. The default is 1000.</p>
 <dl class="option">
 <dt id="cmdoption-c">
-<span id="cmdoption--tolerance"></span><code class="descname">-c</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--tolerance</code><code class="descclassname">=&lt;1E-5&gt;</code><a class="headerlink" href="#cmdoption-c" title="Permalink to this definition">¶</a></dt>
+<code class="descname">-c</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--tolerance</code><code class="descclassname">=&lt;1E-5&gt;</code><a class="headerlink" href="#cmdoption-c" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <p>The tolerance on the convergence. The default is 1E-5.</p>
 <dl class="option">
 <dt id="cmdoption-t">
-<span id="cmdoption--num-omp-threads"></span><code class="descname">-t</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--num-omp-threads</code><code class="descclassname">=&lt;# CPU cores&gt;</code><a class="headerlink" href="#cmdoption-t" title="Permalink to this definition">¶</a></dt>
+<code class="descname">-t</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--num-omp-threads</code><code class="descclassname">=&lt;# CPU cores&gt;</code><a class="headerlink" href="#cmdoption-t" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<p>The number of OpenMP threads to use. This option only applies to scripts which use OpenMOC&#8217;s <code class="xref cpp cpp-class docutils literal"><span class="pre">CPUSolver</span></code>, or derived classes such as <code class="xref cpp cpp-class docutils literal"><span class="pre">VectorizedSolver</span></code>. The default is the number of CPU cores available on the machine of interest.</p>
+<p>The number of OpenMP threads to use. This option only applies to scripts which use OpenMOC’s <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">CPUSolver</span></code>, or derived classes such as <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">VectorizedSolver</span></code>. The default is the number of CPU cores available on the machine of interest.</p>
 <dl class="option">
 <dt id="cmdoption-b">
-<span id="cmdoption--num-gpu-threadblocks"></span><code class="descname">-b</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--num-gpu-threadblocks</code><code class="descclassname">=&lt;64&gt;</code><a class="headerlink" href="#cmdoption-b" title="Permalink to this definition">¶</a></dt>
+<code class="descname">-b</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--num-threadblocks</code><code class="descclassname">=&lt;64&gt;</code><a class="headerlink" href="#cmdoption-b" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<p>The number of CUDA threadblocks. This option only applies to scripts which use OpenMOC&#8217;s <code class="xref cpp cpp-class docutils literal"><span class="pre">GPUSolver</span></code> class. The default is 64 threadblocks.</p>
+<p>The number of CUDA threadblocks. This option only applies to scripts which use OpenMOC’s <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">GPUSolver</span></code> class. The default is 64 threadblocks.</p>
 <dl class="option">
 <dt id="cmdoption-g">
-<span id="cmdoption--num-gpu-threads"></span><code class="descname">-g</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--num-gpu-threads</code><code class="descclassname">=&lt;64&gt;</code><a class="headerlink" href="#cmdoption-g" title="Permalink to this definition">¶</a></dt>
+<code class="descname">-g</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--num-threads-per-block</code><code class="descclassname">=&lt;64&gt;</code><a class="headerlink" href="#cmdoption-g" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<p>The number of CUDA threads per threadblock. This option only applies to scripts which use OpenMOC&#8217;s <code class="xref cpp cpp-class docutils literal"><span class="pre">GPUSolver</span></code> class. This value must be a multiple of the number of threads in a CUDA <a class="reference external" href="http://www.pgroup.com/lit/articles/insider/v2n1a5.htm">warp</a>. At the time of this writing, nearly all NVIDIA GPUs have a warp size of 32, though this may change for future NVIDIA GPUs. If the value set for this option is not a multiple of 32, the CUDA source code will round up to the nearest multiple of 32 threads. The default is 64 threads.</p>
+<p>The number of CUDA threads per threadblock. This option only applies to scripts which use OpenMOC’s <code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">GPUSolver</span></code> class. This value must be a multiple of the number of threads in a CUDA <a class="reference external" href="http://www.pgroup.com/lit/articles/insider/v2n1a5.htm">warp</a>. At the time of this writing, nearly all NVIDIA GPUs have a warp size of 32, though this may change for future NVIDIA GPUs. If the value set for this option is not a multiple of 32, the CUDA source code will round up to the nearest multiple of 32 threads. The default is 64 threads.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">If you are unsure what the warp size is for your GPU, you can use the <code class="docutils literal"><span class="pre">openmoc.cuda</span></code> module to find out. The following Python code will report the warp size for your GPU to the console:</p>
+<p class="last">If you are unsure what the warp size is for your GPU, you can use the <code class="docutils literal notranslate"><span class="pre">openmoc.cuda</span></code> module to find out. The following Python code will report the warp size for your GPU to the console:</p>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">openmoc.cuda</span> <span class="kn">as</span> <span class="nn">cuda</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">openmoc.cuda</span> <span class="kn">as</span> <span class="nn">cuda</span>
 
 <span class="k">if</span> <span class="n">cuda</span><span class="o">.</span><span class="n">machine_contains_gpu</span><span class="p">():</span>
     <span class="n">num_threads</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">get_num_threads_per_warp</span><span class="p">()</span>
@@ -171,8 +207,8 @@ python your-script.py &lt;option1&gt; &lt;option2&gt; ...
 </div>
 </div>
 <div class="section" id="canceling-an-openmoc-simulation">
-<h2>5.5. Canceling an OpenMOC Simulation<a class="headerlink" href="#canceling-an-openmoc-simulation" title="Permalink to this headline">¶</a></h2>
-<p>To cancel an OpenMOC job running in your shell, you can use the <code class="docutils literal"><span class="pre">CTRL+C</span></code> keyboard combination. This will kill the Python script as well as the underlying computation running in the C/C++/CUDA shared library.</p>
+<h2>5.6. Canceling an OpenMOC Simulation<a class="headerlink" href="#canceling-an-openmoc-simulation" title="Permalink to this headline">¶</a></h2>
+<p>To cancel an OpenMOC job running in your shell, you can use the <code class="docutils literal notranslate"><span class="pre">CTRL+C</span></code> keyboard combination. This will kill the Python script as well as the underlying computation running in the C/C++/CUDA shared library.</p>
 </div>
 </div>
 
@@ -190,9 +226,10 @@ python your-script.py &lt;option1&gt; &lt;option2&gt; ...
 <li><a class="reference internal" href="#">5. Running OpenMOC</a><ul>
 <li><a class="reference internal" href="#running-openmoc-in-the-shell">5.1. Running OpenMOC in the Shell</a></li>
 <li><a class="reference internal" href="#submitting-a-torque-job">5.2. Submitting a TORQUE Job</a></li>
-<li><a class="reference internal" href="#submitting-a-cobalt-job">5.3. Submitting a Cobalt Job</a></li>
-<li><a class="reference internal" href="#runtime-options">5.4. Runtime Options</a></li>
-<li><a class="reference internal" href="#canceling-an-openmoc-simulation">5.5. Canceling an OpenMOC Simulation</a></li>
+<li><a class="reference internal" href="#submitting-a-slurm-job">5.3. Submitting a SLURM Job</a></li>
+<li><a class="reference internal" href="#submitting-a-cobalt-job">5.4. Submitting a Cobalt Job</a></li>
+<li><a class="reference internal" href="#runtime-options">5.5. Runtime Options</a></li>
+<li><a class="reference internal" href="#canceling-an-openmoc-simulation">5.6. Canceling an OpenMOC Simulation</a></li>
 </ul>
 </li>
 </ul>
@@ -206,18 +243,20 @@ python your-script.py &lt;option1&gt; &lt;option2&gt; ...
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/usersguide/running.txt"
+      <li><a href="../_sources/usersguide/running.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -236,14 +275,14 @@ python your-script.py &lt;option1&gt; &lt;option2&gt; ...
         <li class="right" >
           <a href="processing.html" title="4. Data Processing and Visualization"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" >User&#8217;s Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >User’s Guide</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
+        &#169; Copyright 2012-2019, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
     </div>
 <script type="text/javascript">
 

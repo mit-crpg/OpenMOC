@@ -1,34 +1,23 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>6. Troubleshooting &mdash; OpenMOC Documentation</title>
-    
+    <title>6. Troubleshooting &#8212; OpenMOC Documentation</title>
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.1.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
-    <link rel="up" title="User’s Guide" href="index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Developer’s Guide" href="../devguide/index.html" />
     <link rel="prev" title="5. Running OpenMOC" href="running.html" /> 
-  </head>
-  <body role="document">
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -41,8 +30,8 @@
         <li class="right" >
           <a href="running.html" title="5. Running OpenMOC"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">User&#8217;s Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">User’s Guide</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -55,12 +44,13 @@
 <span id="usersguide-troubleshoot"></span><h1>6. Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h1>
 <p>If you are experiencing problems trying to compile OpenMOC, first check if the
 error you are receiving is among the following options.</p>
+<p>If not, you may email the <a class="reference external" href="https://groups.google.com/forum/?hl=en#!forum/openmoc-users">mailing list</a>, and a developer or another user may help you.</p>
 <div class="section" id="problems-with-compilation">
 <h2>6.1. Problems with Compilation<a class="headerlink" href="#problems-with-compilation" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="nameerror-is-not-defined">
-<h3>6.1.1. NameError: ... is not defined<a class="headerlink" href="#nameerror-is-not-defined" title="Permalink to this headline">¶</a></h3>
+<h3>6.1.1. NameError: … is not defined<a class="headerlink" href="#nameerror-is-not-defined" title="Permalink to this headline">¶</a></h3>
 <p>In some cases, the symbolic links for the code are not established correctly and users may receive a <cite>NameError</cite>, and example of which is given below:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
   <span class="n">File</span> <span class="s2">&quot;simple-lattice.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
     <span class="kn">from</span> <span class="nn">openmoc</span> <span class="k">import</span> <span class="o">*</span>
   <span class="n">File</span> <span class="s2">&quot;/home/wbinventor/.local/lib/python2.7/site-packages/openmoc/__init__.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">15</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
@@ -69,7 +59,7 @@ error you are receiving is among the following options.</p>
 </pre></div>
 </div>
 <p>This error is commonly seen by new users after just installing the code. As noted in the <a class="reference internal" href="install.html#install"><span class="std std-ref">Installation and Configuration</span></a>, some Python distributions require that OpenMOC be installed twice the first time it is installed. The recommended solution in this case would be to execute the installation command twice in sequence:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span> <span class="o">--</span><span class="n">user</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span> <span class="o">--</span><span class="n">user</span>
 <span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span> <span class="o">--</span><span class="n">user</span>
 </pre></div>
 </div>
@@ -90,7 +80,7 @@ error you are receiving is among the following options.</p>
   <ul>
 <li><a class="reference internal" href="#">6. Troubleshooting</a><ul>
 <li><a class="reference internal" href="#problems-with-compilation">6.1. Problems with Compilation</a><ul>
-<li><a class="reference internal" href="#nameerror-is-not-defined">6.1.1. NameError: ... is not defined</a></li>
+<li><a class="reference internal" href="#nameerror-is-not-defined">6.1.1. NameError: … is not defined</a></li>
 </ul>
 </li>
 </ul>
@@ -102,22 +92,24 @@ error you are receiving is among the following options.</p>
                         title="previous chapter">5. Running OpenMOC</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="../devguide/index.html"
-                        title="next chapter">Developer&#8217;s Guide</a></p>
+                        title="next chapter">Developer’s Guide</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/usersguide/troubleshoot.txt"
+      <li><a href="../_sources/usersguide/troubleshoot.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -136,14 +128,14 @@ error you are receiving is among the following options.</p>
         <li class="right" >
           <a href="running.html" title="5. Running OpenMOC"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" >User&#8217;s Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >User’s Guide</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
+        &#169; Copyright 2012-2019, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
     </div>
 <script type="text/javascript">
 

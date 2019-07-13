@@ -1,8 +1,7 @@
 var searchData=
 [
-  ['tau_5fnudge',['TAU_NUDGE',['../constants_8h.html#ad99beed34771945367db1ddf11136983',1,'constants.h']]],
-  ['taus',['taus',['../VectorizedSolver_8h.html#a3c1eee3367b6bf3d9a00f66369aba5ed',1,'VectorizedSolver.h']]],
-  ['tiny_5fmove',['TINY_MOVE',['../constants_8h.html#a481c7dad5dc2bb9070235752daa421c6',1,'constants.h']]],
-  ['track_5fflux',['track_flux',['../Cmfd_8h.html#a2143506339a36528e1c9d7e27501897f',1,'track_flux():&#160;Cmfd.h'],['../CPUSolver_8h.html#a2143506339a36528e1c9d7e27501897f',1,'track_flux():&#160;CPUSolver.h']]],
-  ['track_5fout_5fflux',['track_out_flux',['../CPUSolver_8h.html#a1ada87108681a86ec25d66c3644e04e3',1,'CPUSolver.h']]]
+  ['scalar_5fflux',['scalar_flux',['../GPUSolver_8h.html#a4089c9be8cf297ccf942eb8c29cca415',1,'GPUSolver.h']]],
+  ['scatter_5fsources',['scatter_sources',['../Solver_8h.html#a04ce2f64386e3d29011f5bdc23ee7f0e',1,'Solver.h']]],
+  ['sigma_5ft_5fthresh',['SIGMA_T_THRESH',['../constants_8h.html#ae9c3eb98c50e150b93f8428cc6bdf3ca',1,'constants.h']]],
+  ['start_5fflux',['start_flux',['../GPUSolver_8h.html#abd526043b5b1f4ded19a99b63ed0511a',1,'GPUSolver.h']]]
 ];

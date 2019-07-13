@@ -1,0 +1,26 @@
+var classHalfspace =
+[
+    [ "Halfspace", "classHalfspace.html#a188e3ee18a7eec4554d778f72be17aba", null ],
+    [ "clone", "classHalfspace.html#aac8e2a0b8d0518dadb0694b751e0826f", null ],
+    [ "containsPoint", "classHalfspace.html#a5f3c16cbae619c400671fe2be1a25583", null ],
+    [ "getAllSurfaces", "classHalfspace.html#a9c872c52c63cfbf05036551c08d4bb5d", null ],
+    [ "getHalfspace", "classHalfspace.html#a2207fef48e0afde6eef9af19d3eca44e", null ],
+    [ "getMaxX", "classHalfspace.html#af149886d1642cc4da9d7eaa57473c7d4", null ],
+    [ "getMaxXBoundaryType", "classHalfspace.html#a1608d8e14d6477a8d6005513d152f270", null ],
+    [ "getMaxY", "classHalfspace.html#aa7740fc5c116f139776a54759e53a00b", null ],
+    [ "getMaxYBoundaryType", "classHalfspace.html#acd9b42230669e5dbfc707715278ed3ae", null ],
+    [ "getMaxZ", "classHalfspace.html#a478e8c1baa5a893188ca8ae3184e4ad3", null ],
+    [ "getMaxZBoundaryType", "classHalfspace.html#ac6e39402f13473c5049f9c9ca1efa3ae", null ],
+    [ "getMinX", "classHalfspace.html#a8672f376f529da6055ede7a474faeecf", null ],
+    [ "getMinXBoundaryType", "classHalfspace.html#ac5f9a445d8ce9c1b34982955bd544441", null ],
+    [ "getMinY", "classHalfspace.html#a1a74e694321c7f8d4a6a2cf04b4792ba", null ],
+    [ "getMinYBoundaryType", "classHalfspace.html#aaf9d0bfe02d382d1b3eb27e2118a666f", null ],
+    [ "getMinZ", "classHalfspace.html#a63e887993262d47506d492eddc6cd34f", null ],
+    [ "getMinZBoundaryType", "classHalfspace.html#a6a9b0dbe7e6289e6635639620ad02107", null ],
+    [ "getSurface", "classHalfspace.html#a42f638e5ac5d15d3fe5aba50b0fc22a2", null ],
+    [ "minSurfaceDist", "classHalfspace.html#a9a45268e1694e639d05568af1391a578", null ],
+    [ "minSurfaceDist", "classHalfspace.html#a47351e03b8e272a212fe18e62e1a80a2", null ],
+    [ "reverseHalfspace", "classHalfspace.html#a11637e614f9769c9a2bbc7782a9dd8fe", null ],
+    [ "_halfspace", "classHalfspace.html#a666ec29f752100ef3153076e617b0f7f", null ],
+    [ "_surface", "classHalfspace.html#af796354daf1317f4691dec44c502dde2", null ]
+];

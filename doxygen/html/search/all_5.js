@@ -1,15 +1,27 @@
 var searchData=
 [
-  ['eigenvaluesolve',['eigenvalueSolve',['../linalg_8h.html#ab178264b14008c7adb808ffe7da90daa',1,'linalg.cpp']]],
+  ['eigenvaluesolve',['eigenvalueSolve',['../linalg_8h.html#a8b85e4ee1b8cabbb0d42c5724dec70cb',1,'linalg.cpp']]],
+  ['enforcebalanceondiagonal',['enforceBalanceOnDiagonal',['../classCmfd.html#a92b1b016df0abcd879fe39b004ced477',1,'Cmfd']]],
   ['equalanglepolarquad',['EqualAnglePolarQuad',['../classEqualAnglePolarQuad.html',1,'EqualAnglePolarQuad'],['../classEqualAnglePolarQuad.html#ad9bd741fea608849f8ffe675b72d81da',1,'EqualAnglePolarQuad::EqualAnglePolarQuad()']]],
   ['equalweightpolarquad',['EqualWeightPolarQuad',['../classEqualWeightPolarQuad.html',1,'EqualWeightPolarQuad'],['../classEqualWeightPolarQuad.html#ab9c23dd704b62f949f052355dda58cb8',1,'EqualWeightPolarQuad::EqualWeightPolarQuad()']]],
   ['error',['ERROR',['../log_8h.html#a5096002e05063d13577205e0bc5f0564a2fd6f336d08340583bd620a7f5694c90',1,'log.h']]],
-  ['evaluate',['evaluate',['../classSurface.html#a2e0aaef635a7392806d27fb4999a9168',1,'Surface::evaluate()'],['../classPlane.html#a18dcfc28a7d08e18983d3f906943bc82',1,'Plane::evaluate()'],['../classZCylinder.html#a2a6e76be07f40c022c76d9cf4cb58f13',1,'ZCylinder::evaluate()']]],
-  ['execute',['execute',['../classVolumeCalculator.html#a704dc0904a28881466be062193ecf9b9',1,'VolumeCalculator::execute()'],['../classTransportSweep.html#a4f7206688693a0b5596b534071ee1131',1,'TransportSweep::execute()']]],
+  ['evaluate',['evaluate',['../classSurface.html#a2e0aaef635a7392806d27fb4999a9168',1,'Surface::evaluate()'],['../classPlane.html#acfb365c16b330c74af1a1c51aea37562',1,'Plane::evaluate()'],['../classZCylinder.html#ac2f8de91c4b1f5e924a4b8eb43b96213',1,'ZCylinder::evaluate()']]],
+  ['execute',['execute',['../classCounterKernel.html#af15fcd59b31dd0191d402fd7204e5ace',1,'CounterKernel::execute()'],['../classVolumeKernel.html#a881339c7ac9ffbe4e4852cb0fe8e91ad',1,'VolumeKernel::execute()'],['../classSegmentationKernel.html#ab4aec6537c6ec83818c3595343488c77',1,'SegmentationKernel::execute()'],['../classTransportKernel.html#a3e23fd62aa52dfdb6ca72010fb46feec',1,'TransportKernel::execute()'],['../classMaxOpticalLength.html#aac66502476a2859ac6ed29bdd9e12c3e',1,'MaxOpticalLength::execute()'],['../classSegmentCounter.html#accd30e2da7e0e61bd262339bdf4f1edb',1,'SegmentCounter::execute()'],['../classSegmentSplitter.html#a9481fcab3fbeba8fe60e63d087e5768b',1,'SegmentSplitter::execute()'],['../classVolumeCalculator.html#a704dc0904a28881466be062193ecf9b9',1,'VolumeCalculator::execute()'],['../classCentroidGenerator.html#aaf91c6e862414fae1acc82dff98411a5',1,'CentroidGenerator::execute()'],['../classLinearExpansionGenerator.html#ab5881893a2cccbdca1e085db51e6b0fc',1,'LinearExpansionGenerator::execute()'],['../classTransportSweep.html#a4f7206688693a0b5596b534071ee1131',1,'TransportSweep::execute()'],['../classDumpSegments.html#a888b8fe2c92f840fbf3cc5545ee467ce',1,'DumpSegments::execute()'],['../classReadSegments.html#ac4626816ada7e554117c10a9e09f2f3c',1,'ReadSegments::execute()'],['../classTransportSweepOTF.html#ab5a523dd250e717ac9160c4dc842afe2',1,'TransportSweepOTF::execute()'],['../classRecenterSegments.html#ab839236d9b2b82f03883c8259b5b92dd',1,'RecenterSegments::execute()'],['../classPrintSegments.html#a92fae9b980b49df0bffb9d22bda7d8f8',1,'PrintSegments::execute()']]],
   ['exp_5fprecision',['EXP_PRECISION',['../constants_8h.html#abd47494b8a16ac2aeb5c9e3242ff5e06',1,'constants.h']]],
   ['expevaluator',['ExpEvaluator',['../classExpEvaluator.html',1,'ExpEvaluator'],['../classExpEvaluator.html#a8ef6a77f6ea377127ca93da2d4d7f65d',1,'ExpEvaluator::ExpEvaluator()']]],
   ['expevaluator_2eh',['ExpEvaluator.h',['../ExpEvaluator_8h.html',1,'']]],
+  ['expf1_5ffractional',['expF1_fractional',['../exponentials_8h.html#a2731b9f9b8ce6b7011f49e3da20c44e7',1,'exponentials.h']]],
+  ['expf1_5fpoly',['expF1_poly',['../exponentials_8h.html#a37718514bb1bf32dc329e6bcd9a79df3',1,'exponentials.h']]],
+  ['expf2_5ffractional',['expF2_fractional',['../exponentials_8h.html#a984f1e5dd451f64afafcdab9218d728d',1,'exponentials.h']]],
+  ['expf2_5fpoly',['expF2_poly',['../exponentials_8h.html#ab094c6ae577da1daed1951eeecb55776',1,'exponentials.h']]],
+  ['expg2_5ffractional',['expG2_fractional',['../exponentials_8h.html#a91268726b152560e5bfb50177503b37b',1,'exponentials.h']]],
+  ['expg_5ffractional',['expG_fractional',['../exponentials_8h.html#ae9c959303a01a98075992c034e8065ad',1,'exponentials.h']]],
+  ['exph_5ffractional',['expH_fractional',['../exponentials_8h.html#ae1fa3f14b6f22b92697fa45c7a124af8',1,'exponentials.h']]],
+  ['exph_5fpoly',['expH_poly',['../exponentials_8h.html#a29c9574e7a0c1ab2b2682189e95df747',1,'exponentials.h']]],
   ['explicit_5f2d',['EXPLICIT_2D',['../segmentation__type_8h.html#aeafefe1ac2b1c284b81ad29cec9c3807abfa8daa18ca8f1c1564d44d643616b23',1,'segmentation_type.h']]],
   ['explicit_5f3d',['EXPLICIT_3D',['../segmentation__type_8h.html#aeafefe1ac2b1c284b81ad29cec9c3807aae7bcfb2c7e1a6fd4a30f6abdfbe1d0e',1,'segmentation_type.h']]],
-  ['exponentials',['exponentials',['../VectorizedSolver_8h.html#a4d1a5b2de2f5853d926488cdf1dc1e55',1,'VectorizedSolver.h']]]
+  ['exponentials',['exponentials',['../VectorizedSolver_8h.html#a4d1a5b2de2f5853d926488cdf1dc1e55',1,'VectorizedSolver.h']]],
+  ['exponentials_2eh',['exponentials.h',['../exponentials_8h.html',1,'']]],
+  ['exportfsrvolumes',['exportFSRVolumes',['../classTrackGenerator.html#ac297a3096ce7dfda642f7c595ccf0ec2',1,'TrackGenerator']]],
+  ['extrudedfsr',['ExtrudedFSR',['../structExtrudedFSR.html',1,'ExtrudedFSR'],['../structExtrudedFSR.html#ac74c28eac5f058c9372b9ae1fe1ae947',1,'ExtrudedFSR::ExtrudedFSR()']]]
 ];

@@ -1,34 +1,23 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>8. Development Workflow &mdash; OpenMOC Documentation</title>
-    
+    <title>8. Development Workflow &#8212; OpenMOC Documentation</title>
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.1.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
-    <link rel="up" title="Developer’s Guide" href="index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="OpenMOC API" href="../doxygen/api.html" />
     <link rel="prev" title="7. Documentation" href="documentation.html" /> 
-  </head>
-  <body role="document">
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -41,8 +30,8 @@
         <li class="right" >
           <a href="documentation.html" title="7. Documentation"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Developer&#8217;s Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Developer’s Guide</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -53,10 +42,10 @@
             
   <div class="section" id="development-workflow">
 <span id="work-flow"></span><h1>8. Development Workflow<a class="headerlink" href="#development-workflow" title="Permalink to this headline">¶</a></h1>
-<p>Anyone wishing to make contributions to OpenMOC should be fully acquianted and
+<p>Anyone wishing to make contributions to OpenMOC should be fully acquainted and
 comfortable working with <a class="reference external" href="http://git-scm.com/">git</a> and <a class="reference external" href="https://github.com/">GitHub</a>. The primary means of modifying and
 making contributions to OpenMOC is through a GitHub <a class="reference external" href="https://help.github.com/articles/using-pull-requests">pull request</a>. This is
-what&#8217;s known as a <a class="reference external" href="https://help.github.com/articles/using-pull-requests">fork and pull development model</a>. The steps for this are as
+what’s known as a <a class="reference external" href="https://help.github.com/articles/using-pull-requests">fork and pull development model</a>. The steps for this are as
 follows:</p>
 <ul class="simple">
 <li><strong>Fork the Repository</strong> -  <a class="reference external" href="https://help.github.com/articles/fork-a-repo">Fork</a> the main OpenMOC repository from <a class="reference external" href="https://github.com/mit-crpg/OpenMOC">mit-crpg/OpenMOC</a>. This will create a repository with the same name under your personal account.</li>
@@ -71,9 +60,26 @@ repository for research or commercial purposes. The proper way to do this is to
 create a complete copy of the OpenMOC repository (not a fork from GitHub). The
 private repository can then either be stored just locally or in conjunction with
 a private repository on Github (this requires a <a class="reference external" href="https://github.com/plans">paid plan</a>). If you want to
-merge some changes you&#8217;ve made in your private repository back to
+merge some changes you’ve made in your private repository back to
 <a class="reference external" href="https://github.com/mit-crpg/OpenMOC">mit-crpg/OpenMOC</a> repository, simply follow the steps above with an extra step
 of pulling a branch from your private repository into your public fork.</p>
+</div>
+<div class="section" id="continuous-integration">
+<h1>9. Continuous integration<a class="headerlink" href="#continuous-integration" title="Permalink to this headline">¶</a></h1>
+<p>In order to guarantee the correctness of OpenMOC, every pull request to OpenMOC is automatically tested
+by <a class="reference external" href="https://travis-ci.org/mit-crpg/OpenMOC/">Travis CI</a>. The test suite makes sure that each feature of the code keeps producing the same results / are
+not affected by the new code, within acceptable tolerances. In order for new features that you may develop to
+also provide this guarantee, any code you add needs to be covered by existing tests, or more often by a new test.
+New tests can either be classified as unit or regression tests, both types may and often should be used to test
+new functionalities. If your Github repository is public, you can also use Travis CI to test your personal fork.</p>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Unit_testing">Unit tests</a> are meant to test a single function or a single attribute of an object. They are usually short
+and run very fast. Because of their limited scope, it is fairly easy to find the cause of a failed unit test.</p>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Regression_testing">Regression tests</a> usually involve running OpenMOC entirely, from track generation to sweeping, and then looking
+at the eigenvalue and fluxes to see if they changed. Using the provided input sets, they are fairly easy to write,
+but it is harder to find the root of the problem when they fail.</p>
+<p><a class="reference external" href="https://coveralls.io">coveralls</a>, a code coverage tool gives information on how often each line of the code is run by the test
+suite. However, developers should make sure that every functionality is tested, not that every line of code
+is run.</p>
 </div>
 
 
@@ -85,6 +91,12 @@ of pulling a branch from your private repository into your public fork.</p>
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/openmoc-logo-sphinx-small.png" alt="Logo"/>
             </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">8. Development Workflow</a></li>
+<li><a class="reference internal" href="#continuous-integration">9. Continuous integration</a></li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="documentation.html"
                         title="previous chapter">7. Documentation</a></p>
@@ -94,18 +106,20 @@ of pulling a branch from your private repository into your public fork.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/devguide/work_flow.txt"
+      <li><a href="../_sources/devguide/work_flow.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -124,14 +138,14 @@ of pulling a branch from your private repository into your public fork.</p>
         <li class="right" >
           <a href="documentation.html" title="7. Documentation"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" >Developer&#8217;s Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Developer’s Guide</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
+        &#169; Copyright 2012-2019, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
     </div>
 <script type="text/javascript">
 

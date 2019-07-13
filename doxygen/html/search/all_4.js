@@ -1,14 +1,23 @@
 var searchData=
 [
+  ['ddlinearsolve',['ddLinearSolve',['../linalg_8h.html#a2768728a3330611d3b1350632b03f267',1,'linalg.cpp']]],
   ['debug',['DEBUG',['../log_8h.html#a5096002e05063d13577205e0bc5f0564a0593585da9181e972974c1274d8f2b4f',1,'log.h']]],
+  ['deepcopy',['deepCopy',['../classExpEvaluator.html#a55bfebb692fd2360ec0f967a7cb34d04',1,'ExpEvaluator']]],
   ['default_5finit_5fid',['DEFAULT_INIT_ID',['../constants_8h.html#af02b31db48e6d66f44a3266713b0b5d3',1,'constants.h']]],
-  ['deleteallarrays',['deleteAllArrays',['../classQuadrature.html#aff3b11d5c6c244a37e6100eb2db89aa2',1,'Quadrature']]],
-  ['deletepolararrays',['deletePolarArrays',['../classQuadrature.html#ae1c6a3a2554dc92f391c8a925e34bd9f',1,'Quadrature']]],
+  ['deletearray',['deleteArray',['../classLocalCoords.html#a74cf7082ec89d3cfb720f4e7d938c396',1,'LocalCoords']]],
+  ['detectloop',['detectLoop',['../classLocalCoords.html#ad537220c92f8bceb3e700df33df61c45',1,'LocalCoords']]],
   ['dev_5fmaterial',['dev_material',['../structdev__material.html',1,'dev_material'],['../structdev__material.html#af9f2265405224912ad9345c65df893ec',1,'dev_material::dev_material()']]],
   ['dev_5fsegment',['dev_segment',['../structdev__segment.html',1,'']]],
   ['dev_5ftrack',['dev_track',['../structdev__track.html',1,'']]],
   ['devicematerial_2eh',['DeviceMaterial.h',['../DeviceMaterial_8h.html',1,'']]],
   ['devicetrack_2eh',['DeviceTrack.h',['../DeviceTrack_8h.html',1,'']]],
+  ['diagonal',['DIAGONAL',['../Solver_8h.html#aebd848a192d91fb04ad8c78d342476dda8e42703f6475b007d3b817ffcc08f6cf',1,'Solver.h']]],
+  ['distance',['distance',['../classPoint.html#a272c6634678a7a2dbb08f4db6b1bcb4a',1,'Point']]],
   ['distancetopoint',['distanceToPoint',['../classPoint.html#a1000c6590f93653b2d8d3b45991f60c9',1,'Point']]],
-  ['dumptrackstofile',['dumpTracksToFile',['../classTrackGenerator.html#aaaab78c33638010a047b377e8dc352d2',1,'TrackGenerator']]]
+  ['domaincommunicator',['DomainCommunicator',['../structDomainCommunicator.html',1,'']]],
+  ['doublevec',['DoubleVec',['../Quadrature_8h.html#a0c7cd7d877b5ba249ee140c61f73ba69',1,'Quadrature.h']]],
+  ['dumpfsrfluxes',['dumpFSRFluxes',['../classSolver.html#a1b2a1b353b589abb6804433251d96af4',1,'Solver']]],
+  ['dumpsegments',['DumpSegments',['../classDumpSegments.html',1,'DumpSegments'],['../classDumpSegments.html#ac86f7c08368be993176c60dde3e88833',1,'DumpSegments::DumpSegments()']]],
+  ['dumpsegmentstofile',['dumpSegmentsToFile',['../classTrackGenerator.html#a3eac7ad622309cb1dd41b3fa56570703',1,'TrackGenerator']]],
+  ['dumptofile',['dumpToFile',['../classGeometry.html#a926269e67c594768f6899fff35a793e4',1,'Geometry']]]
 ];

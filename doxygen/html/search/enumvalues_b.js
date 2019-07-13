@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['otf_5fstacks',['OTF_STACKS',['../segmentation__type_8h.html#aeafefe1ac2b1c284b81ad29cec9c3807a4da678be07b6d898da270d46b5ef504c',1,'segmentation_type.h']]],
-  ['otf_5ftracks',['OTF_TRACKS',['../segmentation__type_8h.html#aeafefe1ac2b1c284b81ad29cec9c3807a3ed5455dba26c2f38cae4dc503df83df',1,'segmentation_type.h']]]
+  ['nodal',['NODAL',['../log_8h.html#a5096002e05063d13577205e0bc5f0564ac282c103e271a2772ca8dd71bb9b5e3e',1,'log.h']]],
+  ['normal',['NORMAL',['../log_8h.html#a5096002e05063d13577205e0bc5f0564a50d1448013c6f17125caee18aa418af7',1,'log.h']]]
 ];

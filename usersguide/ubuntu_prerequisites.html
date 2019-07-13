@@ -1,38 +1,28 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Installing Prerequisites on Ubuntu &mdash; OpenMOC Documentation</title>
-    
+    <title>Installing Prerequisites on Ubuntu &#8212; OpenMOC Documentation</title>
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.1.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="OpenMOC Documentation" href="../index.html" /> 
-  </head>
-  <body role="document">
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -43,46 +33,51 @@
             
   <div class="section" id="installing-prerequisites-on-ubuntu">
 <span id="ubuntu-prerequisites"></span><h1>Installing Prerequisites on Ubuntu<a class="headerlink" href="#installing-prerequisites-on-ubuntu" title="Permalink to this headline">¶</a></h1>
-<p>There are a few prerequisites which must be installed on your machine before you will be able to build and install OpenMOC. All of the prerequisites can easily be installed using a standard package manager, such as <a class="reference external" href="http://www.apt-get.org/">apt-get</a> for Ubuntu. The following instructions detail which packages are needed, with instructions on how to install them using <code class="docutils literal"><span class="pre">apt-get</span></code>.</p>
+<p>There are a few prerequisites which must be installed on your machine before you will be able to build and install OpenMOC. All of the prerequisites can easily be installed using a standard package manager, such as <a class="reference external" href="http://www.apt-get.org/">apt-get</a> for Ubuntu. The following instructions detail which packages are needed, with instructions on how to install them using <code class="docutils literal notranslate"><span class="pre">apt-get</span></code>.</p>
 <p>The following command will install all required and optional dependencies on Ubuntu 12.04 or later:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">git</span> <span class="n">swig</span> <span class="n">python</span><span class="o">-</span><span class="n">dev</span> <span class="n">python</span><span class="o">-</span><span class="n">numpy</span> <span class="n">python</span><span class="o">-</span><span class="n">matplotlib</span> <span class="n">python</span><span class="o">-</span><span class="n">h5py</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">git</span> <span class="n">swig</span> <span class="n">python</span><span class="o">-</span><span class="n">dev</span> <span class="n">python</span><span class="o">-</span><span class="n">numpy</span> <span class="n">python</span><span class="o">-</span><span class="n">matplotlib</span> <span class="n">python</span><span class="o">-</span><span class="n">h5py</span> <span class="n">python</span><span class="o">-</span><span class="n">pillow</span>
+</pre></div>
+</div>
+<p>A preferred alternative to apt-get is using anaconda to install Python packages. Anaconda will automatically manage the package versions, ensuring compatibility. Anaconda will also allow you to install packages on a system where you don’t have admin priviledges, like most computing clusters. Once you have Anaconda (or Miniconda installed), you can install all OpenMOC’s Python dependencies with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">config</span> <span class="o">--</span><span class="n">append</span> <span class="n">channels</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span>
+<span class="n">conda</span> <span class="n">install</span> <span class="n">swig</span> <span class="n">numpy</span> <span class="n">matplotlib</span> <span class="n">h5py</span> <span class="n">pillow</span>
 </pre></div>
 </div>
 <div class="admonition-required admonition">
 <p class="first admonition-title">Required</p>
 <ul class="last">
-<li><p class="first">GNU&#8217;s C++ <a class="reference external" href="http://gcc.gnu.org/">compiler</a></p>
+<li><p class="first">GNU’s C++ <a class="reference external" href="http://gcc.gnu.org/">compiler</a></p>
 <p>In order to compile OpenMOC, you will need to have a C++ compiler installed on your machine. It is recommended that you build OpenMOC with g++ version 4.4 or later. To install g++ on Debian Linux or a Debian derivative such as Ubuntu, use the following command in the console:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first"><a class="reference external" href="http://www.python.org/">Python</a></p>
-<p>OpenMOC extensively uses Python for rapid data processing and visualization. OpenMOC uses a mixture of fast, compiled C/C++/CUDA code with Python bindingssuch that users are entirely insulated from having to write in C/C++ or CUDA, and can simply write a Python script with calls to OpenMOC.</p>
-<p>Currently, OpenMOC has been tested with Python versions 2.6, 2.7, 3.1 and 3.2. Even if you already have Python installed, it is recommended that you install it again using <code class="docutils literal"><span class="pre">apt-get</span></code> to ensure that it is properly configured with <code class="docutils literal"><span class="pre">g++</span></code>. You can easily install version 2.7 in Ubuntu as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python2</span><span class="o">.</span><span class="mi">7</span>
+<p>OpenMOC extensively uses Python for rapid data processing and visualization. OpenMOC uses a mixture of fast, compiled C/C++/CUDA code with Python bindings such that users are entirely insulated from having to write in C/C++ or CUDA, and can simply write a Python script with calls to OpenMOC.</p>
+<p>Currently, OpenMOC has been tested with Python versions 2.6, 2.7, 3.1 to 3.7. Even if you already have Python installed, it is recommended that you install it again using <code class="docutils literal notranslate"><span class="pre">apt-get</span></code> to ensure that it is properly configured with <code class="docutils literal notranslate"><span class="pre">g++</span></code>. You can easily install version 3.7 in Ubuntu as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python3</span><span class="o">.</span><span class="mi">7</span>
 </pre></div>
 </div>
 <p>In addition, you must install the Python development headers:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python</span><span class="o">-</span><span class="n">dev</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python</span><span class="o">-</span><span class="n">dev</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first"><a class="reference external" href="http://git-scm.com">Git</a></p>
 <p>The OpenMOC development team uses the <a class="reference external" href="http://git-scm.com">Git</a> version control software for code development and collaboration. To download the code from our <a class="reference external" href="https://github.com/mit-crpg/OpenMOC">GitHub</a> repository, you must first install git. You can do so on Ubuntu as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">git</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">git</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first"><a class="reference external" href="http://www.swig.org/">SWIG</a></p>
 <p>The Simplified Wrapper Interface Generator (SWIG) is used to wrap the compiled C/C++ and CUDA source code and generate Python bindings. SWIG can be installed on Ubuntu as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">swig</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">swig</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first"><a class="reference external" href="http://www.numpy.org/">NumPy</a></p>
 <p>NumPy is a commonly used, general purpose numerical array creation and manipulation package for Python. OpenMOC uses NumPy to seamlessly transfer numerical data between Python and the C/C++ back-end compiled code. To install NumPy on Ubuntu, use the following command:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python</span><span class="o">-</span><span class="n">numpy</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python</span><span class="o">-</span><span class="n">numpy</span>
 </pre></div>
 </div>
 </li>
@@ -90,21 +85,40 @@
 </div>
 <div class="admonition-optional admonition">
 <p class="first admonition-title">Optional</p>
-<ul class="last">
+<ul>
 <li><p class="first"><a class="reference external" href="http://matplotlib.org/">matplotlib</a></p>
-<p>The matplotlib Python package is a general purpose utility for plotting and visualizations. OpenMOC uses matplotlib in the <code class="docutils literal"><span class="pre">openmoc.plotter</span></code> module to generate plots, such as flux and power distributions. Although matplotlib and the <code class="docutils literal"><span class="pre">openmoc.plotter</span></code> modules are not required for an OpenMOC simulation, visualizations can be a helpful tool in debugging and input model validation. To install matplotlib in Ubuntu, issue the following command:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python</span><span class="o">-</span><span class="n">matplotlib</span>
+<p>The matplotlib Python package is a general purpose utility for plotting and visualizations. OpenMOC uses matplotlib in the <code class="docutils literal notranslate"><span class="pre">openmoc.plotter</span></code> module to generate plots, such as flux and power distributions. Although matplotlib and the <code class="docutils literal notranslate"><span class="pre">openmoc.plotter</span></code> modules are not required for an OpenMOC simulation, visualizations can be a helpful tool in debugging and input model validation. To install matplotlib on Ubuntu, issue the following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python</span><span class="o">-</span><span class="n">matplotlib</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first"><a class="reference external" href="http://www.h5py.org/">h5py</a></p>
-<p>The h5py Python package contains tools to create, retrieve, and manipulate data stored using the <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a> binary format. OpenMOC leverages the h5py functionality in its <code class="docutils literal"><span class="pre">openmoc.materialize</span></code> module which includes routines to import/export multi-group nuclear cross-section data to/from HDF5. In addition, the <code class="docutils literal"><span class="pre">openmoc.process</span></code> module contains routines to import/export simulation and performance data to/from HDF5 output files. Although h5py and the <code class="docutils literal"><span class="pre">openmoc.materialize</span></code> and <code class="docutils literal"><span class="pre">openmoc.process</span></code> modules are not required to run OpenMOC, they can facilitate fast access and storage of binary data.</p>
+<p>The h5py Python package contains tools to create, retrieve, and manipulate data stored using the <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a> binary format. OpenMOC leverages the h5py functionality in its <code class="docutils literal notranslate"><span class="pre">openmoc.materialize</span></code> module which includes routines to import/export multi-group nuclear cross-section data to/from HDF5. In addition, the <code class="docutils literal notranslate"><span class="pre">openmoc.process</span></code> module contains routines to import/export simulation and performance data to/from HDF5 output files. Although h5py and the <code class="docutils literal notranslate"><span class="pre">openmoc.materialize</span></code> and <code class="docutils literal notranslate"><span class="pre">openmoc.process</span></code> modules are not required to run OpenMOC, they can facilitate fast access and storage of binary data.</p>
 <p>To install h5py on Ubuntu, issue the following command:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python</span><span class="o">-</span><span class="n">h5py</span>
-</pre></div>
-</div>
 </li>
 </ul>
+<p>sudo apt-get install python-h5py</p>
+<ul>
+<li><p class="first"><a class="reference external" href="https://pillow.readthedocs.io/en/stable/">pillow</a></p>
+<p>The PIL (or its fork pillow) package is used to compare images in the test suite, to check that the plotter module is working properly. It is not required outside of the test suite.
+To install PIL or pillow on Ubuntu, issue the following command:</p>
+</li>
+</ul>
+<p>sudo apt-get install python-pil</p>
+<ul>
+<li><p class="first"><a class="reference external" href="https://www.scipy.org/">scipy</a></p>
+<p>The scipy package is used for the Krylov solver. It is not required for running a regular MOC (+CMFD) solve
+To install pillow on Ubuntu, issue the following command:</p>
+</li>
+</ul>
+<p>sudo apt-get install python-scipy</p>
+<ul>
+<li><p class="first"><a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a></p>
+<p>The mpi4py package is used to run domain-decomposed simulations from Python. It is not required for using OpenMOC on a single machine.
+To install pillow on Ubuntu, issue the following command:</p>
+</li>
+</ul>
+<p class="last">sudo apt-get install python-mpi4py</p>
 </div>
 </div>
 
@@ -120,18 +134,20 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/usersguide/ubuntu_prerequisites.txt"
+      <li><a href="../_sources/usersguide/ubuntu_prerequisites.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -144,13 +160,13 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
+        &#169; Copyright 2012-2019, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
     </div>
 <script type="text/javascript">
 

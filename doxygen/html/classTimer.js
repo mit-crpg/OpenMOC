@@ -7,6 +7,7 @@ var classTimer =
     [ "getSplit", "classTimer.html#aa56c74daecc44c72c434db6c98e69178", null ],
     [ "getTime", "classTimer.html#a490604efc23a4ff9bef8d1f9f418ecb2", null ],
     [ "printSplits", "classTimer.html#a38dd3a8f7acae35cc31490173c8c27f0", null ],
+    [ "processMemUsage", "classTimer.html#a89e439e8a914aa75777e736bdc97a7e3", null ],
     [ "recordSplit", "classTimer.html#a613c775ca0b0b08f7cf1a6c165a6b6f7", null ],
     [ "startTimer", "classTimer.html#aa8c887576ec3b0d68c10ebf4097c367c", null ],
     [ "stopTimer", "classTimer.html#a27f97da1b1d19ad74a847703ca25c455", null ]

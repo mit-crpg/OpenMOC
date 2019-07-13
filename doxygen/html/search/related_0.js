@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['plane',['Plane',['../classZCylinder.html#a89c71bac3ec153ca700e1cd69900b6ce',1,'ZCylinder']]]
+  ['operator_3c_3c',['operator&lt;&lt;',['../classQuadrature.html#a3738cfc2487365ef189f75a80bd70264',1,'Quadrature']]]
 ];

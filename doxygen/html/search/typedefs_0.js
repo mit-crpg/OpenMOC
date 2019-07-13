@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['loglevel',['logLevel',['../log_8h.html#a474fc5e1d06d669823896ac6258fbc0d',1,'log.h']]]
+  ['doublevec',['DoubleVec',['../Quadrature_8h.html#a0c7cd7d877b5ba249ee140c61f73ba69',1,'Quadrature.h']]]
 ];

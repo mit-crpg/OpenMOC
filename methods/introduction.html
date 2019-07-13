@@ -1,34 +1,23 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>1. Introduction &mdash; OpenMOC Documentation</title>
-    
+    <title>1. Introduction &#8212; OpenMOC Documentation</title>
     <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.1.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="OpenMOC Documentation" href="../index.html" />
-    <link rel="up" title="Theory and Methodology" href="index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="2. Method of Characteristics" href="method_of_characteristics.html" />
     <link rel="prev" title="Theory and Methodology" href="index.html" /> 
-  </head>
-  <body role="document">
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -41,8 +30,8 @@
         <li class="right" >
           <a href="index.html" title="Theory and Methodology"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Theory and Methodology</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Theory and Methodology</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -54,14 +43,14 @@
   <div class="section" id="introduction">
 <span id="methods-introduction"></span><h1>1. Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
 <p>The method of characteristics is one technique for solving partial differential equations.  MOC is one of the most common methods with real world applications in production lattice physics tools used today <a class="reference internal" href="#smith" id="id1">[Smith]</a>. The prospects for the MOC algorithm as an eventual successor to low-order diffusion-based method for reactor analysis are promising, and extensive research efforts into the efficient use of the algorithm are ongoing <a class="reference internal" href="#wu" id="id2">[Wu]</a>, <a class="reference internal" href="#taylor" id="id3">[Taylor]</a>, <a class="reference internal" href="#liu" id="id4">[Liu]</a>, <a class="reference internal" href="#talamo" id="id5">[Talamo]</a>. As a result, there is an opportunity for advanced parallel algorithms for high performance computing machines and nonlinear acceleration schemes to propel the application of MOC to full-core reactor physics calculations.</p>
-<p><a class="reference internal" href="method_of_characteristics.html#method-of-characteristics"><span class="std std-ref">Section 2</span></a> describes how the method of characteristics is applied to solve the steady-state neutron transport equation in OpenMOC. <a class="reference internal" href="eigenvalue_calculations.html#eigenvalue-calculations"><span class="std std-ref">Section 3</span></a> presents the algorithms implemented in OpenMOC to solve the MOC equations. <a class="reference internal" href="constructive_solid_geometry.html#constructive-solid-geometry"><span class="std std-ref">Section 4</span></a> discusses the constructive solid geometry formulation used to represent geometric models in OpenMOC. <a class="reference internal" href="track_generation.html#track-generation"><span class="std std-ref">Section 5</span></a> reviews the angular quadrature and track generation algorithm in OpenMOC. Finally, <span class="xref std std-ref">Section 5</span> outlines the parallel algorithms in OpenMOC for high performance computing platforms while <a class="reference internal" href="cmfd.html#cmfd"><span class="std std-ref">Section 6</span></a> describes CMFD, a nonlinear acceleration method in OpenMOC.</p>
+<p><a class="reference internal" href="method_of_characteristics.html#method-of-characteristics"><span class="std std-ref">Section 2</span></a> describes how the method of characteristics is applied to solve the steady-state neutron transport equation in OpenMOC. <a class="reference internal" href="eigenvalue_calculations.html#eigenvalue-calculations"><span class="std std-ref">Section 3</span></a> presents the algorithms implemented in OpenMOC to solve the MOC equations. <a class="reference internal" href="constructive_solid_geometry.html#constructive-solid-geometry"><span class="std std-ref">Section 4</span></a> discusses the constructive solid geometry formulation used to represent geometric models in OpenMOC. <a class="reference internal" href="track_generation.html#track-generation"><span class="std std-ref">Section 5</span></a> reviews the angular quadrature and track generation algorithm in OpenMOC. <a class="reference internal" href="parallelization.html#parallelization"><span class="std std-ref">Section 6</span></a> outlines the parallel algorithms in OpenMOC for high performance computing platforms while <a class="reference internal" href="cmfd.html#cmfd"><span class="std std-ref">Section 7</span></a> describes CMFD, a nonlinear acceleration method in OpenMOC. <a class="reference internal" href="krylov.html#krylov"><span class="std std-ref">Section 7</span></a> gives elements for replacing the fission iteration algorithm by Krylov subspace algorithms.</p>
 <div class="section" id="references">
 <h2>1.1. References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
 <table class="docutils citation" frame="void" id="smith" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id1">[Smith]</a></td><td><ol class="first last upperalpha simple" start="11">
-<li>Smith and J. D. Rhodes, &#8220;CASMO-4 Characteristics Methods for Two-Dimensional PWR and BWR Core Calculations.&#8221; <em>Transactions of the American Nuclear Society</em>, <strong>83</strong>, pp. 294 (2000).</li>
+<li>Smith and J. D. Rhodes, “CASMO-4 Characteristics Methods for Two-Dimensional PWR and BWR Core Calculations.” <em>Transactions of the American Nuclear Society</em>, <strong>83</strong>, pp. 294 (2000).</li>
 </ol>
 </td></tr>
 </tbody>
@@ -70,7 +59,7 @@
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id2">[Wu]</a></td><td><ol class="first last upperalpha simple" start="7">
-<li>Wu and R. Roy, &#8220;A New Characteristics Algorithm for 3D Transport Calculations.&#8221; <em>Annals of Nuclear Energy</em>, <strong>30</strong>, pp. 1-6 (2003).</li>
+<li>Wu and R. Roy, “A New Characteristics Algorithm for 3D Transport Calculations.” <em>Annals of Nuclear Energy</em>, <strong>30</strong>, pp. 1-6 (2003).</li>
 </ol>
 </td></tr>
 </tbody>
@@ -79,7 +68,7 @@
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id3">[Taylor]</a></td><td><ol class="first last upperalpha simple" start="10">
-<li>Taylor, D. Knott and A. J. Baratta, &#8220;A Method of Characteristics Solution to the OECD/NEA 3D Neutron Transport Benchmark Problem.&#8221; <em>Proceedings of the Joint International Topical Meeting on Mathematics and Computation and Supercomputing in Nuclear Applications</em>, Monterey, CA, USA (2007).</li>
+<li>Taylor, D. Knott and A. J. Baratta, “A Method of Characteristics Solution to the OECD/NEA 3D Neutron Transport Benchmark Problem.” <em>Proceedings of the Joint International Topical Meeting on Mathematics and Computation and Supercomputing in Nuclear Applications</em>, Monterey, CA, USA (2007).</li>
 </ol>
 </td></tr>
 </tbody>
@@ -88,7 +77,7 @@
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id4">[Liu]</a></td><td><ol class="first last upperalpha simple" start="26">
-<li>Liu, H. Wu, L. Cao, Q. Chen, Y. Li, &#8220;A New Three-Dimensional Method of Characteristics for the Neutron Tansport Calculation.&#8221; <em>Annals of Nuclear Energy</em>, <strong>38</strong>, pp. 447-454 (2011).</li>
+<li>Liu, H. Wu, L. Cao, Q. Chen, Y. Li, “A New Three-Dimensional Method of Characteristics for the Neutron Tansport Calculation.” <em>Annals of Nuclear Energy</em>, <strong>38</strong>, pp. 447-454 (2011).</li>
 </ol>
 </td></tr>
 </tbody>
@@ -97,7 +86,7 @@
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id5">[Talamo]</a></td><td><ol class="first last upperalpha simple">
-<li>Talamo, &#8220;Numerical Solution of the Time Dependent Neutron Transport Equation by the Method of the Characteristics.&#8221; <em>Journal of Computational Physics}</em>, <strong>240</strong>, pp. 248-267 (2013).</li>
+<li>Talamo, “Numerical Solution of the Time Dependent Neutron Transport Equation by the Method of the Characteristics.” <em>Journal of Computational Physics}</em>, <strong>240</strong>, pp. 248-267 (2013).</li>
 </ol>
 </td></tr>
 </tbody>
@@ -131,18 +120,20 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/methods/introduction.txt"
+      <li><a href="../_sources/methods/introduction.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -161,14 +152,14 @@
         <li class="right" >
           <a href="index.html" title="Theory and Methodology"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" >Theory and Methodology</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenMOC Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Theory and Methodology</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2012-2014, Massachusetts Institute of Technology.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
+        &#169; Copyright 2012-2019, Massachusetts Institute of Technology.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
     </div>
 <script type="text/javascript">
 
