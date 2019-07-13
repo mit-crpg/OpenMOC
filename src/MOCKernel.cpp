@@ -126,7 +126,7 @@ int MOCKernel::getCount() {
  * @details MOC kernels ensure that there are no segments with an optical path
  *          length greater than the maximum optical path length by splitting
  *          them when they get too large.
- * @param the maximum optical path length for a segment
+ * @param max_tau the maximum optical path length for a segment
  */
 void MOCKernel::setMaxOpticalLength(FP_PRECISION max_tau) {
   _max_tau = max_tau;

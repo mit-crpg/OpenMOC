@@ -60,7 +60,7 @@ int CPUSolver::getNumThreads() {
  *          fluxes = solver.getFluxes(num_fluxes)
  * @endcode
  *
- * @param fluxes an array of FSR scalar fluxes in each energy group
+ * @param out_fluxes an array of FSR scalar fluxes in each energy group
  * @param num_fluxes the total number of FSR flux values
  */
 void CPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
@@ -161,9 +161,9 @@ void CPUSolver::setNumThreads(int num_threads) {
 
 /**
  * @brief Set the flux array for use in transport sweep source calculations.
- * @detail This is a helper method for the checkpoint restart capabilities,
- *         as well as the IRAMSolver in the openmoc.krylov submodule. This
- *         routine may be used as follows from within Python:
+ * @details This is a helper method for the checkpoint restart capabilities,
+ *          as well as the IRAMSolver in the openmoc.krylov submodule. This
+ *          routine may be used as follows from within Python:
  *
  * @code
  *          fluxes = numpy.random.rand(num_FSRs * num_groups, dtype=np.float)

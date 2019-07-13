@@ -300,7 +300,7 @@ double* Cell::getRotationMatrix() {
  *          rotation = cell.getRotation(3)
  * @endcode
  *
- * @param rotation an array of rotation angles of length 3 for x, y and z
+ * @param rotations an array of rotation angles of length 3 for x, y and z
  * @param num_axes the number of axes (this must always be 3)
  * @param units the angular units in "radians" or "degrees" (default)
  */
@@ -345,7 +345,7 @@ double* Cell::getTranslation() {
  *          translation = cell.retrieveTranslation(3)
  * @endcode
  *
- * @param translation an array of translations of length 3 for x, y and z
+ * @param translations an array of translations of length 3 for x, y and z
  * @param num_axes the number of axes (this must always be 3)
  */
 void Cell::retrieveTranslation(double* translations, int num_axes) {
@@ -1182,7 +1182,7 @@ void Cell::addNeighborCell(Cell* cell) {
  *          is within the Region. This point is only inside the Cell if it
  *          is on the same side of every Surface bounding the Cell.
  * @param point a pointer to a Point
- * @returns true if the Point is inside the Cell; otherwise false
+ * @return true if the Point is inside the Cell; otherwise false
  */
 bool Cell::containsPoint(Point* point) {
 
@@ -1213,6 +1213,7 @@ bool Cell::containsPoint(Point* point) {
  *          is on the same side of the Surface. This Point is only inside
  *          the Cell if it is on the same side of every Surface in the Cell.
  * @param coords a pointer to a localcoord
+ * @return whether the cell contains the coords or not
  */
 bool Cell::containsCoords(LocalCoords* coords) {
   return containsPoint(coords->getPoint());
@@ -1226,6 +1227,7 @@ bool Cell::containsCoords(LocalCoords* coords) {
  * @details If the trajectory will not intersect any of the Surfaces in the
  *          Cell returns INFINITY.
  * @param coords a pointer to a localcoords
+ * @return distance to nearest intersection with the cell's region boundaries
  */
 double Cell::minSurfaceDist(LocalCoords* coords) {
   if (_region == NULL)
@@ -1245,7 +1247,7 @@ double Cell::minSurfaceDist(LocalCoords* coords) {
  *        (in radians from \f$[0,2\pi]\f$)
  * @param polar the polar angle of the trajectory
  *        (in radians from \f$[0,\pi]\f$)
- * @param min_intersection a pointer to the intersection Point that is found
+ * @return distance to nearest intersection with the cell's region boundaries
  */
 double Cell::minSurfaceDist(Point* point, double azim, double polar) {
   if (_region == NULL)

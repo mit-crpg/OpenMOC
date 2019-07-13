@@ -4,7 +4,7 @@
 Coarse Mesh Finite Difference Acceleration
 ==========================================
 
-While MOC offers many benefits including treatment of complex geometries and amenability to parallelization, it suffers from slow convergence which necessitates the use of acceleration methods. Numerous acceleration schemes have been proposed for MOC such as CMFD [Smith-1983]_, coarse mesh rebalance (CMR) [Yamamoto-2002]_, [Yamamoto-2005]_, [Yamamoto-2008]_, [Lewis]_, and low order transport operator acceleration [Li]_ with CMFD being the most widely adopted due to its simplicity and acceleration performance. OpenMOC uses the CMFD nonlinear diffusion acceleration (NDA) scheme to reduce the number of iterations required for convergence. Acceleration schemes, such as NDA, are necessary when solving full-core problems which require thousands of power iterations in LWR problems that tend to have high dominance ratios. CMFD was first proposed by Smith [1]_ and has been widely used in accelerating neutron diffusion and transport problems for many years. In particular, it has been shown that CMFD acceleration gives :math:`>` 100x speedups on large LWR problems [Smith-2002]_.
+While MOC offers many benefits including treatment of complex geometries and amenability to parallelization, it suffers from slow convergence which necessitates the use of acceleration methods. Numerous acceleration schemes have been proposed for MOC such as CMFD [Smith-1983]_, coarse mesh rebalance (CMR) [Yamamoto-2002]_, [Yamamoto-2005]_, [Yamamoto-2008]_, [Lewis]_, and low order transport operator acceleration [Li]_ with CMFD being the most widely adopted due to its simplicity and acceleration performance. OpenMOC uses the CMFD nonlinear diffusion acceleration (NDA) scheme to reduce the number of iterations required for convergence. Acceleration schemes, such as NDA, are necessary when solving full-core problems which require thousands of power iterations in LWR problems that tend to have high dominance ratios. CMFD was first proposed by Smith [Smith-1983]_ and has been widely used in accelerating neutron diffusion and transport problems for many years. In particular, it has been shown that CMFD acceleration gives :math:`>` 100x speedups on large LWR problems [Smith-2002]_.
 
 CMFD acceleration functions by using the solution of a coarse mesh diffusion problem to accelerate the convergence of a fine mesh transport problem. It is implemented by overlaying a 2D (or 3D) cartesian mesh over an FSR mesh. :ref:`Figure 1 <figure-fsr-mesh-regions>` gives an illustration of the FSR mesh layout and coarse mesh layout used for solving a 17 x 17 PWR assembly problem.
 
@@ -38,7 +38,7 @@ Variable                                   Description                    Variab
 :math:`{\mathbf{g}}, {\mathbf{g}} \prime`  Energy group index             :math:`x, y`         Position variable
 =========================================  =============================  ===================  =============================
 
-.. _gen-coarse-mesh
+.. _gen-coarse-mesh:
 
 Cross Section Generation
 ========================
@@ -186,7 +186,7 @@ The neutron balance equation in a cell then becomes:
 
 Note that :eq:`eqn-alg-net-current` is the algebraic net current based on the finite difference approximation being applied across the surface of two neighboring cells and not the actual net current in the MOC problem. The actual current from the MOC problem is computed by accumulating the current contribution from every segment that crosses a surface as will be shown in the :ref:`Section 7.3 <nonlinear-dif-coef>`.
 
-.. _nonlinear-dif-coef
+.. _nonlinear-dif-coef:
 
 Introduction to nonlinear diffusion correction factors
 ======================================================
@@ -263,7 +263,7 @@ As shown in :ref:`Figure 1 <figure-fsr-mesh-regions>` the CMFD mesh is often app
 Note that the effective diffusion coefficient depends on the width of the cell and is therefore directional in a 2D (or 3D) mesh. :eq:`eqn-optic-thick-d` can also be used to compute the effective diffusion coefficient in the y-direction, which will differ from the effective diffusion coefficient in the x-direction if the cell is not square. As the size of the cell approaches zero and the optical thickness of the cell approaches the optically thin limit, the effective diffusion coefficient will approach the material diffusion coefficient. For simplicity, we continue to use the surface diffusion coefficient terms in the rest of this thesis without the "eff" superscript.
 
 
-.. _corner-crossings
+.. _corner-crossings:
 
 Treatment of coarse mesh cell corner crossings
 ==============================================

@@ -15,6 +15,7 @@
  * @param A the loss + streaming Matrix object
  * @param M the fission gain Matrix object
  * @param X the flux Vector object
+ * @param k_eff initial k_effective
  * @param tol the power method and linear solve source convergence threshold
  * @param SOR_factor the successive over-relaxation factor
  * @param convergence_data a summary of how to solver converged
@@ -371,7 +372,7 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 }
 
 
-
+#ifdef MPIx
 /**
  * @brief Get coupling fluxes and other information from neighbors. 
  *        The information are transfered by reference.
@@ -387,7 +388,6 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
  * @param offset Sum of the starting CMFD global indexes of a domain, for 
  *        calculation of the color
  */
-#ifdef MPIx
 void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
                       int**& coupling_indexes, CMFD_PRECISION**& coupling_coeffs,
                       CMFD_PRECISION**& coupling_fluxes,

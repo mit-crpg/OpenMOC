@@ -35,7 +35,7 @@ ExpEvaluator::~ExpEvaluator() {
 
 /**
  * @brief Set the Quadrature to use when computing exponentials.
- * @param polar_quad a Quadrature object pointer
+ * @param quadrature a Quadrature object pointer
  */
 void ExpEvaluator::setQuadrature(Quadrature* quadrature) {
   _quadrature = quadrature;
@@ -144,8 +144,7 @@ FP_PRECISION ExpEvaluator::getTableSpacing() {
 
 /**
  * @brief Get the number of entries in the exponential interpolation table.
- * @param entries in the interpolation table
- *
+ * @return entries in the interpolation table
  */
 int ExpEvaluator::getTableSize() {
 

@@ -1091,7 +1091,7 @@ double GLPolarQuad::legendrePolynomial(size_t n, double x) {
 
 /**
  * @brief The first logarithmic derivative of a Legendre polynomial
- * @param m the order of the polynomial
+ * @param n the order of the polynomial
  * @param x point at which to evaluate the logarithmic derivative
  * @return the value of the logarithmic derivative at x
  */
@@ -1104,7 +1104,7 @@ double GLPolarQuad::logDerivLegendre(size_t n, double x) {
 
 /**
  * @brief The second logarithmic derivative of a Legendre polynomial
- * @param m the order of the polynomial
+ * @param n the order of the polynomial
  * @param x point at which to evaluate the logarithmic derivative
  * @return the value of the logarithmic derivative at x
  */
@@ -1118,10 +1118,10 @@ double GLPolarQuad::secondLogDerivLegendre(size_t n, double x) {
 
 /**
  * @brief Finds the roots of Legendre polynomial of order n.
- * @detail Guesses for positive roots are set at logarithmic intervals.
- *         Positive roots are found simultaneously using an
- *         Alberth-Householder-n method. Each guess is successively nudged
- *         towards a true root. Only the positive roots are calculated
+ * @details Guesses for positive roots are set at logarithmic intervals.
+ *          Positive roots are found simultaneously using an
+ *          Alberth-Householder-n method. Each guess is successively nudged
+ *          towards a true root. Only the positive roots are calculated
  * @param n the order of the polynomial
  * @return a list of the roots of the polynomial
  */

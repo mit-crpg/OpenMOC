@@ -79,7 +79,7 @@ Matrix::~Matrix() {
  * @param cell_from The origin cell.
  * @param group_from The origin group.
  * @param cell_to The destination cell.
- * @param group_from The destination group.
+ * @param group_to The destination group.
  * @param val The value used to increment the row/column location.
  */
 void Matrix::incrementValue(int cell_from, int group_from,
@@ -124,7 +124,7 @@ void Matrix::incrementValue(int cell_from, int group_from,
  * @param cell_from The origin cell.
  * @param group_from The origin group.
  * @param cell_to The destination cell.
- * @param group_from The destination group.
+ * @param group_to The destination group.
  * @param val The value used to set the row/column location.
  */
 void Matrix::setValue(int cell_from, int group_from,
@@ -264,7 +264,7 @@ void Matrix::printString() {
  * @param cell_from The origin cell.
  * @param group_from The origin group.
  * @param cell_to The destination cell.
- * @param group_from The destination group.
+ * @param group_to The destination group.
  * @return The value at the corresponding row/column location.
  */
 CMFD_PRECISION Matrix::getValue(int cell_from, int group_from,

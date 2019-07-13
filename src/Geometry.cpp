@@ -1006,7 +1006,8 @@ Cell* Geometry::findCellContainingCoords(LocalCoords* coords) {
  *          each LocalCoord in the linked list for the Lattice or Universe
  *          that it is in.
  * @param coords pointer to a LocalCoords object
- * @param angle the angle for a trajectory projected from the LocalCoords
+ * @param azim the azimuthal angle for a trajectory projected from the LocalCoords
+ * @param polar the polar angle for a trajectory projected from the LocalCoords
  * @return returns a pointer to a cell if found, NULL if no cell found
 */
 Cell* Geometry::findFirstCell(LocalCoords* coords, double azim, double polar) {
@@ -1057,7 +1058,8 @@ Material* Geometry::findFSRMaterial(long fsr_id) {
  *          return a pointer to the Cell that the LocalCoords will reach
  *          next along its trajectory.
  * @param coords pointer to a LocalCoords object
- * @param angle the angle of the trajectory
+ * @param azim the azimuthal angle of the trajectory
+ * @param polar the polar angle of the trajectory
  * @return a pointer to a Cell if found, NULL if no Cell found
  */
 Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
@@ -1331,6 +1333,7 @@ int Geometry::findExtrudedFSR(LocalCoords* coords) {
  * @brief Return the ID of the flat source region that a given
  *        LocalCoords object resides within.
  * @param coords a LocalCoords object pointer
+ * @param err_check whether to fail instead of returning -1 if not found
  * @return the FSR ID for a given LocalCoords object
  */
 long Geometry::getFSRId(LocalCoords* coords, bool err_check) {
@@ -1420,6 +1423,7 @@ std::map<Cell*, std::vector<long> > Geometry::getCellsToFSRs() {
  * @brief Return the global ID of the flat source region that a given
  *        LocalCoords object resides within.
  * @param coords a LocalCoords object pointer
+ * @param err_check whether to fail instead of returning -1 if not found
  * @return the FSR ID for a given LocalCoords object
  */
 long Geometry::getGlobalFSRId(LocalCoords* coords, bool err_check) {
@@ -1638,7 +1642,7 @@ void Geometry::reserveKeyStrings(int num_threads) {
  *          creates a unique FSR key by constructing a structured string
  *          that describes the hierarchy of lattices/universes/cells.
  * @param coords a LocalCoords object pointer
- * @return the FSR key
+ * @param key a reference to the FSR key
  */
 void Geometry::getFSRKeyFast(LocalCoords* coords, std::string& key) {
 

@@ -125,7 +125,7 @@ void Track::setSurfaceIn(int surface_in) {
 
 /**
  * @brief Set the surface at which the Track ends.
- * @param surface_in surface at which the Track ends in the domain.
+ * @param surface_out surface at which the Track ends in the domain.
  */
 void Track::setSurfaceOut(int surface_out) {
   _surface_out = surface_out;
@@ -303,7 +303,7 @@ int Track::getLinkIndex() {
 
 /**
  * @brief Set a pointer to the reflective Track in the forward direction.
- * @param track A pointer to the reflective track in the forward direction
+ * @param track_id the id of the reflective track in the forward direction
  */
 void Track::setTrackNextFwd(long track_id) {
   _track_next_fwd = track_id;
@@ -312,7 +312,7 @@ void Track::setTrackNextFwd(long track_id) {
 
 /**
  * @brief Set a pointer to the reflective Track in the backward direction.
- * @param track A pointer to the reflective track in the backward direction
+ * @param track_id the id of the reflective track in the backward direction
  */
 void Track::setTrackNextBwd(long track_id) {
   _track_next_bwd = track_id;
@@ -321,7 +321,7 @@ void Track::setTrackNextBwd(long track_id) {
 
 /**
  * @brief Set a pointer to the periodic Track in the forward direction.
- * @param track A pointer to the periodic track in the forward direction
+ * @param track_id the id of the periodic track in the forward direction
  */
 void Track::setTrackPrdcFwd(long track_id) {
   _track_prdc_fwd = track_id;
@@ -330,7 +330,7 @@ void Track::setTrackPrdcFwd(long track_id) {
 
 /**
  * @brief Set a pointer to the periodic Track in the backward direction.
- * @param track A pointer to the periodic track in the backward direction
+ * @param track_id the id of the periodic track in the backward direction
  */
 void Track::setTrackPrdcBwd(long track_id) {
   _track_prdc_bwd = track_id;
@@ -339,7 +339,7 @@ void Track::setTrackPrdcBwd(long track_id) {
 
 /**
  * @brief Set a pointer to the reflective Track in the forward direction.
- * @param track A pointer to the reflective track in the forward direction
+ * @param track_id the id of the reflective track in the forward direction
  */
 void Track::setTrackReflFwd(long track_id) {
   _track_refl_fwd = track_id;
@@ -348,7 +348,7 @@ void Track::setTrackReflFwd(long track_id) {
 
 /**
  * @brief Set a pointer to the reflective Track in the backward direction.
- * @param track A pointer to the reflective track in the backward direction
+ * @param track_id the id of the reflective track in the backward direction
  */
 void Track::setTrackReflBwd(long track_id) {
   _track_refl_bwd = track_id;
@@ -357,7 +357,7 @@ void Track::setTrackReflBwd(long track_id) {
 
 /**
  * @brief Get a pointer to the reflective Track in the forward direction.
- * @return A pointer to the reflective track in the forward direction
+ * @return the id of the reflective track in the forward direction
  */
 long Track::getTrackNextFwd() {
   return _track_next_fwd;
@@ -366,7 +366,7 @@ long Track::getTrackNextFwd() {
 
 /**
  * @brief Get a pointer to the reflective Track in the backward direction.
- * @return A pointer to the reflective track in the backward direction
+ * @return the id of the reflective track in the backward direction
  */
 long Track::getTrackNextBwd() {
   return _track_next_bwd;
@@ -375,7 +375,7 @@ long Track::getTrackNextBwd() {
 
 /**
  * @brief Get a pointer to the periodic Track in the forward direction.
- * @return A pointer to the periodic track in the forward direction
+ * @return the id of the periodic track in the forward direction
  */
 long Track::getTrackPrdcFwd() {
   return _track_prdc_fwd;
@@ -384,7 +384,7 @@ long Track::getTrackPrdcFwd() {
 
 /**
  * @brief Get a pointer to the periodic Track in the backward direction.
- * @return A pointer to the periodic track in the backward direction
+ * @return the id of the periodic track in the backward direction
  */
 long Track::getTrackPrdcBwd() {
   return _track_prdc_bwd;
@@ -393,7 +393,7 @@ long Track::getTrackPrdcBwd() {
 
 /**
  * @brief Get a pointer to the reflective Track in the forward direction.
- * @return A pointer to the reflective track in the forward direction
+ * @return the id of the reflective track in the forward direction
  */
 long Track::getTrackReflFwd() {
   return _track_refl_fwd;
@@ -402,7 +402,7 @@ long Track::getTrackReflFwd() {
 
 /**
  * @brief Get a pointer to the reflective Track in the backward direction.
- * @return A pointer to the reflective track in the backward direction
+ * @return the id of the reflective track in the backward direction
  */
 long Track::getTrackReflBwd() {
   return _track_refl_bwd;

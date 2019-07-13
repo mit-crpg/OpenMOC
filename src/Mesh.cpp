@@ -235,6 +235,7 @@ Vector3D Mesh::getFormattedReactionRates(RxType rx, bool volume_average) {
  *        Lattice. If the widths_offsets size is 3, the center-point of the
  *        geometry is used as the offset.
  * @param rx The type of reaction to tally
+ * @param volume_average whether to volume average results
  * @return The reaction rates in a 3D vector indexed by the lattice cell
  *         x, y, and z indexes
  */

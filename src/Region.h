@@ -83,8 +83,8 @@ public:
   virtual boundaryType getMinZBoundaryType();
   virtual boundaryType getMaxZBoundaryType();
   virtual bool containsPoint(Point* point) =0;
-  virtual double minSurfaceDist(Point* point, double azim, double polar=M_PI_2);
   virtual double minSurfaceDist(LocalCoords* coords);
+  virtual double minSurfaceDist(Point* point, double azim, double polar=M_PI_2);
   virtual Region* clone();
 };
 
@@ -155,8 +155,8 @@ public:
   boundaryType getMinZBoundaryType();
   boundaryType getMaxZBoundaryType();
   bool containsPoint(Point* point);
-  double minSurfaceDist(Point* point, double azim, double polar=M_PI_2);
   double minSurfaceDist(LocalCoords* coords);
+  double minSurfaceDist(Point* point, double azim, double polar=M_PI_2);
 };
 
 /**

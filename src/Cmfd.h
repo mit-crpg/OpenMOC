@@ -549,7 +549,8 @@ inline int Cmfd::getGlobalCMFDCell(int cmfd_cell) {
  *        the appropriate CMFD mesh cell surface.
  * @param curr_segment the current Track segment
  * @param track_flux the outgoing angular flux for this segment
- * @param polar_weights array of polar weights for some azimuthal angle
+ * @param azim_index azimuthal index of track angle
+ * @param polar_index polar index of track angle
  * @param fwd boolean indicating direction of integration along segment
  */
 inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
