@@ -804,7 +804,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 /**
  * @brief Constructor for TransportSweep calls the TraverseSegments
  *        constructor and initializes the associated CPUSolver to NULL.
- * @param track_generator The TrackGenerator to pull tracking information from
+ * @param cpu_solver The CPUSolver to use for propagating angular fluxes
  */
 TransportSweep::TransportSweep(CPUSolver* cpu_solver)
     : TraverseSegments(cpu_solver->getTrackGenerator()) {
@@ -1136,7 +1136,7 @@ void ReadSegments::execute() {
 
 /**
  * @brief Sets the input file to read in tracking information.
- * @param in The input tracking file
+ * @param input the tracking file
  */
 void ReadSegments::setInputFile(FILE* input) {
   _in = input;

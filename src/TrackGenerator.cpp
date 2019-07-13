@@ -890,8 +890,8 @@ void TrackGenerator::initializeDefaultQuadrature() {
 
 /**
  * @brief Calculates the least common multiple of two numbers a and b
- * @param first number a
- * @param second number b (order does not matter)
+ * @param a first number
+ * @param b second number (order does not matter)
  * @return the least common multiple of a and b
  */
 double TrackGenerator::leastCommonMultiple(double a, double b) {

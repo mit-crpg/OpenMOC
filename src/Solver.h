@@ -508,6 +508,7 @@ public:
   * @param fission_rates an array to store the fission rates (implicitly passed
   *                      in as a NumPy array from Python)
   * @param num_FSRs the number of FSRs passed in from Python
+  * @param nu whether to return nu-fission rates instead of fission rates
   */
   virtual void computeFSRFissionRates(double* fission_rates, long num_FSRs,
                                       bool nu = false) =0;

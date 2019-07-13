@@ -390,7 +390,7 @@ void TrackGenerator3D::setSegmentFormation(segmentationType segmentation_type) {
 /**
  * @brief Sets the z-planes over which 2D segmentation is performed for
  *        on-the-fly calculations
- * @param z_mesh the z-coordinates defining the height of the radial
+ * @param zones the z-coordinates defining the height of the radial
  *        segmentation planes
  */
 void TrackGenerator3D::setSegmentationZones(std::vector<double> zones) {
@@ -1857,7 +1857,7 @@ int TrackGenerator3D::getNum3DTrackChainLinks(TrackChainIndexes* tci) {
  * @brief Fills the provided 3D Track with its linking information.
  * @param tsi The stack indexes
  * @param tci The chain indexes
- * @param tci outgoing A boolean indicating the direction of the Track
+ * @param outgoing A boolean indicating the direction of the Track
  *        (True = forward, False = Backward)
  * @param track The 3D Track whose information is updated
  */

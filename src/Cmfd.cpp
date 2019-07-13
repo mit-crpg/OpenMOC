@@ -253,7 +253,7 @@ Cmfd::~Cmfd() {
 
 /**
  * @brief Set the number of Mesh cells in a row.
- * @param number of Mesh cells in a row
+ * @param num_x number of Mesh cells in a row
  */
 void Cmfd::setNumX(int num_x) {
 
@@ -272,7 +272,7 @@ void Cmfd::setNumX(int num_x) {
 
 /**
  * @brief Set the number of Mesh cells in a column.
- * @param number of Mesh cells in a column
+ * @param num_y number of Mesh cells in a column
  */
 void Cmfd::setNumY(int num_y) {
 
@@ -291,7 +291,7 @@ void Cmfd::setNumY(int num_y) {
 
 /**
  * @brief Set the number of Mesh cells in the z-direction.
- * @param number of Mesh cells in the z direction
+ * @param num_z number of Mesh cells in the z direction
  */
 void Cmfd::setNumZ(int num_z) {
 
@@ -1963,8 +1963,8 @@ Lattice* Cmfd::getLattice() {
 /**
  * @brief Add an FSR ID to a vector that contains all the FSR IDs
  *        contained within a CMFD mesh cell.
- * @param The CMFD cell ID.
- * @param The FSR ID.
+ * @param cmfd_cell the CMFD cell ID.
+ * @param fsr_id the FSR ID.
  */
 void Cmfd::addFSRToCell(int cmfd_cell, long fsr_id) {
   _cell_fsrs.at(cmfd_cell).push_back(fsr_id);
@@ -1973,7 +1973,7 @@ void Cmfd::addFSRToCell(int cmfd_cell, long fsr_id) {
 
 /**
  * @brief Set the number of MOC energy groups.
- * @param number of MOC energy groups
+ * @param num_groups number of MOC energy groups
  */
 void Cmfd::setNumMOCGroups(int num_groups) {
   _num_moc_groups = num_groups;
@@ -2000,7 +2000,7 @@ int Cmfd::getNumCells() {
 
 /**
  * @brief set the number of FSRs.
- * @param the number of FSRs
+ * @param num_fsrs the number of FSRs
  */
 void Cmfd::setNumFSRs(long num_fsrs) {
   _num_FSRs = num_fsrs;
@@ -2511,7 +2511,7 @@ void Cmfd::setBoundary(int side, boundaryType boundary) {
 
 /**
  * @brief Get the boundaryType for one side of the CMFD mesh.
- * @param the CMFD mesh surface ID.
+ * @param side the CMFD mesh surface ID.
  * @return the boundaryType for the surface.
  */
 int Cmfd::getBoundary(int side) {
@@ -3311,7 +3311,7 @@ double Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
 
 /**
  * @brief Set a pointer to the Geometry.
- * @param goemetry A pointer to a Geometry object.
+ * @param geometry A pointer to a Geometry object.
  */
 void Cmfd::setGeometry(Geometry* geometry) {
   _geometry = geometry;
@@ -3761,7 +3761,7 @@ void Cmfd::initialize() {
  * @brief Initialize the CMFD lattice and compute mesh dimensions, considering
  *        both uniform/non-uniform and 2D/3D cases.
  * @param offset the offset point of the CMFD Lattice
- * @param whether CMFD will be used in a 2D simulation (true) or 3D
+ * @param is_2D whether CMFD will be used in a 2D simulation (true) or 3D
  */
 void Cmfd::initializeLattice(Point* offset, bool is_2D) {
 
@@ -4073,7 +4073,7 @@ CMFD_PRECISION Cmfd::getSurfaceWidth(int surface, int global_ind) {
 /**
  * @brief Returns the width of the surface perpendicular to a given surface
  * @param surface A surface index, from 0 to NUM_FACES - 1
- * @paran global_ind The CMFD cell global index
+ * @param global_ind The CMFD cell global index
  * @return The perpendicular surface width
  */
 CMFD_PRECISION Cmfd::getPerpendicularSurfaceWidth(int surface, int global_ind) {

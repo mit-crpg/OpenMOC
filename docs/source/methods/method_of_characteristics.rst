@@ -273,7 +273,7 @@ Another common approximation for MOC is to assume that the source :math:`Q_g` is
 The Linear Source Region Approximation
 ======================================
 
-A more accurate description of the source in spatial regions is to assume a linear variation. This is typically sufficient for the moderator in a PWR, when each channel is also cut in azimuthal source regions. The source then varies along each characteristic lines. The reader should refer themselves to `Ferrer`_ and `G. Gunow PhD Thesis`_ for more details on the track-based linear source approximation and its implementation in OpenMOC.
+A more accurate description of the source in spatial regions is to assume a linear variation. This is typically sufficient for the moderator in a PWR, when each channel is also cut in azimuthal source regions. The source then varies along each characteristic lines. The reader should refer themselves to [Ferrer]_ and [Gunow]_ for more details on the track-based linear source approximation and its implementation in OpenMOC.
 
 .. math::
    :label: linear-source
@@ -445,5 +445,5 @@ References
 
 .. [Ferrer] R. Ferrer and J. Rhodes, “A Linear Source Approximation Scheme for the Method of Characteristics,” volume 77, p. 119–136, 1981.
 
-.. [G. Gunow PhD Thesis] G. Gunow "Full Core 3D Neutron Transport Simulation Using the Method of Characteristics with Linear Sources", PhD Thesis, Massachusetts Institute of Technology (2018).
+.. [Gunow] G. Gunow "Full Core 3D Neutron Transport Simulation Using the Method of Characteristics with Linear Sources", PhD Thesis, Massachusetts Institute of Technology (2018).
 

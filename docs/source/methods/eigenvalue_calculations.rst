@@ -165,7 +165,8 @@ Exponential Evaluation Method
 
 The algorithms described in this section require a number of floating point operations, including addition, subtraction, multiplication and division. The most expensive operation, however, is the exponential evaluation needed to compute :math:`e^{-\tau_{k,i,g,p}}`. All mainstream compilers provide a library with intrinsic mathematical routines, including an exponential evaluator. One method of avoiding the computational cost of explicitly evaluating exponentials is through the use of a linear interpolation table. A sequence of linear approximations to a simple exponential is illustrated in :ref:`Figure 2 <figure-exponential-tangent>`. In addition to reducing the flop count for an exponential evaluation, the table may be constructed to fit completely in :math:`L1` cache and as a result, can improve the memory performance of the MOC transport sweep algorithm.
 
-.. _warning: The linear interpolation tables were first replaced by quadratic interpolation tables, and those are now superseded by rational fraction approximations, which are faster to compute and more accurate. See [Giudicelli-2019]_ for more details.
+#NOTE
+The linear interpolation tables were first replaced by quadratic interpolation tables, and those are now superseded by rational fraction approximations, which are faster to compute and more accurate. See [Giudicelli-2019]_ for more details.
 
 .. _figure-exponential-tangent:
 
@@ -176,7 +177,7 @@ The algorithms described in this section require a number of floating point oper
 
    **Figure 2**: Linear interpolation of an exponential.
 
-The OpenMOC code incorporates an option to evaluate exponentials using either the compiler's exponential intrinsic function or a linear interpolation table. The following expression for the maximum approximation error :math:`\epsilon` for the linear interpolation method was discussed and validated by [Yamamoto]_:
+The OpenMOC code incorporates an option to evaluate exponentials using either the compiler's exponential intrinsic function or a linear interpolation table. The following expression for the maximum approximation error :math:`\epsilon` for the linear interpolation method was discussed and validated by [Yamamoto-2004]_:
 
 .. math::
    :label: exponential-error
@@ -253,5 +254,5 @@ References
 
 .. [Giudicelli-2019] Giudicelli G., Forget B. and Smith K., Adding a third level of parallelism to OpenMOC, an open-source deterministic neutron transport solver, M&C 2019
 
-.. [Yamamoto] Yamamoto A., Kitamura Y. and Yamane Y., Computational efficiencies of approximated exponential functions for transport calculations of the characteristics method, Annals of Nuclear Energy, vol. 30, 2004
+.. [Yamamoto-2004] Yamamoto A., Kitamura Y. and Yamane Y., Computational efficiencies of approximated exponential functions for transport calculations of the characteristics method, Annals of Nuclear Energy, vol. 30, 2004
 

@@ -192,7 +192,7 @@ public:
 
   bool isPointOnSurface(Point* point);
   bool isCoordOnSurface(LocalCoords* coord);
-  double getMinDistance(Point* point, double azim, double polar=M_PI_2);
+  double getMinDistance(Point* point, double azim, double polar);
   double getMinDistance(LocalCoords* coord);
 
   /**
@@ -392,7 +392,6 @@ public:
  * @param point a pointer to the Point of interest
  * @param azim the azimuthal angle defining the trajectory in radians
  * @param polar the polar angle defining the trajectory in radians
- * @param intersection a pointer to a Point for storing the intersection
  * @return the minimum distance to the Surface
  */
 inline double Surface::getMinDistance(Point* point, double azim, double polar) {

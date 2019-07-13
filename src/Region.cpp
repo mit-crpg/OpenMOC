@@ -578,6 +578,7 @@ boundaryType Region::getMaxZBoundaryType() {
  * @details If the trajectory will not intersect any of the Surfaces in the
  *          Region returns INFINITY.
  * @param coords a pointer to a localcoords
+ * @return distance to the region boundaries
  */
 double Region::minSurfaceDist(LocalCoords* coords) {
 
@@ -604,7 +605,12 @@ double Region::minSurfaceDist(LocalCoords* coords) {
  *        LocalCoords object.
  * @details If the trajectory will not intersect any of the Surfaces in the
  *          Region returns INFINITY.
- * @param coords a pointer to a localcoords
+ * @param point the Point of interest
+ * @param azim the azimuthal angle of the trajectory
+ *        (in radians from \f$[0,2\pi]\f$)
+ * @param polar the polar angle of the trajectory
+ *        (in radians from \f$[0,\pi]\f$)
+ * @return distance to nearest intersection with the region's boundaries
  */
 double Region::minSurfaceDist(Point* point, double azim, double polar) {
 

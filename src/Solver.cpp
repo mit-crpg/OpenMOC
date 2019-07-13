@@ -454,7 +454,7 @@ void Solver::setTrackGenerator(TrackGenerator* track_generator) {
 /**
  * @brief Sets the threshold for source/flux convergence.
  * @brief The default threshold for convergence is 1E-5.
- * @param source_thresh the threshold for source/flux convergence
+ * @param threshold the threshold for source/flux convergence
  */
 void Solver::setConvergenceThreshold(double threshold) {
 
@@ -500,7 +500,7 @@ void Solver::setFixedSourceByFSR(long fsr_id, int group, double source) {
  * @brief Assign a fixed source for a Cell and energy group.
  * @details This routine will add the fixed source to all instances of the
  *          Cell in the geometry (e.g., all FSRs for this Cell).
- * @param fsr_id the Cell of interest
+ * @param cell a pointer to the Cell of interest
  * @param group the energy group
  * @param source the volume-averaged source in this group
  */
@@ -527,7 +527,7 @@ void Solver::setFixedSourceByCell(Cell* cell, int group, double source) {
  * @brief Assign a fixed source for a Material and energy group.
  * @details This routine will add the fixed source to all instances of the
  *          Material in the geometry (e.g., all FSRs with this Material).
- * @param fsr_id the Material of interest
+ * @param material a pointer to the Material of interest
  * @param group the energy group
  * @param source the volume-averaged source in this group
  */
@@ -657,7 +657,7 @@ void Solver::correctXS() {
  *                  the magnitude of the stabilizing correction.
  *
  * @param stabilization_factor The factor applied to the stabilizing correction
- * @param stabilizaiton_type The type of stabilization to use
+ * @param stabilization_type The type of stabilization to use
  */
 void Solver::stabilizeTransport(double stabilization_factor,
                                 stabilizationType stabilization_type) {

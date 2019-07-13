@@ -13,5 +13,6 @@ Theory and Methodology
     eigenvalue_calculations
     constructive_solid_geometry
     track_generation
+    parallelization
     cmfd
     krylov
