@@ -6,7 +6,7 @@
  * @brief Constructor for the TrackGenerator assigns default values.
  * @param geometry a pointer to a Geometry object
  * @param num_azim number of azimuthal angles in \f$ [0, 2\pi] \f$
- * @param spacing track spacing (cm)
+ * @param azim_spacing azimuthal track spacing (cm)
  */
 TrackGenerator::TrackGenerator(Geometry* geometry, int num_azim,
                                double azim_spacing) {

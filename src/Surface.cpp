@@ -10,8 +10,8 @@ static int auto_id = DEFAULT_INIT_ID;
  *          OpenMOC input files. The method makes use of a static surface
  *          ID which is incremented each time the method is called to enable
  *          unique generation of monotonically increasing IDs. The method's
- *          first ID begins at 10,000. Hence, user-defined surface IDs greater
- *          than or equal to 10,000 are prohibited.
+ *          first ID begins at 1,000,000. Hence, user-defined surface IDs
+ *          greater than or equal to 1,000,000 are prohibited.
  */
 int surface_id() {
   int id = auto_id;
@@ -21,7 +21,7 @@ int surface_id() {
 
 
 /**
- * @brief Resets the auto-generated unique Surface ID counter to 10,000.
+ * @brief Resets the auto-generated unique Surface ID counter to 1,000,000.
  */
 void reset_surface_id() {
   auto_id = DEFAULT_INIT_ID;
@@ -32,9 +32,9 @@ void reset_surface_id() {
  * @brief Maximize the auto-generated unique Surface ID counter.
  * @details This method updates the auto-generated unique Surface ID
  *          counter if the input parameter is greater than the present
- *          value. This is useful for the OpenCG compatibility module
+ *          value. This is useful for the OpenMC compatibility module
  *          to ensure that the auto-generated Surface IDs do not
- *          collide with those created in OpenCG.
+ *          collide with those created in OpenMC.
  * @param surface_id the id assigned to the auto-generated counter
  */
 void maximize_surface_id(int surface_id) {
@@ -931,7 +931,7 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
       xcurr = x0;
       if (discr < 0.0)
         discr = 0.0;
-      ycurr = (-b + sqrt(discr)) / 2;
+      ycurr = (-b + sqrt(discr)) / (2 * a);
       double interior = pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0);
       if (interior < 0.0)
         interior = 0.0;

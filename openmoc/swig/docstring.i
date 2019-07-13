@@ -39,7 +39,7 @@ retrieveTranslation(double *translations, int num_axes)
 
 Fills an array with the translations along x, y and z.  
 
-This class method is intended to be called by the OpenMOC Python OpenCG compatiblity
+This class method is intended to be called by the OpenMOC Python OpenMC compatiblity
 module. Although this method appears to require two arguments, in reality it only requires
 one due to SWIG and would be called from within Python as follows:  
 
@@ -315,7 +315,7 @@ retrieveRotation(double *rotations, int num_axes, std::string units=\"degrees\")
 
 Fills an array with the rotation angles for x, y and z.  
 
-This class method is intended to be called by the OpenMOC Python OpenCG compatiblity
+This class method is intended to be called by the OpenMOC Python OpenMC compatiblity
 module. Although this method appears to require two arguments, in reality it only requires
 one due to SWIG and would be called from within Python as follows:  
 
@@ -9880,8 +9880,8 @@ maximize_cell_id(int cell_id)
 Maximize the auto-generated unique Cell ID counter.  
 
 This method updates the auto-generated unique Cell ID counter if the input parameter is
-greater than the present value. This is useful for the OpenCG compatibility module to
-ensure that the auto-generated Cell IDs do not collide with those created in OpenCG.  
+greater than the present value. This is useful for the OpenMC compatibility module to
+ensure that the auto-generated Cell IDs do not collide with those created in OpenMC.  
 
 Parameters
 ----------
@@ -9914,8 +9914,8 @@ maximize_cell_id(int cell_id)
 Maximize the auto-generated unique Cell ID counter.  
 
 This method updates the auto-generated unique Cell ID counter if the input parameter is
-greater than the present value. This is useful for the OpenCG compatibility module to
-ensure that the auto-generated Cell IDs do not collide with those created in OpenCG.  
+greater than the present value. This is useful for the OpenMC compatibility module to
+ensure that the auto-generated Cell IDs do not collide with those created in OpenMC.  
 
 Parameters
 ----------
@@ -10600,8 +10600,8 @@ maximize_material_id(int material_id)
 Maximize the auto-generated unique Material ID counter.  
 
 This method updates the auto-generated unique Material ID counter if the input parameter
-is greater than the present value. This is useful for the OpenCG compatibility module to
-ensure that the auto-generated Material IDs do not collide with those created in OpenCG.  
+is greater than the present value. This is useful for the OpenMC compatibility module to
+ensure that the auto-generated Material IDs do not collide with those created in OpenMC.  
 
 Parameters
 ----------
@@ -10635,8 +10635,8 @@ maximize_material_id(int material_id)
 Maximize the auto-generated unique Material ID counter.  
 
 This method updates the auto-generated unique Material ID counter if the input parameter
-is greater than the present value. This is useful for the OpenCG compatibility module to
-ensure that the auto-generated Material IDs do not collide with those created in OpenCG.  
+is greater than the present value. This is useful for the OpenMC compatibility module to
+ensure that the auto-generated Material IDs do not collide with those created in OpenMC.  
 
 Parameters
 ----------
@@ -10722,8 +10722,8 @@ maximize_surface_id(int surface_id)
 Maximize the auto-generated unique Surface ID counter.  
 
 This method updates the auto-generated unique Surface ID counter if the input parameter is
-greater than the present value. This is useful for the OpenCG compatibility module to
-ensure that the auto-generated Surface IDs do not collide with those created in OpenCG.  
+greater than the present value. This is useful for the OpenMC compatibility module to
+ensure that the auto-generated Surface IDs do not collide with those created in OpenMC.  
 
 Parameters
 ----------
@@ -10757,8 +10757,8 @@ maximize_surface_id(int surface_id)
 Maximize the auto-generated unique Surface ID counter.  
 
 This method updates the auto-generated unique Surface ID counter if the input parameter is
-greater than the present value. This is useful for the OpenCG compatibility module to
-ensure that the auto-generated Surface IDs do not collide with those created in OpenCG.  
+greater than the present value. This is useful for the OpenMC compatibility module to
+ensure that the auto-generated Surface IDs do not collide with those created in OpenMC.  
 
 Parameters
 ----------
@@ -10804,8 +10804,8 @@ maximize_universe_id(int universe_id)
 Maximize the auto-generated unique Universe ID counter.  
 
 This method updates the auto-generated unique Universe ID counter if the input parameter
-is greater than the present value. This is useful for the OpenCG compatibility module to
-ensure that the auto-generated Universe IDs do not collide with those created in OpenCG.  
+is greater than the present value. This is useful for the OpenMC compatibility module to
+ensure that the auto-generated Universe IDs do not collide with those created in OpenMC.  
 
 Parameters
 ----------
@@ -10858,8 +10858,8 @@ maximize_universe_id(int universe_id)
 Maximize the auto-generated unique Universe ID counter.  
 
 This method updates the auto-generated unique Universe ID counter if the input parameter
-is greater than the present value. This is useful for the OpenCG compatibility module to
-ensure that the auto-generated Universe IDs do not collide with those created in OpenCG.  
+is greater than the present value. This is useful for the OpenMC compatibility module to
+ensure that the auto-generated Universe IDs do not collide with those created in OpenMC.  
 
 Parameters
 ----------

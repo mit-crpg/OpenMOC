@@ -3,8 +3,6 @@
 *.cxx
 *.h.gch
 *.so
-*.pbs.e*
-*.pbs.o*
 *.pyc
 */*.o
 */*.cxx
@@ -12,8 +10,6 @@
 */*.so
 *~
 */*~
-*/*.pbs.e*
-*/*.pbs.o*
 */*.pyc
 build
 build/*
@@ -47,6 +43,11 @@ openmoc/cuda/single/openmoc_cuda_single.py
 openmoc/cuda/double/openmoc_cuda_double_wrap.cpp
 openmoc/cuda/double/openmoc_cuda_double.py
 
+# TORQUE log files
+*/*.pbs.e*
+*/*.pbs.o*
+*.pbs.e*
+*.pbs.o*
 
 # output files
 log
@@ -74,12 +75,13 @@ simulation-state/*
 *.data
 */*.data
 *.png
+*.ppm
 */*.png
 
 openmoc-*-.log
 */openmoc-*-.log
 
-penmp
+Openmp
 */penmp
 penmoc
 penmp-report
@@ -132,6 +134,7 @@ profile/models/Takeda/Takeda-unrodded
 
 
 #Documentation
+sphinx/
 docs/build
 docs/build/*
 docs/doxygen/xml
@@ -166,4 +169,24 @@ sphinx/
 # Use wildcards as well
 # *~
 *.swp
+
+# IPython Notebook
+.ipynb_checkpoints/
+
+# OpenMC input/output files
+*.xml
+statepoint*
+summary*
+
+# Test results error file
+results_error.dat
+results_test.dat
+
+# Test build files
+openmoc/
+*.log
+
+# Doxygen
+docs/doxygen/html/*
+
 

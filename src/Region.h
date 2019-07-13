@@ -15,7 +15,7 @@
 #include <limits>
 #endif
 
- /* Forward declarations to resolve circular dependencies */
+/* Forward declarations to resolve circular dependencies */
 class Intersection;
 class Union;
 class Complement;
@@ -28,11 +28,11 @@ class Halfspace;
 enum regionType {
   /** The intersection of one or more regions */
   INTERSECTION,
-   /** The union of one or more regions */
+  /** The union of one or more regions */
   UNION,
-   /** The complement of a region */
+  /** The complement of a region */
   COMPLEMENT,
-   /** The side of a surface */
+  /** The side of a surface */
   HALFSPACE
 };
 

@@ -29,11 +29,11 @@
 %apply (double* IN_ARRAY1, int DIM1) {(double* translation, int num_axes)}
 
 /* The typemap used to match the method signature for the Cell's
- * getter method for rotations used by the OpenCG compatibility module. */
+ * getter method for rotations used by the OpenMC compatibility module. */
 %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* rotations, int num_axes)}
 
 /* The typemap used to match the method signature for the Cell's
- * getter method for translations used by the OpenCG compatibility module. */
+ * getter method for translations used by the OpenMC compatibility module. */
 %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* translations, int num_axes)}
 
 /* The typemap used to match the method signature for the TrackGenerator's

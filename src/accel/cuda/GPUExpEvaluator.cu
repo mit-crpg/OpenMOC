@@ -4,6 +4,9 @@
 /** A boolean whether to use linear interpolation to compute exponentials */
 __constant__ bool interpolate[1];
 
+/** The maximum allowable optical length represented in the table */
+__constant__ FP_PRECISION max_optical_length[1];
+
 /** The inverse spacing for the exponential linear interpolation table */
 __constant__ FP_PRECISION inverse_exp_table_spacing[1];
 
@@ -11,12 +14,12 @@ __constant__ FP_PRECISION inverse_exp_table_spacing[1];
 extern __constant__ FP_PRECISION sin_thetas[MAX_POLAR_ANGLES_GPU];
 
 /** Twice the number of polar angles */
-extern __constant__ int two_times_num_polar[1];
+extern __constant__ int num_polar[1];
 
 
 /**
- * @brief Given a pointer to an ExpEvaluator on the host and a 
- *        GPUExpEvaluator on the GPU, copy all of the properties from 
+ * @brief Given a pointer to an ExpEvaluator on the host and a
+ *        GPUExpEvaluator on the GPU, copy all of the properties from
 *         the ExpEvaluator object on the host to the GPU.
  * @details This routine is called by the GPUSolver::initializeExpEvaluator()
  *          private class method and is not intended to be called directly.
@@ -39,6 +42,11 @@ void clone_exp_evaluator(ExpEvaluator* evaluator_h,
     cudaMemcpyToSymbol(inverse_exp_table_spacing, (void*)&inverse_spacing_h,
                        sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
 
+    /* Copy the number of table entries to constant memory on the device */
+    FP_PRECISION max_optical_length_h = evaluator_h->getMaxOpticalLength();
+    cudaMemcpyToSymbol(max_optical_length, (void*)&max_optical_length_h,
+               sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
+
     /* Allocate memory for the interpolation table on the device */
     int exp_table_size_h = evaluator_h->getTableSize();
     FP_PRECISION* exp_table_h = evaluator_h->getExpTable();
@@ -46,9 +54,9 @@ void clone_exp_evaluator(ExpEvaluator* evaluator_h,
     FP_PRECISION* exp_table_d;
     cudaMalloc((void**)&exp_table_d, exp_table_size_h * sizeof(FP_PRECISION));
     cudaMemcpy((void*)exp_table_d, (void*)exp_table_h,
-               exp_table_size_h * sizeof(FP_PRECISION), 
+               exp_table_size_h * sizeof(FP_PRECISION),
                cudaMemcpyHostToDevice);
-    cudaMemcpy((void*)&evaluator_d->_exp_table, (void*)&exp_table_d, 
+    cudaMemcpy((void*)&evaluator_d->_exp_table, (void*)&exp_table_d,
                sizeof(FP_PRECISION*), cudaMemcpyHostToDevice);
   }
 
@@ -57,7 +65,7 @@ void clone_exp_evaluator(ExpEvaluator* evaluator_h,
 
 
 /**
- * @brief Computes the exponential term for a optical length and polar angle. 
+ * @brief Computes the exponential term for a optical length and polar angle.
  * @details This method computes \f$ 1 - exp(-\tau/sin(\theta_p)) \f$
  *          for some optical path length and polar angle. This method
  *          uses either a linear interpolation table (default) or the
@@ -73,11 +81,9 @@ __device__ FP_PRECISION GPUExpEvaluator::computeExponential(FP_PRECISION tau,
 
   /* Evaluate the exponential using the linear interpolation table */
   if (*interpolate) {
-    int index;
-
-    index = floor(tau * (*inverse_exp_table_spacing));
-    index *= (*two_times_num_polar);
-
+    tau = min(tau, (*max_optical_length));
+    int index = floor(tau * (*inverse_exp_table_spacing));
+    index *= (*num_polar);
     exponential = (1. - (_exp_table[index + 2 * polar] * tau +
                          _exp_table[index + 2 * polar +1]));
   }

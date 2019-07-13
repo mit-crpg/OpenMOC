@@ -4,7 +4,7 @@
 
 /* Typemap for all methods which return a std::map<int, Cell*>. This includes
  * the Geometry::getAllCells(), Universe::getAllCells(), etc. These methods
- * are particularly useful for OpenCG compatibility. */
+ * are particularly useful for OpenMC compatibility. */
 %include <std_map.i>
 %clear std::map<int, Cell*>;
 %typemap(out) std::map<int, Cell*> {
@@ -28,7 +28,7 @@
 
 /* Typemap for all methods which return a std::map<int, Surface*>. This
  * includes the Geometry::getAllSurfaces() method, which is useful for 
- * OpenCG compatibility. */
+ * OpenMC compatibility. */
 %clear std::map<int, Surface*>;
 %typemap(out) std::map<int, Surface*> {
 
@@ -51,7 +51,7 @@
 
 
 /* Typemap for all methods which return a std::map<int, Halfspace*>.
- * This includes the Cell::getSurfaces() method, which is useful for OpenCG
+ * This includes the Cell::getSurfaces() method, which is useful for OpenMC
  * compatibility. */
 %clear std::map<int, Halfspace*>;
 %typemap(out) std::map<int, Halfspace*> {
@@ -74,7 +74,7 @@
 
 /* Typemap for all methods which return a std::map<int, Material*>.
  * This includes the Geometry::getAllMaterials() method, which is useful
- * for OpenCG compatibility. */
+ * for OpenMC compatibility. */
 %clear std::map<int, Material*>;
 %typemap(out) std::map<int, Material*> {
 
@@ -97,7 +97,7 @@
 
 /* Typemap for all methods which return a std::map<int, Universe*>.
  * This includes the Lattice::getUniqueUniverses() method which is ueseful for
- * OpenCG compatibility. */
+ * OpenMC compatibility. */
 %clear std::map<int, Universe*>;
 %typemap(out) std::map<int, Universe*> {
 
