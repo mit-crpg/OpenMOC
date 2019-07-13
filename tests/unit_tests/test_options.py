@@ -1,8 +1,12 @@
+#!/usr/bin/env python
+
 import unittest
 import os
 import getopt
 import sys
 import multiprocessing
+sys.path.insert(0, os.pardir)
+sys.path.insert(0, os.path.join(os.pardir, 'openmoc'))
 import openmoc.options
 
 # This unit test checks the openmoc.options Options class. It makes sure the

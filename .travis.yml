@@ -48,7 +48,6 @@ script:
 after_success:
   - cd ..
   - cpp-coveralls -i src -i build/temp.linux*/src/ --exclude-pattern "/usr/*" --dump cpp_cov.json
-  - cd tests
+  - cp tests/.coverage ./
   # Switch to Python version, which can merge reports
-  - coveralls  --merge=../cpp_cov.json
-  - cd ..
+  - coveralls --rcfile=/tests/.coveragerc --merge=cpp_cov.json
