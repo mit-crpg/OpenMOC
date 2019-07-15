@@ -49,6 +49,8 @@ class TestHarness(object):
         self.parser = OptionParser()
         self.parser.add_option('--update', dest='update',
                                action='store_true', default=False)
+        # Add -f option to parser, as Jupyter forcedly provide this option
+        self.parser.add_option('-f', dest='jupyter', action='store',default=None)
 
         self._opts = None
         self._args = None
@@ -62,6 +64,7 @@ class TestHarness(object):
     def _create_trackgenerator(self):
         """Instantiate a TrackGenerator."""
         geometry = self.input_set.geometry
+        geometry.initializeFlatSourceRegions()
         self.track_generator = \
             openmoc.TrackGenerator(geometry, self.num_azim, self.spacing)
 
@@ -70,6 +73,7 @@ class TestHarness(object):
         self.solver = openmoc.CPUSolver(self.track_generator)
         self.solver.setNumThreads(self.num_threads)
         self.solver.setConvergenceThreshold(self.tolerance)
+        self.solver.setSolverMode(self.calculation_mode)
 
     def _generate_tracks(self):
         """Generate Tracks and segments."""
@@ -119,13 +123,11 @@ class TestHarness(object):
         """Run an OpenMOC eigenvalue or fixed source calculation."""
 
         if self.solution_type == 'eigenvalue':
-            self.solver.computeEigenvalue(self.max_iters, res_type=self.res_type,
-                                          mode=self.calculation_mode)
+            self.solver.computeEigenvalue(self.max_iters, res_type=self.res_type)
         elif self.solution_type == 'flux':
             self.solver.computeFlux(self.max_iters)
         elif self.solution_type == 'source':
-            self.solver.computeSource(self.max_iters, res_type=self.res_type,
-                                      mode=self.calculation_mode)
+            self.solver.computeSource(self.max_iters, res_type=self.res_type)
         else:
             msg = 'Unable to run OpenMOC in mode {0}'.format(self.solution_type)
             raise ValueError(msg)
@@ -192,7 +194,10 @@ class TestHarness(object):
 
     def _compare_results(self):
         """Make sure the current results agree with the _true standard."""
-        compare = filecmp.cmp('results_test.dat', 'results_true.dat')
+        
+        # For comparison of files with different line endings
+        compare = (open('results_test.dat', 'r').read() == 
+                   open('results_true.dat', 'r').read())
         if not compare:
             os.rename('results_test.dat', 'results_error.dat')
         assert compare, 'Results do not agree.'
@@ -226,18 +231,19 @@ class HashedTestHarness(TestHarness):
 
 class TrackingTestHarness(TestHarness):
     """Specialized TestHarness for testing tracking."""
-    
+
     def __init__(self):
         super(TrackingTestHarness, self).__init__()
         self.tracks = OrderedDict()
         self._result = ''
+        self.zcoord = 0.0
 
     def _segment_track(self, track, geometry):
         """Segments a given track over a given geometry and records the
            resulting segment information to a string"""
 
         # Segmentize a track in a geometry, recording the segments in a string
-        geometry.segmentize(track)
+        geometry.segmentize2D(track, self.zcoord)
         num_segments = track.getNumSegments()
         info = ' ' + str(num_segments) + '\n'
         for i in range(num_segments):
@@ -274,7 +280,7 @@ class PlottingTestHarness(TestHarness):
     def __init__(self):
         super(PlottingTestHarness, self).__init__()
         self.figures = []
-        
+
         # Use standardized default matplotlib rcparams
         rcparams = pickle.load(open('../rcparams.pkl', 'rb'))
         openmoc.plotter.matplotlib_rcparams = rcparams
@@ -359,7 +365,7 @@ class PlottingTestHarness(TestHarness):
         hb2, bins2 = np.histogram(rgba2[...,2], bins=256, normed=True)
         hist1 = np.array([hr1, hg1, hb1]).ravel()
         hist2 = np.array([hr2, hg2, hb2]).ravel()
-        
+
         # Compute cartesian distance between histograms in RGB space
         diff = hist1 - hist2
         distance = np.sqrt(np.dot(diff, diff))
@@ -379,7 +385,7 @@ class MultiSimTestHarness(TestHarness):
         """Run multiple OpenMOC eigenvalue calculations."""
 
         for i in range(self.num_simulations):
-            super(MultiSimTestHarness, self)._run_openmoc()            
+            super(MultiSimTestHarness, self)._run_openmoc()
             self.num_iters.append(self.solver.getNumIterations())
             self.keffs.append(self.solver.getKeff())
 

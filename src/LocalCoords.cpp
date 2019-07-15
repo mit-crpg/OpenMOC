@@ -1,25 +1,43 @@
 #include "LocalCoords.h"
 
 /**
- * @brief Constructor sets the x and y coordinates.
+ * @brief Constructor sets the x, y and z coordinates and position as a coord.
  * @param x the x-coordinate
  * @param y the y-coordinate
+ * @param z the z-coordinate
+ * @param first whether the LocalCoords is the first one, that will contain an
+ *        array to all the next LocalCoords
  */
-LocalCoords::LocalCoords(double x, double y, double z) {
+LocalCoords::LocalCoords(double x, double y, double z, bool first) {
   _coords.setCoords(x, y, z);
   _phi = 0.;
+  _polar = M_PI_2;
   _universe = NULL;
   _lattice = NULL;
   _cell = NULL;
   _next = NULL;
   _prev = NULL;
+  _version_num = 0;
+  if (first) {
+    _array_size = LOCAL_COORDS_LEN;
+    _next_array = new LocalCoords[LOCAL_COORDS_LEN];
+  }
+  else {
+    _array_size = 0;
+    _next_array = NULL;
+  }
+  _position = -1;
 }
 
 
 /**
  * @brief Destructor.
  */
-LocalCoords::~LocalCoords() { }
+LocalCoords::~LocalCoords() {
+  prune();
+  if (_position == -1)
+    deleteArray();
+}
 
 
 /**
@@ -124,6 +142,15 @@ double LocalCoords::getPhi() const {
 
 
 /**
+ * @brief Returns the direction angle in radians with respect to the z-axis.
+ * @return the direction angle in radians
+ */
+double LocalCoords::getPolar() const {
+  return _polar;
+}
+
+
+/**
  * @brief Returns a pointer to the Point containing the coordinates for this
  *        LocalCoord.
  * @return pointer to the Point containing the x and y coordinates
@@ -144,12 +171,86 @@ LocalCoords* LocalCoords::getNext() const {
 
 
 /**
+ * @brief Creates and returns a pointer to the next LocalCoords (nested 
+ *        deeper).
+ * @param x the x-coordinate
+ * @param y the y-coordinate
+ * @param z the z-coordinate
+ * @return pointer to the next LocalCoords that was just created
+ */
+LocalCoords* LocalCoords::getNextCreate(double x, double y, double z) {
+
+  if (_next == NULL) {
+
+    /* If more LocalCoords than the array size defined in constants.h, 
+    create a new one */
+    if (_position + 1 >= _array_size) {
+      _next = new LocalCoords(x, y, z, true);
+      _next->setPrev(this);
+    }
+    else {
+      _next = &_next_array[_position+1];
+      _next->setPrev(this);
+      _next->setNext(NULL);
+      _next->setArrayPosition(_next_array, _position+1, _array_size);
+      _next->getPoint()->setCoords(x, y, z);
+      _next->setLattice(NULL);
+      _next->setUniverse(NULL);
+      _next->setCell(NULL);
+      _next->setVersionNum(0);
+    }
+  }
+
+  return _next;
+}
+
+
+/**
+ * @brief Returns the LocalCoords position in the _next_array.
+ * @return The position of this object in the underlying _next_array
+ */
+int LocalCoords::getPosition() {
+  return _position;
+}
+
+
+/**
+ * @brief Searches through the LocalCoords object to detect a loop.
+ * @details A loop is assumed if the LocalCoords apparent length is greater
+ *          1000 members
+ */
+void LocalCoords::detectLoop() {
+  int n = 0;
+
+  LocalCoords* iter = _next;
+  while (iter != NULL) {
+      iter = iter->getNext();
+      n++;
+      if (n > 1000)
+        log_printf(ERROR, "Infinite loop of coords");
+  }
+  log_printf(DEBUG, "The LocalCoords is: %s\n", toString().c_str());
+  log_printf(DEBUG, "The depth of the chain is %d \n", n);
+}
+
+
+/**
  * @brief Return a pointer to the LocalCoord at the next higher nested Universe
  *        level if one exists.
  * @return pointer to the previous LocalCoord
  */
 LocalCoords* LocalCoords::getPrev() const {
   return _prev;
+}
+
+
+/**
+ * @brief Returns the version of the LocalCoords object.
+ * @details The version number differentiates otherwise matching FSR keys
+ * @return The version number
+ */
+int LocalCoords::getVersionNum() {
+  return _version_num;
 }
 
 
@@ -190,9 +291,9 @@ void LocalCoords::setLattice(Lattice* lattice) {
 
 
 /**
- * @brief Sets the x index for the Lattice cell within which this
+ * @brief Sets the row index for the Lattice cell within which this
  *        LocalCoords resides.
- * @param lattice_x the x Lattice cell index
+ * @param lattice_x the row Lattice cell index
  */
 void LocalCoords::setLatticeX(int lattice_x) {
   _lattice_x = lattice_x;
@@ -200,9 +301,9 @@ void LocalCoords::setLatticeX(int lattice_x) {
 
 
 /**
- * @brief Sets the y index for the Lattice cell within which this
+ * @brief Sets the column index for the Lattice cell within which this
  *        LocalCoords resides.
- * @param lattice_y the y Lattice cell index
+ * @param lattice_y the column Lattice cell index
  */
 void LocalCoords::setLatticeY(int lattice_y) {
   _lattice_y = lattice_y;
@@ -238,7 +339,7 @@ void LocalCoords::setY(double y) {
 
 
 /**
- * @brief Set the z-coordinate for this Localcoords.
+ * @brief Set the z-coordinate for this LocalCoords.
  * @param z the z-coordinate
  */
 void LocalCoords::setZ(double z) {
@@ -247,8 +348,8 @@ void LocalCoords::setZ(double z) {
 
 
 /**
- * @brief Set the direction angle in radians for this LocalCoords.
- * @param angle the direction angle in radians
+ * @brief Set the azimuthal angle for this LocalCoords.
+ * @param phi the azimuthal angle
  */
 void LocalCoords::setPhi(double phi) {
   _phi = phi;
@@ -256,11 +357,11 @@ void LocalCoords::setPhi(double phi) {
 
 
 /**
- * @brief Increment the direction angle in radians for this LocalCoords.
- * @param phi the incremental direction angle in radians
+ * @brief Set the polar angle for this LocalCoords.
+ * @param polar the polar angle
  */
-void LocalCoords::incrementPhi(double phi) {
-  _phi += phi;
+void LocalCoords::setPolar(double polar) {
+  _polar = polar;
 }
 
 
@@ -282,6 +383,33 @@ void LocalCoords::setNext(LocalCoords* next) {
 void LocalCoords::setPrev(LocalCoords* prev) {
   _prev = prev;
 }
+
+
+/**
+ * @brief Sets the position of this LocalCoords in the array of LocalCoords,
+ *        the pointer to this array (next LocalCoords for this) is also
+ *        transfered
+ * @param array pointer to the array of next LocalCoords
+ * @param position index of this LocalCoords in said array
+ * @param array_size size of the array
+ */
+void LocalCoords::setArrayPosition(LocalCoords* array, int position,
+                                   int array_size) {
+  _next_array = array;
+  _position = position;
+  _array_size = array_size;
+}
+
+
+/**
+ * @brief Sets the version of the LocalCoords object.
+ * @details The version number differentiates otherwise matching FSR keys
+ * @param version_num the version number
+ */
+void LocalCoords::setVersionNum(int version_num) {
+  _version_num = version_num;
+}
+
 
 
 /**
@@ -323,20 +451,34 @@ LocalCoords* LocalCoords::getHighestLevel() {
 
 
 /**
- * @brief Translate all of the x,y coordinates for each LocalCoords object in
+ * @brief Translate all of the x,y,z coordinates for each LocalCoords object in
  *        the linked list.
  * @details This method will traverse the entire linked list and apply the
  *          translation to each element.
- * @param delta amount we wish to move the point by
+ * @param delta_x amount we wish to move x by
+ * @param delta_y amount we wish to move y by
+ * @param delta_z amount we wish to move z by
  */
-void LocalCoords::adjustCoords(double delta) {
-  double new_x = getX() + cos(_phi) * delta;
-  double new_y = getY() + sin(_phi) * delta;
-  setX(new_x);
-  setY(new_y);
+void LocalCoords::adjustCoords(double delta_x, double delta_y, double delta_z) {
 
-  if (_next != NULL)
-    _next->adjustCoords(delta);
+  /* Forward direction along linked list */
+  LocalCoords* curr = this;
+  while (curr != NULL) {
+    curr->setX(curr->getX() + delta_x);
+    curr->setY(curr->getY() + delta_y);
+    curr->setZ(curr->getZ() + delta_z);
+    curr = curr->getNext();
+  }
+
+  /* Reverse direction along linked list */
+  curr = _prev;
+  while (curr != NULL) {
+    curr->setX(curr->getX() + delta_x);
+    curr->setY(curr->getY() + delta_y);
+    curr->setZ(curr->getZ() + delta_z);
+    curr = curr->getPrev();
+  }
+  return;
 }
 
 
@@ -354,8 +496,8 @@ void LocalCoords::updateMostLocal(Point* point) {
   /* Translate coordinates by appropriate amount */
   double delta_x = point->getX() - curr->getX();
   double delta_y = point->getY() - curr->getY();
-  double delta = sqrt(delta_x*delta_x + delta_y*delta_y);
-  adjustCoords(delta);
+  double delta_z = point->getZ() - curr->getZ();
+  adjustCoords(delta_x, delta_y, delta_z);
 
   return;
 }
@@ -363,7 +505,7 @@ void LocalCoords::updateMostLocal(Point* point) {
 
 /**
  * @brief Removes and frees memory for all LocalCoords beyond this one
- *        in the linked list
+ *        in the linked list.
  */
 void LocalCoords::prune() {
 
@@ -373,7 +515,8 @@ void LocalCoords::prune() {
   /* Iterate over LocalCoords beneath this one in the linked list */
   while (curr != this) {
     next = curr->getPrev();
-    delete curr;
+    if (curr->getPosition() == -1)
+      curr->deleteArray();
     curr = next;
   }
 
@@ -383,8 +526,19 @@ void LocalCoords::prune() {
 
 
 /**
+ * @brief Deletes the underlying array for next coordinates.
+ */
+void LocalCoords::deleteArray() {
+  if (_next_array != NULL) {
+      delete [] _next_array;
+      _next_array = NULL;
+  }
+}
+
+
+/**
  * @brief Copies a LocalCoords' values to this one.
- * details Given a pointer to a LocalCoords, it first prunes it and then creates
+ * @details Given a pointer to a LocalCoords, it first prunes it and then creates
  *         a copy of the linked list of LocalCoords in the linked list below
  *         this one to give to the input LocalCoords.
  * @param coords a pointer to the LocalCoords to give the linked list copy to
@@ -403,7 +557,6 @@ void LocalCoords::copyCoords(LocalCoords* coords) {
     curr2->setX(curr1->getX());
     curr2->setY(curr1->getY());
     curr2->setZ(curr1->getZ());
-    curr2->setPhi(curr1->getPhi());
     curr2->setUniverse(curr1->getUniverse());
 
     if (curr1->getType() == UNIV) {
@@ -420,14 +573,9 @@ void LocalCoords::copyCoords(LocalCoords* coords) {
 
     curr1 = curr1->getNext();
 
-    if (curr1 != NULL && curr2->getNext() == NULL) {
-      LocalCoords* new_coords = new LocalCoords(0.0, 0.0, 0.0);
-      curr2->setNext(new_coords);
-      new_coords->setPrev(curr2);
-      curr2 = new_coords;
+    if (curr1 != NULL) {
+      curr2 = curr2->getNextCreate(0, 0, 0);
     }
-    else if (curr1 != NULL)
-      curr2 = curr2->getNext();
   }
 
   /* Prune any remainder from the old coords linked list */
@@ -450,19 +598,29 @@ std::string LocalCoords::toString() {
   while (curr != NULL) {
     string << "LocalCoords: level = ";
 
+    int univ_id = -1;
+    if (curr->getUniverse() != NULL)
+      univ_id = curr->getUniverse()->getId();
+    int lat_id = -1;
+    if (curr->getLattice() != NULL)
+      lat_id = curr->getLattice()->getId();
+    int cell_id = -1;
+    if (curr->getCell() != NULL)
+      cell_id = curr->getCell()->getId();
+    
     if (curr->getType() == UNIV) {
       string << " UNIVERSE, x = " << curr->getX()
              << ", y = " << curr->getY()
-             << ", z = " << curr->getZ()
-             << ", universe = " << curr->getUniverse()->getId()
-             << ", cell = " << curr->getCell()->getId();
+             << ", z = " << curr->getZ();
+      string << ", universe = " << univ_id;
+      string << ", cell = " << cell_id;
     }
     else if (curr->getType() == LAT) {
       string << " LATTICE, x = " << curr->getX()
              << ", y = " << curr->getY()
              << ", z = " << curr->getZ()
-             << ", universe = " << curr->getUniverse()->getId()
-             << ", lattice = " << curr->getLattice()->getId()
+             << ", universe = " << univ_id
+             << ", lattice = " << lat_id
              << ", lattice_x = " << curr->getLatticeX()
              << ", lattice_y = " << curr->getLatticeY()
              << ", lattice_z = " << curr->getLatticeZ();
@@ -471,12 +629,12 @@ std::string LocalCoords::toString() {
       string << " NONE, x = " << curr->getX()
              << ", y = " << curr->getY()
              << ", z = " << curr->getZ()
-             << ", universe = " << curr->getUniverse()->getId()
-             << ", lattice = " << curr->getLattice()->getId()
+             << ", universe = " << univ_id
+             << ", lattice = " << lat_id
              << ", lattice_x = " << curr->getLatticeX()
              << ", lattice_y = " << curr->getLatticeY()
-             << ", lattice_z = " << curr->getLatticeZ()
-             << ", cell = " << curr->getCell();
+             << ", lattice_z = " << curr->getLatticeZ();
+        string << ", cell = " << cell_id;
     }
 
     string << ", next:\n";

@@ -22,16 +22,16 @@ class PlotMaterialsTestHarness(PlottingTestHarness):
         # Create a series of Matplotlib Figures / PIL Images for different
         # plotting parameters and append to figures list
         self.figures.append(
-            plot_materials(self.input_set.geometry, gridsize=100, 
+            plot_materials(self.input_set.geometry, gridsize=100,
                            get_figure=True))
         self.figures.append(
-            plot_materials(self.input_set.geometry, gridsize=100, 
-                           zcoord=10., get_figure=True))
+            plot_materials(self.input_set.geometry, gridsize=100,
+                           offset=10., get_figure=True))
         self.figures.append(
-            plot_materials(self.input_set.geometry, gridsize=100, 
+            plot_materials(self.input_set.geometry, gridsize=100,
                            get_figure=True, xlim=(0., 2.), ylim=(0., 2.)))
         self.figures.append(
-            plot_materials(self.input_set.geometry, gridsize=100, 
+            plot_materials(self.input_set.geometry, gridsize=100,
                            get_figure=True, library='pil'))
 
 

@@ -15,6 +15,7 @@
 #include "Point.h"
 #include "Universe.h"
 #include "Cell.h"
+#include "constants.h"
 #endif
 
 /* Forward declarations to resolve circular dependencies */
@@ -39,6 +40,8 @@ enum coordType {
  * @class LocalCoords LocalCoords.h "openmoc/src/host/LocalCoords.h"
  * @brief The LocalCoords represents a set of local coordinates on some
  *        level of nested Universes making up the geometry.
+ *        _next and _prev allow for use of LocalCoords as a linked list
+ *        but _next_array can also be used to access coordinates.
  */
 class LocalCoords {
 
@@ -73,14 +76,31 @@ private:
   /** The direction angle in radians with respect to the x-axis */
   double _phi;
 
+  /** The direction angle in radians with respect to the z-axis */
+  double _polar;
+
   /** A pointer to the LocalCoords at the next lower nested Universe level */
   LocalCoords* _next;
 
   /** A pointer to the LocalCoords at the next higher nested Universe level */
   LocalCoords* _prev;
 
+  /** An array that contains pointers to all the next LocalCoords */
+  LocalCoords* _next_array;
+
+  /** Position in the _next_array of coordinates */
+  int _position;
+
+  /** Size of the _next_array of coordinates */
+  int _array_size;
+
+  /** An integer to differentiate otherwise matching coordinate FSR keys */
+  int _version_num;
+
+  void setArrayPosition(LocalCoords* array, int position, int array_size);
+
 public:
-  LocalCoords(double x, double y, double z);
+  LocalCoords(double x=0.0, double y=0.0, double z=0.0, bool first=false);
   virtual ~LocalCoords();
   coordType getType();
   Universe* getUniverse() const;
@@ -93,9 +113,13 @@ public:
   double getY() const;
   double getZ() const;
   double getPhi() const;
+  double getPolar() const;
   Point* getPoint();
   LocalCoords* getNext() const;
+  LocalCoords* getNextCreate(double x, double y, double z);
   LocalCoords* getPrev() const;
+  int getVersionNum();
+  int getPosition();
 
   void setType(coordType type);
   void setUniverse(Universe* universe);
@@ -108,17 +132,20 @@ public:
   void setY(double y);
   void setZ(double z);
   void setPhi(double phi);
-  void incrementPhi(double phi);
+  void setPolar(double polar);
   void setNext(LocalCoords *next);
   void setPrev(LocalCoords* coords);
+  void setVersionNum(int version_num);
 
   LocalCoords* getLowestLevel();
   LocalCoords* getHighestLevel();
-  void adjustCoords(double delta);
+  void adjustCoords(double delta_x, double delta_y, double delta_z=0.0);
   void updateMostLocal(Point* point);
   void prune();
+  void deleteArray();
   void copyCoords(LocalCoords* coords);
   std::string toString();
+  void detectLoop();
 };
 
 

@@ -25,13 +25,8 @@ materials = openmoc.materialize.load_from_hdf5('c5g7-mgxs.h5', '../')
 
 openmoc.log.py_printf('NORMAL', 'Creating surfaces...')
 
-left = openmoc.XPlane(x=-20.0, name='left')
-right = openmoc.XPlane(x=20.0, name='right')
-top = openmoc.YPlane(y=20.0, name='top')
-bottom = openmoc.YPlane(y=-20.0, name='bottom')
-boundaries = [left, right, top, bottom]
-
-for boundary in boundaries: boundary.setBoundaryType(openmoc.VACUUM)
+boundary = openmoc.RectangularPrism(40., 40.)
+boundary.setBoundaryType(openmoc.VACUUM)
 
 
 ###############################################################################
@@ -44,10 +39,7 @@ water_cell = openmoc.Cell(name='water')
 water_cell.setFill(materials['Water'])
 
 root_cell = openmoc.Cell(name='root cell')
-root_cell.addSurface(halfspace=+1, surface=left)
-root_cell.addSurface(halfspace=-1, surface=right)
-root_cell.addSurface(halfspace=+1, surface=bottom)
-root_cell.addSurface(halfspace=-1, surface=top)
+root_cell.setRegion(boundary)
 
 
 ###############################################################################
@@ -104,7 +96,7 @@ geometry.setRootUniverse(root_universe)
 openmoc.log.py_printf('NORMAL', 'Initializing the track generator...')
 
 track_generator = openmoc.TrackGenerator(geometry, opts.num_azim,
-                                         opts.track_spacing)
+                                         opts.azim_spacing)
 track_generator.setNumThreads(opts.num_omp_threads)
 track_generator.generateTracks()
 
@@ -119,7 +111,7 @@ solver.setNumThreads(opts.num_omp_threads)
 solver.setConvergenceThreshold(opts.tolerance)
 
 # Set the source in every cell to a cosine distribution
-for fsr_id in xrange(solver.getGeometry().getNumFSRs()):
+for fsr_id in range(solver.getGeometry().getNumFSRs()):
 
   # Get the coordinates of some point within the FSR
   pt = solver.getGeometry().getFSRPoint(fsr_id)
@@ -133,7 +125,7 @@ for fsr_id in xrange(solver.getGeometry().getNumFSRs()):
     group = g + 1
     source_value = math.cos(x_pt/L) * math.cos(y_pt/H)
     solver.setFixedSourceByFSR(fsr_id, group, source_value)
-  
+
   # NOTE: A more precise definition of the source would calculate the same
   # source values for all points within each flat source region. In this
   # example that is not the case. However, since the FSR discretization is

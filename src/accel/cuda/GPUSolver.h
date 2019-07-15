@@ -12,7 +12,6 @@
 #ifdef SWIG
 #include "Python.h"
 #endif
-#include "../../constants.h"
 #include "../../Solver.h"
 #endif
 
@@ -49,12 +48,16 @@
 #define fixed_sources(r,e) (fixed_sources[(r)*(*num_groups) + (e)])
 
 /** Indexing macro for the azimuthal and polar weights */
-#define polar_weights(i,p) (polar_weights[(i)*(*num_polar) + (p)])
+#define weights(i,p) (weights[(i)*(*num_polar_2) + (p)])
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
  *  group for a given Track */
 #define boundary_flux(t,pe2) (boundary_flux[2*(t)*(*polar_times_groups)+(pe2)])
 
+/** Indexing macro for the starting angular fluxes for each polar angle and
+ *  energy group for a given Track. These are copied to the boundary fluxes
+ *  array at the beginning of each transport sweep */
+#define start_flux(t,pe2) (start_flux[2*(t)*(*polar_times_groups)+(pe2)])
 
 /**
  * @class GPUSolver GPUSolver.h "openmoc/src/dev/gpu/GPUSolver.h"
@@ -73,9 +76,6 @@ private:
   /** The number of threads per thread block */
   int _T;
 
-  /** Twice the number of polar angles */
-  int _two_times_num_polar;
-
   /** The FSR Material pointers index by FSR ID */
   int* _FSR_materials;
 
@@ -87,6 +87,9 @@ private:
 
   /** Thrust vector of angular fluxes for each track */
   thrust::device_vector<FP_PRECISION> _boundary_flux;
+
+  /** Thrust vector of starting angular fluxes for each track */
+  thrust::device_vector<FP_PRECISION> _start_flux;
 
   /** Thrust vector of FSR scalar fluxes */
   thrust::device_vector<FP_PRECISION> _scalar_flux;
@@ -102,6 +105,8 @@ private:
 
   /** Map of Material IDs to indices in _materials array */
   std::map<int, int> _material_IDs_to_indices;
+
+  void copyQuadrature();
 
 public:
 
@@ -125,7 +130,6 @@ public:
   void setTrackGenerator(TrackGenerator* track_generator);
   void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes);
 
-  void initializePolarQuadrature();
   void initializeExpEvaluator();
   void initializeMaterials(solverMode mode=ADJOINT);
   void initializeFSRs();

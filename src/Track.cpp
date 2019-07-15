@@ -1,18 +1,31 @@
 #include "Track.h"
 
 
-/*
+/**
  * @brief Constructor initializes an empty Track.
  */
 Track::Track() {
 
-  /* Initialize the periodic track index to -1, indicating it has not
-   * been set */
-  _periodic_track_index = -1;
+  /* Initialize the pointers to reflective and periodic tracks to NULL */
+  _track_next_fwd = -1;
+  _track_next_bwd = -1;
+  _track_prdc_fwd = -1;
+  _track_prdc_bwd = -1;
+  _track_refl_fwd = -1;
+  _track_refl_bwd = -1;
 
-  /* Initialize the reflective track index to -1, indicating it has not
-   * been set */
-  _reflective_track_index = -1;
+  /* Initialize booleans indicating whether the reflective tracks in the
+   * forward and backward direction point enter the track in the forward
+   * direction */
+  _next_fwd_fwd = true;
+  _next_bwd_fwd = false;
+
+  /* Initialize the cycle ids and periodic track index to -1 (not set) */
+  _num_segments = 0;
+  _surface_in = -1;
+  _surface_out = -1;
+  _domain_fwd = -1;
+  _domain_bwd = -1;
 }
 
 
@@ -29,19 +42,30 @@ Track::~Track() {
  * @brief Set the values for the Track's start and end point and angle.
  * @param start_x the x-coordinate at the starting point
  * @param start_y the y-coordinate at the starting point
- * @param start_z the z-coordinate at the starting point
  * @param end_x the x-coordinate at the ending point
  * @param end_y the y-coordinate at the ending point
- * @param end_z the z-coordinate at the ending point
- * @param phi the track's azimuthal angle (\f$ \theta \in [0, \pi] \f$)
+ * @param phi the track's azimuthal angle (\f$ \phi \in [0, 2 \pi] \f$)
  */
- void Track::setValues(const double start_x, const double start_y,
-                       const double start_z, const double end_x,
-                       const double end_y, const double end_z,
-                       const double phi) {
-   _start.setCoords(start_x, start_y, start_z);
-   _end.setCoords(end_x, end_y, end_z);
+void Track::setValues(const double start_x, const double start_y,
+                      const double end_x, const double end_y,
+                      const double phi) {
+   _start.setCoords(start_x, start_y);
+   _end.setCoords(end_x, end_y);
    _phi = phi;
+}
+
+
+/**
+ * @brief Set the values for the Track's start and end point.
+ * @param x0 the x-coordinate at the starting point
+ * @param y0 the y-coordinate at the starting point
+ * @param x1 the x-coordinate at the ending point
+ * @param y1 the y-coordinate at the ending point
+ */
+void Track::setCoords(double x0, double y0,
+                      double x1, double y1) {
+  _start.setCoords(x0, y0);
+  _end.setCoords(x1, y1);
 }
 
 
@@ -49,7 +73,7 @@ Track::~Track() {
  * @brief Initializes a Track's unique ID.
  * @details This is set by the trackgenerator to correspond to the Track's
  *          location in a 2D ragged array of all tracks.
- * @param uid the Track's unique ID
+ * @param uid The Track's unique ID
  */
 void Track::setUid(int uid) {
   _uid = uid;
@@ -57,7 +81,7 @@ void Track::setUid(int uid) {
 
 /**
  * @brief Set the Track's azimuthal angle.
- * @param phi the azimuthal angle
+ * @param phi The azimuthal angle
  */
 void Track::setPhi(const double phi) {
   _phi = phi;
@@ -65,291 +89,159 @@ void Track::setPhi(const double phi) {
 
 
 /**
- * @brief Set the index for the Track's azimuthal angle index.
- * @details The azimuthal angle index corresponds to a an array of all
- *          azimuthal angles for \f$ \theta \in [0, \pi] \f$ owned by
- *          the TrackGenerator class.
- * @param index the azimuthal angle index
+ * @brief Sets the boundary condition for the incoming flux along the Track's
+ *        "forward" direction.
+ * @details The boolean represents vacuum (false) or reflective (true)
+ *          boundary conditions.
+ * @param bc_fwd Boundary condition for the incoming flux in the "forward"
+ *        direction
  */
-void Track::setAzimAngleIndex(const int index) {
-  _azim_angle_index = index;
+void Track::setBCFwd(const boundaryType bc_fwd) {
+  _bc_fwd = bc_fwd;
 }
 
 
 /**
- * @brief Set the index of a track in a periodic cycle.
- * @details Tracks form periodic track cycles as they traverse the geometry.
- *          Tracks can be arbitrarily decomposed into periodic track cycles
- *          and this index indicates the index in a particular cycle.
- * @param index of the track in a periodic cycle
+ * @brief Sets the boundary condition for the incoming flux along the Track's
+ *        "reverse" direction.
+ * @details The boolean represents vacuum (false) or reflective (true)
+ *          boundary conditions.
+ * @param bc_bwd Boundary condition for the incoming flux in the "reverse"
+ *        direction
  */
-void Track::setPeriodicTrackIndex(const int index) {
-  _periodic_track_index = index;
+void Track::setBCBwd(const boundaryType bc_bwd) {
+  _bc_bwd = bc_bwd;
 }
 
 
 /**
- * @brief Set the index of a track in a reflective cycle.
- * @details Tracks form reflective track cycles as they traverse the geometry.
- *          Tracks can be arbitrarily decomposed into reflective track cycles
- *          and this index indicates the index in a particular cycle.
- * @param index of the track in a reflective cycle
+ * @brief Set the surface at which the Track starts.
+ * @param surface_in surface from which the Track originates in the domain.
  */
-void Track::setReflectiveTrackIndex(const int index) {
-  _reflective_track_index = index;
+void Track::setSurfaceIn(int surface_in) {
+  _surface_in = surface_in;
 }
 
 
 /**
- * @brief Adds a segment pointer to this Track's list of segments.
+ * @brief Set the surface at which the Track ends.
+ * @param surface_out surface at which the Track ends in the domain.
+ */
+void Track::setSurfaceOut(int surface_out) {
+  _surface_out = surface_out;
+}
+
+
+/**
+ * @brief Set the domain at the end of the Track in the forward direction.
+ * @param neighbor Neighbor domain at the end of the Track
+ */
+void Track::setDomainFwd(int neighbor) {
+  _domain_fwd = neighbor;
+}
+
+
+/**
+ * @brief Set the domain at the end of the Track in the backward direction.
+ * @param neighbor Neighbor domain at the beginning of the Track
+ */
+void Track::setDomainBwd(int neighbor) {
+  _domain_bwd = neighbor;
+}
+
+
+/**
+ * @brief Return the Track's length.
+ * @return The Track's length
+ */
+double Track::getLength() {
+  return _start.distanceToPoint(&_end);
+}
+
+
+/**
+ * @brief Get the surface from which the track originates in the domain.
+ * @return The id of the Surface at the beginning of the Track
+ */
+int Track::getSurfaceIn() {
+    return _surface_in;
+}
+
+
+/**
+ * @brief Get the surface at which the Track ends in the domain.
+ * @return The id of the Surface at the end of the Track
+ */
+int Track::getSurfaceOut() {
+    return _surface_out;
+}
+
+
+/**
+ * @brief Get the domain connected at the front end of the Track.
+ * @return The id of the domain in front of the Track
+ */
+int Track::getDomainFwd() {
+  return _domain_fwd;
+}
+
+
+/**
+ * @brief Get the domain connected at the back end of the Track.
+ * @return The id of the domain behind the Track
+ */
+int Track::getDomainBwd() {
+  return _domain_bwd;
+}
+
+
+/**
+ * @brief Adds a segment to this Track's list of segments.
  * @details This method assumes that segments are added in order of their
  *          starting location from the Track's start point.
- * @param to_add a pointer to the segment to add
+ * @param segment A pointer to the segment
  */
-void Track::addSegment(segment* to_add) {
+void Track::addSegment(segment* segment) {
+
   try {
-    _segments.push_back(*to_add);
+    _segments.push_back(*segment);
   }
   catch (std::exception &e) {
-    log_printf(ERROR, "Unable to add a segment to Track");
+      log_printf(NORMAL, "Unable to add a segment to Track. Backtrace:"
+                 "\n%s", e.what());
   }
 }
 
 
 /**
  * @brief Removes a segment from this Track's list of segments.
- * @param index the index of the segment to remove
+ * @param index The index of the segment to remove
  */
 void Track::removeSegment(int index) {
   try {
     _segments.erase(_segments.begin()+index);
   }
   catch (std::exception &e) {
-    log_printf(ERROR, "Unable to remove a segment from Track");
+    log_printf(NORMAL, "Unable to remove a segment from Track");
   }
 }
 
 
 /**
- * @brief Inserts a segment pointer into this Track's list of segments.
+ * @brief Inserts a segment struct into this Track's list of segments.
  * @details This method appends the new segment directly behind another
  *          segment in the Track. This is a helper method for the
  *          TrackGenerator::splitTracks(...) routine.
- * @param index the index of the segment to insert behind in the list
- * @param segment a pointer to the segment to insert
+ * @param index The index of the segment to insert behind in the list
+ * @param segment A pointer to the segment to insert
  */
 void Track::insertSegment(int index, segment* segment) {
   try {
     _segments.insert(_segments.begin()+index, *segment);
   }
   catch (std::exception &e) {
-    log_printf(ERROR, "Unable to insert a segment into Track");
+    log_printf(NORMAL, "Unable to insert a segment into Track");
   }
-}
-
-
-/**
- * @brief Sets the direction in which the flux leaving this Track along its
- *        "forward" direction is passed.
- * @details Sets whether or not to pass the outgoing flux from this Track
- *          along its "forward" direction to the "forward" direction (false)
- *          or "reverse" direction (true) of the next Track after intersection
- *          with the geometry boundary.
- * @param next_in the "forward" (false) or "reverse (true) direction
- */
-void Track::setNextIn(const bool next_in) {
-  _next_in = next_in;
-}
-
-
-/**
- * @brief Sets the direction in which the flux leaving this Track along its
- *        "reverse" direction is passed.
- * @details Sets whether or not to pass the outgoing flux from this Track
- *          along its "reverse" direction to the "forward" direction (false)
- *          or "reverse" direction (true) of the next Track after intersection
- *          with the geometry boundary.
- * @param next_out the "forward" (false) or "reverse (true) direction
- */
-void Track::setNextOut(const bool next_out) {
-  _next_out = next_out;
-}
-
-
-/**
- * @brief Sets the boundary condition for the incoming flux along the Track's
- *        "forward" direction.
- * @details The boundaryType represents vacuum (0), reflective (1), or
- *          periodic (2) boundary conditions.
- * @param bc_in boundary condition for the incoming flux in the "forward"
- *        direction
- */
-void Track::setBCIn(const boundaryType bc_in) {
-  _bc_in = bc_in;
-}
-
-
-/**
- * @brief Sets the boundary condition for the incoming flux along the Track's
- *        "reverse" direction.
- * @details The boundaryType represents vacuum (0), reflective (1), or
- *          periodic (2) boundary conditions.
- * @param bc_out boundary condition for the incoming flux in the "reverse"
- *        direction
- */
-void Track::setBCOut(const boundaryType bc_out) {
-  _bc_out = bc_out;
-}
-
-
-/**
- * @brief Sets the track going out along this Track's "forward" direction.
- * @param track_in pointer to the Track going out in the "forward" direction
- */
-void Track::setTrackIn(Track* track_in) {
-  _track_in = track_in;
-}
-
-
-/**
- * @brief Sets the track going out along this Track's "reverse" direction.
- * @param track_out pointer to the Track going out in the "reverse" direction
- */
-void Track::setTrackOut(Track* track_out) {
-  _track_out = track_out;
-}
-
-
-/**
- * @brief Returns whether to give the outgoing flux to the "forward" (false) or
- *        "reverse" (true) direction of the next Track when traveling along
- *        this Tracks's "forward" direction.
- * @return "forward" (false) "reverse" (true) direction of outgoing Track
- */
-bool Track::isNextIn() const {
-  return _next_in;
-}
-
-
-/**
- * @brief Returns whether to give the outgoing flux to the "forward" (false) or
- *        "reverse" (true) direction of the next Track when traveling along
- *        this Track's "reverse" direction.
- * @return "forward" (false) "reverse" (true) direction of outgoing Track
- */
-bool Track::isNextOut() const {
-  return _next_out;
-}
-
-
-/**
- * @brief Returns the boundary condition for the flux along the Track's
- *        "forward" direction.
- * @return vacuum (0), reflective (1), or periodic (2) reflective
- *         boundary conditions
- */
-boundaryType Track::getBCIn() const {
-  return _bc_in;
-}
-
-
-/**
- * @brief Returns the boundary condition for the flux along the Track's
- *        "reverse" direction.
- * @return vacuum (0), reflective (1), or periodic (2) reflective
- *         boundary conditions
- */
-boundaryType Track::getBCOut() const {
-  return _bc_out;
-}
-
-
-/**
- * @brief Returns a boolean to indicate whether the outgoing flux along this
- *        Track's "forward" direction should be transferred to the outgoing
- *        Track.
- * @details The bool with be false for vacuum BCs and true for all other BCs.
- * @return bool indicating whether the flux should be passed when tracking in
- *         the "forward" direction.
- */
-bool Track::getTransferFluxIn() const {
-
-  if (_bc_in == VACUUM)
-    return false;
-  else
-    return true;
-}
-
-
-/**
- * @brief Returns a boolean to indicate whether the outgoing flux along this
- *        Track's "reverse" direction should be transferred to the incoming
- *        Track.
- * @details The bool with be false for vacuum BCs and true for all other BCs.
- * @return bool indicating whether the flux should be passed when tracking in
- *         the "reverse" direction.
- */
-bool Track::getTransferFluxOut() const {
-
-  if (_bc_out == VACUUM)
-    return false;
-  else
-    return true;
-}
-
-
-/**
- * @brief Returns a pointer to the Track's end Point.
- * @return a pointer to the Track's end Point
- */
-Point* Track::getEnd() {
-  return &_end;
-}
-
-
-/**
- * @brief Returns a pointer to the Track's start Point.
- * @return a pointer to the Track's start Point
- */
-Point* Track::getStart() {
-  return &_start;
-}
-
-
-/**
- * @brief Return the Track's azimuthal angle (with respect to the x-axis).
- * @return the azimuthal angle \f$ \theta \in [0, \pi] \f$
- */
-double Track::getPhi() const {
-  return _phi;
-}
-
-
-/**
- * @brief Return the index for the Track's azimuthal angle (with respect to the
- *        x-axis).
- * @return th azimuthal angle index
- */
-int Track::getAzimAngleIndex() const {
-  return _azim_angle_index;
-}
-
-
-/**
- * @brief Get the index of a track in a periodic cycle.
- * @return index of the track in a periodic cycle
- */
-int Track::getPeriodicTrackIndex() const {
-  return _periodic_track_index;
-}
-
-
-/**
- * @brief Get the index of a track in a reflective cycle.
- * @return index of the track in a reflective cycle
- */
-int Track::getReflectiveTrackIndex() const {
-  return _reflective_track_index;
 }
 
 
@@ -362,6 +254,224 @@ void Track::clearSegments() {
 
 
 /**
+ * @brief Set a Track's azimuthal angle index.
+ * @param index The azimuthal angle index
+ */
+void Track::setAzimIndex(int index) {
+  _azim_index = index;
+}
+
+
+/**
+ * @brief Set a Track's link index.
+ * @details In generating 3D tracks, we need to know the tracks
+ *          linking this track with both periodic and reflective
+ *          boundary conditions. Therefore, we generate a periodic
+ *          chain of tracks that extend periodically from the y-min
+ *          to the y-max boundary. This is the index of each track in
+ *          its' periodic chain.
+ * @param index The link index
+ */
+void Track::setLinkIndex(int index) {
+  _link_index = index;
+}
+
+
+/**
+ * @brief Get a Track's azimuthal angle index.
+ * @return The azimuthal angle index
+ */
+int Track::getAzimIndex() {
+  return _azim_index;
+}
+
+
+/**
+ * @brief Get a Track's link index.
+ * @details In generating 3D tracks, we need to know the tracks
+ *          linking this track with both periodic and reflective
+ *          boundary conditions. Therefore, we generate a periodic
+ *          chain of tracks that extend periodically from the y-min
+ *          to the y-max boundary. This is the index of each track in
+ *          its' periodic chain.
+ * @return The link index
+ */
+int Track::getLinkIndex() {
+  return _link_index;
+}
+
+
+/**
+ * @brief Set a pointer to the reflective Track in the forward direction.
+ * @param track_id the id of the reflective track in the forward direction
+ */
+void Track::setTrackNextFwd(long track_id) {
+  _track_next_fwd = track_id;
+}
+
+
+/**
+ * @brief Set a pointer to the reflective Track in the backward direction.
+ * @param track_id the id of the reflective track in the backward direction
+ */
+void Track::setTrackNextBwd(long track_id) {
+  _track_next_bwd = track_id;
+}
+
+
+/**
+ * @brief Set a pointer to the periodic Track in the forward direction.
+ * @param track_id the id of the periodic track in the forward direction
+ */
+void Track::setTrackPrdcFwd(long track_id) {
+  _track_prdc_fwd = track_id;
+}
+
+
+/**
+ * @brief Set a pointer to the periodic Track in the backward direction.
+ * @param track_id the id of the periodic track in the backward direction
+ */
+void Track::setTrackPrdcBwd(long track_id) {
+  _track_prdc_bwd = track_id;
+}
+
+
+/**
+ * @brief Set a pointer to the reflective Track in the forward direction.
+ * @param track_id the id of the reflective track in the forward direction
+ */
+void Track::setTrackReflFwd(long track_id) {
+  _track_refl_fwd = track_id;
+}
+
+
+/**
+ * @brief Set a pointer to the reflective Track in the backward direction.
+ * @param track_id the id of the reflective track in the backward direction
+ */
+void Track::setTrackReflBwd(long track_id) {
+  _track_refl_bwd = track_id;
+}
+
+
+/**
+ * @brief Get a pointer to the reflective Track in the forward direction.
+ * @return the id of the reflective track in the forward direction
+ */
+long Track::getTrackNextFwd() {
+  return _track_next_fwd;
+}
+
+
+/**
+ * @brief Get a pointer to the reflective Track in the backward direction.
+ * @return the id of the reflective track in the backward direction
+ */
+long Track::getTrackNextBwd() {
+  return _track_next_bwd;
+}
+
+
+/**
+ * @brief Get a pointer to the periodic Track in the forward direction.
+ * @return the id of the periodic track in the forward direction
+ */
+long Track::getTrackPrdcFwd() {
+  return _track_prdc_fwd;
+}
+
+
+/**
+ * @brief Get a pointer to the periodic Track in the backward direction.
+ * @return the id of the periodic track in the backward direction
+ */
+long Track::getTrackPrdcBwd() {
+  return _track_prdc_bwd;
+}
+
+
+/**
+ * @brief Get a pointer to the reflective Track in the forward direction.
+ * @return the id of the reflective track in the forward direction
+ */
+long Track::getTrackReflFwd() {
+  return _track_refl_fwd;
+}
+
+
+/**
+ * @brief Get a pointer to the reflective Track in the backward direction.
+ * @return the id of the reflective track in the backward direction
+ */
+long Track::getTrackReflBwd() {
+  return _track_refl_bwd;
+}
+
+
+/**
+ * @brief Set the xy index of this Track.
+ * @param index The xy index of this Track
+ */
+void Track::setXYIndex(int index) {
+  _xy_index = index;
+}
+
+
+/**
+ * @brief Get the xy index of this Track.
+ * @return The xy index of this Track
+ */
+int Track::getXYIndex() {
+  return _xy_index;
+}
+
+
+/**
+ * @brief Set whether the reflective track in the forward direction is pointing
+ *        in forward direction.
+ * @param fwd Boolean indicating whether reflective track in the forward
+ *        direction is point in forward direction
+ */
+void Track::setNextFwdFwd(bool fwd) {
+  _next_fwd_fwd = fwd;
+}
+
+
+/**
+ * @brief Set whether the reflective track in the backward direction is pointing
+ *        in forward direction.
+ * @param fwd Boolean indicating whether reflective track in the backward
+ *        direction is point in forward direction
+ */
+void Track::setNextBwdFwd(bool fwd) {
+  _next_bwd_fwd = fwd;
+}
+
+
+/**
+ * @brief Get whether the reflective track in the forward direction is pointing
+ *        in forward direction.
+ * @return Boolean indicating whether reflective track in the forward
+ *         direction is point in forward direction
+ */
+bool Track::getNextFwdFwd() {
+  return _next_fwd_fwd;
+}
+
+
+/**
+ * @brief Get whether the reflective track in the backward direction is pointing
+ *        in forward direction.
+ * @return Boolean indicating whether reflective track in the backward
+ *         direction is point in forward direction
+ */
+bool Track::getNextBwdFwd() {
+  return _next_bwd_fwd;
+}
+
+
+/**
  * @brief Convert this Track's attributes to a character array.
  * @details The character array returned includes the Track's starting and
  *          ending coordinates, the azimuthal angle and azimuthal weight.
@@ -370,9 +480,8 @@ void Track::clearSegments() {
 std::string Track::toString() {
   std::stringstream string;
   string << "Track: start, x = " << _start.getX() << ", y = " <<
-    _start.getY() << ", z = " << _start.getZ() << ", end, x = " <<
-    _end.getX() << ", y = " << _end.getY() << ", z = " << _end.getZ() <<
+    _start.getY() << ", end, x = " <<
+    _end.getX() << ", y = " << _end.getY() <<
     ", phi = " << _phi;
-
   return string.str();
 }

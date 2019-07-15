@@ -27,9 +27,9 @@ OpenMOC's implementation of the routines and data structures for CSG are in larg
 CSG Formulation
 ===============
 
-The constructive solid geometry formulation in OpenMOC is predicated upon the use of several key objects which allow one to construct a spatial model from simple primitives in a hierarchical fashion. The following sections describe each of these fundamental objects in order of increasing complexity. The reader should note that the CSG formulation in OpenMOC is presently only capable of describing the 2D :math:`xy`-plane, though an extension to 3D would be straightforward.
+The constructive solid geometry formulation in OpenMOC is predicated upon the use of several key objects which allow one to construct a spatial model from simple primitives in a hierarchical fashion. The following sections describe each of these fundamental objects in order of increasing complexity. The reader should note that the CSG formulation in OpenMOC is capable of describing the full 3D space, but defining a 2D geometry for a 2D case is fairly straightforward.
 
-:ref:`Section 4.1.1 <surfaces-halfspaces>` develops the formulation for *surfaces* which are used to divide space into separate unique *halfspaces*. :ref:`Section 4.1.2 <universes>` describes *universes* which represent the entirety of 2D (or 3D) space and provide a "clean pallet" upon which one can build a simple structure of *cells*. :ref:`Section 4.1.3 <cells>` describes *cells* which contain one or more *surfaces* that bound a subset of space filled by either a material or a *universe*. :ref:`Section 4.1.4 <lattices>` describes *lattices* which are used to create a bounded union of universes through a series of coordinate transformations. A typical hierarchy for the way in which surfaces, universes, cells and lattices are constructed to represent a reactor model in OpenMOC is illustrated in :ref:`Figure 2 <figure-csg-primitives-hierarchy>`.
+:ref:`Section 4.1.1 <surfaces-halfspaces>` develops the formulation for *surfaces* which are used to divide space into separate unique *halfspaces*. :ref:`Section 4.1.2 <universes>` describes *universes* which represent the entirety of 2D (or 3D) space and provide a "clean pallet" upon which one can build a simple structure of *cells*. :ref:`Section 4.1.3 <cells>` describes *cells*, of which the *region* attribute contains one or more *surfaces* that bound a subset of space filled by either a material or a *universe*. :ref:`Section 4.1.4 <lattices>` describes *lattices* which are used to create a bounded union of universes through a series of coordinate transformations. A typical hierarchy for the way in which surfaces, universes, cells and lattices are constructed to represent a reactor model in OpenMOC is illustrated in :ref:`Figure 2 <figure-csg-primitives-hierarchy>`.
 
 .. _figure-csg-primitives-hierarchy:
 
@@ -38,7 +38,7 @@ The constructive solid geometry formulation in OpenMOC is predicated upon the us
    :figclass: align-center
    :width: 500px
 
-   **Figure 2**: A hierarchy of OpenMOC primitives.
+   **Figure 2**: A hierarchy of OpenMOC primitives (omitting *region* between *cell* and *surface*).
 
 
 .. _surfaces-halfspaces:
@@ -47,7 +47,7 @@ The constructive solid geometry formulation in OpenMOC is predicated upon the us
 Surfaces and Halfspaces
 -----------------------
 
-The fundamental primitive in OpenMOC is a *surface*. A 2D surface in the :math:`xy`-plane is defined as the set of points that satisfy :math:`f(x,y) = 0` for some function :math:`f` that will henceforth be termed the *potential function* of the surface. The potential divides the :math:`xy`-plane into two *halfspaces*. The set of coordinates for which :math:`f(x,y) < 0` is called the *positive halfspace* while those coordinates for which :math:`f(x,y) > 0` collectively form the *negative halfspace*. :ref:`Figure 3 <figure-halfspace>` illustrates the concepts of halfspaces for an arbitrary elliptical surface.
+The fundamental primitive in OpenMOC is a *surface*. A 3D surface in the :math:`xy`-plane is defined as the set of points that satisfy :math:`f(x,y,z) = 0` for some function :math:`f` that will henceforth be termed the *potential function* of the surface. The potential divides the :math:`xy`-plane into two *halfspaces*. The set of coordinates for which :math:`f(x,y,z) < 0` is called the *positive halfspace* while those coordinates for which :math:`f(x,y,z) > 0` collectively form the *negative halfspace*. :ref:`Figure 3 <figure-halfspace>` illustrates the concepts of halfspaces for an arbitrary elliptical surface.
 
 .. _figure-halfspace:
 
@@ -77,12 +77,12 @@ Presently, OpenMOC includes surface primitive types that are most useful for con
 Quadratic Surfaces
 ------------------
 
-A generalized quadratic surface in 2D is a second order surface with following form:
+A generalized quadratic surface in 3D is a second order surface with following form:
 
 .. math::
    :label: general-quadratic-surface
 
-   f(x,y) = Ax^2 + By^2 + Fxy + Px + Qy + D = 0
+   f(x,y) = Ax^2 + By^2 + Cz^2+ Fxy + Gxz + Hyz + Px + Qy + Rz + D = 0
 
 Quadratic surfaces include planes, cylinders and ellipsoids. The quadratic surface primitives available in OpenMOC at the date of this writing are displayed in :ref:`Table 1 <table-openmoc-surface-primitives>`.
 
@@ -91,13 +91,16 @@ Quadratic surfaces include planes, cylinders and ellipsoids. The quadratic surfa
 +----------------------+------------+------------------------------------------+-------------------------+
 | Surface              | Class      | Potential Equation                       | Parameters              |
 +======================+============+==========================================+=========================+
-| Arbitrary plane      | Plane      | :math:`Px + Qy + D = D`                  | :math:`{P\;Q\;D}`       |
+| Arbitrary plane      | Plane      | :math:`Px + Qy +Rz + D = D`              | :math:`{P\;Q\;R\D}`     |
 +----------------------+------------+------------------------------------------+-------------------------+
 | Plane perpendicular  | XPlane     | :math:`x - x_0 = 0`                      | :math:`{x_0}`           |
 | to :math:`x`-axis    |            |                                          |                         |
 +----------------------+------------+------------------------------------------+-------------------------+
 | Plane perpendicular  | YPlane     | :math:`y - y_0 = 0`                      | :math:`{y_0}`           |
 | to :math:`y`-axis    |            |                                          |                         |
++----------------------+------------+------------------------------------------+-------------------------+
+| Plane perpendicular  | ZPlane     | :math:`z - z_0 = 0`                      | :math:`{z_0}`           |
+| to :math:`z`-axis    |            |                                          |                         |
 +----------------------+------------+------------------------------------------+-------------------------+
 | Circle in the        | ZCylinder  | :math:`(x-x_0)^2 + (y-y_0)^2 - R^2 = 0`  | :math:`{x_0, y_0, R}`   |
 | :math:`xy`-plane     |            |                                          |                         |
@@ -118,14 +121,14 @@ An arbitrary plane is described by the following potential equation:
 .. math::
    :label: arbitrary-plane-potential
 
-   f(x,y) = Px + Qy + D = 0
+   f(x,y,z) = Px + Qy + Rz + D = 0
 
-To find the intersection point along some trajectory with a Plane, substitute the intersection point on the surface :math:`(x+du, y+dv)` into the potential equation and rearrange to find the following parametrized distance :math:`d`:
+To find the intersection point along some trajectory with a Plane, substitute the intersection point on the surface :math:`(x+du, y+dv, z+dw)` into the potential equation and rearrange to find the following parametrized distance :math:`d`:
 
 .. math::
    :label: arbitrary-plane-distance
 
-   f(x+du, y+dv) = P(x+du) + Q(y+dv) + D = 0 \;\;\; \Rightarrow \;\;\; d = \frac{D - Px - Qy}{Pu + Qv}
+   f(x+du, y+dv, z+dw) = P(x+du) + Q(y+dv) R(z+dw) + D = 0 \;\;\; \Rightarrow \;\;\; d = \frac{D - Px - Qy - Rz}{Pu + Qv + Rw}
 
 
 .. _xplane:
@@ -138,14 +141,14 @@ A plane perpendicular to the :math:`x`-axis is described by the following potent
 .. math::
    :label: xplane-potential
 
-   f(x,y) = Px + D = 0 \;\;\; \Rightarrow \;\;\; x - x_0 = 0
+   f(x,y,z) = Px + D = 0 \;\;\; \Rightarrow \;\;\; x - x_0 = 0
 
-To find the intersection point along some trajectory with a XPlane, substitute the intersection point on the surface :math:`(x+du, y+dv)` into the potential equation and rearrange to find the following parametrized distance :math:`d`:
+To find the intersection point along some trajectory with a XPlane, substitute the intersection point on the surface :math:`(x+du, y+dv, z+dw)` into the potential equation and rearrange to find the following parametrized distance :math:`d`:
 
 .. math::
    :label: xplane-distance
 
-   f(x+du, y+dv) = (x + du) - x_0 = 0 \;\;\; \Rightarrow \;\;\; d = \frac{x-x_0}{u}
+   f(x+du, y+dv, z+dw) = (x + du) - x_0 = 0 \;\;\; \Rightarrow \;\;\; d = \frac{x-x_0}{u}
 
 
 .. _yplane:
@@ -158,15 +161,33 @@ Similar to the XPlane, a plane perpendicular to the :math:`y`-axis is described 
 .. math::
    :label: yplane-potential
 
-   f(x,y) = Qy + D = 0 \;\;\; \Rightarrow \;\;\; y - y_0 = 0
+   f(x,y, z) = Qy + D = 0 \;\;\; \Rightarrow \;\;\; y - y_0 = 0
  
-To find the intersection point along some trajectory with a YPlane, substitute the intersection point on the surface :math:`(x+du, y+dv)` into the potential equation and rearrange to find the following parametrized distance :math:`d`:
+To find the intersection point along some trajectory with a YPlane, substitute the intersection point on the surface :math:`(x+du, y+dv, z+dw)` into the potential equation and rearrange to find the following parametrized distance :math:`d`:
 
 .. math::
    :label: yplane-distance
 
-   f(x+du, y+dv) = (y + dv) - y_0 = 0 \;\;\; \Rightarrow \;\;\; d = \frac{y-y_0}{v}
+   f(x+du, y+dv, z+dw) = (y + dv) - y_0 = 0 \;\;\; \Rightarrow \;\;\; d = \frac{y-y_0}{v}
 
+.. _zplane:
+
+ZPlane
+------
+
+Similar to the ZPlane, a plane perpendicular to the :math:`z`-axis is described by the following potential equation:
+
+.. math::
+   :label: zplane-potential
+
+   f(x,y,z) = Qz + D = 0 \;\;\; \Rightarrow \;\;\; z - z_0 = 0
+ 
+To find the intersection point along some trajectory with a ZPlane, substitute the intersection point on the surface :math:`(x+du, y+dv, z+dw)` into the potential equation and rearrange to find the following parametrized distance :math:`d`:
+
+.. math::
+   :label: zplane-distance
+
+   f(x+du, y+dv, z+dw) = (z + dw) - z_0 = 0 \;\;\; \Rightarrow \;\;\; d = \frac{z-z_0}{w}
 
 .. _zcylinder:
 
@@ -194,6 +215,13 @@ To find the intersection point along some trajectory with a ZCylinder, substitut
 
 The parametrized distance is in the form of the quadratic formula, and there may be one or two real solutions, or two complex solutions. In the case of one solution, it indicates that the trajectory vector :math:`\hat{n}` merely glances the surface of the ZCylinder. The two solution case represents a trajectory vector that intersects the ZCylinder surface and passes through on the opposite side. Complex solutions are unphysical and represent the fact that the trajectory will not pass through the circle at all.
 
+.. _regions:
+
+-------
+Regions
+-------
+
+A *region* is a *cell* attribute that contains a CSG tree of halfspaces which is used to describe the spatial extent of a cell.
 
 .. _cells:
 
@@ -201,7 +229,7 @@ The parametrized distance is in the form of the quadratic formula, and there may
 Cells
 -----
 
-A *cell* is defined to be the region bounded by a boolean combination of surface halfspaces. Presently, OpenMOC only permits the use of halfspace intersections and does not support other boolean operations such as unions and differences. The region defined by the cell is subsequently filled by either a material or a *universe*, described in the following section.
+A *cell* is defined to be the region bounded by a boolean combination of surface halfspaces. OpenMOC supports intersection, union and complement of surface halfspaces. The halfspaces are kept in the *region* cell attribute. The cell also has a fill attribute, filled by either a material or a *universe*, described in the following section.
 
 :ref:`Figure 5 <figure-cells-pin-cell>` illustrates the use of five surface halfspaces to make up a simple pin cell. The halfspace for each surface is indicated by ":math:`+`" or ":math:`-`" symbols, while each cell is uniquely identified by a color and number. The fuel pin is described by the negative halfspace of the ZCylinder surface, while the moderator is made up of the intersection of the positive halfspace of the ZCylinder and positive/negative halfspaces of the left/right and bottom/top XPlanes and YPlanes, respectively.
 
@@ -243,7 +271,9 @@ Lattices
 
 *Lattices* are an extremely useful construct for modeling regular, repeating structures. This is especially the case for reactor cores which typically contain rectangular or hexagonal arrays of fuel pins. For this reason, lattices are a common structure in many neutron transport codes, such as OpenMC, MCNP and Serpent.
 
-OpenMOC currently only contains a single lattice implementation for 2D Cartesian arrays. Each lattice is uniquely specified by the number of array elements along the :math:`x` and :math:`y` axes, the width and height of each lattice cell, and the universe to *fill* each lattice cell. The lattice specification represents a coordinate transformation such that the center of each lattice cell maps to the origin of the universe within it. This allows for a single universe to be replicated in some or all lattice cells without redundantly storing the universe many times in memory.
+OpenMOC currently contains two lattice implementation for 3D Cartesian arrays. A lattice can be specified by the number of array elements along the :math:`x`, :math:`y` and :math:`z` axes, the dimensions of each lattice cell, and the universe to *fill* each lattice cell. The lattice specification represents a coordinate transformation such that the center of each lattice cell maps to the origin of the universe within it. This allows for a single universe to be replicated in some or all lattice cells without redundantly storing the universe many times in memory.
+
+Alternatively, a lattice can be defined using a set of widths in each Cartesian direction, to form a 3D non-uniform array. This is especially useful to model water gaps in PWRs, fuel bundle walls in BWRs and the baffle in both reactors.
 
 :ref:`Figure 7 <figure-lattice-cells>` illustrates a simple 4 :math:`\times` 4 lattice, with each lattice cell filled by one of three different universes. Each universe contains two cells representing the moderator and a fuel pin of some diameter.
 
@@ -255,7 +285,6 @@ OpenMOC currently only contains a single lattice implementation for 2D Cartesian
    :width: 300px
 
    **Figure 7**: A 4 :math:`\times` 4 lattice.
-
 
 
 References

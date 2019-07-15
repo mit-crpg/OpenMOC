@@ -1,46 +1,40 @@
 #include "Matrix.h"
 
 /**
- * @brief Constructor initializes Matrix as a list of lists
+ * @brief Constructor initializes Matrix as a vector of maps
  *        and sets the matrix dimensions.
- * @detail The matrix object uses a "lists of lists" structure (implemented as
- *         a map of lists) to allow for easy setting and incrementing of the
+ * @details The matrix object uses a "lists of lists" structure (implemented as
+ *         a vector of maps) to allow for easy setting and incrementing of the
  *         values in the object. When the matrix is needed to perform linear
  *         algebra operations, it is converted to compressed row storage (CSR)
- *         form [1]. The matrix is ordered by cell (as opposed to by group) on
- *         the outside. Locks are used to make the matrix thread-safe against
+ *         form. The matrix is ordered by cell (as opposed to by group) on the
+ *         outside. Locks are used to make the matrix thread-safe against
  *         concurrent writes the same value. One lock locks out multiple rows of
- *         the matrix at a time reprsenting multiple groups in the same cell.
- *
- *            [1] "Sparse matrix", Wikipedia,
- *                https://en.wikipedia.org/wiki/Sparse_matrix.
- *
+ *         the matrix at a time representing multiple groups in the same cell.
  * @param cell_locks Omp locks for atomic cell operations
  * @param num_x The number of cells in the x direction.
  * @param num_y The number of cells in the y direction.
+ * @param num_z The number of cells in the z direction.
  * @param num_groups The number of energy groups in each cell.
  */
-Matrix::Matrix(omp_lock_t* cell_locks, int num_x, int num_y, int num_groups) {
+Matrix::Matrix(omp_lock_t* cell_locks, int num_x, int num_y, int num_z,
+               int num_groups) {
 
   setNumX(num_x);
   setNumY(num_y);
+  setNumZ(num_z);
   setNumGroups(num_groups);
-  _num_rows = _num_x*_num_y*_num_groups;
+  _num_rows = _num_x*_num_y*_num_z*_num_groups;
 
   /* Initialize variables */
   for (int i=0; i < _num_rows; i++)
-    _LIL.push_back(std::map<int, FP_PRECISION>());
+    _LIL.push_back(std::map<int, CMFD_PRECISION>());
 
   _A = NULL;
-  _LU = NULL;
   _IA = NULL;
-  _ILU = NULL;
   _JA = NULL;
-  _JLU = NULL;
   _DIAG = NULL;
   _modified = true;
-  _NNZ = 0;
-  _NNZLU = 0;
 
   /* Set OpenMP locks for each Matrix cell */
   if (cell_locks == NULL)
@@ -60,20 +54,11 @@ Matrix::~Matrix() {
   if (_A != NULL)
     delete [] _A;
 
-  if (_LU != NULL)
-    delete [] _LU;
-
   if (_IA != NULL)
     delete [] _IA;
 
-  if (_ILU != NULL)
-    delete [] _ILU;
-
   if (_JA != NULL)
     delete [] _JA;
-
-  if (_JLU != NULL)
-    delete [] _JLU;
 
   if (_DIAG != NULL)
     delete [] _DIAG;
@@ -86,26 +71,26 @@ Matrix::~Matrix() {
 
 /**
  * @brief Increment a value in the matrix.
- * @detail This method takes a cell and group of origin (cell/group from)
- *         and cell and group of destination (cell/group to) and floating
+ * @details This method takes a cell and group of origin (cell/group from)
+ *         and cell and group of destination (cell/group to) and a floating
  *         point value. The origin and destination are used to compute the
  *         row and column in the matrix. If a value exists for the row/column,
  *         the value is incremented by val; otherwise, it is set to val.
  * @param cell_from The origin cell.
  * @param group_from The origin group.
  * @param cell_to The destination cell.
- * @param group_from The destination group.
+ * @param group_to The destination group.
  * @param val The value used to increment the row/column location.
  */
 void Matrix::incrementValue(int cell_from, int group_from,
-                            int cell_to, int group_to, FP_PRECISION val) {
+                            int cell_to, int group_to, CMFD_PRECISION val) {
 
-  if (cell_from >= _num_x*_num_y || cell_from < 0)
+  if (cell_from >= _num_x*_num_y*_num_z || cell_from < 0)
     log_printf(ERROR, "Unable to increment Matrix value for cell_from %d"
-               " which is not between 0 and %d", cell_from, _num_x*_num_y-1);
-  else if (cell_to >= _num_x*_num_y || cell_to < 0)
+               " which is not between 0 and %d", cell_from, _num_x*_num_y*_num_z-1);
+  else if (cell_to >= _num_x*_num_y*_num_z || cell_to < 0)
     log_printf(ERROR, "Unable to increment Matrix value for cell_to %d"
-               " which is not between 0 and %d", cell_from, _num_x*_num_y-1);
+               " which is not between 0 and %d", cell_from, _num_x*_num_y*_num_z-1);
   else if (group_from >= _num_groups || group_from < 0)
     log_printf(ERROR, "Unable to increment Matrix value for group_from %d"
                " which is not between 0 and %d", group_from, _num_groups-1);
@@ -131,7 +116,7 @@ void Matrix::incrementValue(int cell_from, int group_from,
 
 /**
  * @brief Set a value in the matrix.
- * @detail This method takes a cell and group of origin (cell/group from)
+ * @details This method takes a cell and group of origin (cell/group from)
  *         and cell and group of destination (cell/group to) and floating
  *         point value. The origin and destination are used to compute the
  *         row and column in the matrix. The location specified by the
@@ -139,18 +124,18 @@ void Matrix::incrementValue(int cell_from, int group_from,
  * @param cell_from The origin cell.
  * @param group_from The origin group.
  * @param cell_to The destination cell.
- * @param group_from The destination group.
+ * @param group_to The destination group.
  * @param val The value used to set the row/column location.
  */
 void Matrix::setValue(int cell_from, int group_from,
-                      int cell_to, int group_to, FP_PRECISION val) {
+                      int cell_to, int group_to, CMFD_PRECISION val) {
 
-  if (cell_from >= _num_x*_num_y || cell_from < 0)
+  if (cell_from >= _num_x*_num_y*_num_z || cell_from < 0)
     log_printf(ERROR, "Unable to set Matrix value for cell_from %d"
-               " which is not between 0 and %d", cell_from, _num_x*_num_y-1);
-  else if (cell_to >= _num_x*_num_y || cell_to < 0)
+               " which is not between 0 and %d", cell_from, _num_x*_num_y*_num_z-1);
+  else if (cell_to >= _num_x*_num_y*_num_z || cell_to < 0)
     log_printf(ERROR, "Unable to set Matrix value for cell_to %d"
-               " which is not between 0 and %d", cell_from, _num_x*_num_y-1);
+               " which is not between 0 and %d", cell_from, _num_x*_num_y*_num_z-1);
   else if (group_from >= _num_groups || group_from < 0)
     log_printf(ERROR, "Unable to set Matrix value for group_from %d"
                " which is not between 0 and %d", group_from, _num_groups-1);
@@ -193,66 +178,41 @@ void Matrix::convertToCSR() {
 
   /* Get number of nonzero values */
   int NNZ = getNNZ();
-  int NNZLU = getNNZLU();
 
-  if (NNZ != _NNZ || NNZLU != _NNZLU) {
+  /* Deallocate memory for arrays if previously allocated */
+  if (_A != NULL)
+    delete [] _A;
 
-    /* Deallocate memory for arrays if previously allocated */
-    if (_A != NULL)
-      delete [] _A;
+  if (_IA != NULL)
+    delete [] _IA;
 
-    if (_LU != NULL)
-      delete [] _LU;
+  if (_JA != NULL)
+    delete [] _JA;
 
-    if (_IA != NULL)
-      delete [] _IA;
+  if (_DIAG != NULL)
+    delete [] _DIAG;
 
-    if (_ILU != NULL)
-      delete [] _ILU;
+  log_printf(INFO_ONCE, "Matrix CSR format storage %6.2f MB", (NNZ + _num_rows)
+             * 2 * (sizeof(CMFD_PRECISION) + sizeof(int)) / float(1e6));
 
-    if (_JA != NULL)
-      delete [] _JA;
-
-    if (_JLU != NULL)
-      delete [] _JLU;
-
-    if (_DIAG != NULL)
-      delete [] _DIAG;
-
-    /* Allocate memory for arrays */
-    _A = new FP_PRECISION[NNZ];
-    _LU = new FP_PRECISION[NNZLU];
-    _IA = new int[_num_rows+1];
-    _ILU = new int[_num_rows+1];
-    _JA = new int[NNZ];
-    _JLU = new int[NNZLU];
-    _DIAG = new FP_PRECISION[_num_rows];
-
-    _NNZ = NNZ;
-    _NNZLU = NNZLU;
-  }
-
-  std::fill_n(_DIAG, _num_rows, 0.0);
+  /* Allocate memory for arrays */
+  _A = new CMFD_PRECISION[NNZ];
+  _IA = new int[_num_rows+1];
+  _JA = new int[NNZ];
+  _DIAG = new CMFD_PRECISION[_num_rows]();
 
   /* Form arrays */
   int j = 0;
-  int jlu = 0;
-  std::map<int, FP_PRECISION>::iterator iter;
+  std::map<int, CMFD_PRECISION>::iterator iter;
   for (int row=0; row < _num_rows; row++) {
     _IA[row] = j;
-    _ILU[row] = jlu;
     for (iter = _LIL[row].begin(); iter != _LIL[row].end(); ++iter) {
-      if (iter->second != 0.0) {
+      if (fabs(iter->second) > FLT_EPSILON) {
         _JA[j] = iter->first;
         _A[j] = iter->second;
 
         if (row == iter->first)
           _DIAG[row] = iter->second;
-        else {
-          _JLU[jlu] = iter->first;
-          _LU[jlu] = iter->second;
-          jlu++;
-        }
 
         j++;
       }
@@ -260,9 +220,8 @@ void Matrix::convertToCSR() {
   }
 
   _IA[_num_rows] = NNZ;
-  _ILU[_num_rows] = NNZLU;
 
-  /* Reset flat indicating the CSR objects have the same values as the
+  /* Reset flat indicating whether the CSR objects have the same values as the
    * LIL object */
   _modified = false;
 }
@@ -290,13 +249,14 @@ void Matrix::printString() {
 
   string << "End Matrix " << std::endl;
 
-  log_printf(NORMAL, string.str().c_str());
+  std::cout << string.str() << std::endl;
+  //log_printf(NORMAL, string.str().c_str());
 }
 
 
 /**
  * @brief Get a value in the matrix.
- * @detail This method takes a cell and group of origin (cell/group from)
+ * @details This method takes a cell and group of origin (cell/group from)
  *         and cell and group of destination (cell/group to).
  *         The origin and destination are used to compute the
  *         row and column in the matrix. The value at the location specified
@@ -304,10 +264,10 @@ void Matrix::printString() {
  * @param cell_from The origin cell.
  * @param group_from The origin group.
  * @param cell_to The destination cell.
- * @param group_from The destination group.
+ * @param group_to The destination group.
  * @return The value at the corresponding row/column location.
  */
-FP_PRECISION Matrix::getValue(int cell_from, int group_from,
+CMFD_PRECISION Matrix::getValue(int cell_from, int group_from,
                               int cell_to, int group_to) {
   int row = cell_to*_num_groups + group_to;
   int col = cell_from*_num_groups + group_from;
@@ -316,13 +276,11 @@ FP_PRECISION Matrix::getValue(int cell_from, int group_from,
 
 
 /**
- * @brief Get the full matrix (A) component of the CSR form of the matrix
- *        object.
+ * @brief Get the A component of the CSR form of the matrix object.
  * @return A pointer to the A component of the CSR form matrix object.
  */
-FP_PRECISION* Matrix::getA() {
+CMFD_PRECISION* Matrix::getA() {
 
-  /* If the matrix has been modified, regenerate its' CSR attributes */
   if (_modified)
     convertToCSR();
 
@@ -331,29 +289,11 @@ FP_PRECISION* Matrix::getA() {
 
 
 /**
- * @brief Get the lower + upper (LU) component of the CSR form of the matrix
- *        object.
- * @return A pointer to the lower + upper (LU) component of the CSR form matrix
- *         object.
- */
-FP_PRECISION* Matrix::getLU() {
-
-  /* If the matrix has been modified, regenerate its' CSR attributes */
-  if (_modified)
-    convertToCSR();
-
-  return _LU;
-}
-
-
-/**
- * @brief Get an array of the row indices (I) component of the CSR form of the
- *        full matrix (A).
- * @return A pointer to the I component of the CSR form of the full matrix (A).
+ * @brief Get the IA component of the CSR form of the matrix object.
+ * @return A pointer to the IA component of the CSR form matrix object.
  */
 int* Matrix::getIA() {
 
-  /* If the matrix has been modified, regenerate its' CSR attributes */
   if (_modified)
     convertToCSR();
 
@@ -362,29 +302,11 @@ int* Matrix::getIA() {
 
 
 /**
- * @brief Get an array of the row indices (I) component of the CSR form of the
- *        lower + upper (LU) components of the matrix.
- * @return A pointer to the I component of the CSR form of the LU components
- *         of the matrix.
- */
-int* Matrix::getILU() {
-
-  /* If the matrix has been modified, regenerate its' CSR attributes */
-  if (_modified)
-    convertToCSR();
-
-  return _ILU;
-}
-
-
-/**
- * @brief Get an array of the column indices (J) component of the CSR form of
- *        the full matrix (A).
- * @return A pointer to the J component of the CSR form of the full matrix (A).
+ * @brief Get the JA component of the CSR form of the matrix object.
+ * @return A pointer to the JA component of the CSR form matrix object.
  */
 int* Matrix::getJA() {
 
-  /* If the matrix has been modified, regenerate its' CSR attributes */
   if (_modified)
     convertToCSR();
 
@@ -393,26 +315,10 @@ int* Matrix::getJA() {
 
 
 /**
- * @brief Get an array of the column indices (J) component of the CSR form of
- *        the lower + upper (LU) components of the matrix.
- * @return A pointer to the J component of the CSR form of the LU components
- *         of the matrix.
- */
-int* Matrix::getJLU() {
-
-  /* If the matrix has been modified, regenerate its' CSR attributes */
-  if (_modified)
-    convertToCSR();
-
-  return _JLU;
-}
-
-
-/**
  * @brief Get the diagonal component of the matrix object.
  * @return A pointer to the diagonal component of the matrix object.
  */
-FP_PRECISION* Matrix::getDiag() {
+CMFD_PRECISION* Matrix::getDiag() {
 
   if (_modified)
     convertToCSR();
@@ -440,6 +346,15 @@ int Matrix::getNumY() {
 
 
 /**
+ * @brief Get the number of cells in the z dimension.
+ * @return The number of cells in the z dimension.
+ */
+int Matrix::getNumZ() {
+  return _num_z;
+}
+
+
+/**
  * @brief Get the number of groups in each cell.
  * @return The number of groups in each cell.
  */
@@ -458,42 +373,21 @@ int Matrix::getNumRows() {
 
 
 /**
- * @brief Get the number of non-zero values in the full matrix.
- * @return The number of non-zero values in the full matrix.
+ * @brief Get the number of non-zero values in the matrix.
+ * @return The number of non-zero values in the matrix.
  */
 int Matrix::getNNZ() {
 
   int NNZ = 0;
-  std::map<int, FP_PRECISION>::iterator iter;
+  std::map<int, CMFD_PRECISION>::iterator iter;
   for (int row=0; row < _num_rows; row++) {
     for (iter = _LIL[row].begin(); iter != _LIL[row].end(); ++iter) {
-      if (iter->second != 0.0)
+      if (fabs(iter->second) > FLT_EPSILON)
         NNZ++;
     }
   }
 
   return NNZ;
-}
-
-
-/**
- * @brief Get the number of non-zero values in the lower + upper components of
- *        the matrix.
- * @return The number of non-zero values in the lower + upper components of the
- *         matrix.
- */
-int Matrix::getNNZLU() {
-
-  int NNZLU = 0;
-  std::map<int, FP_PRECISION>::iterator iter;
-  for (int row=0; row < _num_rows; row++) {
-    for (iter = _LIL[row].begin(); iter != _LIL[row].end(); ++iter) {
-      if (iter->second != 0.0 && iter->first != row)
-        NNZLU++;
-    }
-  }
-
-  return NNZLU;
 }
 
 
@@ -526,6 +420,20 @@ void Matrix::setNumY(int num_y) {
 
 
 /**
+ * @brief Set the number of cells in the z dimension.
+ * @param num_z The number of cells in the z dimension.
+ */
+void Matrix::setNumZ(int num_z) {
+
+  if (num_z < 1)
+    log_printf(ERROR, "Unable to set Matrix num z to non-positive value %d",
+               num_z);
+
+  _num_z = num_z;
+}
+
+
+/**
  * @brief Set the number of groups in each cell.
  * @param num_groups The number of groups in each cell.
  */
@@ -544,10 +452,10 @@ void Matrix::setNumGroups(int num_groups) {
  */
 void Matrix::transpose() {
 
-  Matrix temp(_cell_locks, _num_x, _num_y, _num_groups);
+  Matrix temp(_cell_locks, _num_x, _num_y, _num_z, _num_groups);
   convertToCSR();
   int col, cell_to, cell_from, group_to, group_from;
-  FP_PRECISION val;
+  CMFD_PRECISION val;
 
   /* Transpose matrix to temp */
   for (int row=0; row < _num_rows; row++) {
@@ -567,7 +475,7 @@ void Matrix::transpose() {
   temp.convertToCSR();
   int* IA = temp.getIA();
   int* JA = temp.getJA();
-  FP_PRECISION* A = temp.getA();
+  CMFD_PRECISION* A = temp.getA();
 
   for (int row=0; row < _num_rows; row++) {
     for (int i = IA[row]; i < IA[row+1]; i++) {

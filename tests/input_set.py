@@ -12,9 +12,10 @@ class InputSet(object):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self):
+    def __init__(self, num_dimensions=2):
         self.materials = {}
         self.geometry = None
+        self.dimensions = num_dimensions
 
     @abstractmethod
     def create_materials(self):
@@ -244,6 +245,66 @@ class LatticeGridInput(InputSet):
         super(LatticeGridInput, self).create_geometry()
 
 
+class OblongLatticeGridInput(InputSet):
+    """A simple lattice problem where the lattice where num_x != num_y."""
+
+    def create_materials(self):
+        """Instantiate C5G7 Materials."""
+        self.materials = \
+            openmoc.materialize.load_from_hdf5(filename='c5g7-mgxs.h5',
+                                               directory='../../sample-input/')
+
+    def create_geometry(self):
+        """Instantiate a 3x2 grid Geometry by making a lattice"""
+
+        # Create the planes bounding the geometry
+        xmin = openmoc.XPlane(x=-3.0, name='xmin')
+        xmax = openmoc.XPlane(x=3.0, name='xmax')
+        ymin = openmoc.YPlane(y=-2.0, name='ymin')
+        ymax = openmoc.YPlane(y=2.0, name='ymax')
+
+        xmin.setBoundaryType(openmoc.REFLECTIVE)
+        xmax.setBoundaryType(openmoc.REFLECTIVE)
+        ymin.setBoundaryType(openmoc.REFLECTIVE)
+        ymax.setBoundaryType(openmoc.REFLECTIVE)
+
+        # Create the root cell, bounded by the geometry bounds
+        root_cell = openmoc.Cell(name='root cell')
+        root_cell.addSurface(halfspace=+1, surface=xmin)
+        root_cell.addSurface(halfspace=-1, surface=xmax)
+        root_cell.addSurface(halfspace=+1, surface=ymin)
+        root_cell.addSurface(halfspace=-1, surface=ymax)
+
+        # Create UO2, water, and tube cells
+        uo2_cell = openmoc.Cell(name='UO2 Cell')
+        uo2_cell.setFill(self.materials['UO2'])
+        water_cell = openmoc.Cell(name='Water Cell')
+        water_cell.setFill(self.materials['Water'])
+        tube_cell = openmoc.Cell(name='Tube Cell')
+        tube_cell.setFill(self.materials['Guide Tube'])
+
+        # Create universes and fill with the associated cell
+        root_universe = openmoc.Universe(name='root universe')
+        root_universe.addCell(root_cell)
+        uo2 = openmoc.Universe(name='uo2 universe')
+        uo2.addCell(uo2_cell)
+        water = openmoc.Universe(name='water universe')
+        water.addCell(water_cell)
+        tube = openmoc.Universe(name='tube universe')
+        tube.addCell(tube_cell)
+
+        # Create the lattice and fill it with the appropriate universes
+        lattice = openmoc.Lattice(name='3x2 lattice')
+        lattice.setWidth(width_x=2.0, width_y=2.0)
+        lattice.setUniverses([[[uo2, tube, water],
+                               [water, uo2,   tube]]])
+        root_cell.setFill(lattice)
+
+        self.geometry = openmoc.Geometry()
+        self.geometry.setRootUniverse(root_universe)
+
+        super(OblongLatticeGridInput, self).create_geometry()
+
 
 class SimpleLatticeInput(InputSet):
     """A 4x4 pin cell lattice problem from sample-input/simple-lattice."""
@@ -259,9 +320,13 @@ class SimpleLatticeInput(InputSet):
 
         xmin = openmoc.XPlane(x=-2.0, name='xmin')
         xmax = openmoc.XPlane(x=+2.0, name='xmax')
-        ymax = openmoc.YPlane(y=+2.0, name='ymin')
-        ymin = openmoc.YPlane(y=-2.0, name='ymax')
+        ymin = openmoc.YPlane(y=-2.0, name='ymin')
+        ymax = openmoc.YPlane(y=+2.0, name='ymax')
         boundaries = [xmin, xmax, ymin, ymax]
+        if (self.dimensions == 3):
+            zmin = openmoc.ZPlane(z=-5.0, name='zmin')
+            zmax = openmoc.ZPlane(z=+5.0, name='zmax')
+            boundaries = [xmin, xmax, ymin, ymax, zmin, zmax]
 
         large_zcylinder = openmoc.ZCylinder(x=0.0, y=0.0,
                                             radius=0.4, name='large pin')
@@ -271,6 +336,8 @@ class SimpleLatticeInput(InputSet):
                                             radius=0.2, name='small pin')
 
         for boundary in boundaries: boundary.setBoundaryType(openmoc.REFLECTIVE)
+        if (self.dimensions == 3):
+            boundaries[-1].setBoundaryType(openmoc.VACUUM)
 
         large_fuel = openmoc.Cell(name='large pin fuel')
         large_fuel.setNumRings(3)
@@ -312,6 +379,9 @@ class SimpleLatticeInput(InputSet):
         root_cell.addSurface(halfspace=-1, surface=boundaries[1])
         root_cell.addSurface(halfspace=+1, surface=boundaries[2])
         root_cell.addSurface(halfspace=-1, surface=boundaries[3])
+        if (self.dimensions == 3):
+            root_cell.addSurface(halfspace=+1, surface=boundaries[4])
+            root_cell.addSurface(halfspace=-1, surface=boundaries[5])
 
         pin1 = openmoc.Universe(name='large pin cell')
         pin2 = openmoc.Universe(name='medium pin cell')
@@ -344,6 +414,7 @@ class SimpleLatticeInput(InputSet):
         self.geometry.setRootUniverse(root_universe)
 
         super(SimpleLatticeInput, self).create_geometry()
+
 
 
 class PwrAssemblyInput(InputSet):
@@ -486,3 +557,301 @@ class PwrAssemblyInput(InputSet):
         self.geometry.setRootUniverse(root_universe)
 
         super(PwrAssemblyInput, self).create_geometry()
+
+
+class NonUniformLatticeInput(InputSet):
+    """A 4x4 non-uniform simple lattice problem."""
+
+    def create_materials(self):
+        """Instantiate C5G7 Materials."""
+        self.materials = \
+            openmoc.materialize.load_from_hdf5(filename='c5g7-mgxs.h5',
+                                               directory='../../sample-input/')
+
+    def create_geometry(self):
+        """Instantiate a 4x4 non-uniform simple lattice Geometry."""
+
+        fuel_rings      = 1
+        moderator_rings = 1
+        num_sectors     = 8
+        openmoc.set_line_length(120)
+
+        r_fuel = 0.54
+        r_clad = 0.57
+        r_large = 0.60
+        pin_pitch = 1.26
+        gap_size = 0.05
+        surfaces = {}
+        surfaces['Pin Cell ZCylinder'] = openmoc.ZCylinder(x=0, y=0,
+                                      radius=r_fuel, name='Pin Cell ZCylinder')
+        surfaces['Clad Cell ZCylinder'] = openmoc.ZCylinder(x=0, y=0,
+                                      radius=r_clad, name='Clad Cell ZCylinder')
+        surfaces['large'] = openmoc.ZCylinder(x=0, y=0, radius=r_large,
+                                              name='large')
+        surfaces['z-inf'] = openmoc.ZPlane(z=-1.0E10)
+        surfaces['z+inf'] = openmoc.ZPlane(z= 1.0E10)
+
+        cells = {}
+        cells['fuel'] = openmoc.Cell()
+        cells['clad'] = openmoc.Cell()
+        cells['mod']  = openmoc.Cell()
+        cells['uniform gap'] = openmoc.Cell()
+        cells['large_fuel'] = openmoc.Cell()
+        cells['large_mod'] = openmoc.Cell()
+
+        cells['fuel'].addSurface(halfspace=-1,
+                                 surface=surfaces['Pin Cell ZCylinder'])
+        cells['fuel'].addSurface(halfspace=+1, surface=surfaces['z-inf'])
+        cells['fuel'].addSurface(halfspace=-1, surface=surfaces['z+inf'])
+        cells['fuel'].setFill(self.materials['UO2'])
+        cells['fuel'].setNumSectors(num_sectors)
+        cells['fuel'].setNumRings(fuel_rings)
+
+        cells['clad'].addSurface(halfspace=+1,
+                                 surface=surfaces['Pin Cell ZCylinder'])
+        cells['clad'].addSurface(halfspace=-1,
+                                 surface=surfaces['Clad Cell ZCylinder'])
+        cells['clad'].addSurface(halfspace=+1, surface=surfaces['z-inf'])
+        cells['clad'].addSurface(halfspace=-1, surface=surfaces['z+inf'])
+        cells['clad'].setFill(self.materials['Clad'])
+        cells['clad'].setNumSectors(num_sectors)
+
+        cells['mod'].addSurface(halfspace=+1,
+                                surface=surfaces['Clad Cell ZCylinder'])
+        cells['mod'].addSurface(halfspace=+1, surface=surfaces['z-inf'])
+        cells['mod'].addSurface(halfspace=-1, surface=surfaces['z+inf'])
+        cells['mod'].setFill(self.materials['Water'])
+        cells['mod'].setNumSectors(num_sectors)
+        cells['mod'].setNumRings(moderator_rings)
+
+        cells['uniform gap'].addSurface(halfspace=+1, surface=surfaces['z-inf'])
+        cells['uniform gap'].addSurface(halfspace=-1, surface=surfaces['z+inf'])
+        cells['uniform gap'].setFill(self.materials['Clad'])
+
+        cells['large_fuel'].addSurface(halfspace=-1, surface=surfaces['large'])
+        cells['large_fuel'].addSurface(halfspace=+1, surface=surfaces['z-inf'])
+        cells['large_fuel'].addSurface(halfspace=-1, surface=surfaces['z+inf'])
+        cells['large_fuel'].setFill(self.materials['UO2'])
+        cells['large_fuel'].setNumSectors(num_sectors)
+
+        cells['large_mod'].addSurface(halfspace=+1, surface=surfaces['large'])
+        cells['large_mod'].addSurface(halfspace=+1, surface=surfaces['z-inf'])
+        cells['large_mod'].addSurface(halfspace=-1, surface=surfaces['z+inf'])
+        cells['large_mod'].setFill(self.materials['Water'])
+        cells['large_mod'].setNumSectors(num_sectors)
+
+        universes={}
+        universes['pin'] = openmoc.Universe()
+        universes['pin'].addCell(cells['fuel'])
+        universes['pin'].addCell(cells['clad'])
+        universes['pin'].addCell(cells['mod'])
+
+        universes['uniform gap'] =  openmoc.Universe()
+        universes['uniform gap'].addCell(cells['uniform gap'])
+
+        universes['large_pin'] = openmoc.Universe()
+        universes['large_pin'].addCell(cells['large_fuel'])
+        universes['large_pin'].addCell(cells['large_mod'])
+
+
+        lower_left = [0.,0.,0.]
+        width = ([gap_size,pin_pitch,pin_pitch,gap_size],
+                 [gap_size,pin_pitch,pin_pitch,gap_size],
+                 [1.0,1.5])
+        lattice = openmoc.Lattice(name='lattice with gap')
+        lattice.setWidths(width[0], width[1], width[2])
+        lattice.setOffset(lower_left[0]+sum(width[0])/2.,
+                 lower_left[1]+sum(width[1])/2., lower_left[2]+sum(width[2])/2.)
+
+        f = universes['pin']
+        g = universes['uniform gap']
+        l = universes['large_pin']
+        lattice.setUniverses(
+                    [[[g,g,g,g],
+                      [g,f,f,g],
+                      [g,f,f,g],
+                      [g,g,g,g]],
+                     [[g,g,g,g],
+                      [g,f,f,g],
+                      [g,f,f,g],
+                      [g,g,g,g]]])
+
+        surfaces['Global x-'] = openmoc.XPlane(x=lower_left[0])
+        surfaces['Global x+'] = openmoc.XPlane(x=lower_left[0]+sum(width[0]))
+        surfaces['Global y-'] = openmoc.YPlane(y=lower_left[1])
+        surfaces['Global y+'] = openmoc.YPlane(y=lower_left[1]+sum(width[1]))
+        surfaces['Global z-'] = openmoc.ZPlane(z=lower_left[2])
+        surfaces['Global z+'] = openmoc.ZPlane(z=lower_left[2]+sum(width[2]))
+
+        surfaces['Global x-'].setBoundaryType(openmoc.REFLECTIVE)
+        surfaces['Global x+'].setBoundaryType(openmoc.REFLECTIVE)
+        surfaces['Global y-'].setBoundaryType(openmoc.REFLECTIVE)
+        surfaces['Global y+'].setBoundaryType(openmoc.REFLECTIVE)
+        surfaces['Global z-'].setBoundaryType(openmoc.REFLECTIVE)
+        surfaces['Global z+'].setBoundaryType(openmoc.REFLECTIVE)
+
+        root_cell = openmoc.Cell()
+        root_cell.setFill(lattice)
+        root_cell.addSurface(halfspace=+1, surface=surfaces['Global x-'])
+        root_cell.addSurface(halfspace=-1, surface=surfaces['Global x+'])
+        root_cell.addSurface(halfspace=+1, surface=surfaces['Global y-'])
+        root_cell.addSurface(halfspace=-1, surface=surfaces['Global y+'])
+        root_cell.addSurface(halfspace=+1, surface=surfaces['Global z-'])
+        root_cell.addSurface(halfspace=-1, surface=surfaces['Global z+'])
+
+        root_universe = openmoc.Universe()
+        root_universe.addCell(root_cell)
+
+        self.geometry = openmoc.Geometry()
+        self.geometry.setRootUniverse(root_universe)
+
+        super(NonUniformLatticeInput, self).create_geometry()
+
+
+class AxialExtendedInput(InputSet):
+    """A 4x4 non-uniform and axially extended lattice problem."""
+
+    def create_materials(self):
+        """Instantiate C5G7 Materials."""
+        self.materials = \
+            openmoc.materialize.load_from_hdf5(filename='c5g7-mgxs.h5',
+                                               directory='../../sample-input/')
+
+    def create_geometry(self):
+        """Instantiate 4x4 non-uniform and axially extended lattice problem."""
+
+        fuel_rings      = 1
+        moderator_rings = 1
+        num_sectors     = 8
+        openmoc.set_line_length(120)
+
+        r_fuel = 0.54
+        r_clad = 0.57
+        r_large = 0.60
+        pin_pitch = 1.26
+        gap_size = 0.05
+        surfaces = {}
+        surfaces['Pin Cell ZCylinder'] = openmoc.ZCylinder(x=0, y=0,
+                                      radius=r_fuel, name='Pin Cell ZCylinder')
+        surfaces['Clad Cell ZCylinder'] = openmoc.ZCylinder(x=0, y=0,
+                                      radius=r_clad, name='Clad Cell ZCylinder')
+        surfaces['large'] = openmoc.ZCylinder(x=0, y=0, radius=r_large,
+                                              name='large')
+        surfaces['z-inf'] = openmoc.ZPlane(z=-1.0E10)
+        surfaces['z+inf'] = openmoc.ZPlane(z= 1.0E10)
+
+        cells = {}
+        cells['fuel'] = openmoc.Cell()
+        cells['clad'] = openmoc.Cell()
+        cells['mod']  = openmoc.Cell()
+        cells['uniform gap'] = openmoc.Cell()
+        cells['large_fuel'] = openmoc.Cell()
+        cells['large_mod'] = openmoc.Cell()
+
+        cells['fuel'].addSurface(halfspace=-1,
+                                 surface=surfaces['Pin Cell ZCylinder'])
+        cells['fuel'].addSurface(halfspace=+1, surface=surfaces['z-inf'])
+        cells['fuel'].addSurface(halfspace=-1, surface=surfaces['z+inf'])
+        cells['fuel'].setFill(self.materials['UO2'])
+        cells['fuel'].setNumSectors(num_sectors)
+        cells['fuel'].setNumRings(fuel_rings)
+
+        cells['clad'].addSurface(halfspace=+1,
+                                 surface=surfaces['Pin Cell ZCylinder'])
+        cells['clad'].addSurface(halfspace=-1,
+                                 surface=surfaces['Clad Cell ZCylinder'])
+        cells['clad'].addSurface(halfspace=+1, surface=surfaces['z-inf'])
+        cells['clad'].addSurface(halfspace=-1, surface=surfaces['z+inf'])
+        cells['clad'].setFill(self.materials['Clad'])
+        cells['clad'].setNumSectors(num_sectors)
+
+        cells['mod'].addSurface(halfspace=+1,
+                                surface=surfaces['Clad Cell ZCylinder'])
+        cells['mod'].addSurface(halfspace=+1, surface=surfaces['z-inf'])
+        cells['mod'].addSurface(halfspace=-1, surface=surfaces['z+inf'])
+        cells['mod'].setFill(self.materials['Water'])
+        cells['mod'].setNumSectors(num_sectors)
+        cells['mod'].setNumRings(moderator_rings)
+
+        cells['uniform gap'].addSurface(halfspace=+1, surface=surfaces['z-inf'])
+        cells['uniform gap'].addSurface(halfspace=-1, surface=surfaces['z+inf'])
+        cells['uniform gap'].setFill(self.materials['Clad'])
+
+        cells['large_fuel'].addSurface(halfspace=-1, surface=surfaces['large'])
+        cells['large_fuel'].addSurface(halfspace=+1, surface=surfaces['z-inf'])
+        cells['large_fuel'].addSurface(halfspace=-1, surface=surfaces['z+inf'])
+        cells['large_fuel'].setFill(self.materials['UO2'])
+        cells['large_fuel'].setNumSectors(num_sectors)
+
+        cells['large_mod'].addSurface(halfspace=+1, surface=surfaces['large'])
+        cells['large_mod'].addSurface(halfspace=+1, surface=surfaces['z-inf'])
+        cells['large_mod'].addSurface(halfspace=-1, surface=surfaces['z+inf'])
+        cells['large_mod'].setFill(self.materials['Water'])
+        cells['large_mod'].setNumSectors(num_sectors)
+
+        universes={}
+        universes['pin'] = openmoc.Universe()
+        universes['pin'].addCell(cells['fuel'])
+        universes['pin'].addCell(cells['clad'])
+        universes['pin'].addCell(cells['mod'])
+
+        universes['uniform gap'] =  openmoc.Universe()
+        universes['uniform gap'].addCell(cells['uniform gap'])
+
+        universes['large_pin'] = openmoc.Universe()
+        universes['large_pin'].addCell(cells['large_fuel'])
+        universes['large_pin'].addCell(cells['large_mod'])
+
+        lower_left = [0.,0.,0.]
+        # set the XYZ widths of non-uniform lattice
+        width = ([gap_size,pin_pitch,pin_pitch,gap_size],
+                 [gap_size,pin_pitch,pin_pitch,gap_size], [1.0]*20)
+        lattice = openmoc.Lattice(name='lattice with gap')
+        lattice.setWidths(width[0], width[1], width[2])
+        lattice.setOffset(lower_left[0]+sum(width[0])/2.,
+                 lower_left[1]+sum(width[1])/2., lower_left[2]+sum(width[2])/2.)
+        f = universes['pin']
+        g = universes['uniform gap']
+        l = universes['large_pin']
+        a = numpy.array([[g,g,g,g],
+                         [g,f,f,g],
+                         [g,f,f,g],
+                         [g,g,g,g]])
+        fill_universes = numpy.tile(a,(20,1,1))
+
+        # make the geometry axially heterogeneous
+        fill_universes[2][1][1] = g
+        fill_universes = fill_universes.tolist()
+        lattice.setUniverses(fill_universes)
+
+        surfaces['Global x-'] = openmoc.XPlane(x=lower_left[0])
+        surfaces['Global x+'] = openmoc.XPlane(x=lower_left[0]+sum(width[0]))
+        surfaces['Global y-'] = openmoc.YPlane(y=lower_left[1])
+        surfaces['Global y+'] = openmoc.YPlane(y=lower_left[1]+sum(width[1]))
+        surfaces['Global z-'] = openmoc.ZPlane(z=lower_left[2])
+        surfaces['Global z+'] = openmoc.ZPlane(z=lower_left[2]+sum(width[2]))
+
+        surfaces['Global x-'].setBoundaryType(openmoc.REFLECTIVE)
+        surfaces['Global x+'].setBoundaryType(openmoc.REFLECTIVE)
+        surfaces['Global y-'].setBoundaryType(openmoc.REFLECTIVE)
+        surfaces['Global y+'].setBoundaryType(openmoc.REFLECTIVE)
+        surfaces['Global z-'].setBoundaryType(openmoc.REFLECTIVE)
+        surfaces['Global z+'].setBoundaryType(openmoc.REFLECTIVE)
+
+
+        root_cell = openmoc.Cell()
+        root_cell.setFill(lattice)
+        root_cell.addSurface(halfspace=+1, surface=surfaces['Global x-'])
+        root_cell.addSurface(halfspace=-1, surface=surfaces['Global x+'])
+        root_cell.addSurface(halfspace=+1, surface=surfaces['Global y-'])
+        root_cell.addSurface(halfspace=-1, surface=surfaces['Global y+'])
+        root_cell.addSurface(halfspace=+1, surface=surfaces['Global z-'])
+        root_cell.addSurface(halfspace=-1, surface=surfaces['Global z+'])
+
+        root_universe = openmoc.Universe()
+        root_universe.addCell(root_cell)
+
+        self.geometry=openmoc.Geometry()
+        self.geometry.setRootUniverse(root_universe)
+
+        super(AxialExtendedInput, self).create_geometry()

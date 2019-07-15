@@ -8,8 +8,12 @@ There are a few prerequisites which must be installed on your machine before you
 
 The following command will install all required and optional dependencies on Ubuntu 12.04 or later::
 
-    sudo apt-get install build-essential git swig python-dev python-numpy python-matplotlib python-h5py
+    sudo apt-get install build-essential git swig python-dev python-numpy python-matplotlib python-h5py python-pillow
 
+A preferred alternative to apt-get is using anaconda to install Python packages. Anaconda will automatically manage the package versions, ensuring compatibility. Anaconda will also allow you to install packages on a system where you don't have admin priviledges, like most computing clusters. Once you have Anaconda (or Miniconda installed), you can install all OpenMOC's Python dependencies with::
+
+    conda config --append channels conda-forge
+    conda install swig numpy matplotlib h5py pillow
 
 .. admonition:: Required
 
@@ -22,11 +26,11 @@ The following command will install all required and optional dependencies on Ubu
 
     * Python_
 
-      OpenMOC extensively uses Python for rapid data processing and visualization. OpenMOC uses a mixture of fast, compiled C/C++/CUDA code with Python bindingssuch that users are entirely insulated from having to write in C/C++ or CUDA, and can simply write a Python script with calls to OpenMOC.
+      OpenMOC extensively uses Python for rapid data processing and visualization. OpenMOC uses a mixture of fast, compiled C/C++/CUDA code with Python bindings such that users are entirely insulated from having to write in C/C++ or CUDA, and can simply write a Python script with calls to OpenMOC.
 
-      Currently, OpenMOC has been tested with Python versions 2.6, 2.7, 3.1 and 3.2. Even if you already have Python installed, it is recommended that you install it again using ``apt-get`` to ensure that it is properly configured with ``g++``. You can easily install version 2.7 in Ubuntu as follows::
+      Currently, OpenMOC has been tested with Python versions 2.6, 2.7, 3.1 to 3.7. Even if you already have Python installed, it is recommended that you install it again using ``apt-get`` to ensure that it is properly configured with ``g++``. You can easily install version 3.7 in Ubuntu as follows::
 
-	sudo apt-get install python2.7
+	sudo apt-get install python3.7
 
       In addition, you must install the Python development headers::
 	
@@ -57,7 +61,7 @@ The following command will install all required and optional dependencies on Ubu
 
     * matplotlib_
 
-      The matplotlib Python package is a general purpose utility for plotting and visualizations. OpenMOC uses matplotlib in the ``openmoc.plotter`` module to generate plots, such as flux and power distributions. Although matplotlib and the ``openmoc.plotter`` modules are not required for an OpenMOC simulation, visualizations can be a helpful tool in debugging and input model validation. To install matplotlib in Ubuntu, issue the following command::
+      The matplotlib Python package is a general purpose utility for plotting and visualizations. OpenMOC uses matplotlib in the ``openmoc.plotter`` module to generate plots, such as flux and power distributions. Although matplotlib and the ``openmoc.plotter`` modules are not required for an OpenMOC simulation, visualizations can be a helpful tool in debugging and input model validation. To install matplotlib on Ubuntu, issue the following command::
 
 	sudo apt-get install python-matplotlib
 
@@ -68,8 +72,28 @@ The following command will install all required and optional dependencies on Ubu
       
       To install h5py on Ubuntu, issue the following command::
       
-        sudo apt-get install python-h5py
+    sudo apt-get install python-h5py
 
+    * pillow_
+
+      The PIL (or its fork pillow) package is used to compare images in the test suite, to check that the plotter module is working properly. It is not required outside of the test suite.
+      To install PIL or pillow on Ubuntu, issue the following command::
+
+    sudo apt-get install python-pil
+
+    * scipy_
+
+      The scipy package is used for the Krylov solver. It is not required for running a regular MOC (+CMFD) solve
+      To install pillow on Ubuntu, issue the following command::
+
+    sudo apt-get install python-scipy
+
+    * mpi4py_
+
+      The mpi4py package is used to run domain-decomposed simulations from Python. It is not required for using OpenMOC on a single machine.
+      To install pillow on Ubuntu, issue the following command::
+
+    sudo apt-get install python-mpi4py
 
 .. _GitHub: https://github.com/mit-crpg/OpenMOC
 .. _apt-get: http://www.apt-get.org/
@@ -82,3 +106,6 @@ The following command will install all required and optional dependencies on Ubu
 .. _matplotlib: http://matplotlib.org/
 .. _h5py: http://www.h5py.org/
 .. _HDF5: http://www.hdfgroup.org/HDF5/
+.. _pillow: https://pillow.readthedocs.io/en/stable/
+.. _scipy: https://www.scipy.org/
+.. _mpi4py: https://mpi4py.readthedocs.io/en/stable/

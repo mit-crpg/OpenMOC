@@ -1,8 +1,8 @@
 /**
  * @file Track.h
- * @brief The Track class.
- * @date January 19, 2012
- * @author William Boyd, MIT Course, 22 (wboyd@mit.edu)
+ * @brief The generic Track class.
+ * @date May 16, 2015
+ * @author Samuel Shaner, MIT Course, 22 (shaner@mit.edu)
  */
 
 #ifndef TRACK_H_
@@ -27,7 +27,7 @@
 struct segment {
 
   /** The length of the segment (cm) */
-  FP_PRECISION _length;
+  double _length;
 
   /** A pointer to the material in which this segment resides */
   Material* _material;
@@ -35,16 +35,25 @@ struct segment {
   /** The ID for flat source region in which this segment resides */
   int _region_id;
 
+  /** The ID of the track */
+  int _track_idx;
+
   /** The ID for the mesh surface crossed by the Track end point */
   int _cmfd_surface_fwd;
 
   /** The ID for the mesh surface crossed by the Track start point */
   int _cmfd_surface_bwd;
 
-  /** Constructor initializes CMFD surfaces */
+  /** The starting point of the segment relative to the FSR centroid */
+  FP_PRECISION _starting_position[3];
+
+  /** Constructor initializes CMFD surfaces and segment Z-coordinate */
   segment() {
+    _track_idx = 0;
+    _material = NULL;
     _cmfd_surface_fwd = -1;
     _cmfd_surface_bwd = -1;
+    _starting_position[2] = 0.;
   }
 };
 
@@ -53,11 +62,12 @@ struct segment {
  * @class Track Track.h "src/Track.h"
  * @brief A Track represents a characteristic line across the geometry.
  * @details A Track has particular starting and ending points on the
- *          boundaries of the geometry and an azimuthal angle.
+ *          boundaries of the geometry and an azimuthal and polar angle.
  */
 class Track {
 
-private:
+protected:
+
   /** A monotonically increasing unique ID for each Track created */
   int _uid;
 
@@ -70,111 +80,128 @@ private:
   /** The azimuthal angle for the Track */
   double _phi;
 
-  /** The azimuthal angle index into the global 2D ragged array of Tracks */
-  int _azim_angle_index;
-
-  /** The track index in the periodic cycle */
-  int _periodic_track_index;
-
-  /** The track index in the reflective cycle */
-  int _reflective_track_index;
-
   /** A dynamically sized vector of segments making up this Track */
   std::vector<segment> _segments;
 
-  /** The next Track when traveling along this Track in the "forward"
-   * direction. */
-  Track* _track_in;
+  /** Number of segments recorded during volume calculation */
+  int _num_segments;
 
-  /** The next Track when traveling along this Track in the "reverse"
-   * direction. */
-  Track* _track_out;
+  /** An enum to indicate whether the outgoing angular flux along this
+   *  Track's "forward" direction should be zeroed out for vacuum boundary
+   *  conditions or sent to a periodic or reflective track. */
+  boundaryType _bc_fwd;
 
-  /** A boolean to indicate whether to give the flux to the "forward" (false)
-   *  or "reverse" (true) direction of the next Track going in the "forward"
+  /** An enum to indicate whether the outgoing angular flux along this
+   *  Track's "reverse" direction should be zeroed out for vacuum boundary
+   *  conditions or sent to a periodic or reflective track. */
+  boundaryType _bc_bwd;
+
+  /* Indices that are used to locate the track in the various track arrays */
+  int _azim_index;
+  int _xy_index;
+  int _link_index;
+
+  /** Pointers to next, reflective, and periodic Tracks in the forward and
+   *  reverse directions */
+  long _track_next_fwd;
+  long _track_next_bwd;
+  long _track_prdc_fwd;
+  long _track_prdc_bwd;
+  long _track_refl_fwd;
+  long _track_refl_bwd;
+
+  /** Booleans to indicate wheter the reflective Tracks in the forward and
+   *  and backward direction enter into Tracks pointed in the forward
    *  direction. */
-  bool _next_in;
+  bool _next_fwd_fwd;
+  bool _next_bwd_fwd;
 
-  /** A boolean to indicate whether to give the flux to the "forward" (false)
-   *  or "reverse" (true) direction of the next Track going in the "reverse"
-   *  direction. */
-  bool _next_out;
+  /** Boolean indicating whether the track is pointing fwd (True) or bwd
+   *  (False) in the cycle of tracks */
+  //FIXME
+  bool _direction_in_cycle;
 
-  /** An enum to indicate the boundary condition in the "forward" direction. */
-  boundaryType _bc_in;
-
-  /** An enum to indicate the boundary condition in the "reverse" direction. */
-  boundaryType  _bc_out;
+  /** Surfaces at the beginning and end of the Track */
+  int _surface_in;
+  int _surface_out;
+  
+  /** Domains further along and before the current domain on this Track */
+  int _domain_fwd;
+  int _domain_bwd;
 
 public:
   Track();
   virtual ~Track();
-  void setValues(const double start_x, const double start_y,
-                 const double start_z, const double end_x,
-                 const double end_y, const double end_z, const double phi);
+
+  /* Setter methods */
+  virtual void setValues(const double start_x, const double start_y,
+                         const double end_x, const double end_y,
+                         const double phi);
+  virtual void setCoords(double x0, double y0,
+                         double x1, double y1);
   void setUid(int uid);
   void setPhi(const double phi);
-  void setAzimAngleIndex(const int index);
-  void setPeriodicTrackIndex(const int index);
-  void setReflectiveTrackIndex(const int index);
-  void setNextIn(const bool next_in);
-  void setNextOut(const bool next_out);
-  void setBCIn(const boundaryType bc_in);
-  void setBCOut(const boundaryType bc_out);
-  void setTrackIn(Track *track_in);
-  void setTrackOut(Track *track_out);
+  void setBCFwd(const boundaryType bc_fwd);
+  void setBCBwd(const boundaryType bc_bwd);
+  void setTrackNextFwd(long track_id);
+  void setTrackNextBwd(long track_id);
+  void setTrackPrdcFwd(long track_id);
+  void setTrackPrdcBwd(long track_id);
+  void setTrackReflFwd(long track_id);
+  void setTrackReflBwd(long track_id);
+  void setNextFwdFwd(bool fwd);
+  void setNextBwdFwd(bool fwd);
+  void setXYIndex(int index);
+  void setAzimIndex(int index);
+  void setSurfaceIn(int surface_in);
+  void setSurfaceOut(int surface_out);
+  void setDomainFwd(int neighbor);
+  void setDomainBwd(int neighbor);
+  void setLinkIndex(int index);
 
+  /* Getter methods */
   int getUid();
   Point* getEnd();
   Point* getStart();
   double getPhi() const;
-  int getAzimAngleIndex() const;
-  int getPeriodicTrackIndex() const;
-  int getReflectiveTrackIndex() const;
+  double getLength();
+  long getTrackNextFwd();
+  long getTrackNextBwd();
+  long getTrackPrdcFwd();
+  long getTrackPrdcBwd();
+  long getTrackReflFwd();
+  long getTrackReflBwd();
+  bool getNextFwdFwd();
+  bool getNextBwdFwd();
+  int getXYIndex();
+  int getAzimIndex();
+  int getLinkIndex();
+  boundaryType getBCFwd() const;
+  boundaryType getBCBwd() const;
   segment* getSegment(int s);
   segment* getSegments();
   int getNumSegments();
-  Track *getTrackIn() const;
-  Track *getTrackOut() const;
-  bool isNextIn() const;
-  bool isNextOut() const;
-  boundaryType getBCIn() const;
-  boundaryType getBCOut() const;
-  bool getTransferFluxIn() const;
-  bool getTransferFluxOut() const;
+  int getDomainFwd();
+  int getDomainBwd();
+  int getSurfaceIn();
+  int getSurfaceOut();
 
-  void addSegment(segment* to_add);
+  /* Worker methods */
+  void addSegment(segment* segment);
   void removeSegment(int index);
   void insertSegment(int index, segment* segment);
   void clearSegments();
-  std::string toString();
+  void setNumSegments(int num_segments);
+  virtual std::string toString();
 };
 
 
 /**
- * @brief Return the Track's unique ID
+ * @brief Return the Track's unique ID.
  * @return the Track's unique ID
  */
 inline int Track::getUid() {
   return _uid;
-}
-
-
-/**
- * @brief Returns the incoming Track.
- * @return a pointer to the incoming Track
- */
-inline Track* Track::getTrackIn() const {
-  return _track_in;
-}
-
-
-/**
- * @brief Returns the outgoing Track
- * @return a pointer to the outgoing Track
- */
-inline Track* Track::getTrackOut() const {
-  return _track_out;
 }
 
 
@@ -211,8 +238,68 @@ inline segment* Track::getSegments() {
  * @return the number of segments
  */
 inline int Track::getNumSegments() {
-  return _segments.size();
+  if (_num_segments == 0)
+    return _segments.size();
+  else
+    return _num_segments;
 }
 
+/**
+ * @brief Sets the number of segments in a track.
+ * @details This function sets the number of segments in a track. It's purpose
+ *          is to be used for 3D tracks with on-the-fly ray tracing where
+ *          segments are not explicitly created, but there is a need to know
+ *          how many segments exist.
+ */
+inline void Track::setNumSegments(int num_segments) {
+    _num_segments = num_segments;
+}
+
+
+/**
+ * @brief Returns a pointer to the Track's end Point.
+ * @return A pointer to the Track's end Point
+ */
+inline Point* Track::getEnd() {
+  return &_end;
+}
+
+
+/**
+ * @brief Returns a pointer to the Track's start Point.
+ * @return A pointer to the Track's start Point
+ */
+inline Point* Track::getStart() {
+  return &_start;
+}
+
+
+/**
+ * @brief Return the Track's azimuthal angle (with respect to the x-axis).
+ * @return The azimuthal angle \f$ \phi \in [0, \pi] \f$
+ */
+inline double Track::getPhi() const {
+  return _phi;
+}
+
+
+/**
+ * @brief Returns the boundary condition for the flux along the Track's
+ *        "forward" direction.
+ * @return vacuum (0), reflective (1), or periodic (2) boundary conditions
+ */
+inline boundaryType Track::getBCFwd() const {
+  return _bc_fwd;
+}
+
+
+/**
+ * @brief Returns the boundary condition for the flux along the Track's
+ *        "reverse" direction.
+ * @return vacuum (0), reflective (1), or periodic (2) boundary conditions
+ */
+inline boundaryType Track::getBCBwd() const {
+  return _bc_bwd;
+}
 
 #endif /* TRACK_H_ */

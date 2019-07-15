@@ -1,35 +1,85 @@
-# Installation
+# installation
 *.o
 *.cxx
 *.h.gch
 *.so
 *.pyc
-*.o
-*.cxx
-*.h.gch
-*.so
+*/*.o
+*/*.cxx
+*/*.h.gch
+*/*.so
 *~
+*/*~
+*/*.pyc
+build
 build/*
+dist
 dist/*
 openmoc/openmoc.py
-openmoc/openmoc_wrap.cpp
+openmoc/swig/openmoc_wrap.cpp
+
+openmoc/mic/openmoc_mic.py
+openmoc/mic/openmoc_mic_wrap.cpp
+
+openmoc/intel/single/openmoc_intel_single_wrap.cpp
+openmoc/intel/single/openmoc_intel_single.py
+openmoc/intel/double/openmoc_intel_double_wrap.cpp
+openmoc/intel/double/openmoc_intel_double.py
+
+openmoc/gnu/single/openmoc_gnu_single_wrap.cpp
+openmoc/gnu/single/openmoc_gnu_single.py
+openmoc/gnu/double/openmoc_gnu_double_wrap.cpp
+openmoc/gnu/double/openmoc_gnu_double.py
+
+openmoc/bgq/single/openmoc_bgq_single_wrap.cpp
+openmoc/bgq/single/openmoc_bgq_double.py
+openmoc/bgq/double/openmoc_bgq_double_wrap.cpp
+openmoc/bgq/double/openmoc_bgq_double.py
+
 openmoc/cuda/openmoc_cuda.py
 openmoc/cuda/openmoc_cuda_wrap.cpp
+openmoc/cuda/single/openmoc_cuda_single_wrap.cpp
+openmoc/cuda/single/openmoc_cuda_single.py
+openmoc/cuda/double/openmoc_cuda_double_wrap.cpp
+openmoc/cuda/double/openmoc_cuda_double.py
 
 # TORQUE log files
+*/*.pbs.e*
+*/*.pbs.o*
 *.pbs.e*
 *.pbs.o*
 
 # output files
 log
+log/*
+*/log
+*/log/*
 tracks
+tracks/*
+*/tracks
+*/tracks/*
 plots
+plots/*
+*/plots
+*/plots/*
 fission-rates
-simulation-states
+fission-rates/*
+*/fission-rates
+*/fission-rates/*
+simulation-state*
+simulation-state/*
+*/simulation-state*
+*/simulation-state*/*
+
+
 *.data
+*/*.data
 *.png
 *.ppm
+*/*.png
+
 openmoc-*-.log
+*/openmoc-*-.log
 
 Openmp
 */penmp
@@ -37,7 +87,51 @@ penmoc
 penmp-report
 */penmoc
 */penmp-report
-*/*.egg-info/*
+*.egg-info/*
+*/*.egg-info/
+
+openmoc/intel/single/openmoc_intel_single.py
+openmoc/intel/single/openmoc_intel_single_wrap.cpp
+openmoc/intel/double/openmoc_intel_double.py
+openmoc/intel/double/openmoc_intel_double_wrap.cpp
+
+openmoc/gnu/single/openmoc_gnu_single.py
+openmoc/gnu/single/openmoc_gnu_single_wrap.cpp
+openmoc/gnu/double/openmoc_gnu_double.py
+openmoc/gnu/doube/openmoc_gnu_double_wrap.cpp
+
+openmoc/cuda/openmoc_cuda.py
+openmoc/cuda/openmoc_cuda_wrap.cpp
+openmoc/cuda/single/openmoc_cuda_single.py
+openmoc/cuda/single/openmoc_cuda_single_wrap.cpp
+openmoc/cuda/double/openmoc_cuda_double.py
+openmoc/cuda/double/openmoc_cuda_double_wrap.cpp
+
+
+# Tests generated files
+results_error.dat
+tests/test_geometry_dump/geometry_file.geo
+tests/test_geometry_dump/geometry_file_second.geo
+tests/test_geometry_load/geometry_file.geo
+tests/test_geometry_print/geometry.txt
+.pytest_cache/
+
+
+# Built C++ executables
+profile/models/run_time_standard/run_time_standard
+profile/models/c5g7/c5g7-3d-cmfd
+profile/models/c5g7/c5g7-3d
+profile/models/c5g7/c5g7-rodded-B-2x2
+profile/models/c5g7/c5g7-rodded-B
+profile/models/c5g7/c5g7-ws
+profile/models/fixed-source/pin-cell-fixed-3d
+profile/models/homogeneous/homogeneous
+profile/models/pin-cell/pin-cell-3d
+profile/models/simple-lattice/simple-lattice-3d
+profile/models/single-assembly/quarter-c5g7-assembly
+profile/models/single-assembly/single-c5g7-assembly
+profile/models/Takeda/Takeda-unrodded
+
 
 #Documentation
 sphinx/
@@ -46,11 +140,28 @@ docs/build/*
 docs/doxygen/xml
 docs/doxyge/xml/*
 
+# BGQ
+*.lst
+
+*.cobaltlog
+*/*.cobaltlog
+*.error
+*/*.error
+*.output
+*/*.output
+
+*core*
+*/core*
+
 build/*
+*/build/
 */build/*
 
-# PyCharm configuration files
+.idea*
 .idea/*
+.idea/*.xml
+
+sphinx/
 
 *.DS_Store
 */*.DS_Store
@@ -58,19 +169,6 @@ build/*
 # Use wildcards as well
 # *~
 *.swp
-
-# C++ Build
-profile/obj/*
-profile/models/c5g7/c5g7-cmfd
-profile/models/c5g7/c5g7-cmfd.o
-profile/models/c5g7/c5g7
-profile/models/c5g7/c5g7.o
-profile/models/gradients/one-directional/one-directional-gradient
-profile/models/gradients/one-directional/one-directional-gradient.o
-profile/models/gradients/two-directional/two-directional-gradient
-profile/models/gradients/two-directional/two-directional-gradient.o
-profile/models/homogeneous/homogeneous-one-group
-profile/models/homogeneous/homogeneous-one-group.o
 
 # IPython Notebook
 .ipynb_checkpoints/
@@ -90,3 +188,5 @@ openmoc/
 
 # Doxygen
 docs/doxygen/html/*
+
+

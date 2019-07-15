@@ -1,60 +1,39 @@
 import openmc
 import openmc.mgxs
 
-###############################################################################
-#                      Simulation Input File Parameters
-###############################################################################
-
-# OpenMC simulation parameters
-batches = 100
-inactive = 10
-particles = 100000
-
 
 ###############################################################################
 #                 Exporting to OpenMC materials.xml File
 ###############################################################################
 
-# Instantiate some Nuclides
-h1 = openmc.Nuclide('H-1')
-he4 = openmc.Nuclide('He-4')
-b10 = openmc.Nuclide('B-10')
-b11 = openmc.Nuclide('B-11')
-o16 = openmc.Nuclide('O-16')
-fe56 = openmc.Nuclide('Fe-56')
-zr90 = openmc.Nuclide('Zr-90')
-u235 = openmc.Nuclide('U-235')
-u238 = openmc.Nuclide('U-238')
-
 # Instantiate some Materials and register the appropriate Nuclides
 uo2 = openmc.Material(name='UO2 Fuel')
 uo2.set_density('g/cm3', 10.29769)
-uo2.add_nuclide(u235, 5.5815e-4)
-uo2.add_nuclide(u238, 2.2408e-2)
-uo2.add_nuclide(o16, 4.5829e-2)
+uo2.add_nuclide('U235', 5.5815e-4)
+uo2.add_nuclide('U238', 2.2408e-2)
+uo2.add_nuclide('O16', 4.5829e-2)
 
 helium = openmc.Material(name='Helium')
 helium.set_density('g/cm3', 0.001598)
-helium.add_nuclide(he4, 2.4044e-4)
+helium.add_nuclide('He4', 2.4044e-4)
 
 zircaloy = openmc.Material(name='Zircaloy 4')
 zircaloy.set_density('g/cm3', 6.55)
-zircaloy.add_nuclide(o16, 3.0743e-4)
-zircaloy.add_nuclide(fe56, 1.3610e-4)
-zircaloy.add_nuclide(zr90, 2.1827e-2)
+zircaloy.add_nuclide('O16', 3.0743e-4)
+zircaloy.add_nuclide('Fe56', 1.3610e-4)
+zircaloy.add_nuclide('Zr90', 2.1827e-2)
 
 borated_water = openmc.Material(name='Borated Water')
 borated_water.set_density('g/cm3', 0.740582)
-borated_water.add_nuclide(b10, 8.0042e-6)
-borated_water.add_nuclide(b11, 3.2218e-5)
-borated_water.add_nuclide(h1, 4.9457e-2)
-borated_water.add_nuclide(o16, 2.4672e-2)
-borated_water.add_s_alpha_beta('HH2O', '71t')
+borated_water.add_nuclide('B10', 8.0042e-6)
+borated_water.add_nuclide('B11', 3.2218e-5)
+borated_water.add_nuclide('H1', 4.9457e-2)
+borated_water.add_nuclide('O16', 2.4672e-2)
+borated_water.add_s_alpha_beta('HH2O')
 
 # Instantiate a MaterialsFile, register all Materials, and export to XML
-materials_file = openmc.MaterialsFile()
+materials_file = openmc.Materials([uo2, helium, zircaloy, borated_water])
 materials_file.default_xs = '71c'
-materials_file.add_materials([uo2, helium, zircaloy, borated_water])
 materials_file.make_isotropic_in_lab()
 materials_file.export_to_xml()
 
@@ -113,11 +92,7 @@ root_univ.add_cell(root_cell)
 # Instantiate a Geometry and register the root Universe
 geometry = openmc.Geometry()
 geometry.root_universe = root_univ
-
-# Instantiate a GeometryFile, register Geometry, and export to XML
-geometry_file = openmc.GeometryFile()
-geometry_file.geometry = geometry
-geometry_file.export_to_xml()
+geometry.export_to_xml()
 
 
 ###############################################################################
@@ -130,16 +105,14 @@ upper_right = [+0.62992, +0.62992, +0.62992]
 source = openmc.source.Source(space=openmc.stats.Box(lower_left, upper_right))
 source.only_fissionable = True
 
-# Instantiate a SettingsFile
-settings_file = openmc.SettingsFile()
-settings_file.batches = batches
-settings_file.inactive = inactive
-settings_file.particles = particles
+# Instantiate a Settings collection
+settings_file = openmc.Settings()
+settings_file.batches = 100
+settings_file.inactive = 10
+settings_file.particles = 100000
 settings_file.output = {'tallies': False, 'summary': True}
 settings_file.source = source
 settings_file.sourcepoint_write = False
-
-# Export to "settings.xml"
 settings_file.export_to_xml()
 
 
@@ -149,9 +122,9 @@ settings_file.export_to_xml()
 
 # Instantiate a 16-group EnergyGroups object
 groups = openmc.mgxs.EnergyGroups()
-groups.group_edges = [0., 0.03e-6, 0.058e-6, 0.14e-6, 0.28e-6, 0.35e-6, 
-                      0.625e-6, 0.85e-6, 0.972e-6, 1.02e-6, 1.097e-6, 
-                      1.15e-6, 1.3e-6, 4.e-6, 5.53e-3, 821.e-3, 20.]
+groups.group_edges = [0., 0.03, 0.058, 0.14, 0.28, 0.35,
+                      0.625, 0.85, 0.972, 1.02, 1.097,
+                      1.15, 1.3, 4., 5.53e3, 821.e3, 20.e6]
 
 # Initialize an MGXS Library for OpenMOC
 mgxs_lib = openmc.mgxs.Library(geometry)
@@ -162,7 +135,7 @@ mgxs_lib.correction = None
 mgxs_lib.build_library()
 
 # Create a "tallies.xml" file for the MGXS Library
-tallies_file = openmc.TalliesFile()
+tallies_file = openmc.Tallies()
 mgxs_lib.add_to_tallies_file(tallies_file, merge=True)
 tallies_file.export_to_xml()
 
@@ -172,5 +145,4 @@ tallies_file.export_to_xml()
 ###############################################################################
 
 # Run OpenMC
-executor = openmc.Executor()
-executor.run_simulation(output=True, mpi_procs=4)
+openmc.run()

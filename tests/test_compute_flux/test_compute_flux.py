@@ -84,6 +84,10 @@ class ComputeFluxTestHarness(TestHarness):
         self.solver.setFixedSourceByCell(self.source_cell, 2, 0.5)
         self.solver.setFixedSourceByCell(self.source_cell, 3, 0.25)
 
+        geometry = self.input_set.geometry
+        track_generator = self.track_generator
+        solver=self.solver
+
 
 if __name__ == '__main__':
     harness = ComputeFluxTestHarness()

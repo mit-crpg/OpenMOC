@@ -3,17 +3,15 @@ import openmc.mgxs
 
 # Load the last statepoint file
 sp = openmc.StatePoint('statepoint.100.h5')
-su = openmc.Summary('summary.h5')
-sp.link_with_summary(su)
 
 # Instantiate a 16-group EnergyGroups object
 groups = openmc.mgxs.EnergyGroups()
-groups.group_edges = [0., 0.03e-6, 0.058e-6, 0.14e-6, 0.28e-6, 0.35e-6, 
-                      0.625e-6, 0.85e-6, 0.972e-6, 1.02e-6, 1.097e-6, 
-                      1.15e-6, 1.3e-6, 4.e-6, 5.53e-3, 821.e-3, 20.]
+groups.group_edges = [0., 0.03, 0.058, 0.14, 0.28, 0.35,
+                      0.625, 0.85, 0.972, 1.02, 1.097,
+                      1.15, 1.3, 4., 5.53e3, 821.e3, 20.e6]
 
 # Initialize an 2-group MGXS Library for OpenMOC
-mgxs_lib = openmc.mgxs.Library(su.openmc_geometry)
+mgxs_lib = openmc.mgxs.Library(sp.summary.geometry)
 mgxs_lib.energy_groups = groups
 mgxs_lib.mgxs_types = ['total', 'nu-fission', 'nu-scatter matrix', 'chi']
 mgxs_lib.domain_type = 'cell'

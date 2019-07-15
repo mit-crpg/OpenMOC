@@ -31,8 +31,9 @@ class OneDGradientTestHarness(TestHarness):
         surfaces = root_cell.getSurfaces()
         for surface_id in surfaces:
             surface = surfaces[surface_id]._surface
-            if 'x' in surface.getName():
-                surface.setBoundaryType(openmoc.VACUUM)
+            if len(surface.getName()) > 0:
+                if surface.getName()[0] == 'x':
+                    surface.setBoundaryType(openmoc.VACUUM)
 
     def __init__(self):
         super(OneDGradientTestHarness, self).__init__()

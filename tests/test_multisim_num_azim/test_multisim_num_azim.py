@@ -36,7 +36,7 @@ class MultiSimNumAzimTestHarness(MultiSimTestHarness):
         """Run multiple OpenMOC eigenvalue calculations."""
 
         for num_azim in [4, 8, 16]:
-            
+
             # Generate tracks
             self.track_generator.setNumAzim(num_azim)
             super(MultiSimNumAzimTestHarness, self)._generate_tracks()
@@ -52,7 +52,7 @@ class MultiSimNumAzimTestHarness(MultiSimTestHarness):
     def _get_results(self, num_iters=True, keff=True, fluxes=False,
                      num_fsrs=False, num_tracks=True, num_segments=True,
                      hash_output=False):
-        """Return track and segment counts and eigenvalues from each 
+        """Return track and segment counts and eigenvalues from each
         simulation as a string."""
 
         outstr = ''

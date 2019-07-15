@@ -2,7 +2,5 @@
 
 set -ev
 
-# Run all debug tests
-if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
-  ./run_tests.py
-fi
+# Run all tests
+./run_tests.py -c

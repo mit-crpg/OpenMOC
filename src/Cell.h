@@ -14,6 +14,7 @@
 #include "Python.h"
 #endif
 #include "Material.h"
+#include "Region.h"
 #include "Surface.h"
 #include "Point.h"
 #include <limits>
@@ -23,27 +24,12 @@
 /* Forward declarations to resolve circular dependencies */
 class Universe;
 class Surface;
+class Region;
+class Halfspace;
 
 int cell_id();
 void reset_cell_id();
 void maximize_cell_id(int cell_id);
-
-
-/**
- * @struct surface_halfspace
- * @brief A surface_halfspace represents a surface pointer with associated
- *        halfspace.
- */
-struct surface_halfspace {
-
-  /** A pointer to the Surface object */
-  Surface* _surface;
-
-  /** The halfspace associated with this surface */
-  int _halfspace;
-
-};
-
 
 
 /**
@@ -89,6 +75,12 @@ private:
   /** A pointer to the Material or Universe filling this Cell */
   void* _fill;
 
+  /** A pointer to the Region bounding the Cell */
+  Region* _region;
+
+  /** A pointer to the Region currently examined while transfering geometry */
+  Region* _current_region;
+
   /** The volume / area of the Cell computed from overlapping segments */
   double _volume;
 
@@ -119,9 +111,6 @@ private:
   /** A parent Cell if cloned by another Cell */
   Cell* _parent;
 
-  /** Map of bounding Surface IDs with pointers and halfspaces (+/-1) */
-  std::map<int, surface_halfspace*> _surfaces;
-
   /* Vector of neighboring Cells */
   std::vector<Cell*> _neighbors;
 
@@ -137,6 +126,7 @@ public:
   cellType getType() const;
   Material* getFillMaterial();
   Universe* getFillUniverse();
+  Region* getRegion();
   double getVolume();
   int getNumInstances();
   bool isRotated();
@@ -147,7 +137,7 @@ public:
   double* getRotationMatrix();
   double* getTranslation();
   void retrieveRotation(double* rotations, int num_axes,
-			std::string units="degrees");
+                        std::string units="degrees");
   void retrieveTranslation(double* translations, int num_axes);
   int getNumRings();
   int getNumSectors();
@@ -161,12 +151,16 @@ public:
   boundaryType getMaxXBoundaryType();
   boundaryType getMinYBoundaryType();
   boundaryType getMaxYBoundaryType();
+  boundaryType getMinZBoundaryType();
+  boundaryType getMaxZBoundaryType();
   int getNumSurfaces() const;
-  std::map<int, surface_halfspace*> getSurfaces() const;
+  std::map<int, Halfspace*> getSurfaces() const;
   std::vector<Cell*> getNeighbors() const;
   bool hasParent();
   Cell* getParent();
   Cell* getOldestAncestor();
+
+  int getNumZCylinders();
 
   std::map<int, Cell*> getAllCells();
   std::map<int, Universe*> getAllUniverses();
@@ -174,6 +168,7 @@ public:
   void setName(const char* name);
   void setFill(Material* fill);
   void setFill(Universe* fill);
+  void setRegion(Region* region);
   void setVolume(double volume);
   void incrementVolume(double volume);
   void setNumInstances(int num_instances);
@@ -184,15 +179,19 @@ public:
   void setNumSectors(int num_sectors);
   void setParent(Cell* parent);
   void addSurface(int halfspace, Surface* surface);
+  void addSurfaceInRegion(int halfspace, Surface* surface);
+  void addLogicalNode(int region_type);
+  void goUpOneRegionLogical();
   void removeSurface(Surface* surface);
   void addNeighborCell(Cell* cell);
 
   bool isFissionable();
   bool containsPoint(Point* point);
   bool containsCoords(LocalCoords* coords);
+  double minSurfaceDist(Point* point, double azim, double polar);
   double minSurfaceDist(LocalCoords* coords);
 
-  Cell* clone();
+  Cell* clone(bool clone_region=true);
   void subdivideCell(double max_radius);
   void buildNeighbors();
 

@@ -103,6 +103,26 @@ public:
   surfaceType getSurfaceType();
   boundaryType getBoundaryType();
 
+
+  /**
+   * @brief Returns the minimum coordinate in the axis direction of the
+   *        space defined by halfspace and this surface.
+   * @param axis The axis of interest (0 = x, 1 = y, 2 = z)
+   * @param halfspace the halfspace to consider
+   * @return the minimum coordinate in the axis direction
+   */
+  double getMin(int axis, int halfspace);
+
+
+  /**
+   * @brief Returns the maximum coordinate in the axis direction of the
+   *        space defined by halfspace and this surface.
+   * @param axis The axis of interest (0 = x, 1 = y, 2 = z)
+   * @param halfspace the halfspace to consider
+   * @return the maximum coordinate in the axis direction
+   */
+  double getMax(int axis, int halfspace);
+
   /**
    * @brief Returns the minimum x value for one of this Surface's halfspaces.
    * @param halfspace the halfspace of the Surface to consider
@@ -153,7 +173,7 @@ public:
    * @brief Evaluate a Point using the Surface's potential equation.
    * @details This method returns the values \f$ f(x,y) \f$ for the potential
    *          function \f$f\f$ representing this Surface.
-   * @param point a pointer to the Soint of interest
+   * @param point a pointer to the Point of interest
    * @return the value of Point in the Plane's potential equation.
    */
   virtual double evaluate(const Point* point) const = 0;
@@ -162,15 +182,18 @@ public:
    * @brief Finds the intersection Point with this Surface from a given
    *        Point and trajectory defined by an angle.
    * @param point pointer to the Point of interest
-   * @param angle the angle defining the trajectory in radians
-   * @param points pointer to a Point to store the intersection Point
+   * @param azim the azimuthal angle (in radians)
+   * @param polar the polar angle (in radians)
+   * @param points array of Points to store the intersection locations
    * @return the number of intersection Points (0 or 1)
    */
-  virtual int intersection(Point* point, double angle, Point* points) = 0;
+  virtual int intersection(Point* point, double azim, double polar,
+                           Point* points) = 0;
 
   bool isPointOnSurface(Point* point);
   bool isCoordOnSurface(LocalCoords* coord);
-  double getMinDistance(LocalCoords* coords);
+  double getMinDistance(Point* point, double azim, double polar);
+  double getMinDistance(LocalCoords* coord);
 
   /**
    * @brief Converts this Surface's attributes to a character array.
@@ -227,7 +250,7 @@ public:
   double getD();
 
   double evaluate(const Point* point) const;
-  int intersection(Point* point, double angle, Point* points);
+  int intersection(Point* point, double azim, double polar, Point* points);
 
   std::string toString();
 };
@@ -355,10 +378,49 @@ public:
   double getMaxZ(int halfspace);
 
   double evaluate(const Point* point) const;
-  int intersection(Point* point, double angle, Point* points);
+  int intersection(Point* point, double azim, double polar, Point* points);
 
   std::string toString();
 };
+
+
+/**
+ * @brief Finds the minimum distance to a Surface.
+ * @details Finds the minimum distance to a Surface from a Point with a
+ *          given trajectory defined by an azim/polar to this Surface. If the
+ *          trajectory will not intersect the Surface, returns INFINITY.
+ * @param point a pointer to the Point of interest
+ * @param azim the azimuthal angle defining the trajectory in radians
+ * @param polar the polar angle defining the trajectory in radians
+ * @return the minimum distance to the Surface
+ */
+inline double Surface::getMinDistance(Point* point, double azim, double polar) {
+
+  /* Point array for intersections with this Surface */
+  Point intersections[2];
+
+  /* Find the intersection Point(s) */
+  int num_inters = intersection(point, azim, polar, intersections);
+  double distance = INFINITY;
+
+  /* If there is one intersection Point */
+  if (num_inters == 1)
+    distance = intersections[0].distanceToPoint(point);
+
+  /* If there are two intersection Points */
+  else if (num_inters == 2) {
+    double dist1 = intersections[0].distanceToPoint(point);
+    double dist2 = intersections[1].distanceToPoint(point);
+
+    /* Determine which intersection Point is nearest */
+    if (dist1 < dist2)
+      distance = dist1;
+    else
+      distance = dist2;
+  }
+
+  return distance;
+}
 
 
 /**

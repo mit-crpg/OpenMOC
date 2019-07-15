@@ -1,0 +1,30 @@
+Cell ID = 1000005, name = small pin cladding quarter, # rings = 0, # sectors = 0, type = MATERIAL, fill id = 17595, # surfaces = 4, Surfaces: 
+halfspace = -1, Surface ID = 1000005, name = medium pin, type = ZCYLINDER , A = 1, B = 1, C = -0, D = -0, E = -0.09, x0 = 0, y0 = 0, radius = 0.3
+halfspace = +1, Surface ID = 1000006, name = small pin, type = ZCYLINDER , A = 1, B = 1, C = -0, D = -0, E = -0.04, x0 = 0, y0 = 0, radius = 0.2
+halfspace = +1, Surface ID = 1000007, name = mid-cell, type = XPLANE , A = 1, B = 0, C = 0, D = -0, x = 0
+halfspace = -1, Surface ID = 1000008, name = mid-cell, type = YPLANE , A = 0, B = 1, C = 0, D = -0, y = 0
+Cell ID = 1000005, name = small pin cladding quarter, # rings = 0, # sectors = 0, type = MATERIAL, fill id = 17595, # surfaces = 4, Surfaces: 
+halfspace = -1, Surface ID = 1000005, name = medium pin, type = ZCYLINDER , A = 1, B = 1, C = -0, D = -0, E = -0.09, x0 = 0, y0 = 0, radius = 0.3
+halfspace = +1, Surface ID = 1000006, name = small pin, type = ZCYLINDER , A = 1, B = 1, C = -0, D = -0, E = -0.04, x0 = 0, y0 = 0, radius = 0.2
+halfspace = +1, Surface ID = 1000007, name = mid-cell, type = XPLANE , A = 1, B = 0, C = 0, D = -0, x = 0
+halfspace = -1, Surface ID = 1000008, name = mid-cell, type = YPLANE , A = 0, B = 1, C = 0, D = -0, y = 0
+Cell ID = 1000005, name = small pin cladding quarter, # rings = 0, # sectors = 0, type = MATERIAL, fill id = 17595, # surfaces = 4, Surfaces: 
+halfspace = -1, Surface ID = 1000005, name = medium pin, type = ZCYLINDER , A = 1, B = 1, C = -0, D = -0, E = -0.09, x0 = 0, y0 = 0, radius = 0.3
+halfspace = +1, Surface ID = 1000006, name = small pin, type = ZCYLINDER , A = 1, B = 1, C = -0, D = -0, E = -0.04, x0 = 0, y0 = 0, radius = 0.2
+halfspace = +1, Surface ID = 1000007, name = mid-cell, type = XPLANE , A = 1, B = 0, C = 0, D = -0, x = 0
+halfspace = -1, Surface ID = 1000008, name = mid-cell, type = YPLANE , A = 0, B = 1, C = 0, D = -0, y = 0
+Cell ID = 1000005, name = small pin cladding quarter, # rings = 0, # sectors = 0, type = MATERIAL, fill id = 17595, # surfaces = 4, Surfaces: 
+halfspace = -1, Surface ID = 1000005, name = medium pin, type = ZCYLINDER , A = 1, B = 1, C = -0, D = -0, E = -0.09, x0 = 0, y0 = 0, radius = 0.3
+halfspace = +1, Surface ID = 1000006, name = small pin, type = ZCYLINDER , A = 1, B = 1, C = -0, D = -0, E = -0.04, x0 = 0, y0 = 0, radius = 0.2
+halfspace = +1, Surface ID = 1000007, name = mid-cell, type = XPLANE , A = 1, B = 0, C = 0, D = -0, x = 0
+halfspace = -1, Surface ID = 1000008, name = mid-cell, type = YPLANE , A = 0, B = 1, C = 0, D = -0, y = 0
+Cell ID = 1000005, name = small pin cladding quarter, # rings = 0, # sectors = 0, type = MATERIAL, fill id = 17595, # surfaces = 4, Surfaces: 
+halfspace = -1, Surface ID = 1000005, name = medium pin, type = ZCYLINDER , A = 1, B = 1, C = -0, D = -0, E = -0.09, x0 = 0, y0 = 0, radius = 0.3
+halfspace = +1, Surface ID = 1000006, name = small pin, type = ZCYLINDER , A = 1, B = 1, C = -0, D = -0, E = -0.04, x0 = 0, y0 = 0, radius = 0.2
+halfspace = +1, Surface ID = 1000007, name = mid-cell, type = XPLANE , A = 1, B = 0, C = 0, D = -0, x = 0
+halfspace = -1, Surface ID = 1000008, name = mid-cell, type = YPLANE , A = 0, B = 1, C = 0, D = -0, y = 0
+Cell ID = 1000005, name = small pin cladding quarter, # rings = 0, # sectors = 0, type = MATERIAL, fill id = 17595, # surfaces = 4, Surfaces: 
+halfspace = -1, Surface ID = 1000005, name = medium pin, type = ZCYLINDER , A = 1, B = 1, C = -0, D = -0, E = -0.09, x0 = 0, y0 = 0, radius = 0.3
+halfspace = +1, Surface ID = 1000006, name = small pin, type = ZCYLINDER , A = 1, B = 1, C = -0, D = -0, E = -0.04, x0 = 0, y0 = 0, radius = 0.2
+halfspace = +1, Surface ID = 1000007, name = mid-cell, type = XPLANE , A = 1, B = 0, C = 0, D = -0, x = 0
+halfspace = -1, Surface ID = 1000008, name = mid-cell, type = YPLANE , A = 0, B = 1, C = 0, D = -0, y = 0

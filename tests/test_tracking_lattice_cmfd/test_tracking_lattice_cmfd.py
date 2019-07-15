@@ -20,6 +20,7 @@ class TrackingLatticeGridCMFDTestHarness(TrackingTestHarness):
     def _setup(self):
         """Initialize the materials, geometry, and tracks"""
         super(TrackingLatticeGridCMFDTestHarness, self)._create_geometry()
+        super(TrackingLatticeGridCMFDTestHarness, self)._create_trackgenerator()
 
         # Initialize track objects
         self.tracks['Diagonal Track'] = openmoc.Track()
@@ -29,15 +30,13 @@ class TrackingLatticeGridCMFDTestHarness(TrackingTestHarness):
         self.tracks['Reverse Diagonal Track'] = openmoc.Track()
 
         # Set track trajectories and locations
-        self.tracks['Diagonal Track'].setValues(-3, -3, 0, 3, 3, 0,\
-                                                math.atan(1))
+        self.tracks['Diagonal Track'].setValues(-3, -3, 3, 3, math.atan(1))
         nudge = 1e-5
-        self.tracks['Nudged Diagonal Track'].setValues(-3+nudge, -3, 0, 3,\
-                                                       3-nudge, 0,\
-                                                       math.atan(1))
-        self.tracks['Horizontal Track'].setValues(-3, 0, 0, 3, 0, 0, 0)
-        self.tracks['Vertical Track'].setValues(0, -3, 0, 0, 3, 0, math.pi/2)
-        self.tracks['Reverse Diagonal Track'].setValues(3, 3, 0, -3, -3, 0,\
+        self.tracks['Nudged Diagonal Track'].setValues(-3+nudge, -3, 3,\
+                                                       3-nudge, math.atan(1))
+        self.tracks['Horizontal Track'].setValues(-3, 0, 3, 0, 0)
+        self.tracks['Vertical Track'].setValues(0, -3, 0, 3, math.pi/2)
+        self.tracks['Reverse Diagonal Track'].setValues(3, 3, -3, -3,\
                                                         math.pi + math.atan(1))
 
     def _run_openmoc(self):

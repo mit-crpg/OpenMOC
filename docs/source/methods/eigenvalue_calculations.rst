@@ -139,14 +139,14 @@ A single inner iteration to compute :math:`\Phi_{g,i}` for all FSRs and energy g
 Source Convergence Criterion
 ============================
 
-The spatial shape and energy distribution of the flux across FSRs are iteratively solved for by transport sweeps (:ref:`Algorithm 2 <figure-transport-sweep>`) and source updates (:ref:`Algorithm 2 <figure-source-update>`) until the total source for each FSR has converged. The criterion used in OpenMOC for determining whether the source distribution has fully converged is given below:
+The spatial shape and energy distribution of the flux across FSRs are iteratively solved for by transport sweeps (:ref:`Algorithm 2 <figure-transport-sweep>`) and source updates (:ref:`Algorithm 2 <figure-source-update>`) until the total source for each FSR has converged. The default criterion used in OpenMOC for determining whether the source distribution has fully converged is given below:
 
 .. math::
    :label: source-convergence-criterion
 
    res \;\; = \;\; \frac{1}{|G||I|}\sqrt{\displaystyle\sum\limits_{i=1}^{I}\displaystyle\sum\limits_{g=1}^{G}\left(\frac{Q_{i,g}^{(n+1)} - Q_{i,g}^{(n)}}{Q_{i,g}^{(n+1)}}\right)^{2}} \;\;\;\; < \;\;\;\; tol
 
-The tolerance is generally assigned to the range :math:`tol = [10^{-6}, 10^{-4}]`. The overall iterative scheme with inner transport sweep iterations and outer source update iterations, including the source distribution convergence check, is outlined by :ref:`Algorithm 3 <figure-overall-iterative-scheme>`.
+The tolerance is generally assigned to the range :math:`tol = [10^{-6}, 10^{-4}]`. Other convergence criterion choices are to compute the residual with the scalar flux or with the fission source only instead. The overall iterative scheme with inner transport sweep iterations and outer source update iterations, including the source distribution convergence check, is outlined by :ref:`Algorithm 3 <figure-overall-iterative-scheme>`.
 
 .. _figure-overall-iterative-scheme:
 
@@ -165,6 +165,9 @@ Exponential Evaluation Method
 
 The algorithms described in this section require a number of floating point operations, including addition, subtraction, multiplication and division. The most expensive operation, however, is the exponential evaluation needed to compute :math:`e^{-\tau_{k,i,g,p}}`. All mainstream compilers provide a library with intrinsic mathematical routines, including an exponential evaluator. One method of avoiding the computational cost of explicitly evaluating exponentials is through the use of a linear interpolation table. A sequence of linear approximations to a simple exponential is illustrated in :ref:`Figure 2 <figure-exponential-tangent>`. In addition to reducing the flop count for an exponential evaluation, the table may be constructed to fit completely in :math:`L1` cache and as a result, can improve the memory performance of the MOC transport sweep algorithm.
 
+#NOTE
+The linear interpolation tables were first replaced by quadratic interpolation tables, and those are now superseded by rational fraction approximations, which are faster to compute and more accurate. See [Giudicelli-2019]_ for more details.
+
 .. _figure-exponential-tangent:
 
 .. figure:: ../../img/exponential-tangent.png
@@ -174,7 +177,7 @@ The algorithms described in this section require a number of floating point oper
 
    **Figure 2**: Linear interpolation of an exponential.
 
-The OpenMOC code incorporates an option to evaluate exponentials using either the compiler's exponential intrinsic function or a linear interpolation table. The following expression for the maximum approximation error :math:`\epsilon` for the linear interpolation method was discussed and validated by [Yamamoto]_:
+The OpenMOC code incorporates an option to evaluate exponentials using either the compiler's exponential intrinsic function or a linear interpolation table. The following expression for the maximum approximation error :math:`\epsilon` for the linear interpolation method was discussed and validated by [Yamamoto-2004]_:
 
 .. math::
    :label: exponential-error
@@ -245,3 +248,11 @@ Finally, the approximation to the exponential is computed using linear interpola
    :label: exponential-approx
 
    e^{-\tau_{k,i,g,p}} \;\; \approx \;\; q_{n,p}\tau_{k,i,g,p} - b_{n,p}
+
+References
+==========
+
+.. [Giudicelli-2019] Giudicelli G., Forget B. and Smith K., Adding a third level of parallelism to OpenMOC, an open-source deterministic neutron transport solver, M&C 2019
+
+.. [Yamamoto-2004] Yamamoto A., Kitamura Y. and Yamane Y., Computational efficiencies of approximated exponential functions for transport calculations of the characteristics method, Annals of Nuclear Energy, vol. 30, 2004
+

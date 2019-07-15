@@ -1,0 +1,70 @@
+[  NORMAL ]  Cell: root cell
+[  NORMAL ]  MinX: -inf
+[  NORMAL ]  MinXBoundaryType: 4
+[  NORMAL ]  MinY: -inf
+[  NORMAL ]  MinYBoundaryType: 4
+[  NORMAL ]  MinZ: -2.000000
+[  NORMAL ]  MinZBoundaryType: 1
+[  NORMAL ]  MaxX: inf
+[  NORMAL ]  MaxXBoundaryType: 4
+[  NORMAL ]  MaxY: inf
+[  NORMAL ]  MaxYBoundaryType: 4
+[  NORMAL ]  MaxZ: 2.000000
+[  NORMAL ]  MaxZBoundaryType: 3
+[  NORMAL ]  
+[  NORMAL ]  Cell: intersection cell
+[  NORMAL ]  MinX: -2.000000
+[  NORMAL ]  MinXBoundaryType: 1
+[  NORMAL ]  MinY: -2.000000
+[  NORMAL ]  MinYBoundaryType: 0
+[  NORMAL ]  MinZ: -inf
+[  NORMAL ]  MinZBoundaryType: 4
+[  NORMAL ]  MaxX: 2.500000
+[  NORMAL ]  MaxXBoundaryType: 3
+[  NORMAL ]  MaxY: 2.500000
+[  NORMAL ]  MaxYBoundaryType: 3
+[  NORMAL ]  MaxZ: inf
+[  NORMAL ]  MaxZBoundaryType: 4
+[  NORMAL ]  
+[  NORMAL ]  Cell: union cell
+[  NORMAL ]  MinX: -5.000000
+[  NORMAL ]  MinXBoundaryType: 0
+[  NORMAL ]  MinY: -11.000000
+[  NORMAL ]  MinYBoundaryType: 0
+[  NORMAL ]  MinZ: -2.000000
+[  NORMAL ]  MinZBoundaryType: 1
+[  NORMAL ]  MaxX: 6.500000
+[  NORMAL ]  MaxXBoundaryType: 3
+[  NORMAL ]  MaxY: 6.500000
+[  NORMAL ]  MaxYBoundaryType: 3
+[  NORMAL ]  MaxZ: 2.000000
+[  NORMAL ]  MaxZBoundaryType: 3
+[  NORMAL ]  
+[  NORMAL ]  Cell: union cell 2
+[  NORMAL ]  MinX: -2.000000
+[  NORMAL ]  MinXBoundaryType: 1
+[  NORMAL ]  MinY: -11.000000
+[  NORMAL ]  MinYBoundaryType: 0
+[  NORMAL ]  MinZ: -2.000000
+[  NORMAL ]  MinZBoundaryType: 1
+[  NORMAL ]  MaxX: 6.500000
+[  NORMAL ]  MaxXBoundaryType: 3
+[  NORMAL ]  MaxY: 6.500000
+[  NORMAL ]  MaxYBoundaryType: 3
+[  NORMAL ]  MaxZ: 2.000000
+[  NORMAL ]  MaxZBoundaryType: 3
+[  NORMAL ]  
+[  NORMAL ]  Cell: unbound cell
+[  NORMAL ]  MinX: -inf
+[  NORMAL ]  MinXBoundaryType: 4
+[  NORMAL ]  MinY: -inf
+[  NORMAL ]  MinYBoundaryType: 4
+[  NORMAL ]  MinZ: -2.000000
+[  NORMAL ]  MinZBoundaryType: 1
+[  NORMAL ]  MaxX: inf
+[  NORMAL ]  MaxXBoundaryType: 4
+[  NORMAL ]  MaxY: inf
+[  NORMAL ]  MaxYBoundaryType: 4
+[  NORMAL ]  MaxZ: 2.000000
+[  NORMAL ]  MaxZBoundaryType: 3
+[  NORMAL ]  

@@ -268,6 +268,19 @@ Another common approximation for MOC is to assume that the source :math:`Q_g` is
 
    Q_{i,g} = Q_{g}(s') = Q_{g}(s'') = Q_{g}(s) \;\;\; , \;\;\; s \in [s', s'']
 
+.. _linear-source-region-approximation:
+
+The Linear Source Region Approximation
+======================================
+
+A more accurate description of the source in spatial regions is to assume a linear variation. This is typically sufficient for the moderator in a PWR, when each channel is also cut in azimuthal source regions. The source then varies along each characteristic lines. The reader should refer themselves to [Ferrer]_ and [Gunow]_ for more details on the track-based linear source approximation and its implementation in OpenMOC.
+
+.. math::
+   :label: linear-source
+
+   Q_{g}(s) = q_{t,g,0} + q_{t,g,1} (s - l_{t} / 2)
+
+:math:`l_{t}` is the length of the segment considered, while :math:`q_{g,0}` and :math:`q_{g,1}` are track dependent coefficients that describe the source.
 
 .. _constant-xs-approximation:
 
@@ -429,4 +442,8 @@ References
 .. [Askew] J. Askew, "A Characteristics Formulation of the Neutron Transport Equation in Complicated Geometries." Technical Report AAEW-M 1108, UK Atomic Energy Establishment (1972).
 
 .. [Boyd] W. Boyd, "Massively Parallel Algorithms for Method of Characteristics Neutral Particle Transport on Shared Memory Computer Architectures." M.S. Thesis, Massachusetts Institute of Technology (2014). 
+
+.. [Ferrer] R. Ferrer and J. Rhodes, “A Linear Source Approximation Scheme for the Method of Characteristics,” volume 77, p. 119–136, 1981.
+
+.. [Gunow] G. Gunow "Full Core 3D Neutron Transport Simulation Using the Method of Characteristics with Linear Sources", PhD Thesis, Massachusetts Institute of Technology (2018).
 
