@@ -1,4 +1,6 @@
 # .coveragerc to control coverage.py
+[run]
+source=openmoc, tests
 
 [report]
 # Files to exclude from coverage testing
