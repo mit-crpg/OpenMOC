@@ -4235,11 +4235,13 @@ void Geometry::loadFromFile(std::string filename, bool twiddle) {
         i_subnodes.push_back(num_subnodes+1);
 
       /* Remove zero values from subnode vector, and go up in region tree */
-      for (iter=i_subnodes.begin(); iter<i_subnodes.end(); iter++) {
+      for (iter=i_subnodes.begin(); iter<i_subnodes.end(); ) {
         if ((*iter) == 0) {
           i_subnodes.erase(iter);
           all_cells[key]->goUpOneRegionLogical();
         }
+        else
+          iter++;
       }
 
       /* Add surface */
