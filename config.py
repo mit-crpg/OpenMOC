@@ -59,6 +59,9 @@ class configuration:
     # Default floating point for the main openmoc module is single precision
     fp = 'single'
 
+    # The number of energy groups to compile for is by default not specified
+    num_groups = None
+
     # Compile using ccache (for developers needing fast recompilation)
     with_ccache = False
 
@@ -339,7 +342,6 @@ class configuration:
             macros[compiler][precision].append(('VEC_ALIGNMENT',
                                                 vector_alignment))
 
-
     # set extra flag for determining precision
     for compiler in macros:
         for precision in macros[compiler]:
@@ -367,6 +369,12 @@ class configuration:
         Create list of extensions for Python modules within the openmoc
         Python package based on the user-defined flags defined at compile time.
         """
+
+        # If user wishes to specify number of groups at compile time
+        if self.num_groups:
+            for k in self.compiler_flags:
+                self.compiler_flags[k].append('-DNGROUPS=' +
+                                              str(self.num_groups))
 
         # If the user wishes to compile using debug mode, append the debugging
         # flag to all lists of compiler flags for all distribution types

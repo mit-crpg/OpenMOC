@@ -454,7 +454,7 @@ LinearExpansionGenerator::LinearExpansionGenerator(CPULSSolver* solver)
   _FSR_locks = track_generator->getFSRLocks();
   _quadrature = track_generator->getQuadrature();
 #ifndef NGROUPS
-  _num_groups = track_generator->getGeometry()->getNumEnergyGroups();
+  _NUM_GROUPS = track_generator->getGeometry()->getNumEnergyGroups();
 #endif
 
   /* Determine the number of linear coefficients */
@@ -471,7 +471,7 @@ LinearExpansionGenerator::LinearExpansionGenerator(CPULSSolver* solver)
   /* Reset linear source coefficients to zero */
   long size = track_generator->getGeometry()->getNumFSRs() * _NUM_COEFFS;
   _lin_exp_coeffs = new double[size]();
-  size *= _num_groups;
+  size *= _NUM_GROUPS;
   _src_constants = new double[size]();
 
   /* Create local thread tallies */
@@ -611,7 +611,7 @@ void LinearExpansionGenerator::execute() {
 
   /* Copy the source constants to buffer */
   FP_PRECISION* src_constants_buffer = _solver->getSourceConstantsBuffer();
-  long size = num_FSRs * _NUM_COEFFS * _num_groups;
+  long size = num_FSRs * _NUM_COEFFS * _NUM_GROUPS;
 #pragma omp parallel for
   for (long i=0; i < size; i++)
     src_constants_buffer[i] = _src_constants[i];
@@ -695,7 +695,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
     double zc = z + length * 0.5 * cos_theta;
 
     /* Set the FSR src constants buffer to zero */
-    double thread_src_constants[_num_groups * _NUM_COEFFS]  __attribute__
+    double thread_src_constants[_NUM_GROUPS * _NUM_COEFFS]  __attribute__
        ((aligned (VEC_ALIGNMENT)));
 
     /* Pre-compute non-energy dependent source constant terms */
@@ -703,18 +703,18 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
     double src_constant = vol_impact * length / 2.0;
 
 #pragma omp simd aligned(sigma_t)
-    for (int g=0; g < _num_groups; g++) {
+    for (int g=0; g < _NUM_GROUPS; g++) {
 
       thread_src_constants[g] = vol_impact * xc * xc;
-      thread_src_constants[_num_groups + g] = vol_impact * yc * yc;
-      thread_src_constants[2*_num_groups + g] = vol_impact * xc * yc;
+      thread_src_constants[_NUM_GROUPS + g] = vol_impact * yc * yc;
+      thread_src_constants[2*_NUM_GROUPS + g] = vol_impact * xc * yc;
 
 #ifndef THREED
       if (track_3D != NULL) {
 #endif
-        thread_src_constants[3*_num_groups + g] = vol_impact * xc * zc;
-        thread_src_constants[4*_num_groups + g] = vol_impact * yc * zc;
-        thread_src_constants[5*_num_groups + g] = vol_impact * zc * zc;
+        thread_src_constants[3*_NUM_GROUPS + g] = vol_impact * xc * zc;
+        thread_src_constants[4*_NUM_GROUPS + g] = vol_impact * yc * zc;
+        thread_src_constants[5*_NUM_GROUPS + g] = vol_impact * zc * zc;
 #ifndef THREED
       }
 #endif
@@ -732,9 +732,9 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
               * sin_theta;
 
           thread_src_constants[g] += cos_phi * cos_phi * G2_src;
-          thread_src_constants[_num_groups + g] += sin_phi * sin_phi
+          thread_src_constants[_NUM_GROUPS + g] += sin_phi * sin_phi
               * G2_src;
-          thread_src_constants[2*_num_groups + g] += sin_phi * cos_phi
+          thread_src_constants[2*_NUM_GROUPS + g] += sin_phi * cos_phi
               * G2_src;
         }
       }
@@ -745,15 +745,15 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 
         thread_src_constants[g] += cos_phi * cos_phi * G2_src * sin_theta
              * sin_theta;
-        thread_src_constants[_num_groups + g] += sin_phi * sin_phi * G2_src
+        thread_src_constants[_NUM_GROUPS + g] += sin_phi * sin_phi * G2_src
              * sin_theta * sin_theta;
-        thread_src_constants[2*_num_groups + g] += sin_phi * cos_phi * G2_src
+        thread_src_constants[2*_NUM_GROUPS + g] += sin_phi * cos_phi * G2_src
              * sin_theta * sin_theta;
-        thread_src_constants[3*_num_groups + g] += cos_phi * cos_theta * G2_src
+        thread_src_constants[3*_NUM_GROUPS + g] += cos_phi * cos_theta * G2_src
              * sin_theta;
-        thread_src_constants[4*_num_groups + g] += sin_phi * cos_theta * G2_src
+        thread_src_constants[4*_NUM_GROUPS + g] += sin_phi * cos_theta * G2_src
              * sin_theta;
-        thread_src_constants[5*_num_groups + g] += cos_theta * cos_theta * G2_src;
+        thread_src_constants[5*_NUM_GROUPS + g] += cos_theta * cos_theta * G2_src;
 #ifndef THREED
       }
 #endif
@@ -780,10 +780,10 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 
     /* Set the source constants for all groups and coefficients */
 #pragma omp simd
-    for (int g=0; g < _num_groups; g++) {
+    for (int g=0; g < _NUM_GROUPS; g++) {
       for (int i=0; i < _NUM_COEFFS; i++)
-        _src_constants[fsr*_num_groups*_NUM_COEFFS + i*_num_groups + g] +=
-          thread_src_constants[i*_num_groups + g];
+        _src_constants[fsr*_NUM_GROUPS*_NUM_COEFFS + i*_NUM_GROUPS + g] +=
+          thread_src_constants[i*_NUM_GROUPS + g];
     }
 
     /* Unset the lock for this FSR */
@@ -814,7 +814,7 @@ TransportSweep::TransportSweep(CPUSolver* cpu_solver)
   TrackGenerator* track_generator = cpu_solver->getTrackGenerator();
   _geometry = _track_generator->getGeometry();
 #ifndef NGROUPS
-  _num_groups = _geometry->getNumEnergyGroups();
+  _NUM_GROUPS = _geometry->getNumEnergyGroups();
 #endif
 }
 
@@ -907,7 +907,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
   /* Allocate a temporary flux buffer on the stack (free) and initialize it */
   /* Select right size for buffer */
 #ifndef NGROUPS
-  int _num_groups = _track_generator->getGeometry()->getNumEnergyGroups();
+  int _NUM_GROUPS = _track_generator->getGeometry()->getNumEnergyGroups();
 #endif
 #ifndef LINEARSOURCE
   int num_moments = 1;
@@ -916,8 +916,8 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
 #else
   const int num_moments = 4;
 #endif
-  int num_groups_aligned = (_num_groups / VEC_ALIGNMENT +
-                            (_num_groups % VEC_ALIGNMENT != 0)) * VEC_ALIGNMENT;
+  int num_groups_aligned = (_NUM_GROUPS / VEC_ALIGNMENT +
+                            (_NUM_GROUPS % VEC_ALIGNMENT != 0)) * VEC_ALIGNMENT;
 
   /* Allocate an aligned buffer on the stack */
   FP_PRECISION fsr_flux[num_moments * num_groups_aligned] __attribute__
