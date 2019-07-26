@@ -65,10 +65,10 @@ int CPUSolver::getNumThreads() {
  */
 void CPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
 
-  if (num_fluxes != _num_groups * _geometry->getNumTotalFSRs())
+  if (num_fluxes != _NUM_GROUPS * _geometry->getNumTotalFSRs())
     log_printf(ERROR, "Unable to get FSR scalar fluxes since there are "
                "%d groups and %d FSRs which does not match the requested "
-               "%d flux values", _num_groups, _geometry->getNumTotalFSRs(),
+               "%d flux values", _NUM_GROUPS, _geometry->getNumTotalFSRs(),
                num_fluxes);
 
   else if (_scalar_flux == NULL)
@@ -79,8 +79,8 @@ void CPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
   else {
 #pragma omp parallel for schedule(static)
     for (long r=0; r < _num_FSRs; r++) {
-      for (int e=0; e < _num_groups; e++)
-        out_fluxes[r*_num_groups+e] = _scalar_flux(r,e);
+      for (int e=0; e < _NUM_GROUPS; e++)
+        out_fluxes[r*_NUM_GROUPS+e] = _scalar_flux(r,e);
     }
   }
   /* Reduce domain data for domain decomposition */
@@ -89,7 +89,7 @@ void CPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
 
     /* Allocate buffer for communication */
     long num_total_FSRs = _geometry->getNumTotalFSRs();
-    FP_PRECISION* temp_fluxes = new FP_PRECISION[num_total_FSRs*_num_groups];
+    FP_PRECISION* temp_fluxes = new FP_PRECISION[num_total_FSRs*_NUM_GROUPS];
 
     int rank = 0;
     MPI_Comm comm = _geometry->getMPICart();
@@ -103,11 +103,11 @@ void CPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
 
       /* Set data if in the correct domain */
       if (domain == rank)
-        for (int e=0; e < _num_groups; e++)
-          temp_fluxes[r*_num_groups+e] = out_fluxes[fsr_id*_num_groups+e];
+        for (int e=0; e < _NUM_GROUPS; e++)
+          temp_fluxes[r*_NUM_GROUPS+e] = out_fluxes[fsr_id*_NUM_GROUPS+e];
       else
-        for (int e=0; e < _num_groups; e++)
-          temp_fluxes[r*_num_groups+e] = 0.0;
+        for (int e=0; e < _NUM_GROUPS; e++)
+          temp_fluxes[r*_NUM_GROUPS+e] = 0.0;
     }
 
     /* Determine the type of FP_PRECISION and communicate fluxes */
@@ -117,7 +117,7 @@ void CPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
     else
       flux_type = MPI_DOUBLE;
 
-    MPI_Allreduce(temp_fluxes, out_fluxes, num_total_FSRs*_num_groups,
+    MPI_Allreduce(temp_fluxes, out_fluxes, num_total_FSRs*_NUM_GROUPS,
                   flux_type, MPI_SUM, comm);
     delete [] temp_fluxes;
   }
@@ -178,9 +178,9 @@ void CPUSolver::setNumThreads(int num_threads) {
  * @param num_fluxes the number of flux values (# groups x # FSRs)
  */
 void CPUSolver::setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) {
-  if (num_fluxes != _num_groups * _num_FSRs)
+  if (num_fluxes != _NUM_GROUPS * _num_FSRs)
     log_printf(ERROR, "Unable to set an array with %d flux values for %d "
-               " groups and %d FSRs", num_fluxes, _num_groups, _num_FSRs);
+               " groups and %d FSRs", num_fluxes, _NUM_GROUPS, _num_FSRs);
 
   /* Allocate array if flux arrays have not yet been initialized */
   if (_scalar_flux == NULL)
@@ -208,7 +208,7 @@ void CPUSolver::setFixedSourceByFSR(long fsr_id, int group,
 
   /* Allocate the fixed sources array if not yet allocated */
   if (_fixed_sources == NULL) {
-    long size = _num_FSRs * _num_groups;
+    long size = _num_FSRs * _NUM_GROUPS;
     _fixed_sources = new FP_PRECISION[size]();
   }
 
@@ -307,7 +307,7 @@ void CPUSolver::initializeFluxArrays() {
     }
 
     /* Determine the size of arrays for the FSR scalar fluxes */
-    size = _num_FSRs * _num_groups;
+    size = _num_FSRs * _NUM_GROUPS;
     max_size = size;
 #ifdef MPIX
     if (_geometry->isDomainDecomposed())
@@ -366,7 +366,7 @@ void CPUSolver::initializeSourceArrays() {
   if (_fixed_sources != NULL)
     delete [] _fixed_sources;
 
-  long size = _num_FSRs * _num_groups;
+  long size = _num_FSRs * _NUM_GROUPS;
 
   /* Allocate memory for all source arrays */
   _reduced_sources = new FP_PRECISION[size]();
@@ -413,9 +413,9 @@ void CPUSolver::initializeFixedSources() {
     fsr_id = fsr_group_key.first;
     group = fsr_group_key.second;
 
-    if (group <= 0 || group > _num_groups)
+    if (group <= 0 || group > _NUM_GROUPS)
       log_printf(ERROR,"Unable to use fixed source for group %d in "
-                 "a %d energy group problem", group, _num_groups);
+                 "a %d energy group problem", group, _NUM_GROUPS);
 
     if (fsr_id < 0 || fsr_id >= _num_FSRs)
       log_printf(ERROR,"Unable to use fixed source for FSR %d with only "
@@ -1649,7 +1649,7 @@ void CPUSolver::flattenFSRFluxes(FP_PRECISION value) {
 
 #pragma omp parallel for schedule(static)
   for (long r=0; r < _num_FSRs; r++) {
-    for (int e=0; e < _num_groups; e++)
+    for (int e=0; e < _NUM_GROUPS; e++)
       _scalar_flux(r,e) = value;
   }
 }
@@ -1666,7 +1666,7 @@ void CPUSolver::flattenFSRFluxesChiSpectrum() {
   FP_PRECISION* chi = _chi_spectrum_material->getChi();
 #pragma omp parallel for schedule(static)
   for (long r=0; r < _num_FSRs; r++) {
-    for (int e=0; e < _num_groups; e++)
+    for (int e=0; e < _NUM_GROUPS; e++)
       _scalar_flux(r,e) = chi[e];
   }
 }
@@ -1679,7 +1679,7 @@ void CPUSolver::storeFSRFluxes() {
 
 #pragma omp parallel for schedule(static)
   for (long r=0; r < _num_FSRs; r++) {
-    for (int e=0; e < _num_groups; e++)
+    for (int e=0; e < _NUM_GROUPS; e++)
       _old_scalar_flux(r,e) = _scalar_flux(r,e);
   }
 }
@@ -1705,11 +1705,11 @@ double CPUSolver::normalizeFluxes() {
       FP_PRECISION* nu_sigma_f = _FSR_materials[r]->getNuSigmaF();
       FP_PRECISION volume = _FSR_volumes[r];
 
-      for (int e=0; e < _num_groups; e++)
+      for (int e=0; e < _NUM_GROUPS; e++)
         group_fission_sources[e] = nu_sigma_f[e] * _scalar_flux(r,e) * volume;
 
       int_fission_sources[r] = pairwise_sum<FP_PRECISION>(group_fission_sources,
-                                                        _num_groups);
+                                                        _NUM_GROUPS);
     }
   }
 
@@ -1746,7 +1746,7 @@ double CPUSolver::normalizeFluxes() {
 
 #pragma omp parallel for schedule(static)
   for (long r=0; r < _num_FSRs; r++) {
-    for (int e=0; e < _num_groups; e++)
+    for (int e=0; e < _NUM_GROUPS; e++)
       _scalar_flux(r, e) *= norm_factor;
   }
 
@@ -1780,24 +1780,24 @@ void CPUSolver::computeFSRSources(int iteration) {
     Material* material = _FSR_materials[r];
     FP_PRECISION* sigma_s = material->getSigmaS();
     FP_PRECISION fiss_mat;
-    FP_PRECISION fission_sources[_num_groups];
-    FP_PRECISION scatter_sources[_num_groups];
+    FP_PRECISION fission_sources[_NUM_GROUPS];
+    FP_PRECISION scatter_sources[_NUM_GROUPS];
     bool negative_source_in_fsr = false;
 
     /* Compute total (fission+scatter+fixed) source for group G */
-    for (int G=0; G < _num_groups; G++) {
-      int first_idx = G * _num_groups;
+    for (int G=0; G < _NUM_GROUPS; G++) {
+      int first_idx = G * _NUM_GROUPS;
       fiss_mat = 0;
-      for (int g=0; g < _num_groups; g++) {
+      for (int g=0; g < _NUM_GROUPS; g++) {
         if (material->isFissionable())
           fiss_mat = material->getFissionMatrixByGroup(g+1,G+1);
         scatter_sources[g] = sigma_s[first_idx+g] * _scalar_flux(r,g);
         fission_sources[g] = _scalar_flux(r,g) * fiss_mat;
       }
       double scatter_source =
-          pairwise_sum<FP_PRECISION>(scatter_sources, _num_groups);
+          pairwise_sum<FP_PRECISION>(scatter_sources, _NUM_GROUPS);
       double fission_source = pairwise_sum<FP_PRECISION>(fission_sources,
-                                                  _num_groups);
+                                                  _NUM_GROUPS);
       fission_source /= _k_eff;
       _reduced_sources(r,G) = fission_source;
       _reduced_sources(r,G) += scatter_source;
@@ -1862,7 +1862,7 @@ void CPUSolver::computeFSRFissionSources() {
     FP_PRECISION* sigma_t;
     FP_PRECISION fiss_mat;
     FP_PRECISION fission_source;
-    FP_PRECISION fission_sources[_num_groups];
+    FP_PRECISION fission_sources[_NUM_GROUPS];
 
     /* Compute the total source for each FSR */
 #pragma omp for schedule(guided)
@@ -1872,16 +1872,16 @@ void CPUSolver::computeFSRFissionSources() {
 
       /* Compute fission source for group g */
       //NOTE use full fission matrix instead of chi because of transpose
-      for (int g=0; g < _num_groups; g++) {
+      for (int g=0; g < _NUM_GROUPS; g++) {
         fiss_mat = 0;
-        for (int g_prime=0; g_prime < _num_groups; g_prime++) {
+        for (int g_prime=0; g_prime < _NUM_GROUPS; g_prime++) {
           if (material->isFissionable())
             fiss_mat = material->getFissionMatrixByGroup(g_prime+1,g+1);
           fission_sources[g_prime] = fiss_mat * _scalar_flux(r,g_prime);
         }
 
         fission_source = pairwise_sum<FP_PRECISION>(fission_sources,
-                                                    _num_groups);
+                                                    _NUM_GROUPS);
 
         /* Compute total (fission) reduced source */
         _reduced_sources(r,g) = fission_source;
@@ -1904,7 +1904,7 @@ void CPUSolver::computeFSRScatterSources() {
     FP_PRECISION* sigma_t;
     FP_PRECISION sigma_s;
     FP_PRECISION scatter_source;
-    FP_PRECISION scatter_sources[_num_groups];
+    FP_PRECISION scatter_sources[_NUM_GROUPS];
 
     /* Compute the total source for each FSR */
 #pragma omp for schedule(guided)
@@ -1913,14 +1913,14 @@ void CPUSolver::computeFSRScatterSources() {
       material = _FSR_materials[r];
 
       /* Compute scatter source for group g */
-      for (int g=0; g < _num_groups; g++) {
-        for (int g_prime=0; g_prime < _num_groups; g_prime++) {
+      for (int g=0; g < _NUM_GROUPS; g++) {
+        for (int g_prime=0; g_prime < _NUM_GROUPS; g_prime++) {
           sigma_s = material->getSigmaSByGroup(g_prime+1,g+1);
           scatter_sources[g_prime] = sigma_s * _scalar_flux(r,g_prime);
         }
 
         scatter_source = pairwise_sum<FP_PRECISION>(scatter_sources,
-                                                    _num_groups);
+                                                    _NUM_GROUPS);
 
         /* Compute total (scatter) reduced source */
         _reduced_sources(r,g) = scatter_source;
@@ -1954,7 +1954,7 @@ double CPUSolver::computeResidual(residualType res_type) {
 
 #pragma omp parallel for schedule(static)
     for (long r=0; r < _num_FSRs; r++) {
-      for (int e=0; e < _num_groups; e++)
+      for (int e=0; e < _NUM_GROUPS; e++)
         if (reference_flux(r,e) > 0.) {
           residuals[r] += pow((_scalar_flux(r,e) - reference_flux(r,e)) /
                               reference_flux(r,e), 2);
@@ -1980,7 +1980,7 @@ double CPUSolver::computeResidual(residualType res_type) {
       if (material->isFissionable()) {
         nu_sigma_f = material->getNuSigmaF();
 
-        for (int e=0; e < _num_groups; e++) {
+        for (int e=0; e < _NUM_GROUPS; e++) {
           new_fission_source += _scalar_flux(r,e) * nu_sigma_f[e];
           old_fission_source += reference_flux(r,e) * nu_sigma_f[e];
         }
@@ -2011,7 +2011,7 @@ double CPUSolver::computeResidual(residualType res_type) {
       if (material->isFissionable()) {
         nu_sigma_f = material->getNuSigmaF();
 
-        for (int e=0; e < _num_groups; e++) {
+        for (int e=0; e < _NUM_GROUPS; e++) {
           new_total_source += _scalar_flux(r,e) * nu_sigma_f[e];
           old_total_source += reference_flux(r,e) * nu_sigma_f[e];
         }
@@ -2022,9 +2022,9 @@ double CPUSolver::computeResidual(residualType res_type) {
 
       /* Compute total scattering source for group G */
       FP_PRECISION* sigma_s = material->getSigmaS();
-      for (int G=0; G < _num_groups; G++) {
-        int first_idx = G * _num_groups;
-        for (int g=0; g < _num_groups; g++) {
+      for (int G=0; G < _NUM_GROUPS; G++) {
+        int first_idx = G * _NUM_GROUPS;
+        for (int g=0; g < _NUM_GROUPS; g++) {
           new_total_source += sigma_s[first_idx+g] * _scalar_flux(r,g);
           old_total_source += sigma_s[first_idx+g] * reference_flux(r,g);
         }
@@ -2108,10 +2108,10 @@ void CPUSolver::computeKeff() {
       else
         sigma = material->getSigmaA();
 
-      for (int e=0; e < _num_groups; e++)
+      for (int e=0; e < _NUM_GROUPS; e++)
         group_rates[e] = sigma[e] * _scalar_flux(r,e);
 
-      FSR_rates[r] = pairwise_sum<FP_PRECISION>(group_rates, _num_groups);
+      FSR_rates[r] = pairwise_sum<FP_PRECISION>(group_rates, _NUM_GROUPS);
       FSR_rates[r] *= volume;
     }
 
@@ -2241,8 +2241,8 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
     // The for loop is cut in chunks of size VEC_LENGTH (strip-mining) to ease
     // vectorization of the loop by the compiler
     // Determine number of SIMD vector groups
-    const int num_vector_groups = _num_groups / VEC_LENGTH;
-    const int remainder = _num_groups - num_vector_groups * VEC_LENGTH;
+    const int num_vector_groups = _NUM_GROUPS / VEC_LENGTH;
+    const int remainder = _NUM_GROUPS - num_vector_groups * VEC_LENGTH;
 
     for (int v=0; v < num_vector_groups; v++) {
       int start_vector = v * VEC_LENGTH;
@@ -2266,7 +2266,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
 
     // The rest of the loop is treated separately
 #pragma omp simd aligned(sigma_t, fsr_flux)
-    for (int e=num_vector_groups * VEC_LENGTH; e < _num_groups; e++) {
+    for (int e=num_vector_groups * VEC_LENGTH; e < _NUM_GROUPS; e++) {
       FP_PRECISION tau = sigma_t[e] * length;
 
       /* Compute the exponential */
@@ -2286,30 +2286,30 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
     const int num_polar_2 = _num_polar / 2;
 
     /* Compute tau in advance to simplify attenuation loop */
-    FP_PRECISION tau[_num_groups * num_polar_2]
+    FP_PRECISION tau[_NUM_GROUPS * num_polar_2]
                  __attribute__ ((aligned(VEC_ALIGNMENT)));
 
 #pragma omp simd aligned(tau)
-    for (int pe=0; pe < num_polar_2 * _num_groups; pe++)
-      tau[pe] = sigma_t[pe % _num_groups] * length;
+    for (int pe=0; pe < num_polar_2 * _NUM_GROUPS; pe++)
+      tau[pe] = sigma_t[pe % _NUM_GROUPS] * length;
 
-    FP_PRECISION delta_psi[_num_groups * num_polar_2]
+    FP_PRECISION delta_psi[_NUM_GROUPS * num_polar_2]
                  __attribute__ ((aligned(VEC_ALIGNMENT)));
 
     /* Loop over polar angles and energy groups */
 #pragma omp simd aligned(tau, delta_psi)
-    for (int pe=0; pe < num_polar_2 * _num_groups; pe++) {
+    for (int pe=0; pe < num_polar_2 * _NUM_GROUPS; pe++) {
 
       FP_PRECISION wgt = _quad->getWeightInline(azim_index,
-                                                int(pe/_num_groups));
+                                                int(pe/_NUM_GROUPS));
 
       /* Compute the exponential */
       FP_PRECISION exponential = exp_evaluator->computeExponential(tau[pe],
-                                                int(pe/_num_groups));
+                                                int(pe/_NUM_GROUPS));
 
       /* Compute attenuation of the track angular flux */
       delta_psi[pe] = (tau[pe] * track_flux[pe] - length *
-                      _reduced_sources(fsr_id, pe%_num_groups)) * exponential;
+                      _reduced_sources(fsr_id, pe%_NUM_GROUPS)) * exponential;
       track_flux[pe] -= delta_psi[pe];
       delta_psi[pe] *= wgt;
     }
@@ -2318,8 +2318,8 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
     //TODO Change loop to accept 'pe' indexing, and keep vectorized
     for (int p=0; p < num_polar_2; p++) {
 #pragma omp simd aligned(fsr_flux)
-      for (int e=0; e < _num_groups; e++)
-        fsr_flux[e] += delta_psi[p*_num_groups + e];
+      for (int e=0; e < _NUM_GROUPS; e++)
+        fsr_flux[e] += delta_psi[p*_NUM_GROUPS + e];
     }
   }
 }
@@ -2342,13 +2342,13 @@ void CPUSolver::accumulateScalarFluxContribution(long fsr_id,
 
   // Add to global scalar flux vector
 #pragma omp simd aligned(fsr_flux)
-  for (int e=0; e < _num_groups; e++)
+  for (int e=0; e < _NUM_GROUPS; e++)
     _scalar_flux(fsr_id,e) += weight * fsr_flux[e];
 
   omp_unset_lock(&_FSR_locks[fsr_id]);
 
   /* Reset buffers */
-  memset(fsr_flux, 0, _num_groups * sizeof(FP_PRECISION));
+  memset(fsr_flux, 0, _NUM_GROUPS * sizeof(FP_PRECISION));
 }
 
 
@@ -2447,7 +2447,7 @@ void CPUSolver::addSourceToScalarFlux() {
     if (volume < FLT_EPSILON)
       volume = 1e30;
 
-    for (int e=0; e < _num_groups; e++) {
+    for (int e=0; e < _NUM_GROUPS; e++) {
 
       _scalar_flux(r, e) /= (sigma_t[e] * volume);
       _scalar_flux(r, e) += FOUR_PI * _reduced_sources(r, e) / sigma_t[e];
@@ -2501,10 +2501,10 @@ void CPUSolver::computeStabilizingFlux() {
       /* Extract total cross-sections */
       FP_PRECISION* sigma_t = _FSR_materials[r]->getSigmaT();
 
-      for (int e=0; e < _num_groups; e++) {
+      for (int e=0; e < _NUM_GROUPS; e++) {
 
         /* Extract the in-scattering (diagonal) element */
-        FP_PRECISION sigma_s = scattering_matrix[e*_num_groups+e];
+        FP_PRECISION sigma_s = scattering_matrix[e*_NUM_GROUPS+e];
 
         /* For negative cross-sections, add the absolute value of the
            in-scattering rate to the stabilizing flux */
@@ -2518,7 +2518,7 @@ void CPUSolver::computeStabilizingFlux() {
 
     /* Treat each group */
 #pragma omp parallel for schedule(static)
-    for (int e=0; e < _num_groups; e++) {
+    for (int e=0; e < _NUM_GROUPS; e++) {
 
       /* Look for largest absolute scattering ratio */
       FP_PRECISION max_ratio = 0.0;
@@ -2549,7 +2549,7 @@ void CPUSolver::computeStabilizingFlux() {
     /* Apply the global muliplicative factor */
 #pragma omp parallel for schedule(static)
     for (long r=0; r < _num_FSRs; r++)
-      for (int e=0; e < _num_groups; e++)
+      for (int e=0; e < _NUM_GROUPS; e++)
         _stabilizing_flux(r, e) = mult_factor * _scalar_flux(r,e);
   }
 }
@@ -2572,10 +2572,10 @@ void CPUSolver::stabilizeFlux() {
       /* Extract total cross-sections */
       FP_PRECISION* sigma_t = _FSR_materials[r]->getSigmaT();
 
-      for (int e=0; e < _num_groups; e++) {
+      for (int e=0; e < _NUM_GROUPS; e++) {
 
         /* Extract the in-scattering (diagonal) element */
-        FP_PRECISION sigma_s = scattering_matrix[e*_num_groups+e];
+        FP_PRECISION sigma_s = scattering_matrix[e*_NUM_GROUPS+e];
 
         /* For negative cross-sections, add the stabilizing flux
            and divide by the diagonal matrix element used to form it so that
@@ -2592,7 +2592,7 @@ void CPUSolver::stabilizeFlux() {
 
     /* Treat each group */
 #pragma omp parallel for schedule(static)
-    for (int e=0; e < _num_groups; e++) {
+    for (int e=0; e < _NUM_GROUPS; e++) {
 
       /* Look for largest absolute scattering ratio */
       FP_PRECISION max_ratio = 0.0;
@@ -2621,7 +2621,7 @@ void CPUSolver::stabilizeFlux() {
     /* Apply the damping factor */
 #pragma omp parallel for schedule(static)
     for (long r=0; r < _num_FSRs; r++) {
-      for (int e=0; e < _num_groups; e++) {
+      for (int e=0; e < _NUM_GROUPS; e++) {
         _scalar_flux(r, e) += _stabilizing_flux(r, e);
         _scalar_flux(r, e) *= _stabilization_factor;
       }
@@ -2674,7 +2674,7 @@ void CPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs,
     }
     vol = _FSR_volumes[r];
 
-    for (int e=0; e < _num_groups; e++)
+    for (int e=0; e < _NUM_GROUPS; e++)
       fission_rates[r] += sigma_f[e] * _scalar_flux(r,e) * vol;
   }
 
@@ -2771,7 +2771,7 @@ void CPUSolver::printFSRFluxes(std::vector<double> dim1,
     for (int i=0; i < fsr_ids.size(); i++)
       num_contains_coords[i] = domain_contains_coords[i];
 
-  for (int e=0; e < _num_groups; e++) {
+  for (int e=0; e < _NUM_GROUPS; e++) {
 
     std::vector<FP_PRECISION> domain_fluxes(fsr_ids.size(), 0);
     std::vector<FP_PRECISION> total_fluxes(fsr_ids.size());
@@ -2879,8 +2879,8 @@ void CPUSolver::printNegativeSources(int iteration, int num_x, int num_y,
   lattice.setOffset(offset_x, offset_y, offset_z);
 
   /* Create a group-wise negative source mapping */
-  int by_group[_num_groups];
-  for (int e=0; e < _num_groups; e++)
+  int by_group[_NUM_GROUPS];
+  for (int e=0; e < _NUM_GROUPS; e++)
     by_group[e] = 0;
 
   int mapping[num_x*num_y*num_z];
@@ -2895,7 +2895,7 @@ void CPUSolver::printNegativeSources(int iteration, int num_x, int num_y,
     int lat_cell = lattice.getLatticeCell(pt);
 
     /* Determine the number of negative sources */
-    for (int e=0; e < _num_groups; e++) {
+    for (int e=0; e < _NUM_GROUPS; e++) {
       if (_reduced_sources(r,e) < 0.0) {
         by_group[e]++;
         mapping[lat_cell]++;
@@ -2914,9 +2914,9 @@ void CPUSolver::printNegativeSources(int iteration, int num_x, int num_y,
                   _geometry->getMPICart());
 
     int neg_src_grp_send[size];
-    for (int e=0; e < _num_groups; e++)
+    for (int e=0; e < _NUM_GROUPS; e++)
         neg_src_grp_send[e] = by_group[e];
-    MPI_Allreduce(neg_src_grp_send, by_group, _num_groups, MPI_INT, MPI_SUM,
+    MPI_Allreduce(neg_src_grp_send, by_group, _NUM_GROUPS, MPI_INT, MPI_SUM,
                   _geometry->getMPICart());
   }
 #endif
@@ -2926,7 +2926,7 @@ void CPUSolver::printNegativeSources(int iteration, int num_x, int num_y,
   if (_geometry->isRootDomain()) {
     out << "[NORMAL]  Group-wise distribution of negative sources:"
         << std::endl;
-    for (int e=0; e < _num_groups; e++)
+    for (int e=0; e < _NUM_GROUPS; e++)
       out << "[NORMAL]  Group "  << e << ": " << by_group[e] << std::endl;
     out << "[NORMAL]  Spatial distribution of negative sources:" << std::endl;
     for (int z=0; z < num_z; z++) {
