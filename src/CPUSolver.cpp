@@ -2242,7 +2242,6 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
     // vectorization of the loop by the compiler
     // Determine number of SIMD vector groups
     const int num_vector_groups = _NUM_GROUPS / VEC_LENGTH;
-    const int remainder = _NUM_GROUPS - num_vector_groups * VEC_LENGTH;
 
     for (int v=0; v < num_vector_groups; v++) {
       int start_vector = v * VEC_LENGTH;

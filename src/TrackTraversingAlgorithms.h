@@ -168,7 +168,7 @@ private:
   double* _src_constants;
   Quadrature* _quadrature;
   CPULSSolver* _solver;
-  int _NUM_GROUPS;
+  int _num_groups;
 #ifndef THREED
   int _NUM_COEFFS;
 #endif
@@ -203,7 +203,7 @@ private:
   CPUSolver* _cpu_solver;
   CPULSSolver* _ls_solver;
   Geometry* _geometry;
-  int _NUM_GROUPS;
+  int _num_groups;
   FP_PRECISION** _thread_fsr_fluxes;
   FP_PRECISION** _thread_scratch_pads;
 

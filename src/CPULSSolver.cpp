@@ -552,7 +552,6 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
 
     // Determine number of SIMD vector groups
     const int num_vector_groups = _NUM_GROUPS / VEC_LENGTH;
-    const int remainder = _NUM_GROUPS - num_vector_groups * VEC_LENGTH;
 
     for (int v=0; v < num_vector_groups; v++) {
       int start_vector = v * VEC_LENGTH;

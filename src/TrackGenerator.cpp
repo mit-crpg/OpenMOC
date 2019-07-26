@@ -820,7 +820,8 @@ void TrackGenerator::generateTracks() {
     initializeTracks();
 
     /* Initialize the track file directory and read in tracks if they exist */
-    initializeTrackFileDirectory();
+    //NOTE Useful for 2D simulations, currently broken
+    //initializeTrackFileDirectory();
 
     /* If track file not present, generate segments */
     if (_use_input_file == false) {

@@ -543,8 +543,7 @@ void LinearExpansionGenerator::execute() {
       double volume = _FSR_volumes[r];
       if (std::abs(det) < MIN_DET || volume < 1e-6) {
         log_printf(INFO, "Unable to form linear source components in "
-                   "source region %d. Switching to flat source in that "
-                   "source region.", r);
+                   "source region %d.", r);
 #pragma omp atomic update
         _num_flat++;
         ilem[r*nc + 0] = 0.0;
@@ -596,8 +595,7 @@ void LinearExpansionGenerator::execute() {
         ilem[r*nc + 1] = 0.0;
         ilem[r*nc + 2] = 0.0;
         log_printf(INFO, "Unable to form linear source components in "
-                   "source region %d. Switching to flat source in that "
-                   "source region.", r);
+                   "source region %d.", r);
 #pragma omp atomic update
         _num_flat++;
       }
@@ -664,7 +662,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
     double theta = track_3D->getTheta();
     sin_theta = sin(theta);
     cos_theta = cos(theta);
-    int polar_index = track_3D->getPolarIndex();
+    polar_index = track_3D->getPolarIndex();
     wgt *= _quadrature->getPolarSpacing(azim_index, polar_index)
         *_quadrature->getPolarWeight(azim_index, polar_index);
   }
