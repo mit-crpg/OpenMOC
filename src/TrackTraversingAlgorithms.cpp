@@ -40,8 +40,21 @@ void MaxOpticalLength::execute() {
       loopOverTracks(NULL);
   }
   _track_generator->setMaxOpticalLength(_max_tau);
-  log_printf(INFO, "Min/max optical lengths in geometry %.2e / %.2e", _min_tau,
-             _max_tau);
+
+  /* Notify user of the range of optical lengths present in the geometry */
+  Geometry* geometry = _track_generator->getGeometry();
+  float global_min_tau = _min_tau;
+  float global_max_tau = _max_tau;
+#ifdef MPIx
+  if (geometry->isDomainDecomposed()) {
+    MPI_Allreduce(&_min_tau, &global_min_tau, 1, MPI_FLOAT, MPI_MIN,
+                  geometry->getMPICart());
+    MPI_Allreduce(&_max_tau, &global_max_tau, 1, MPI_FLOAT, MPI_MAX,
+                  geometry->getMPICart());
+  }
+#endif
+  log_printf(INFO_ONCE, "Min/max optical lengths in geometry %.2e / %.2e",
+             global_min_tau, global_max_tau);
 }
 
 
@@ -534,6 +547,7 @@ void LinearExpansionGenerator::execute() {
   double* lem = _lin_exp_coeffs;
   double* ilem = _solver->getLinearExpansionCoeffsBuffer();
   int nc = _NUM_COEFFS;
+  double max_ilem = 0;
 
   /* Invert the expansion coefficient matrix */
   if (_track_generator_3D != NULL) {
@@ -549,8 +563,9 @@ void LinearExpansionGenerator::execute() {
 
       double volume = _FSR_volumes[r];
       if (std::abs(det) < MIN_DET || volume < 1e-6) {
-        log_printf(INFO, "Unable to form linear source components in "
-                   "source region %d.", r);
+        if (volume > 0)
+          log_printf(INFO, "Unable to form linear source components in "
+                     "source region %d.", r);
 #pragma omp atomic update
         _num_flat++;
         ilem[r*nc + 0] = 0.0;
@@ -580,12 +595,10 @@ void LinearExpansionGenerator::execute() {
         /* Copy inverses */
         long ind = r*nc;
         for (int i=0; i < 6; i++) {
-          if (curr_ilem[i] < -1.0e10)
-            ilem[ind+i] = -1.0e10;
-          else if (curr_ilem[i] > 1.0e10)
-            ilem[ind+i] = 1.0e10;
-          else
-            ilem[ind+i] = curr_ilem[i];
+          ilem[ind+i] = curr_ilem[i];
+          if (curr_ilem[i] > max_ilem)
+#pragma omp critical
+            max_ilem = std::max(max_ilem, curr_ilem[i]);
         }
       }
     }
@@ -621,6 +634,10 @@ void LinearExpansionGenerator::execute() {
   for (long i=0; i < size; i++)
     src_constants_buffer[i] = _src_constants[i];
 
+  /* Notify user of any very large linear expansion matrix coefficient */
+  if (max_ilem > 1e10)
+    log_printf(INFO, "Max inverse linear expansion matrix coeff %e", max_ilem);
+
   /* Notify user of any regions needing to use a flat source approximation */
   int total_num_flat = _num_flat;
   long total_num_FSRs = num_FSRs;
@@ -630,7 +647,7 @@ void LinearExpansionGenerator::execute() {
                   geometry->getMPICart());
     MPI_Allreduce(&num_FSRs, &total_num_FSRs, 1, MPI_LONG, MPI_SUM,
                   geometry->getMPICart());
-    }
+  }
 #endif
   if (total_num_flat > 0)
     if (geometry->isRootDomain())

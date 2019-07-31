@@ -121,6 +121,9 @@ private:
   /** Number of cells in z direction */
   int _num_z;
 
+  /** Sweep number on MOC side */
+  int _moc_iteration;
+
   /** Number of energy groups */
   int _num_moc_groups;
 
@@ -345,7 +348,7 @@ private:
   /* Private worker functions */
   CMFD_PRECISION computeLarsensEDCFactor(CMFD_PRECISION dif_coef,
                                          CMFD_PRECISION delta);
-  void constructMatrices(int moc_iteration);
+  void constructMatrices();
   void collapseXS();
   void updateMOCFlux();
   void rescaleFlux();
@@ -370,8 +373,7 @@ private:
   double getDistanceToCentroid(Point* centroid, int cell_id, int local_cell_id,
                                int stencil_index);
   void getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
-        int group, int moc_iteration, CMFD_PRECISION& dif_surf,
-        CMFD_PRECISION& dif_surf_corr);
+        int group, CMFD_PRECISION& dif_surf, CMFD_PRECISION& dif_surf_corr);
   CMFD_PRECISION getDiffusionCoefficient(int cmfd_cell, int group);
   CMFD_PRECISION getSurfaceWidth(int surface, int global_ind);
   CMFD_PRECISION getPerpendicularSurfaceWidth(int surface, int global_ind);

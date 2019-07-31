@@ -63,6 +63,7 @@ Cmfd::Cmfd() {
   /* Set matrices and arrays to NULL */
   _A = NULL;
   _M = NULL;
+  _moc_iteration = 0;
   _k_eff = 1.0;
   _relaxation_factor = 0.7;
   _old_flux = NULL;
@@ -958,8 +959,9 @@ void Cmfd::collapseXS() {
     MPI_Allreduce(&global_max_tau, &max_tau, 1, MPI_FLOAT, MPI_MAX,
                   _domain_communicator->_MPI_cart);
 #endif
-  log_printf(INFO_ONCE, "Max CMFD optical thickness in all domains %.2e",
-             global_max_tau);
+  if (_moc_iteration == 0)
+    log_printf(INFO_ONCE, "Max CMFD optical thickness in all domains %.2e",
+               global_max_tau);
 }
 
 
@@ -995,13 +997,11 @@ CMFD_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
  * @param cmfd_cell A CMFD cell
  * @param surface A surface of the CMFD cell
  * @param group A CMFD energy group
- * @param moc_iteration MOC iteration number
  * @param dif_surf the surface diffusion coefficient \f$ \hat{D} \f$
  * @param dif_surf_corr the correction diffusion coefficient \f$ \tilde{D} \f$
  */
 void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
-                                          int group, int moc_iteration,
-                                          CMFD_PRECISION& dif_surf,
+                                          int group, CMFD_PRECISION& dif_surf,
                                           CMFD_PRECISION& dif_surf_corr) {
 
   FP_PRECISION current, current_out, current_in;
@@ -1102,7 +1102,7 @@ void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
         / (flux_next + flux);
 
     /* Flux limiting condition */
-    if (_flux_limiting && moc_iteration > 0) {
+    if (_flux_limiting && _moc_iteration > 0) {
       double ratio = dif_surf_corr / dif_surf;
       if (std::abs(ratio) > 1.0) {
 
@@ -1127,7 +1127,7 @@ void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
   /* If it is the first MOC iteration, solve the straight diffusion problem
    * with no MOC correction */
-  if (moc_iteration == 0 && !_check_neutron_balance)
+  if (_moc_iteration == 0 && !_check_neutron_balance)
     dif_surf_corr = 0.0;
 }
 
@@ -1148,6 +1148,9 @@ double Cmfd::computeKeff(int moc_iteration) {
 
   /* Start recording total CMFD time */
   _timer->startTimer();
+
+  /* Save MOC iteration number */
+  _moc_iteration = moc_iteration;
 
   /* Create matrix and vector objects */
   if (_A == NULL) {
@@ -1171,7 +1174,7 @@ double Cmfd::computeKeff(int moc_iteration) {
 
   /* Construct matrices and record time */
   _timer->startTimer();
-  constructMatrices(moc_iteration);
+  constructMatrices();
   _timer->stopTimer();
   _timer->recordSplit("Matrix construction time");
 
@@ -1278,7 +1281,7 @@ void Cmfd::rescaleFlux() {
  *          appropriate positions in the loss + streaming matrix and
  *          fission gain matrix.
  */
-void Cmfd::constructMatrices(int moc_iteration) {
+void Cmfd::constructMatrices() {
 
   log_printf(INFO, "Constructing matrices...");
 
@@ -1378,8 +1381,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
           delta = getSurfaceWidth(s, global_ind);
 
           /* Set transport term on diagonal */
-          getSurfaceDiffusionCoefficient(i, s, e, moc_iteration, dif_surf,
-                                          dif_surf_corr);
+          getSurfaceDiffusionCoefficient(i, s, e, dif_surf, dif_surf_corr);
 
           /* Record the corrected diffusion coefficient */
           _old_dif_surf_corr->setValue(i, s*_num_cmfd_groups+e, dif_surf_corr);
