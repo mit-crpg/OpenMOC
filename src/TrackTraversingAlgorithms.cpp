@@ -10,6 +10,7 @@
  */
 MaxOpticalLength::MaxOpticalLength(TrackGenerator* track_generator)
                                  : TraverseSegments(track_generator) {
+  _min_tau = 1e6;
   _max_tau = 0;
 }
 
@@ -39,6 +40,8 @@ void MaxOpticalLength::execute() {
       loopOverTracks(NULL);
   }
   _track_generator->setMaxOpticalLength(_max_tau);
+  log_printf(INFO, "Min/max optical lengths in geometry %.2e / %.2e", _min_tau,
+             _max_tau);
 }
 
 
@@ -65,6 +68,10 @@ void MaxOpticalLength::onTrack(Track* track, segment* segments) {
     if (tau > _max_tau) {
 #pragma omp critical
       _max_tau = std::max(_max_tau, tau);
+    }
+    if (tau < _min_tau) {
+#pragma omp critical
+      _min_tau = std::min(_min_tau, tau);
     }
   }
 }
