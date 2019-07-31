@@ -3221,8 +3221,8 @@ void Geometry::initializeSpectrumCalculator(Cmfd* spectrum_calculator) {
   offset.setY(min_y + (max_y - min_y)/2.0);
   offset.setZ(min_z + (max_z - min_z)/2.0);
 
-  spectrum_calculator->initializeLattice(&offset);
   spectrum_calculator->setGeometry(this);
+  spectrum_calculator->initializeLattice(&offset);
 
 #ifdef MPIx
   if (_domain_decomposed) {

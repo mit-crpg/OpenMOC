@@ -1213,6 +1213,12 @@ void Solver::calculateInitialSpectrum(double threshold) {
   spectrum_calculator.setAzimSpacings(_quad->getAzimSpacings(), _num_azim);
   spectrum_calculator.initialize();
 
+  TrackGenerator3D* track_generator_3D =
+    dynamic_cast<TrackGenerator3D*>(_track_generator);
+  if (track_generator_3D != NULL)
+    spectrum_calculator.setPolarSpacings(_quad->getPolarSpacings(), _num_azim,
+         _num_polar);
+
   /* Solve the system */
   log_printf(NORMAL, "Computing K-eff");
   _k_eff = spectrum_calculator.computeKeff(0);
