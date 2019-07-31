@@ -546,8 +546,8 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
 #pragma omp simd aligned(sigma_t, tau, exp_G)
     for (int e=0; e < _NUM_GROUPS; e++) {
       /* Bound tau by 1e-8 to limit error on the F2 term */
-      tau[e] = std::max(FP_PRECISION(1e-8), length * sigma_t[e]);
-      expG_fractional(tau[e], &exp_G[e]);
+      tau[e] = length * sigma_t[e];
+      expG_fractional(std::max(FP_PRECISION(1e-8), tau[e]), &exp_G[e]);
     }
 
     // Determine number of SIMD vector groups
