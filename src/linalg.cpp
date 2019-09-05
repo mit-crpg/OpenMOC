@@ -312,30 +312,14 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
     // Compute the new source
     matrixMultiplication(M, X, &new_source);
 
-    // Compute the residual
+    // Compute the initial residual
     feclearexcept (FE_ALL_EXCEPT);
-    residual = computeRMSE(&new_source, &old_source, true, comm);
     if (iter == 0) {
+      residual = computeRMSE(&new_source, &old_source, true, comm);
       if (convergence_data != NULL)
         convergence_data->linear_res_end = residual;
       initial_residual = residual;
     }
-
-    // Record current minimum residual
-    if (residual < min_residual)
-      min_residual = residual;
-
-    // Check for going off the rails
-    int raised = fetestexcept (FE_INVALID);
-    if ((residual > 1e3 * min_residual && min_residual > 1e-10) || raised) {
-      log_printf(WARNING, "linear solve divergent : res %f", residual);
-      if (convergence_data != NULL)
-        convergence_data->linear_iters_end = iter;
-      return false;
-    }
-
-    // Copy the new source to the old source
-    new_source.copyTo(&old_source);
 
     // Increment the interations counter
     iter++;
@@ -346,13 +330,35 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
                (residual / initial_residual < 0.1 || residual < tol) &&
                iter > MIN_LINEAR_SOLVE_ITERATIONS);
 
-    // Check for convergence
-    if ((residual / initial_residual < 0.1 || residual < tol) &&
-        iter > MIN_LINEAR_SOLVE_ITERATIONS) {
-      if (convergence_data != NULL)
-        convergence_data->linear_iters_end = iter;
-      break;
+    // Compute residual only after minimum iteration number
+    if (iter > MIN_LINEAR_SOLVE_ITERATIONS) {
+
+      residual = computeRMSE(&new_source, &old_source, true, comm);
+
+      // Record current minimum residual
+      if (residual < min_residual)
+        min_residual = residual;
+
+      // Check for going off the rails
+      int raised = fetestexcept (FE_INVALID);
+      if ((residual > 1e3 * min_residual && min_residual > 1e-10) || raised) {
+        log_printf(WARNING, "linear solve divergent : res %f", residual);
+        if (convergence_data != NULL)
+          convergence_data->linear_iters_end = iter;
+        success = false;
+        break;
+      }
+
+      // Check for convergence
+      if (residual / initial_residual < 0.1 || residual < tol) {
+        if (convergence_data != NULL)
+          convergence_data->linear_iters_end = iter;
+        break;
+      }
     }
+
+    // Copy the new source to the old source
+    new_source.copyTo(&old_source);
   }
 
   log_printf(DEBUG, "linear solve iterations: %d", iter);
