@@ -4266,7 +4266,7 @@ void Cmfd::printInputParamsSummary() {
 
   // Print CMFD space and energy mesh information
   log_printf(NORMAL, "CMFD Mesh: %d x %d x %d", _num_x, _num_y, _num_z);
-  if (_num_cmfd_groups != _num_moc_groups) {
+  if (_flux_update_on && _num_cmfd_groups != _num_moc_groups) {
     log_printf(NORMAL, "CMFD Group Structure:");
     log_printf(NORMAL, "\t MOC Group \t CMFD Group");
     for (int g=0; g < _num_moc_groups; g++)
@@ -5233,13 +5233,13 @@ std::string Cmfd::getSurfaceNameFromSurface(int surface) {
 /**
  * @brief A debugging tool that prints all prolongation factors to file
  */
-void Cmfd::printProlongationFactors(int iteration) {
+void Cmfd::printProlongationFactors() {
 
   /* Loop over CMFD groups */
   for (int e = 0; e < _num_cmfd_groups; e++) {
 
     /* Create arrays for spatial data */
-    double log_ratios[_num_x * _num_y * _num_z];
+    CMFD_PRECISION log_ratios[_num_x * _num_y * _num_z];
     for (int i = 0; i < _num_x * _num_y * _num_z; i++)
       log_ratios[i] = 0.0;
     for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
@@ -5252,17 +5252,25 @@ void Cmfd::printProlongationFactors(int iteration) {
 
 #ifdef MPIx
     if (_geometry->isDomainDecomposed()) {
-      double temp_log_ratios[_num_x * _num_y * _num_z];
+      CMFD_PRECISION temp_log_ratios[_num_x * _num_y * _num_z];
+
+      /* Select appropriate floating point size for transfer */
+      MPI_Datatype mpi_precision;
+      if (sizeof(FP_PRECISION) == 4)
+        mpi_precision = MPI_FLOAT;
+      else
+        mpi_precision = MPI_DOUBLE;
+
       for (int i = 0; i < _num_x * _num_y * _num_z; i++)
         temp_log_ratios[i] = log_ratios[i];
       MPI_Allreduce(temp_log_ratios, log_ratios, _num_x * _num_y * _num_z,
-                    MPI_DOUBLE, MPI_SUM, _geometry->getMPICart());
+                    mpi_precision, MPI_SUM, _geometry->getMPICart());
     }
 #endif
 
     /* Print prolongation factors distribution to file */
     if (_geometry->isRootDomain()) {
-      long long iter = iteration;
+      long long iter = _moc_iteration;
       long long group = e;
       std::string fname = "pf_group_";
       std::string group_num = std::to_string(group);

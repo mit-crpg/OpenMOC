@@ -145,6 +145,11 @@ std::vector<FP_PRECISION> Mesh::getReactionRates(RxType rx,
         for (int g=0; g < num_groups; g++)
           xs_array[g] = 1.0;
         break;
+      case VOLUME:
+        xs_array = temp_array;
+        for (int g=0; g < num_groups; g++)
+          xs_array[g] = 1.0 / fluxes[r*num_groups + g] / num_groups;
+        break;
       default:
         log_printf(ERROR, "Unrecognized reaction type in Mesh object");
     }
@@ -167,6 +172,8 @@ std::vector<FP_PRECISION> Mesh::getReactionRates(RxType rx,
     for (int i=0; i<rx_rates.size(); i++)
       if (volumes_lattice.at(i) > FLT_EPSILON)
         rx_rates.at(i) /= volumes_lattice.at(i);
+      else if (std::abs(rx_rates.at(i)) > 0)
+        log_printf(WARNING, "Zero volume lattice cell %d in mesh tally", i);
 
   /* If domain decomposed, do a reduction */
 #ifdef MPIx

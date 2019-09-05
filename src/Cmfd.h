@@ -389,7 +389,7 @@ private:
   void unpackSplitCurrents(bool faces);
   void copyFullSurfaceCurrents();
   void checkNeutronBalance(bool pre_split=true, bool old_source=false);
-  void printProlongationFactors(int iteration);
+  void printProlongationFactors();
 
 public:
 

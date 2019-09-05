@@ -1683,7 +1683,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
       int linear_iters_1 = convergence_data->linear_iters_1;
       int linear_iters_end = convergence_data->linear_iters_end;
       log_printf(NORMAL, "%3d  %1.6f  %5d  %1.6f  %1.3f  %1.6f  %1.6f"
-                 "  %3d  %1.6f  %1.6f  %3d  %3d    %1.6f", i, _k_eff,
+                 "  %3d  %1.6f  %1.6f  %3d  %3d    %.4e", i, _k_eff,
                  dk, residual, dr, cmfd_res_1, cmfd_res_end,
                  cmfd_iters, linear_res_1, linear_res_end,
                  linear_iters_1, linear_iters_end, pf);

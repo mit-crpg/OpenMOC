@@ -30,7 +30,9 @@ enum RxType {
 
   ABSORPTION_RX,
 
-  FLUX_RX
+  FLUX_RX,
+
+  VOLUME
 };
 
 
