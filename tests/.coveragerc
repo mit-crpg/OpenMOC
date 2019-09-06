@@ -5,6 +5,7 @@ source=openmoc, tests
 [report]
 # Files to exclude from coverage testing
 omit =
+    tests/openmoc/openmoc/openmoc.py
     openmoc/openmoc/openmoc.py
     openmoc/openmoc.py
 
