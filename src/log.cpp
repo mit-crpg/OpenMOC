@@ -600,9 +600,14 @@ void log_printf(logLevel level, const char* format, ...) {
       throw std::logic_error(&msg_string[0]);
     }
     else {
+     //Note lock output in Python build for thread safety
+#ifdef SWIG
+      omp_set_lock(&log_error_lock);
+#endif
       printf("%s", &msg_string[0]);
-#ifndef SWIG
       fflush(stdout);
+#ifdef SWIG
+      omp_unset_lock(&log_error_lock);
 #endif
     }
   }

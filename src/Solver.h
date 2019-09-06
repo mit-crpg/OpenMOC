@@ -542,6 +542,14 @@ public:
     _OTF_transport = true;
     log_printf(NORMAL, "Using On-The-Fly transport");
   }
+
+  /**
+   * @brief Return the number of energy groups
+   * @return the number of energy groups
+   */
+  inline int getNumEnergyGroups() {
+    return _num_groups;
+  }
 };
 
 

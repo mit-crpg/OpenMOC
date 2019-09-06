@@ -63,6 +63,7 @@ Cmfd::Cmfd() {
   /* Set matrices and arrays to NULL */
   _A = NULL;
   _M = NULL;
+  _moc_iteration = 0;
   _k_eff = 1.0;
   _relaxation_factor = 0.7;
   _old_flux = NULL;
@@ -958,8 +959,9 @@ void Cmfd::collapseXS() {
     MPI_Allreduce(&global_max_tau, &max_tau, 1, MPI_FLOAT, MPI_MAX,
                   _domain_communicator->_MPI_cart);
 #endif
-  log_printf(INFO_ONCE, "Max CMFD optical thickness in all domains %.2e",
-             global_max_tau);
+  if (_moc_iteration == 0)
+    log_printf(INFO_ONCE, "Max CMFD optical thickness in all domains %.2e",
+               global_max_tau);
 }
 
 
@@ -995,13 +997,11 @@ CMFD_PRECISION Cmfd::getDiffusionCoefficient(int cmfd_cell, int group) {
  * @param cmfd_cell A CMFD cell
  * @param surface A surface of the CMFD cell
  * @param group A CMFD energy group
- * @param moc_iteration MOC iteration number
  * @param dif_surf the surface diffusion coefficient \f$ \hat{D} \f$
  * @param dif_surf_corr the correction diffusion coefficient \f$ \tilde{D} \f$
  */
 void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
-                                          int group, int moc_iteration,
-                                          CMFD_PRECISION& dif_surf,
+                                          int group, CMFD_PRECISION& dif_surf,
                                           CMFD_PRECISION& dif_surf_corr) {
 
   FP_PRECISION current, current_out, current_in;
@@ -1102,7 +1102,7 @@ void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
         / (flux_next + flux);
 
     /* Flux limiting condition */
-    if (_flux_limiting && moc_iteration > 0) {
+    if (_flux_limiting && _moc_iteration > 0) {
       double ratio = dif_surf_corr / dif_surf;
       if (std::abs(ratio) > 1.0) {
 
@@ -1127,7 +1127,7 @@ void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
   /* If it is the first MOC iteration, solve the straight diffusion problem
    * with no MOC correction */
-  if (moc_iteration == 0 && !_check_neutron_balance)
+  if (_moc_iteration == 0 && !_check_neutron_balance)
     dif_surf_corr = 0.0;
 }
 
@@ -1148,6 +1148,9 @@ double Cmfd::computeKeff(int moc_iteration) {
 
   /* Start recording total CMFD time */
   _timer->startTimer();
+
+  /* Save MOC iteration number */
+  _moc_iteration = moc_iteration;
 
   /* Create matrix and vector objects */
   if (_A == NULL) {
@@ -1171,7 +1174,7 @@ double Cmfd::computeKeff(int moc_iteration) {
 
   /* Construct matrices and record time */
   _timer->startTimer();
-  constructMatrices(moc_iteration);
+  constructMatrices();
   _timer->stopTimer();
   _timer->recordSplit("Matrix construction time");
 
@@ -1278,7 +1281,7 @@ void Cmfd::rescaleFlux() {
  *          appropriate positions in the loss + streaming matrix and
  *          fission gain matrix.
  */
-void Cmfd::constructMatrices(int moc_iteration) {
+void Cmfd::constructMatrices() {
 
   log_printf(INFO, "Constructing matrices...");
 
@@ -1378,8 +1381,7 @@ void Cmfd::constructMatrices(int moc_iteration) {
           delta = getSurfaceWidth(s, global_ind);
 
           /* Set transport term on diagonal */
-          getSurfaceDiffusionCoefficient(i, s, e, moc_iteration, dif_surf,
-                                          dif_surf_corr);
+          getSurfaceDiffusionCoefficient(i, s, e, dif_surf, dif_surf_corr);
 
           /* Record the corrected diffusion coefficient */
           _old_dif_surf_corr->setValue(i, s*_num_cmfd_groups+e, dif_surf_corr);
@@ -4264,7 +4266,7 @@ void Cmfd::printInputParamsSummary() {
 
   // Print CMFD space and energy mesh information
   log_printf(NORMAL, "CMFD Mesh: %d x %d x %d", _num_x, _num_y, _num_z);
-  if (_num_cmfd_groups != _num_moc_groups) {
+  if (_flux_update_on && _num_cmfd_groups != _num_moc_groups) {
     log_printf(NORMAL, "CMFD Group Structure:");
     log_printf(NORMAL, "\t MOC Group \t CMFD Group");
     for (int g=0; g < _num_moc_groups; g++)
@@ -5231,13 +5233,13 @@ std::string Cmfd::getSurfaceNameFromSurface(int surface) {
 /**
  * @brief A debugging tool that prints all prolongation factors to file
  */
-void Cmfd::printProlongationFactors(int iteration) {
+void Cmfd::printProlongationFactors() {
 
   /* Loop over CMFD groups */
   for (int e = 0; e < _num_cmfd_groups; e++) {
 
     /* Create arrays for spatial data */
-    double log_ratios[_num_x * _num_y * _num_z];
+    CMFD_PRECISION log_ratios[_num_x * _num_y * _num_z];
     for (int i = 0; i < _num_x * _num_y * _num_z; i++)
       log_ratios[i] = 0.0;
     for (int i = 0; i < _local_num_x * _local_num_y * _local_num_z; i++) {
@@ -5250,17 +5252,25 @@ void Cmfd::printProlongationFactors(int iteration) {
 
 #ifdef MPIx
     if (_geometry->isDomainDecomposed()) {
-      double temp_log_ratios[_num_x * _num_y * _num_z];
+      CMFD_PRECISION temp_log_ratios[_num_x * _num_y * _num_z];
+
+      /* Select appropriate floating point size for transfer */
+      MPI_Datatype mpi_precision;
+      if (sizeof(FP_PRECISION) == 4)
+        mpi_precision = MPI_FLOAT;
+      else
+        mpi_precision = MPI_DOUBLE;
+
       for (int i = 0; i < _num_x * _num_y * _num_z; i++)
         temp_log_ratios[i] = log_ratios[i];
       MPI_Allreduce(temp_log_ratios, log_ratios, _num_x * _num_y * _num_z,
-                    MPI_DOUBLE, MPI_SUM, _geometry->getMPICart());
+                    mpi_precision, MPI_SUM, _geometry->getMPICart());
     }
 #endif
 
     /* Print prolongation factors distribution to file */
     if (_geometry->isRootDomain()) {
-      long long iter = iteration;
+      long long iter = _moc_iteration;
       long long group = e;
       std::string fname = "pf_group_";
       std::string group_num = std::to_string(group);
@@ -5352,7 +5362,7 @@ void Cmfd::tallyStartingCurrent(Point* point, double delta_x, double delta_y,
 
   CMFD_PRECISION currents[_num_cmfd_groups]
        __attribute__ ((aligned(VEC_ALIGNMENT)));
-  memset(&currents[0], 0, _num_cmfd_groups * sizeof(CMFD_PRECISION));
+  memset(currents, 0, _num_cmfd_groups * sizeof(CMFD_PRECISION));
 
   /* Tally currents to each CMFD group locally */
   for (int e=0; e < _num_moc_groups; e++) {

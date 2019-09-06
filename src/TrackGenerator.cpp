@@ -820,7 +820,8 @@ void TrackGenerator::generateTracks() {
     initializeTracks();
 
     /* Initialize the track file directory and read in tracks if they exist */
-    initializeTrackFileDirectory();
+    //NOTE Useful for 2D simulations, currently broken
+    //initializeTrackFileDirectory();
 
     /* If track file not present, generate segments */
     if (_use_input_file == false) {
@@ -1664,12 +1665,18 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
 
   /* Print FSR volumes, centroids and volume moments for debugging purposes */
   double total_volume[4];
-  memset(&total_volume[0], 0, 4 * sizeof(double));
+  memset(total_volume, 0, 4 * sizeof(double));
+  FP_PRECISION min_volume = 1e10;
+  FP_PRECISION max_volume = 0.;
+
   for (long r=0; r < num_FSRs; r++) {
     total_volume[0] += _FSR_volumes[r];
     total_volume[1] += _FSR_volumes[r] * centroids[r]->getX();
     total_volume[2] += _FSR_volumes[r] * centroids[r]->getY();
     total_volume[3] += _FSR_volumes[r] * centroids[r]->getZ();
+
+    min_volume = std::min(_FSR_volumes[r], min_volume);
+    max_volume = std::max(_FSR_volumes[r], max_volume);
 
     log_printf(DEBUG, "FSR ID = %d has volume = %.6f, centroid"
                " (%.3f %.3f %.3f)", r, _FSR_volumes[r], centroids[r]->getX(),
@@ -1679,6 +1686,8 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
   log_printf(DEBUG, "Total volume %.6f cm3, moments of volume "
              "(%.4e %.4e %.4e).", total_volume[0], total_volume[1],
              total_volume[2], total_volume[3]);
+  log_printf(DEBUG, "Average / min / max volumes of FSRs : %.2e / %.2e / %.2e",
+             total_volume[0] / num_FSRs, min_volume, max_volume);
   delete [] centroids;
 }
 

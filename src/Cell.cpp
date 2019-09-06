@@ -83,11 +83,11 @@ Cell::Cell(int id, const char* name) {
   _num_instances = 0;
 
   _rotated = false;
-  memset(&_rotation, 0., 3*sizeof(double));
-  memset(&_rotation_matrix, 0., 9*sizeof(double));
+  memset(&_rotation, 0, 3*sizeof(double));
+  memset(&_rotation_matrix, 0, 9*sizeof(double));
 
   _translated = false;
-  memset(&_translation, 0., 3*sizeof(double));
+  memset(&_translation, 0, 3*sizeof(double));
 
   _num_rings = 0;
   _num_sectors = 0;
@@ -1001,8 +1001,9 @@ void Cell::setTranslation(double* translation, int num_axes) {
 /**
  * @brief Set the Cell's number of rings.
  * @param num_rings the number of rings in this Cell
+ * @param inner_radius add (0,0,r) ZCylinder to ringify around (default none)
  */
-void Cell::setNumRings(int num_rings) {
+void Cell::setNumRings(int num_rings, double inner_radius) {
   if (num_rings < 0)
     log_printf(ERROR, "Unable to give %d rings to Cell %d since this is "
                "a negative number", num_rings, _id);
@@ -1011,6 +1012,15 @@ void Cell::setNumRings(int num_rings) {
     _num_rings = 0;
   else
     _num_rings = num_rings;
+
+  if (inner_radius >= 0) {
+    // Create an inner Z cylinder at coordinate (0, 0)
+    ZCylinder* zcylinder = new ZCylinder(0, 0, inner_radius);
+    zcylinder->setName("innermost ring cylinder");
+
+    // The cell is defined as being outside this cylinder
+    addSurface(+1, zcylinder);
+  }
 }
 
 

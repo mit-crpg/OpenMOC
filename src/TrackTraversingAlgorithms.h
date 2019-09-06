@@ -44,6 +44,7 @@ class CPULSSolver;
  */
 class MaxOpticalLength: public TraverseSegments {
 private:
+  FP_PRECISION _min_tau;
   FP_PRECISION _max_tau;
 
 public:

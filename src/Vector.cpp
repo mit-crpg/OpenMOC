@@ -249,16 +249,6 @@ void Vector::copyTo(Vector* vector) {
 
 
 /**
- * @brief Get a value at location described by a given cell and group index.
- * @param cell The cell location index.
- * @param group The group location index.
- */
-CMFD_PRECISION Vector::getValue(int cell, int group) {
-  return _array[cell*_num_groups + group];
-}
-
-
-/**
  * @brief Get the array describing the vector.
  * @return The array describing the vector.
  */

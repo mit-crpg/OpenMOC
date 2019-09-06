@@ -145,6 +145,11 @@ std::vector<FP_PRECISION> Mesh::getReactionRates(RxType rx,
         for (int g=0; g < num_groups; g++)
           xs_array[g] = 1.0;
         break;
+      case VOLUME:
+        xs_array = temp_array;
+        for (int g=0; g < num_groups; g++)
+          xs_array[g] = 1.0 / fluxes[r*num_groups + g] / num_groups;
+        break;
       default:
         log_printf(ERROR, "Unrecognized reaction type in Mesh object");
     }
@@ -158,15 +163,9 @@ std::vector<FP_PRECISION> Mesh::getReactionRates(RxType rx,
     }
 
     /* Tally fsr volume to cell volume, only for a non-zero reaction rate */
-    if (std::abs(fsr_rx_rate) > FLT_EPSILON && volume_average)
+    if (std::abs(fsr_rx_rate) > 0 && volume_average)
       volumes_lattice.at(lat_cell) += volume;
   }
-
-  /* If volume average requested, divide by volume */
-  if (volume_average)
-    for (int i=0; i<rx_rates.size(); i++)
-      if (volumes_lattice.at(i) > FLT_EPSILON)
-        rx_rates.at(i) /= volumes_lattice.at(i);
 
   /* If domain decomposed, do a reduction */
 #ifdef MPIx
@@ -187,8 +186,26 @@ std::vector<FP_PRECISION> Mesh::getReactionRates(RxType rx,
     MPI_Allreduce(rx_rates_send, rx_rates_array, size, precision, MPI_SUM,
                   comm);
     delete [] rx_rates_send;
+
+    if (volume_average) {
+      FP_PRECISION* volumes_array = &volumes_lattice[0];
+      FP_PRECISION* volumes_send = new FP_PRECISION[size];
+      for (int i=0; i < size; i++)
+        volumes_send[i] = volumes_array[i];
+      MPI_Allreduce(volumes_send, volumes_array, size, precision, MPI_SUM,
+                    comm);
+      delete [] volumes_send;
+    }
   }
 #endif
+
+  /* If volume average requested, divide by volume */
+  if (volume_average)
+    for (int i=0; i<rx_rates.size(); i++)
+      if (volumes_lattice.at(i) > FLT_EPSILON)
+        rx_rates.at(i) /= volumes_lattice.at(i);
+      else if (std::abs(rx_rates.at(i)) > 0)
+        log_printf(WARNING, "Zero volume lattice cell %d in mesh tally", i);
 
   return rx_rates;
 }
