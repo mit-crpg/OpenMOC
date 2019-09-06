@@ -26,11 +26,14 @@ class RingTestHarness(TestHarness):
         for i, cell_id in enumerate(cells):
             cells[cell_id].setNumRings(i*2 + 3)
 
+            # Create rings starting from a given radius in the moderator
+            if i==1:
+                cells[cell_id].setNumRings(i*2 + 3, 0.3)
+
     def _get_results(self, num_iters=False, keff=False, fluxes=False,
                      num_fsrs=True, num_segments=True, num_tracks=True,
                      hash_output=False):
         """Digest info from geometry and return as a string."""
-
         return super(RingTestHarness, self)._get_results(
                 num_iters=num_iters, keff=keff, fluxes=fluxes,
                 num_fsrs=num_fsrs, num_segments=num_segments,
