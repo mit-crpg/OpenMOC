@@ -20,8 +20,8 @@ inline double pairwise_sum(T* vector, L length) {
 
   double sum = 0;
 
-  /* Base case: if length is less than 16, perform summation */
-  if (length < 16) {
+  /* Base case: if length is less than SIMD vector length, perform summation */
+  if (length < VEC_LENGTH) {
 
 #pragma omp simd reduction(+:sum)
     for (L i=0; i < length; i++)

@@ -57,7 +57,6 @@ class Vector {
   void copyTo(Vector* vector);
 
   /* Getter functions */
-  CMFD_PRECISION getValue(int cell, int group);
   CMFD_PRECISION* getArray();
   int getNumX();
   int getNumY();
@@ -72,6 +71,16 @@ class Vector {
   void setValues(int cell, int group_start, int group_end,
                  CMFD_PRECISION* vals);
   void setAll(CMFD_PRECISION val);
+
+/**
+ * @brief Get a value at location described by a given cell and group index.
+ * @param cell The cell location index.
+ * @param group The group location index.
+ */
+  inline CMFD_PRECISION getValue(int cell, int group) {
+    return _array[cell*_num_groups + group];
+  }
+
 };
 
 #endif  // SRC_VECTOR_H_

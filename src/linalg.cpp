@@ -220,8 +220,8 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
   int num_z = X->getNumZ();
   int num_groups = X->getNumGroups();
   int num_rows = X->getNumRows();
-  Vector X_old(cell_locks, num_x, num_y, num_z, num_groups);
-  CMFD_PRECISION* x_old = X_old.getArray();
+  //Vector X_old(cell_locks, num_x, num_y, num_z, num_groups);  //FIXME delete
+  //CMFD_PRECISION* x_old = X_old.getArray();
   int* IA = A->getIA();
   int* JA = A->getJA();
   CMFD_PRECISION* DIAG = A->getDiag();
@@ -244,7 +244,7 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
   while (iter < MAX_LINEAR_SOLVE_ITERATIONS) {
 
     /* Pass new flux to old flux */
-    X->copyTo(&X_old);
+    //X->copyTo(&X_old);
 
     // Iteration over red/black cells
     for (int color = 0; color < 2; color++) {
@@ -324,10 +324,13 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
     // Increment the interations counter
     iter++;
 
+    double ratio_residuals = 1;
+    if (initial_residual > 0)
+      ratio_residuals = residual / initial_residual;
     log_printf(DEBUG, "SOR iter: %d, residual: %3.2e, initial residual: %3.2e"
                ", ratio = %3.2e, tolerance: %3.2e, end? %d", iter, residual,
-               initial_residual, residual / initial_residual, tol,
-               (residual / initial_residual < 0.1 || residual < tol) &&
+               initial_residual, ratio_residuals, tol,
+               (ratio_residuals < 0.1 || residual < tol) &&
                iter > MIN_LINEAR_SOLVE_ITERATIONS);
 
     // Compute residual only after minimum iteration number
@@ -342,7 +345,8 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
       // Check for going off the rails
       int raised = fetestexcept (FE_INVALID);
       if ((residual > 1e3 * min_residual && min_residual > 1e-10) || raised) {
-        log_printf(WARNING, "linear solve divergent : res %f", residual);
+        log_printf(WARNING, "linear solve divergent : res %e min_res %e NaN? %d",
+                   residual, min_residual, raised);
         if (convergence_data != NULL)
           convergence_data->linear_iters_end = iter;
         success = false;
@@ -358,7 +362,8 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
     }
 
     // Copy the new source to the old source
-    new_source.copyTo(&old_source);
+    if (iter > MIN_LINEAR_SOLVE_ITERATIONS - 1)
+      new_source.copyTo(&old_source);
   }
 
   log_printf(DEBUG, "linear solve iterations: %d", iter);
@@ -598,7 +603,7 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated,
                Y->getNumX(), Y->getNumY(), Y->getNumZ(), Y->getNumGroups());
 
   double rmse;
-  double sum_residuals;
+  double sum_residuals = 0;
   int norm;
   int num_x = X->getNumX();
   int num_y = X->getNumY();
@@ -609,25 +614,34 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated,
   if (integrated) {
 
     double new_source, old_source;
-    Vector residual(cell_locks, num_x, num_y, num_z, 1);
+    CMFD_PRECISION residual[num_x * num_y * num_z]
+         __attribute__ ((aligned(VEC_ALIGNMENT)));  //FIXME Overflow for large cases?
+    memset(residual, 0, num_x * num_y * num_z * sizeof(CMFD_PRECISION));
 
     /* Compute the RMSE */
 #pragma omp parallel for private(new_source, old_source)
     for (int i = 0; i < num_x*num_y*num_z; i++) {
       new_source = 0.0;
       old_source = 0.0;
+#pragma omp simd reduction(+:new_source,old_source)
       for (int g = 0; g < num_groups; g++) {
         new_source += X->getValue(i, g);
         old_source += Y->getValue(i, g);
       }
       if (fabs(old_source) > FLT_EPSILON)
-        residual.setValue(i, 0, pow((new_source - old_source) / old_source, 2));
+        residual[i] = pow((new_source - old_source) / old_source, 2);
     }
-    sum_residuals = residual.getSum();
+
+    // Sum residuals
+#pragma omp simd reduction(+:sum_residuals) aligned(residual)
+    for (int i = 0; i < num_x*num_y*num_z; i++)
+      sum_residuals += residual[i];
+
     norm = num_x * num_y * num_z;
   }
   else {
 
+    //FIXME Incurs a memory allocation, uses unnecessary locks
     Vector residual(cell_locks, num_x, num_y, num_z, num_groups);
 
     /* Compute the RMSE */
