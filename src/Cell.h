@@ -175,7 +175,7 @@ public:
   void incrementNumInstances();
   void setRotation(double* rotation, int num_axes, std::string units="degrees");
   void setTranslation(double* translation, int num_axes);
-  void setNumRings(int num_rings);
+  void setNumRings(int num_rings, double inner_radius=-1);
   void setNumSectors(int num_sectors);
   void setParent(Cell* parent);
   void addSurface(int halfspace, Surface* surface);
