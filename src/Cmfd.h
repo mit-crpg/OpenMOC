@@ -579,7 +579,7 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
 
     CMFD_PRECISION currents[_num_cmfd_groups]
          __attribute__ ((aligned(VEC_ALIGNMENT)));
-    memset(&currents[0], 0, _num_cmfd_groups * sizeof(CMFD_PRECISION));
+    memset(currents, 0, _num_cmfd_groups * sizeof(CMFD_PRECISION));
     int local_cell_id = getLocalCMFDCell(cell_id);
 
     if (_SOLVE_3D) {

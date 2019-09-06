@@ -474,7 +474,7 @@ LinearExpansionGenerator::LinearExpansionGenerator(CPULSSolver* solver)
   _FSR_locks = track_generator->getFSRLocks();
   _quadrature = track_generator->getQuadrature();
 #ifndef NGROUPS
-  _NUM_GROUPS = track_generator->getGeometry()->getNumEnergyGroups();
+  _NUM_GROUPS = solver->getNumEnergyGroups();
 #endif
 
   /* Determine the number of linear coefficients */
@@ -929,7 +929,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
   /* Allocate a temporary flux buffer on the stack (free) and initialize it */
   /* Select right size for buffer */
 #ifndef NGROUPS
-  int _NUM_GROUPS = _track_generator->getGeometry()->getNumEnergyGroups();
+  int _NUM_GROUPS = _cpu_solver->getNumEnergyGroups();
 #endif
 #ifndef LINEARSOURCE
   int num_moments = 1;
@@ -944,7 +944,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
   /* Allocate an aligned buffer on the stack */
   FP_PRECISION fsr_flux[num_moments * num_groups_aligned] __attribute__
        ((aligned (VEC_ALIGNMENT)));
-  memset(&fsr_flux[0], 0, num_moments * num_groups_aligned * sizeof(FP_PRECISION));
+  memset(fsr_flux, 0, num_moments * num_groups_aligned * sizeof(FP_PRECISION));
   FP_PRECISION* fsr_flux_x = &fsr_flux[num_groups_aligned];
   FP_PRECISION* fsr_flux_y = &fsr_flux[2*num_groups_aligned];
   FP_PRECISION* fsr_flux_z = &fsr_flux[3*num_groups_aligned];

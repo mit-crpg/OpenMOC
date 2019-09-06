@@ -83,11 +83,11 @@ Cell::Cell(int id, const char* name) {
   _num_instances = 0;
 
   _rotated = false;
-  memset(&_rotation, 0., 3*sizeof(double));
-  memset(&_rotation_matrix, 0., 9*sizeof(double));
+  memset(&_rotation, 0, 3*sizeof(double));
+  memset(&_rotation_matrix, 0, 9*sizeof(double));
 
   _translated = false;
-  memset(&_translation, 0., 3*sizeof(double));
+  memset(&_translation, 0, 3*sizeof(double));
 
   _num_rings = 0;
   _num_sectors = 0;

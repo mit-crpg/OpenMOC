@@ -1665,7 +1665,7 @@ void TrackGenerator::generateFSRCentroids(FP_PRECISION* FSR_volumes) {
 
   /* Print FSR volumes, centroids and volume moments for debugging purposes */
   double total_volume[4];
-  memset(&total_volume[0], 0, 4 * sizeof(double));
+  memset(total_volume, 0, 4 * sizeof(double));
   for (long r=0; r < num_FSRs; r++) {
     total_volume[0] += _FSR_volumes[r];
     total_volume[1] += _FSR_volumes[r] * centroids[r]->getX();

@@ -5362,7 +5362,7 @@ void Cmfd::tallyStartingCurrent(Point* point, double delta_x, double delta_y,
 
   CMFD_PRECISION currents[_num_cmfd_groups]
        __attribute__ ((aligned(VEC_ALIGNMENT)));
-  memset(&currents[0], 0, _num_cmfd_groups * sizeof(CMFD_PRECISION));
+  memset(currents, 0, _num_cmfd_groups * sizeof(CMFD_PRECISION));
 
   /* Tally currents to each CMFD group locally */
   for (int e=0; e < _num_moc_groups; e++) {
