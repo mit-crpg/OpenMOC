@@ -1463,13 +1463,8 @@ void Solver::computeSource(int max_iters, double k_eff, residualType res_type) {
     initializeFluxArrays();
   initializeSourceArrays();
 
-  /* Guess flat spatial scalar flux for each region */
-  if (!_is_restart) {
-    if (_chi_spectrum_material == NULL)
-      flattenFSRFluxes(1.0);
-    else
-      flattenFSRFluxesChiSpectrum();
-  }
+  /* Compute a starting guess for the fluxes */
+  computeInitialFluxGuess(true);
 
   /* Start the timer to record the total time to converge the flux */
   _timer->startTimer();
@@ -1563,52 +1558,13 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 #endif
   printInputParamsSummary();
 
-  /* Load reference solution if necessary */
-  if (_calculate_residuals_by_reference) {
-    loadFSRFluxes(_reference_file, false);
-    long size = _num_FSRs * _num_groups;
-    _reference_flux = new FP_PRECISION[size];
-    memcpy(_reference_flux, _scalar_flux, size * sizeof(FP_PRECISION));
-  }
-
-  /* Guess flat spatial scalar flux for each region */
-  if (!_is_restart) {
-    if (_chi_spectrum_material == NULL)
-      flattenFSRFluxes(1.0);
-    else
-      flattenFSRFluxesChiSpectrum();
-    normalizeFluxes();
-  }
-  storeFSRFluxes();
-
-  /* Load initial FSR fluxes from file if requested */
-  if (_load_initial_FSR_fluxes) {
-    loadFSRFluxes(_initial_FSR_fluxes_file, true);
-    normalizeFluxes();
-    storeFSRFluxes();
-
-#ifdef MPIx
-  if (_geometry->isDomainDecomposed())
-    MPI_Barrier(_geometry->getMPICart());
-#endif
-
-    int startup_iterations = 30;
-    computeFSRSources(0);
-    for (int i=0; i < startup_iterations; i++) {
-      log_printf(NORMAL, "Startup sweep %d / %d", i, startup_iterations);
-      transportSweep();
-    }
-    addSourceToScalarFlux();
-  }
-
   /* Print memory report */
 #ifdef BGQ
   printBGQMemory();
 #endif
 
-  /* Perform initial spectrum calculation if requested */
-  if (_calculate_initial_spectrum)
-    calculateInitialSpectrum(_initial_spectrum_thresh);
+  /* Compute a starting guess for the fluxes */
+  computeInitialFluxGuess();
 
 #ifdef MPIx
   if (_geometry->isDomainDecomposed())
@@ -1715,6 +1671,74 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   if (convergence_data != NULL)
     delete convergence_data;
+}
+
+
+/**
+ * @brief Load or compute a starting guess for scalar fluxes.
+ * @details By default, OpenMOC assumes an initial flux guess flat in space and
+ *          energy. Other options are available:
+ *          - reference fluxes can be loaded as an initial guess. They will
+ *            also be used to compute the residuals
+ *          - a chi-spectrum from a fissile material can be assumed. Only
+ *            fissile region will have a non-zero initial flux guess. Note
+ *            that this may induce 0 reaction rates in CMFD cells, and startup
+ *            unaccelerated iterations may be required
+ *          - scalar fluxes can be loaded from a flux file, to perform a
+ *            restart calculation. The angular fluxes need to converged
+ *            again since they are not saved in the flux file
+ *          - a 1-cell 1-group CMFD calculation can be run to compute an
+ *            initial spectrum guess
+ * @param is_source_computation whether the solver is computing an eigenvalue
+ *        or a source distribution
+ */
+void Solver::computeInitialFluxGuess(bool is_source_computation) {
+
+  /* Load reference solution if necessary */
+  if (_calculate_residuals_by_reference) {
+    loadFSRFluxes(_reference_file, false);
+    long size = _num_FSRs * _num_groups;
+    _reference_flux = new FP_PRECISION[size];
+    memcpy(_reference_flux, _scalar_flux, size * sizeof(FP_PRECISION));
+  }
+
+  /* Guess flat spatial scalar flux for each region */
+  if (!_is_restart) {
+    if (_chi_spectrum_material == NULL)
+      flattenFSRFluxes(1.0);
+    else
+      flattenFSRFluxesChiSpectrum();
+
+    /* Normalize flux guess for eigenvalue computations */
+    if (!is_source_computation)
+      normalizeFluxes();
+  }
+  storeFSRFluxes();
+
+  /* Load initial FSR fluxes from file if requested */
+  if (_load_initial_FSR_fluxes) {
+    loadFSRFluxes(_initial_FSR_fluxes_file, true);
+    normalizeFluxes();
+    storeFSRFluxes();
+
+#ifdef MPIx
+    if (_geometry->isDomainDecomposed())
+      MPI_Barrier(_geometry->getMPICart());
+#endif
+
+    /* Perform startup sweeps to converge angular fluxes */
+    int startup_iterations = 30;
+    computeFSRSources(0);
+    for (int i=0; i < startup_iterations; i++) {
+      log_printf(NORMAL, "Startup sweep %d / %d", i, startup_iterations);
+      transportSweep();
+    }
+    addSourceToScalarFlux();
+  }
+
+  /* Perform initial spectrum calculation if requested */
+  if (_calculate_initial_spectrum)
+    calculateInitialSpectrum(_initial_spectrum_thresh);
 }
 
 
