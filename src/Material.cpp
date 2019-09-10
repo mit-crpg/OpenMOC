@@ -1121,6 +1121,8 @@ Material* Material::clone() {
     clone->setSigmaFByGroup((double)_sigma_f[i], i+1);
     clone->setNuSigmaFByGroup((double)_nu_sigma_f[i], i+1);
     clone->setChiByGroup((double)_chi[i], i+1);
+    if (_sigma_a != NULL)
+      clone->setSigmaAByGroup((double)_sigma_a[i], i+1);
 
     for (int j=0; j < _num_groups; j++)
       clone->setSigmaSByGroup((double)getSigmaSByGroup(i+1,j+1), i+1, j+1);

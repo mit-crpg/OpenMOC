@@ -207,7 +207,7 @@ void Matrix::convertToCSR() {
   for (int row=0; row < _num_rows; row++) {
     _IA[row] = j;
     for (iter = _LIL[row].begin(); iter != _LIL[row].end(); ++iter) {
-      if (fabs(iter->second) > FLT_EPSILON) {
+      if (fabs(iter->second) > 0) {
         _JA[j] = iter->first;
         _A[j] = iter->second;
 

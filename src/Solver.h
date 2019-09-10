@@ -490,6 +490,7 @@ public:
                      residualType res_type=TOTAL_SOURCE);
   void computeEigenvalue(int max_iters=1000,
                          residualType res_type=FISSION_SOURCE);
+  void computeInitialFluxGuess(bool is_source_computation=false);
 
   void printBGQMemory();
 
