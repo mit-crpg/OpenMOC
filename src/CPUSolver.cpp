@@ -1846,6 +1846,11 @@ void CPUSolver::computeFSRSources(int iteration) {
       if (iteration < 30)
         log_printf(WARNING, "Negative sources corrected to zero");
     }
+
+    /* Output negative sources for debugging */
+    if (get_log_level() == DEBUG && _cmfd != NULL)
+      printNegativeSources(_num_iterations, _cmfd->getNumX(), _cmfd->getNumY(),
+                           _cmfd->getNumZ());
   }
 }
 
@@ -2876,6 +2881,7 @@ void CPUSolver::printNegativeSources(int iteration, int num_x, int num_y,
   /* Create the Mesh lattice */
   lattice.setWidth(width_x, width_y, width_z);
   lattice.setOffset(offset_x, offset_y, offset_z);
+  lattice.computeSizes();
 
   /* Create a group-wise negative source mapping */
   int by_group[_NUM_GROUPS];
@@ -2895,7 +2901,7 @@ void CPUSolver::printNegativeSources(int iteration, int num_x, int num_y,
 
     /* Determine the number of negative sources */
     for (int e=0; e < _NUM_GROUPS; e++) {
-      if (_reduced_sources(r,e) < 0.0) {
+      if (_reduced_sources(r,e) < 1e-19) {
         by_group[e]++;
         mapping[lat_cell]++;
       }

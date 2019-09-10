@@ -785,7 +785,7 @@ void Cmfd::collapseXS() {
       }
 
       /* Set chi */
-      if (fabs(neutron_production_tally) > FLT_EPSILON) {
+      if (fabs(neutron_production_tally) > 0) {
 
         /* Calculate group-wise fission contributions */
         for (int e=0; e < _num_cmfd_groups; e++)
@@ -1238,6 +1238,10 @@ double Cmfd::computeKeff(int moc_iteration) {
   _timer->recordSplit("Total MOC flux update time");
   _timer->stopTimer();
   _timer->recordSplit("Total CMFD time");
+
+  /* If debugging, print CMFD prolongation factors */
+  if (get_log_level() == DEBUG)
+    printProlongationFactors();
 
   return _k_eff;
 }
@@ -3180,12 +3184,12 @@ CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, long fsr) {
            interpolants[1] * new_flux_mid +
            interpolants[2] * new_flux_next;
 
-    if (fabs(old_flux) > FLT_EPSILON)
+    if (fabs(old_flux) > 0)
       ratio = new_flux / old_flux;
 
     /* Fallback: using the cell average flux ratio */
     if (ratio < 0) {
-      if (fabs(_old_flux->getValue(cell_id, group)) > FLT_EPSILON)
+      if (fabs(_old_flux->getValue(cell_id, group)) > 0)
         ratio = _new_flux->getValue(cell_id, group) /
                 _old_flux->getValue(cell_id, group);
       else
@@ -3195,7 +3199,7 @@ CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, long fsr) {
     return ratio;
   }
   else {
-    if (fabs(_old_flux->getValue(cell_id, group)) > FLT_EPSILON)
+    if (fabs(_old_flux->getValue(cell_id, group)) > 0)
       return _new_flux->getValue(cell_id, group) /
               _old_flux->getValue(cell_id, group);
     else
@@ -3861,17 +3865,17 @@ void Cmfd::initializeLattice(Point* offset, bool is_2D) {
     _accumulate_z[i+1] = _accumulate_z[i] + _cell_widths_z[i];
 
   if (fabs(_width_x - _accumulate_x[_num_x]) > FLT_EPSILON ||
-     fabs(_width_y - _accumulate_y[_num_y]) > FLT_EPSILON ||
-     fabs(_width_z - _accumulate_z[_num_z]) > FLT_EPSILON)
+      fabs(_width_y - _accumulate_y[_num_y]) > FLT_EPSILON ||
+      fabs(_width_z - _accumulate_z[_num_z]) > FLT_EPSILON)
     log_printf(ERROR, "The sum of non-uniform mesh widths are not consistent "
-      "with geometry dimensions. width_x = %20.17E, width_y = %20.17E, "
-      "width_z = %20.17E, sum_x = %20.17E, sum_y = %20.17E, sum_z = %20.17E, "
-      "diff_x = %20.17E, diff_y = %20.17E, diff_z = %20.17E, FLT_EPSILON = "
-      "%20.17E", _width_x, _width_y, _width_z, _accumulate_x[_num_x],
-      _accumulate_y[_num_y], _accumulate_z[_num_z],
-      fabs(_width_x - _accumulate_x[_num_x]),
-      fabs(_width_y - _accumulate_y[_num_y]),
-      fabs(_width_z - _accumulate_z[_num_z]), FLT_EPSILON);
+               "with geometry dimensions. width_x = %20.17E, width_y = %20.17E"
+               ", width_z = %20.17E, sum_x = %20.17E, sum_y = %20.17E, sum_z ="
+               " %20.17E, diff_x = %20.17E, diff_y = %20.17E, diff_z = %20.17E"
+               ", FLT_EPSILON = %20.17E", _width_x, _width_y, _width_z,
+               _accumulate_x[_num_x], _accumulate_y[_num_y],
+               _accumulate_z[_num_z], fabs(_width_x - _accumulate_x[_num_x]),
+               fabs(_width_y - _accumulate_y[_num_y]),
+               fabs(_width_z - _accumulate_z[_num_z]), FLT_EPSILON);
 
   /* Delete old lattice if it exists */
   if (_lattice != NULL)
@@ -5320,7 +5324,7 @@ void Cmfd::tallyStartingCurrent(Point* point, double delta_x, double delta_y,
   /* Check for non-zero current */
   bool non_zero = false;
   for (int e=0; e < _num_moc_groups; e++) {
-    if (fabs(track_flux[e]) > FLT_EPSILON) {
+    if (fabs(track_flux[e]) > 0) {
       non_zero = true;
       break;
     }
