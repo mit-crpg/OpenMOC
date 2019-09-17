@@ -2,7 +2,7 @@
 The setup script for OpenMOC
 '''
 
-import os, site, string, sys
+import os, shutil, site, string, sys
 from distutils.errors import DistutilsOptionError
 import distutils.ccompiler
 import multiprocessing
@@ -113,6 +113,12 @@ class custom_install(install):
     self.profile_mode = False
     self.coverage_mode = False
     self.with_ccache = False
+
+    # Check that swig is installed:
+    swigLocation = shutil.which('swig')
+    if not swigLocation:
+        print("-> Please install swig before building <-")
+        sys.exit()
 
 
   def finalize_options(self):
