@@ -1874,8 +1874,9 @@ double GPUSolver::computeResidual(residualType res_type) {
  *                      passed in as a NumPy array from Python)
  * @param num_FSRs the number of FSRs passed in from Python
  */
-void GPUSolver::computeFSRFissionRates(double* fission_rates, int num_FSRs) {
+void GPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs, bool nu) {
 
+  /* TODO what the heck is nu for? */
   log_printf(INFO, "Computing FSR fission rates...");
 
   /* Allocate memory for the FSR nu-fission rates on the device and host */

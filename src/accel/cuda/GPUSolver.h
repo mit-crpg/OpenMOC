@@ -156,7 +156,7 @@ public:
   double normalizeFluxes();
   double computeResidual(residualType res_type);
 
-  void computeFSRFissionRates(double* fission_rates, int num_FSRs);
+  void computeFSRFissionRates(double* fission_rates, long num_FSRs, bool nu = false) override;
 };
 
 
