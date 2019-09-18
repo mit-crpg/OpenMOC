@@ -397,24 +397,24 @@ __global__ void computeFSRScatterSourcesOnDevice(int* FSR_materials,
 
 
 /**
- * @brief Perform an atomic addition in double precision to an array address.
- * @details This method is straight out of CUDA C Developers Guide (cc 2013).
- * @param address the array memory address
- * @param val the value to add to the array
- * @return the atomically added array value and input value
+ * @brief Set all FSR spectra to match chi of a given material
+ * @param chi_material pointer to device material's chi spectrum to use
+ * @param scalar_flux the array of FSR scalar fluxes
  */
-__device__ double atomicAdd(double* address, double val) {
+__global__ void flattenFSRFluxesChiSpectrumOnDevice(dev_material* chi_material,
+                                                    FP_PRECISION* scalar_flux) {
+  /* NOTE, if this needs to go faster, copy Chi spectrum to each
+     thread block, then fill fluxes from there. Now, memory contention
+     may arise when many threads access elements of chi here at the
+     ~same~ time. */
 
-  unsigned long long int* address_as_ull = (unsigned long long int*)address;
-  unsigned long long int old = *address_as_ull, assumed;
-
-  do {
-    assumed = old;
-    old = atomicCAS(address_as_ull, assumed, __double_as_longlong(val +
-                    __longlong_as_double(assumed)));
-  } while (assumed != old);
-
-  return __longlong_as_double(old);
+  int tid = threadIdx.x + blockIdx.x * blockDim.x;
+  while (tid < *num_FSRs) {
+    for (int g=0; g < *num_groups; g++) {
+      scalar_flux(tid,g) = chi_material->_chi[g];
+    }
+    tid += blockDim.x * gridDim.x;
+  }
 }
 
 
@@ -715,6 +715,10 @@ GPUSolver::GPUSolver(TrackGenerator* track_generator) :
   _materials = NULL;
   _dev_tracks = NULL;
   _FSR_materials = NULL;
+  _dev_chi_spectrum_material = NULL;
+
+  // TODO, take chi_spectrum_material from solver, and translate it
+  // to a pointer on the GPU. But it might not be copied there yet?
 
   if (track_generator != NULL)
     setTrackGenerator(track_generator);
@@ -1033,34 +1037,46 @@ void GPUSolver::copyQuadrature() {
 
   log_printf(INFO, "Copying quadrature on the GPU...");
 
-  if (_num_polar_2 > MAX_POLAR_ANGLES_GPU)
+  if (_num_polar / 2 > MAX_POLAR_ANGLES_GPU)
     log_printf(ERROR, "Unable to initialize a polar quadrature with %d "
                "angles for the GPUSolver which is limited to %d polar "
                "angles. Update the MAX_POLAR_ANGLES_GPU macro in constants.h "
-               "and recompile.", _num_polar_2, MAX_POLAR_ANGLES_GPU);
+               "and recompile.", _num_polar/2, MAX_POLAR_ANGLES_GPU);
 
   /* Copy half the number of polar angles to constant memory on the GPU */
-  cudaMemcpyToSymbol(num_polar_2, (void*)&_num_polar_2, sizeof(int), 0,
+  int polar2 = _num_polar/2;
+  cudaMemcpyToSymbol(num_polar_2, (void*)&polar2, sizeof(int), 0,
                      cudaMemcpyHostToDevice);
 
   /* Copy the number of polar angles to constant memory on the GPU */
-  int n_polar = 2 * _num_polar_2;
-  cudaMemcpyToSymbol(num_polar, (void*)&n_polar,
+  cudaMemcpyToSymbol(num_polar, (void*)&_num_polar,
                      sizeof(int), 0, cudaMemcpyHostToDevice);
 
   /* Copy the weights to constant memory on the GPU */
-  int num_azim_2 = _quadrature->getNumAzimAngles() / 2;
-  FP_PRECISION total_weights[num_azim_2 * _num_polar_2];
+  int num_azim_2 = _quad->getNumAzimAngles() / 2;
+  FP_PRECISION total_weights[num_azim_2 * _num_polar/2];
   for (int a=0; a < num_azim_2; a++)
-    for (int p=0; p < _num_polar_2; p++)
-      total_weights[a*_num_polar_2 + p] = _quadrature->getWeight(a, p);
+    for (int p=0; p < _num_polar/2; p++)
+      total_weights[a*_num_polar/2 + p] = _quad->getWeight(a, p);
   cudaMemcpyToSymbol(weights, (void*)total_weights,
-      _num_polar_2 * num_azim_2 * sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
+      _num_polar/2 * num_azim_2 * sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
 
   /* Copy the sines of the polar angles which is needed if the user
-   * requested the use of the exp intrinsic to evaluate exponentials */
-  cudaMemcpyToSymbol(sin_thetas, (void*)_quadrature->getSinThetas(),
-                     _num_polar_2 * sizeof(FP_PRECISION), 0,
+   * requested the use of the exp intrinsic to evaluate exponentials
+   * Conversion from std::vectors to a raw array is needed for compatibility */
+
+  // std::vector<DoubleVec> sinThetas = _quad->getSinThetas();
+  // unsigned outer_size = sinThetas.size();
+  // unsigned inner_size = sinThetas[0].size();
+  // Make an array of FP_PRECISION, which is what the old CUDA code took.
+  // It may be possible to just pass in a pointer to the first element of
+  // getSinThetas()... TODO
+  //   FP_PRECISION** sin_theta_array = (FP_PRECISION**)malloc(outer_size * sizeof(FP_PRECISION*));
+  //   for (unsigned j=0; j<outer_size; ++j)
+  //     sin_theta_array[j] = (FP_PRECISION*)malloc(inner_size * sizeof(FP_PRECISION));
+  //   
+  cudaMemcpyToSymbol(sin_thetas, (void*)&(_quad->getSinThetas()[0]),
+                     _num_polar/2 * sizeof(FP_PRECISION), 0,
                      cudaMemcpyHostToDevice);
 }
 
@@ -1070,7 +1086,7 @@ void GPUSolver::copyQuadrature() {
  */
 void GPUSolver::initializeExpEvaluator() {
 
-  Solver::initializeExpEvaluator();
+  Solver::initializeExpEvaluators();
 
   log_printf(INFO, "Initializing the exponential evaluator on the GPU...");
 
@@ -1079,7 +1095,7 @@ void GPUSolver::initializeExpEvaluator() {
   cudaMalloc((void**)&dev_exp_evaluator, sizeof(GPUExpEvaluator));
 
   /* Clone ExpEvaluator from the host into GPUExpEvaluator on the device */
-  clone_exp_evaluator(_exp_evaluator, dev_exp_evaluator);
+  clone_exp_evaluator(_exp_evaluators, dev_exp_evaluator);
 
   /* Copy the GPUExpEvaluator into constant memory on the GPU */
   cudaMemcpyToSymbol(exp_evaluator, (void*)dev_exp_evaluator,
@@ -1174,7 +1190,7 @@ void GPUSolver::initializeMaterials(solverMode mode) {
 
   /* Copy the number of polar angles times energy groups to constant memory
    * on the GPU */
-  cudaMemcpyToSymbol(polar_times_groups, (void*)&_polar_times_groups,
+  cudaMemcpyToSymbol(polar_times_groups, (void*)&_fluxes_per_track,
                      sizeof(int), 0, cudaMemcpyHostToDevice);
 
   /* Delete old materials array if it exists */
@@ -1227,11 +1243,11 @@ void GPUSolver::initializeTracks() {
       clone_track(_tracks[i], &_dev_tracks[i], _material_IDs_to_indices);
 
       /* Get indices to next tracks along "forward" and "reverse" directions */
-      index = _tracks[i]->getTrackIn()->getUid();
+      index = _tracks[i]->getTrackNextBwd();
       cudaMemcpy((void*)&_dev_tracks[i]._track_in,
                  (void*)&index, sizeof(int), cudaMemcpyHostToDevice);
 
-      index = _tracks[i]->getTrackOut()->getUid();
+      index = _tracks[i]->getTrackNextFwd();
       cudaMemcpy((void*)&_dev_tracks[i]._track_out,
                  (void*)&index, sizeof(int), cudaMemcpyHostToDevice);
     }
@@ -1264,7 +1280,7 @@ void GPUSolver::initializeFluxArrays() {
 
   /* Allocate memory for all flux arrays on the device */
   try {
-    int size = 2 * _tot_num_tracks * _polar_times_groups;
+    int size = 2 * _tot_num_tracks * _fluxes_per_track;
     _boundary_flux.resize(size);
     _start_flux.resize(size);
 
@@ -1361,6 +1377,20 @@ void GPUSolver::flattenFSRFluxes(FP_PRECISION value) {
   thrust::fill(_scalar_flux.begin(), _scalar_flux.end(), value);
 }
 
+/**
+ * @brief Set the scalar flux for each FSR to match the fission energy
+ *        distribution of the material called chi_spectrum_material.
+ */
+void GPUSolver::flattenFSRFluxesChiSpectrum() {
+    if (_dev_chi_spectrum_material == NULL)
+        log_printf(ERROR, "Chi spectrum material not set on GPU. If you set "
+                "it on the CPU, but still see this error, there's a problem.");
+
+    FP_PRECISION* scalar_flux = thrust::raw_pointer_cast(&_scalar_flux[0]);
+    flattenFSRFluxesChiSpectrumOnDevice<<<_B, _T>>>(_dev_chi_spectrum_material,
+                                                    scalar_flux);
+}
+
 
 /**
  * @brief Stores the FSR scalar fluxes in the old scalar flux array.
@@ -1370,12 +1400,19 @@ void GPUSolver::storeFSRFluxes() {
                _old_scalar_flux.begin());
 }
 
+void GPUSolver::computeStabilizingFlux() {
+    // TODO
+}
+
+void GPUSolver::stabilizeFlux() {
+    // TODO
+}
 
 /**
  * @brief Normalizes all FSR scalar fluxes and Track boundary angular
  *        fluxes to the total fission source (times \f$ \nu \f$).
  */
-void GPUSolver::normalizeFluxes() {
+double GPUSolver::normalizeFluxes() {
 
   /** Create Thrust vector of fission sources in each FSR */
   thrust::device_vector<FP_PRECISION> fission_sources_vec;
@@ -1414,6 +1451,8 @@ void GPUSolver::normalizeFluxes() {
 
   /* Clear Thrust vector of FSR fission sources */
   fission_sources_vec.clear();
+
+  return norm_factor;
 }
 
 
@@ -1422,7 +1461,7 @@ void GPUSolver::normalizeFluxes() {
  * @details This method computes the total source in each FSR based on
  *          this iteration's current approximation to the scalar flux.
  */
-void GPUSolver::computeFSRSources() {
+void GPUSolver::computeFSRSources(int iteration) {
 
   FP_PRECISION* scalar_flux =
        thrust::raw_pointer_cast(&_scalar_flux[0]);
@@ -1431,9 +1470,13 @@ void GPUSolver::computeFSRSources() {
   FP_PRECISION* reduced_sources =
        thrust::raw_pointer_cast(&_reduced_sources[0]);
 
+  // TODO need to add treatment of negative sources if iteration is under
+  // a certain number, as seen in CPUSolver.
+
   computeFSRSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
                                         scalar_flux, fixed_sources,
                                         reduced_sources, 1.0 / _k_eff);
+
 }
 
 
@@ -1480,7 +1523,7 @@ void GPUSolver::computeFSRScatterSources() {
  */
 void GPUSolver::transportSweep() {
 
-  int shared_mem = _T * _num_polar_2 * 2 * sizeof(FP_PRECISION);
+  int shared_mem = _T * _num_polar * sizeof(FP_PRECISION);
 
   log_printf(DEBUG, "Transport sweep on device with %d blocks and %d threads",
              _B, _T);
@@ -1500,7 +1543,7 @@ void GPUSolver::transportSweep() {
 
   /* Copy starting flux to current flux */
   cudaMemcpy((void*)boundary_flux, (void*)start_flux, 2 * _tot_num_tracks *
-             _polar_times_groups * sizeof(FP_PRECISION),
+             _fluxes_per_track * sizeof(FP_PRECISION),
              cudaMemcpyDeviceToDevice);
 
   /* Perform transport sweep on all tracks */

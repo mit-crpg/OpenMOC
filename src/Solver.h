@@ -492,7 +492,9 @@ public:
                          residualType res_type=FISSION_SOURCE);
   void computeInitialFluxGuess(bool is_source_computation=false);
 
+  #ifdef BGQ
   void printBGQMemory();
+  #endif
 
  /**
   * @brief Computes the volume-weighted, energy integrated fission rate in

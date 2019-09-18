@@ -181,8 +181,7 @@ class configuration:
                                '-qsmp=omp', '-qpic']
     compiler_flags['nvcc'] =  ['--relocatable-device-code', 'true',
                                '-c', '-O3',  '-std=c++11',
-                               '--compiler-options', '-fpic',
-                               '-arch=compute_20']
+                               '--compiler-options', '-fpic']
 
 
     ###########################################################################

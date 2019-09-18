@@ -38,7 +38,7 @@ public:
 };
 
 
-void clone_exp_evaluator(ExpEvaluator* evaluator_h,
+void clone_exp_evaluator(ExpEvaluator*** evaluators,
                          GPUExpEvaluator* evaluator_d);
 
 

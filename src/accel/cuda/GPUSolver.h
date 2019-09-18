@@ -82,6 +82,9 @@ private:
   /** A pointer to an array of the Materials on the device */
   dev_material* _materials;
 
+  /** Pointer to chi spectrum material, on device! */
+  dev_material* _dev_chi_spectrum_material;
+
   /** A pointer to the array of Tracks on the device */
   dev_track* _dev_tracks;
 
@@ -140,14 +143,17 @@ public:
 
   void zeroTrackFluxes();
   void flattenFSRFluxes(FP_PRECISION value);
+  void flattenFSRFluxesChiSpectrum();
   void storeFSRFluxes();
-  void normalizeFluxes();
-  void computeFSRSources();
+  void computeStabilizingFlux();
+  void stabilizeFlux();
+  void computeFSRSources(int iteration);
   void computeFSRFissionSources();
   void computeFSRScatterSources();
   void transportSweep();
   void addSourceToScalarFlux();
   void computeKeff();
+  double normalizeFluxes();
   double computeResidual(residualType res_type);
 
   void computeFSRFissionRates(double* fission_rates, int num_FSRs);

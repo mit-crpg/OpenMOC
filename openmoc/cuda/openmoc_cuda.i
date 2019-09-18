@@ -44,7 +44,7 @@
 
 #ifdef NO_NUMPY
 #else
-%include "../numpy_typemaps.i"
+%include "../swig/numpy_typemaps.i"
 #endif
 
 %include <exception.i>

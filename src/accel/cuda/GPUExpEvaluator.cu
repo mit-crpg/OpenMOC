@@ -26,8 +26,11 @@ extern __constant__ int num_polar[1];
  * @param eavluator_h pointer to a ExpEvaluator on the host
  * @param evaluator_d pointer to a GPUExpEvaluator on the GPU
  */
-void clone_exp_evaluator(ExpEvaluator* evaluator_h,
+void clone_exp_evaluator(ExpEvaluator*** evaluators,
                          GPUExpEvaluator* evaluator_d) {
+
+  // Maybe, maybe this will work TODO:
+  ExpEvaluator* evaluator_h = evaluators[0][0];
 
   /* Copy a boolean indicating whether or not to use the linear interpolation
    * table or the exp intrinsic function to constant memory on the device */
@@ -59,8 +62,6 @@ void clone_exp_evaluator(ExpEvaluator* evaluator_h,
     cudaMemcpy((void*)&evaluator_d->_exp_table, (void*)&exp_table_d,
                sizeof(FP_PRECISION*), cudaMemcpyHostToDevice);
   }
-
-  return;
 }
 
 
