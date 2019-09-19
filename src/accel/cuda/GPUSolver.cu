@@ -1223,6 +1223,7 @@ void GPUSolver::initializeMaterials(solverMode mode) {
     }
   }
   catch(std::exception &e) {
+    log_printf(DEBUG, e.what());
     log_printf(ERROR, "Could not allocate memory for Materials on GPU");
   }
 }
@@ -1268,6 +1269,7 @@ void GPUSolver::initializeTracks() {
   }
 
   catch(std::exception &e) {
+    log_printf(DEBUG, e.what());
     log_printf(ERROR, "Could not allocate memory for Tracks on GPU");
   }
 }
@@ -1290,7 +1292,7 @@ void GPUSolver::initializeFluxArrays() {
 
   /* Allocate memory for all flux arrays on the device */
   try {
-    int size = 2 * _tot_num_tracks * _fluxes_per_track;
+    long size = 2 * _tot_num_tracks * _fluxes_per_track;
     _boundary_flux.resize(size);
     _start_flux.resize(size);
 
@@ -1299,6 +1301,7 @@ void GPUSolver::initializeFluxArrays() {
     _old_scalar_flux.resize(size);
   }
   catch(std::exception &e) {
+    log_printf(DEBUG, e.what());
     log_printf(ERROR, "Could not allocate memory for fluxes on GPU");
   }
 }
@@ -1325,6 +1328,7 @@ void GPUSolver::initializeSourceArrays() {
     _fixed_sources.resize(size);
   }
   catch(std::exception &e) {
+    log_printf(DEBUG, e.what());
     log_printf(ERROR, "Could not allocate memory for sources on GPU");
   }
 
