@@ -56,11 +56,11 @@ struct dev_track {
 
   /** Index of the next Track when traveling along this Track in the "forward"
    * direction. */
-  int _track_in;
+  long _track_in;
 
   /** Index of the next Track when traveling along this Track in the "reverse"
    * direction. */
-  int _track_out;
+  long _track_out;
 
   /** A boolean to indicate whether to give the flux to the "forward" (false)
    *  or "reverse" (true) direction of the next Track going in the "forward"

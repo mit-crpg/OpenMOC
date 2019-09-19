@@ -1,22 +1,19 @@
 #include "GPUSolver.h"
 
-/** The number of azimuthal angles */
-__constant__ int num_azim[1];
+/** The number of FSRs */
+__constant__ long num_FSRs;
 
 /** The number of energy groups */
-__constant__ int num_groups[1];
-
-/** The number of FSRs */
-__constant__ int num_FSRs[1];
+__constant__ int num_groups;
 
 /** The number of polar angles */
-__constant__ int num_polar[1];
+__constant__ int num_polar;
 
 /** Half the number of polar angles */
-__constant__ int num_polar_2[1];
+__constant__ int num_polar_2;
 
 /** The number of polar angles times energy groups */
-__constant__ int polar_times_groups[1];
+__constant__ int polar_times_groups;
 
 /** An array for the sines of the polar angle in the Quadrature set */
 __constant__ FP_PRECISION sin_thetas[MAX_POLAR_ANGLES_GPU];
@@ -25,7 +22,7 @@ __constant__ FP_PRECISION sin_thetas[MAX_POLAR_ANGLES_GPU];
 __constant__ FP_PRECISION weights[MAX_POLAR_ANGLES_GPU*MAX_AZIM_ANGLES_GPU];
 
 /** The total number of Tracks */
-__constant__ int tot_num_tracks[1];
+__constant__ long tot_num_tracks;
 
 /** An GPUExpEvaluator object to compute exponentials */
 __constant__ GPUExpEvaluator exp_evaluator;
@@ -203,7 +200,7 @@ __global__ void computeFissionSourcesOnDevice(FP_PRECISION* FSR_volumes,
   shared_fission_source[threadIdx.x] = 0;
 
   /* Iterate over all FSRs */
-  while (tid < *num_FSRs) {
+  while (tid < num_FSRs) {
 
     curr_material = &materials[FSR_materials[tid]];
     nu_sigma_f = curr_material->_nu_sigma_f;
@@ -211,7 +208,7 @@ __global__ void computeFissionSourcesOnDevice(FP_PRECISION* FSR_volumes,
 
     /* Iterate over energy groups and update fission source for
      * this thread block */
-    for (int e=0; e < *num_groups; e++) {
+    for (int e=0; e < num_groups; e++) {
       source = nu_sigma_f[e] * scalar_flux(tid,e) * volume;
       shared_fission_source[threadIdx.x] += source;
     }
@@ -255,7 +252,7 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
   FP_PRECISION* fiss_mat;
 
   /* Iterate over all FSRs */
-  while (tid < *num_FSRs) {
+  while (tid < num_FSRs) {
 
     curr_material = &materials[FSR_materials[tid]];
 
@@ -264,13 +261,13 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
     fiss_mat = curr_material->_fiss_matrix;
 
     /* Compute scatter + fission source for group g */
-    for (int g=0; g < *num_groups; g++) {
+    for (int g=0; g < num_groups; g++) {
       scatter_source = 0;
       fission_source = 0;
 
-      for (int g_prime=0; g_prime < *num_groups; g_prime++) {
-        scatter_source += sigma_s[g*(*num_groups)+g_prime] * scalar_flux(tid,g_prime);
-        fission_source += fiss_mat[g*(*num_groups)+g_prime] * scalar_flux(tid,g_prime);
+      for (int g_prime=0; g_prime < num_groups; g_prime++) {
+        scatter_source += sigma_s[g*num_groups+g_prime] * scalar_flux(tid,g_prime);
+        fission_source += fiss_mat[g*num_groups+g_prime] * scalar_flux(tid,g_prime);
       }
 
       fission_source *= inverse_k_eff;
@@ -315,7 +312,7 @@ __global__ void computeFSRFissionSourcesOnDevice(int* FSR_materials,
   FP_PRECISION* fiss_mat;
 
   /* Iterate over all FSRs */
-  while (tid < *num_FSRs) {
+  while (tid < num_FSRs) {
 
     curr_material = &materials[FSR_materials[tid]];
 
@@ -323,11 +320,11 @@ __global__ void computeFSRFissionSourcesOnDevice(int* FSR_materials,
     fiss_mat = curr_material->_fiss_matrix;
 
     /* Compute fission source for group g */
-    for (int g=0; g < *num_groups; g++) {
+    for (int g=0; g < num_groups; g++) {
       fission_source = 0;
 
-      for (int g_prime=0; g_prime < *num_groups; g_prime++)
-        fission_source += fiss_mat[g*(*num_groups)+g_prime] * scalar_flux(tid,g_prime);
+      for (int g_prime=0; g_prime < num_groups; g_prime++)
+        fission_source += fiss_mat[g*num_groups+g_prime] * scalar_flux(tid,g_prime);
 
       /* Set the reduced fission source for FSR tid in group g */
       reduced_sources(tid,g) = fission_source;
@@ -369,7 +366,7 @@ __global__ void computeFSRScatterSourcesOnDevice(int* FSR_materials,
   FP_PRECISION* sigma_t;
 
   /* Iterate over all FSRs */
-  while (tid < *num_FSRs) {
+  while (tid < num_FSRs) {
 
     curr_material = &materials[FSR_materials[tid]];
 
@@ -377,11 +374,11 @@ __global__ void computeFSRScatterSourcesOnDevice(int* FSR_materials,
     sigma_t = curr_material->_sigma_t;
 
     /* Compute total scattering source for this FSR in group g */
-    for (int g=0; g < *num_groups; g++) {
+    for (int g=0; g < num_groups; g++) {
       scatter_source = 0;
 
-      for (int g_prime=0; g_prime < *num_groups; g_prime++)
-        scatter_source += sigma_s[g*(*num_groups)+g_prime] * scalar_flux(tid,g_prime);
+      for (int g_prime=0; g_prime < num_groups; g_prime++)
+        scatter_source += sigma_s[g*num_groups+g_prime] * scalar_flux(tid,g_prime);
 
       /* Set the reduced scatter source for FSR tid in group g */
       reduced_sources(tid,g) = scatter_source;
@@ -409,8 +406,8 @@ __global__ void flattenFSRFluxesChiSpectrumOnDevice(dev_material* chi_material,
      ~same~ time. */
 
   int tid = threadIdx.x + blockIdx.x * blockDim.x;
-  while (tid < *num_FSRs) {
-    for (int g=0; g < *num_groups; g++) {
+  while (tid < num_FSRs) {
+    for (int g=0; g < num_groups; g++) {
       scalar_flux(tid,g) = chi_material->_chi[g];
     }
     tid += blockDim.x * gridDim.x;
@@ -440,7 +437,7 @@ __device__ void tallyScalarFlux(dev_segment* curr_segment,
                                 FP_PRECISION* reduced_sources,
                                 FP_PRECISION* scalar_flux) {
 
-  int fsr_id = curr_segment->_region_uid;
+  long fsr_id = curr_segment->_region_uid;
   FP_PRECISION length = curr_segment->_length;
   dev_material* curr_material = &materials[curr_segment->_material_index];
   FP_PRECISION* sigma_t = curr_material->_sigma_t;
@@ -453,7 +450,7 @@ __device__ void tallyScalarFlux(dev_segment* curr_segment,
   FP_PRECISION fsr_flux = 0.0;
 
   /* Loop over polar angles */
-  for (int p=0; p < *num_polar_2; p++) {
+  for (int p=0; p < num_polar_2; p++) {
     exponential =
       exp_evaluator.computeExponential(sigma_t[energy_group] * length, p);
     delta_psi = (track_flux[p] - reduced_sources(fsr_id,energy_group));
@@ -497,20 +494,20 @@ __device__ void transferBoundaryFlux(dev_track* curr_track,
   if (direction) {
     transfer_flux = curr_track->_transfer_flux_out;
     track_out_id = curr_track->_track_out;
-    start += curr_track->_next_out * (*polar_times_groups);
+    start += curr_track->_next_out * polar_times_groups;
   }
 
   /* For the "reverse" direction */
   else {
     transfer_flux = curr_track->_transfer_flux_in;
     track_out_id = curr_track->_track_in;
-    start += curr_track->_next_in * (*polar_times_groups);
+    start += curr_track->_next_in * polar_times_groups;
   }
 
   FP_PRECISION* track_out_flux = &boundary_flux(track_out_id,start);
 
   /* Put Track's flux in the shared memory temporary flux array */
-  for (int p=0; p < *num_polar_2; p++)
+  for (int p=0; p < num_polar_2; p++)
     track_out_flux[p] = track_flux[p] * transfer_flux;
 }
 
@@ -536,18 +533,18 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
                                        FP_PRECISION* reduced_sources,
                                        dev_material* materials,
                                        dev_track* tracks,
-                                       int tid_offset,
-                                       int tid_max) {
+                                       long tid_offset,
+                                       long tid_max) {
 
   /* Shared memory buffer for each thread's angular flux */
   extern __shared__ FP_PRECISION temp_flux[];
   FP_PRECISION* track_flux;
 
   int tid = tid_offset + threadIdx.x + blockIdx.x * blockDim.x;
-  int track_id = tid / *num_groups;
-  int track_flux_index = threadIdx.x * (*num_polar);
-  int energy_group = tid % (*num_groups);
-  int energy_angle_index = energy_group * (*num_polar_2);
+  int track_id = tid / num_groups;
+  int track_flux_index = threadIdx.x * num_polar;
+  int energy_group = tid % num_groups;
+  int energy_angle_index = energy_group * num_polar_2;
 
   dev_track* curr_track;
   int azim_index;
@@ -556,6 +553,8 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 
   /* Iterate over Track with azimuthal angles in (0, pi/2) */
   while (track_id < tid_max) {
+
+    printf("Track id: %i\n", track_id);
 
     /* Initialize local registers with important data */
     curr_track = &tracks[track_id];
@@ -566,14 +565,14 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
     track_flux = &temp_flux[track_flux_index];
 
     /* Put Track's flux in the shared memory temporary flux array */
-    for (int p=0; p < *num_polar_2; p++) {
+    for (int p=0; p < num_polar_2; p++) {
 
       /* Forward flux along this Track */
       track_flux[p] = boundary_flux(track_id,p+energy_angle_index);
 
       /* Reverse flux along this Track */
-      track_flux[(*num_polar_2) + p] =
-            boundary_flux(track_id,p+energy_angle_index+(*polar_times_groups));
+      track_flux[(num_polar_2) + p] =
+            boundary_flux(track_id,p+energy_angle_index+polar_times_groups);
     }
 
     /* Loop over each Track segment in forward direction */
@@ -588,7 +587,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
                          energy_angle_index, true);
 
     /* Loop over each Track segment in reverse direction */
-    track_flux = &temp_flux[track_flux_index + (*num_polar_2)];
+    track_flux = &temp_flux[track_flux_index + (num_polar_2)];
 
     for (int i=num_segments-1; i > -1; i--) {
       curr_segment = &curr_track->_segments[i];
@@ -602,9 +601,9 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 
     /* Update the indices for this thread to the next Track, energy group */
     tid += blockDim.x * gridDim.x;
-    track_id = tid / *num_groups;
-    energy_group = tid % (*num_groups);
-    energy_angle_index = energy_group * (*num_polar_2);
+    track_id = tid / num_groups;
+    energy_group = tid % num_groups;
+    energy_angle_index = energy_group * (num_polar_2);
   }
 }
 
@@ -631,14 +630,14 @@ __global__ void addSourceToScalarFluxOnDevice(FP_PRECISION* scalar_flux,
   FP_PRECISION* sigma_t;
 
   /* Iterate over all FSRs */
-  while (tid < *num_FSRs) {
+  while (tid < num_FSRs) {
 
     curr_material = &materials[FSR_materials[tid]];
     volume = FSR_volumes[tid];
     sigma_t = curr_material->_sigma_t;
 
     /* Iterate over all energy groups */
-    for (int i=0; i < *num_groups; i++) {
+    for (int i=0; i < num_groups; i++) {
       scalar_flux(tid,i) = __fdividef(scalar_flux(tid,i),
                                      (sigma_t[i] * volume));
       scalar_flux(tid,i) += FOUR_PI * reduced_sources(tid,i);
@@ -663,28 +662,36 @@ __global__ void computeFSRFissionRatesOnDevice(FP_PRECISION* FSR_volumes,
                                                int* FSR_materials,
                                                dev_material* materials,
                                                FP_PRECISION* scalar_flux,
-                                               FP_PRECISION* fission) {
+                                               FP_PRECISION* fission,
+                                               bool nu = false) {
 
   int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
   dev_material* curr_material;
-  FP_PRECISION* nu_sigma_f;
+  FP_PRECISION* fiss_xs;
   FP_PRECISION volume;
 
   FP_PRECISION fiss = 0.;
 
   /* Iterate over all FSRs */
-  while (tid < *num_FSRs) {
+  while (tid < num_FSRs) {
 
     curr_material = &materials[FSR_materials[tid]];
-    nu_sigma_f = curr_material->_nu_sigma_f;
+
+    if (nu) {
+      fiss_xs = curr_material->_nu_sigma_f;
+    }
+    else {
+      fiss_xs = curr_material->_sigma_f;
+    }
+
     volume = FSR_volumes[tid];
 
     FP_PRECISION curr_fiss = 0.;
 
     /* Compute fission rates rates for this thread block */
-    for (int e=0; e < *num_groups; e++)
-      curr_fiss += nu_sigma_f[e] * scalar_flux(tid,e);
+    for (int e=0; e < num_groups; e++)
+      curr_fiss += fiss_xs[e] * scalar_flux(tid,e);
 
     fiss += curr_fiss * volume;
 
@@ -786,7 +793,7 @@ int GPUSolver::getNumThreadsPerBlock() {
  * @param group the energy group of interest
  * @return the flat source region source
  */
-FP_PRECISION GPUSolver::getFSRSource(int fsr_id, int group) {
+double GPUSolver::getFSRSource(long fsr_id, int group) {
 
   if (fsr_id >= _num_FSRs)
     log_printf(ERROR, "Unable to return a source for FSR ID = %d "
@@ -857,7 +864,7 @@ FP_PRECISION GPUSolver::getFSRSource(int fsr_id, int group) {
  * @param group the energy group of interest
  * @return the FSR scalar flux
  */
-FP_PRECISION GPUSolver::getFlux(int fsr_id, int group) {
+double GPUSolver::getFlux(long fsr_id, int group) {
 
   if (fsr_id >= _num_FSRs)
     log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
@@ -1084,7 +1091,7 @@ void GPUSolver::copyQuadrature() {
 /**
  * @brief Initializes new GPUExpEvaluator object to compute exponentials.
  */
-void GPUSolver::initializeExpEvaluator() {
+void GPUSolver::initializeExpEvaluators() {
 
   Solver::initializeExpEvaluators();
 
@@ -1153,7 +1160,7 @@ void GPUSolver::initializeFSRs() {
       _num_FSRs * sizeof(int), cudaMemcpyHostToDevice);
 
     /* Copy the number of FSRs into constant memory on the GPU */
-    cudaMemcpyToSymbol(num_FSRs, (void*)&_num_FSRs, sizeof(int), 0,
+    cudaMemcpyToSymbol(num_FSRs, (void*)&_num_FSRs, sizeof(long), 0,
       cudaMemcpyHostToDevice);
 
     /* Free the array of FSRs data allocated by the Solver parent class */
@@ -1163,6 +1170,7 @@ void GPUSolver::initializeFSRs() {
     free(FSRs_to_material_indices);
   }
   catch(std::exception &e) {
+    log_printf(DEBUG, e.what());
     log_printf(ERROR, "Could not allocate memory for FSRs on GPU");
   }
 }
@@ -1185,6 +1193,8 @@ void GPUSolver::initializeMaterials(solverMode mode) {
   log_printf(INFO, "Initializing materials on the GPU...");
 
   /* Copy the number of energy groups to constant memory on the GPU */
+  printf("LOOK HERE <----------------------------\n");
+  printf("num groups on host = %i\n", _num_groups);
   cudaMemcpyToSymbol(num_groups, (void*)&_num_groups, sizeof(int), 0,
                      cudaMemcpyHostToDevice);
 
@@ -1243,18 +1253,18 @@ void GPUSolver::initializeTracks() {
       clone_track(_tracks[i], &_dev_tracks[i], _material_IDs_to_indices);
 
       /* Get indices to next tracks along "forward" and "reverse" directions */
-      index = _tracks[i]->getTrackNextBwd();
+      index = _tracks[i]->getTrackNextFwd();
       cudaMemcpy((void*)&_dev_tracks[i]._track_in,
                  (void*)&index, sizeof(int), cudaMemcpyHostToDevice);
 
-      index = _tracks[i]->getTrackNextFwd();
+      index = _tracks[i]->getTrackNextBwd();
       cudaMemcpy((void*)&_dev_tracks[i]._track_out,
                  (void*)&index, sizeof(int), cudaMemcpyHostToDevice);
     }
 
     /* Copy the total number of Tracks into constant memory on GPU */
     cudaMemcpyToSymbol(tot_num_tracks, (void*)&_tot_num_tracks,
-                       sizeof(int), 0, cudaMemcpyHostToDevice);
+                       sizeof(long), 0, cudaMemcpyHostToDevice);
   }
 
   catch(std::exception &e) {
@@ -1333,7 +1343,7 @@ void GPUSolver::initializeFixedSources() {
 
   Solver::initializeFixedSources();
 
-  int fsr_id, group;
+  long fsr_id, group;
   std::pair<int, int> fsr_group_key;
   std::map< std::pair<int, int>, FP_PRECISION >::iterator fsr_iter;
 
@@ -1476,7 +1486,6 @@ void GPUSolver::computeFSRSources(int iteration) {
   computeFSRSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
                                         scalar_flux, fixed_sources,
                                         reduced_sources, 1.0 / _k_eff);
-
 }
 
 
@@ -1486,6 +1495,8 @@ void GPUSolver::computeFSRSources(int iteration) {
  *          this iteration's current approximation to the scalar flux.
  */
 void GPUSolver::computeFSRFissionSources() {
+
+  printf("compute FSR fission sources\n");
 
   FP_PRECISION* scalar_flux =
        thrust::raw_pointer_cast(&_scalar_flux[0]);
@@ -1503,6 +1514,8 @@ void GPUSolver::computeFSRFissionSources() {
  *          this iteration's current approximation to the scalar flux.
  */
 void GPUSolver::computeFSRScatterSources() {
+
+  printf("compute fsr scatter sources\n");
 
   FP_PRECISION* scalar_flux =
        thrust::raw_pointer_cast(&_scalar_flux[0]);
@@ -1538,13 +1551,19 @@ void GPUSolver::transportSweep() {
   FP_PRECISION* reduced_sources =
        thrust::raw_pointer_cast(&_reduced_sources[0]);
 
+  log_printf(DEBUG, "Obtained device pointers to thrust vectors.\n");
+
   /* Initialize flux in each FSR to zero */
   flattenFSRFluxes(0.0);
+
+  log_printf(DEBUG, "Flattened FSR fluxes.");
 
   /* Copy starting flux to current flux */
   cudaMemcpy((void*)boundary_flux, (void*)start_flux, 2 * _tot_num_tracks *
              _fluxes_per_track * sizeof(FP_PRECISION),
              cudaMemcpyDeviceToDevice);
+
+  log_printf(DEBUG, "Copied host to device flux.");
 
   /* Perform transport sweep on all tracks */
   transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
@@ -1552,6 +1571,7 @@ void GPUSolver::transportSweep() {
                                                  _materials, _dev_tracks,
                                                  0, _tot_num_tracks);
   cudaDeviceSynchronize();
+  log_printf(DEBUG, "Finished sweep on GPU.\n");
 }
 
 
@@ -1582,6 +1602,7 @@ void GPUSolver::addSourceToScalarFlux() {
  *                        \Sigma^S_g \Phi V_{i} - L_{i,g})} \f$
  */
 void GPUSolver::computeKeff() {
+
 
   FP_PRECISION fission;
 
@@ -1876,7 +1897,6 @@ double GPUSolver::computeResidual(residualType res_type) {
  */
 void GPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs, bool nu) {
 
-  /* TODO what the heck is nu for? */
   log_printf(INFO, "Computing FSR fission rates...");
 
   /* Allocate memory for the FSR nu-fission rates on the device and host */
@@ -1890,7 +1910,7 @@ void GPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs, boo
   /* Compute the FSR nu-fission rates on the device */
   computeFSRFissionRatesOnDevice<<<_B, _T>>>(_FSR_volumes, _FSR_materials,
                                              _materials, scalar_flux,
-                                             dev_fission_rates);
+                                             dev_fission_rates, nu);
 
   /* Copy the nu-fission rate array from the device to the host */
   cudaMemcpy((void*)host_fission_rates, (void*)dev_fission_rates,
