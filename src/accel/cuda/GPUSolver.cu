@@ -77,12 +77,24 @@ struct isnan_test {
   }
 };
 
+/**
+ * @brief Clears a thrust::device_vector from memory, and ensures
+ *        that memory becomes freed.
+ * https://stackoverflow.com/questions/11113899/how-to-free-device-vectorint
+ * @param x any thrust vector to free the memory of
+ */
+template <typename T>
+void freeThrustVector(thrust::device_vector<T> x) {
+  x.clear();
+  x.shrink_to_fit();
+}
+
 
 /**
  * @brief A functor to multiply all elements in a Thrust vector by a constant.
  * @param constant the constant to multiply the vector
  */
-template< typename T >
+template <typename T>
 struct multiplyByConstant {
 
 public:
@@ -759,12 +771,12 @@ GPUSolver::~GPUSolver() {
   }
 
   /* Clear Thrust vectors's memory on the device */
-  _boundary_flux.clear();
-  _start_flux.clear();
-  _scalar_flux.clear();
-  _old_scalar_flux.clear();
-  _fixed_sources.clear();
-  _reduced_sources.clear();
+  freeThrustVector(_boundary_flux);
+  freeThrustVector(_start_flux);
+  freeThrustVector(_scalar_flux);
+  freeThrustVector(_old_scalar_flux);
+  freeThrustVector(_fixed_sources);
+  freeThrustVector(_reduced_sources);
 }
 
 
@@ -1107,6 +1119,14 @@ void GPUSolver::initializeExpEvaluators() {
   /* Copy the GPUExpEvaluator into constant memory on the GPU */
   cudaMemcpyToSymbol(exp_evaluator, (void*)dev_exp_evaluator,
                      sizeof(GPUExpEvaluator), 0, cudaMemcpyDeviceToDevice);
+
+}
+
+
+/**
+ * @brief Explicitly disallow construction of CMFD, for now.
+ */
+void GPUSolver::initializeCmfd() {
 }
 
 
@@ -1193,8 +1213,6 @@ void GPUSolver::initializeMaterials(solverMode mode) {
   log_printf(INFO, "Initializing materials on the GPU...");
 
   /* Copy the number of energy groups to constant memory on the GPU */
-  printf("LOOK HERE <----------------------------\n");
-  printf("num groups on host = %i\n", _num_groups);
   cudaMemcpyToSymbol(num_groups, (void*)&_num_groups, sizeof(int), 0,
                      cudaMemcpyHostToDevice);
 
@@ -1285,10 +1303,15 @@ void GPUSolver::initializeFluxArrays() {
   log_printf(INFO, "Initializing flux vectors on the GPU...");
 
   /* Clear Thrust vectors' memory if previously allocated */
-  _boundary_flux.clear();
-  _start_flux.clear();
-  _scalar_flux.clear();
-  _old_scalar_flux.clear();
+  /* https://stackoverflow.com/questions/11113899/how-to-free-device-vectorint */
+  if (_boundary_flux.size() > 0)
+    freeThrustVector(_boundary_flux);
+  if (_start_flux.size() > 0)
+    freeThrustVector(_start_flux);
+  if (_scalar_flux.size() > 0)
+    freeThrustVector(_scalar_flux);
+  if (_old_scalar_flux.size() > 0)
+    freeThrustVector(_old_scalar_flux);
 
   /* Allocate memory for all flux arrays on the device */
   try {
@@ -1317,8 +1340,8 @@ void GPUSolver::initializeSourceArrays() {
   log_printf(INFO, "Initializing source vectors on the GPU...");
 
   /* Clear Thrust vectors' memory if previously allocated */
-  _reduced_sources.clear();
-  _fixed_sources.clear();
+  freeThrustVector(_reduced_sources);
+  freeThrustVector(_fixed_sources);
 
   int size = _num_FSRs * _num_groups;
 
@@ -1464,7 +1487,7 @@ double GPUSolver::normalizeFluxes() {
                     _start_flux.begin(), thrust::multiplies<FP_PRECISION>());
 
   /* Clear Thrust vector of FSR fission sources */
-  fission_sources_vec.clear();
+  freeThrustVector(fission_sources_vec);
 
   return norm_factor;
 }
@@ -1627,7 +1650,7 @@ void GPUSolver::computeKeff() {
 
   _k_eff *= fission;
 
-  fission_vec.clear();
+  freeThrustVector(fission_vec);
 }
 
 
@@ -1691,9 +1714,9 @@ double GPUSolver::computeResidual(residualType res_type) {
     residual = thrust::reduce(residuals.begin(), residuals.end());
 
     /* Deallocate memory for Thrust vectors */
-    fp_residuals.clear();
-    FSR_fp_residuals.clear();
-    residuals.clear();
+    freeThrustVector(fp_residuals);
+    freeThrustVector(FSR_fp_residuals);
+    freeThrustVector(residuals);
 
     /* Normalize the residual */
     residual = sqrt(residual / norm);
@@ -1758,10 +1781,10 @@ double GPUSolver::computeResidual(residualType res_type) {
                       thrust::divides<FP_PRECISION>());
 
     /* Deallocate memory for Thrust vectors */
-    old_fission_sources_vec.clear();
-    new_fission_sources_vec.clear();
-    FSR_old_fiss_src.clear();
-    FSR_new_fiss_src.clear();
+    freeThrustVector(old_fission_sources_vec);
+    freeThrustVector(new_fission_sources_vec);
+    freeThrustVector(FSR_old_fiss_src);
+    freeThrustVector(FSR_new_fiss_src);
   }
 
   else if (res_type == TOTAL_SOURCE) {
@@ -1855,10 +1878,10 @@ double GPUSolver::computeResidual(residualType res_type) {
                       thrust::divides<FP_PRECISION>());
 
     /* Deallocate memory for Thrust vectors */
-    old_sources_vec.clear();
-    new_sources_vec.clear();
-    FSR_old_src.clear();
-    FSR_new_src.clear();
+    freeThrustVector(old_sources_vec);
+    freeThrustVector(new_sources_vec);
+    freeThrustVector(FSR_old_src);
+    freeThrustVector(FSR_new_src);
   }
 
   /* Replace INF and NaN values (from divide by zero) with 0. */
@@ -1874,7 +1897,7 @@ double GPUSolver::computeResidual(residualType res_type) {
   residual = thrust::reduce(residuals.begin(), residuals.end());
 
   /* Deallocate memory for residuals vector */
-  residuals.clear();
+  freeThrustVector(residuals);
 
   /* Normalize the residual */
   residual = sqrt(residual / norm);

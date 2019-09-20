@@ -30,7 +30,6 @@
 #include <thrust/iterator/counting_iterator.h>
 #include <thrust/iterator/transform_iterator.h>
 #include <thrust/iterator/permutation_iterator.h>
-#include <sm_20_atomic_functions.h>
 #include "clone.h"
 #include "GPUExpEvaluator.h"
 
@@ -140,6 +139,7 @@ public:
   void initializeFluxArrays() override;
   void initializeSourceArrays() override;
   void initializeFixedSources() override;
+  void initializeCmfd() override;
 
   void zeroTrackFluxes();
   void flattenFSRFluxes(FP_PRECISION value);
