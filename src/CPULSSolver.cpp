@@ -805,6 +805,10 @@ void CPULSSolver::addSourceToScalarFlux() {
         if (_scalar_flux(r, e) < 0.0 && !_negative_fluxes_allowed) {
 #pragma omp atomic update
           num_negative_fluxes++;
+          _scalar_flux(r,e) = 0;
+          _scalar_flux_xyz(r,e,0) = 0;
+          _scalar_flux_xyz(r,e,1) = 0;
+          _scalar_flux_xyz(r,e,2) = 0;
         }
       }
     }

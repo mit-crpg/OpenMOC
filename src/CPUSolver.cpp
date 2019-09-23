@@ -1059,6 +1059,7 @@ void CPUSolver::transferAllInterfaceFluxes() {
 #ifdef ONLYVACUUMBC
     /* Check if any rank needs to send buffers : because of the pre-filling
        some nodes might have sent all their fluxes before others */
+    _timer->startTimer();
     int need_to_send = 0;
     for (int i=0; i < num_domains; i++) {
 
@@ -1075,6 +1076,8 @@ void CPUSolver::transferAllInterfaceFluxes() {
     if (round_counter % 20 == 0)
       log_printf(INFO_ONCE, "Communication round %d : %d domains sending track"
                  " fluxes.", round_counter, num_send_domains);
+    _timer->stopTimer();
+    _timer->recordSplit("Transfer synchronization time");
 #endif
 
     /* Set size of received messages, adjust buffer if needed */
@@ -1148,8 +1151,11 @@ void CPUSolver::transferAllInterfaceFluxes() {
 
     /* Block for communication round to complete */
     MPI_Waitall(2 * num_domains, _MPI_requests, MPI_STATUSES_IGNORE);
+    _timer->stopTimer();
+    _timer->recordSplit("Communication time");
 
     /* Reset status for next communication round and copy fluxes */
+    _timer->startTimer();
     for (int i=0; i < num_domains; i++) {
 
       /* Reset send */
@@ -1242,8 +1248,9 @@ void CPUSolver::transferAllInterfaceFluxes() {
       /* Reset receive */
       _MPI_receives[i] = false;
     }
+
     _timer->stopTimer();
-    _timer->recordSplit("Communication time");
+    _timer->recordSplit("Unpacking time");
   }
 
 #ifdef ONLYVACUUMBC

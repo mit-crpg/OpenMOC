@@ -688,7 +688,7 @@ void Geometry::useSymmetry(bool X_symmetry, bool Y_symmetry, bool Z_symmetry) {
 #ifdef ONLYVACUUMBC
   if (X_symmetry || Y_symmetry || Z_symmetry)
     log_printf(ERROR, "Using symmetries requires reflective boundary conditions"
-               ", re-compile without the ONLYVACUUMBC flag.")
+               ", re-compile without the ONLYVACUUMBC flag.");
 #endif
 
   // Keep track of symmetries used
