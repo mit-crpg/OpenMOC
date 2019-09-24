@@ -560,6 +560,11 @@ void CPUSolver::setupMPIBuffers() {
     _send_buffers.resize(num_domains);
     _receive_buffers.resize(num_domains);
     for (int i=0; i < num_domains; i++) {
+#ifdef ONLYVACUUMBC
+      /* Increase capacity because buffers will overflow and need a resize */
+      _send_buffers.at(i).reserve(3*message_length);
+      _receive_buffers.at(i).reserve(3*message_length);
+#endif
       _send_buffers.at(i).resize(message_length);
       _receive_buffers.at(i).resize(message_length);
     }
@@ -1221,9 +1226,10 @@ void CPUSolver::transferAllInterfaceFluxes() {
                   if (buffer_index >= _send_buffers.at(i_next).size()) {
                     log_printf(WARNING, "MPI angular flux communication buffer"
                                " from rank %d to %d overflowed. Buffer memory "
-                               "doubled dynamically.", rank, send_domain);
+                               "increased dynamically.", rank, send_domain);
                     _send_buffers.at(i_next).resize(_send_buffers.at(
-                          i_next).size() * 2);
+                          i_next).size() + TRACKS_PER_BUFFER *
+                          _track_message_size);
                   }
 
                   /* Copy flux, direction and next track in send_buffer */
