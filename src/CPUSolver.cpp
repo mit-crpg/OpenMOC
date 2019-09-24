@@ -1026,7 +1026,7 @@ void CPUSolver::transferAllInterfaceFluxes() {
   MPI_Comm MPI_cart = _geometry->getMPICart();
   MPI_Status stat;
 
-  /* Wait for all MPI Ranks to be done with communication */
+  /* Wait for all MPI Ranks to be done with sweeping */
   _timer->startTimer();
   MPI_Barrier(MPI_cart);
   _timer->stopTimer();
@@ -1034,6 +1034,10 @@ void CPUSolver::transferAllInterfaceFluxes() {
 
   /* Initialize timer for total transfer cost */
   _timer->startTimer();
+
+  /* Get rank of each process */
+  int rank;
+  MPI_Comm_rank(MPI_cart, &rank);
 
   /* Create bookkeeping vectors */
   std::vector<long> packing_indexes;
@@ -1047,8 +1051,6 @@ void CPUSolver::transferAllInterfaceFluxes() {
   while (true) {
 
     round_counter++;
-    int rank;
-    MPI_Comm_rank(MPI_cart, &rank);
 
     /* Pack buffers with angular flux data */
     _timer->startTimer();
@@ -1122,16 +1124,24 @@ void CPUSolver::transferAllInterfaceFluxes() {
 #endif
 
         /* Send outgoing flux */
-        MPI_Isend(&_send_buffers.at(i)[0], _track_message_size *
-                  _send_size.at(i), MPI_FLOAT, domain, 0, MPI_cart,
-                  &_MPI_requests[i*2]);
-        _MPI_sends[i] = true;
+        if (_send_size.at(i) > 0) {
+          MPI_Isend(&_send_buffers.at(i)[0], _track_message_size *
+                    _send_size.at(i), MPI_FLOAT, domain, 0, MPI_cart,
+                    &_MPI_requests[i*2]);
+          _MPI_sends[i] = true;
+        }
+        else
+          _MPI_requests[i*2] = MPI_REQUEST_NULL;
 
         /* Receive incoming flux */
-        MPI_Irecv(&_receive_buffers.at(i)[0], _track_message_size *
-                  _receive_size.at(i), MPI_FLOAT, domain, 0, MPI_cart,
-                  &_MPI_requests[i*2+1]);
-        _MPI_receives[i] = true;
+        if (_receive_size.at(i) > 0) {
+          MPI_Irecv(&_receive_buffers.at(i)[0], _track_message_size *
+                    _receive_size.at(i), MPI_FLOAT, domain, 0, MPI_cart,
+                    &_MPI_requests[i*2+1]);
+          _MPI_receives[i] = true;
+        }
+        else
+          _MPI_requests[i*2+1] = MPI_REQUEST_NULL;
 
         /* Mark communication as ongoing */
         communication_complete = false;
