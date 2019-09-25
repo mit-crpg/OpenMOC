@@ -127,6 +127,7 @@ protected:
   void packBuffers(std::vector<long> &packing_indexes);
   void transferAllInterfaceFluxes();
   void printCycle(long track_start, int domain_start, int length);
+  void printLoadBalancingReport();
   void boundaryFluxChecker();
 #endif
 #ifdef ONLYVACUUMBC
@@ -154,7 +155,7 @@ public:
   void setNumThreads(int num_threads);
   void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes);
   void setFixedSourceByFSR(long fsr_id, int group, FP_PRECISION source);
-  void computeFSRFissionRates(double* fission_rates, long num_FSRs, 
+  void computeFSRFissionRates(double* fission_rates, long num_FSRs,
                               bool nu = false);
   void printInputParamsSummary();
 

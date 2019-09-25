@@ -539,7 +539,7 @@ void CPUSolver::setupMPIBuffers() {
               _neighbor_domains.push_back(domain);
               idx++;
 
-              /* Inititalize vector of starting indexes into send_buffers */
+              /* Inititalize vector that shows how filled send_buffers are */
               _send_buffers_index.push_back(0);
             }
           }
@@ -713,6 +713,7 @@ void CPUSolver::setupMPIBuffers() {
         delete track;
     }
 
+    printLoadBalancingReport();
     log_printf(NORMAL, "Finished setting up MPI buffers...");
 
     /* Setup MPI communication bookkeeping */
@@ -2749,6 +2750,55 @@ void CPUSolver::printInputParamsSummary() {
   /* Print threads used */
   log_printf(NORMAL, "Using %d threads", _num_threads);
 }
+
+
+#ifdef MPIx
+/**
+ * @brief A function that prints the repartition of integrations and tracks
+ *        among domains and interfaces.
+ */
+void CPUSolver::printLoadBalancingReport() {
+
+  /* Give a measure of the load imbalance for the sweep step (segments) */
+  int num_ranks = 1;
+  long num_segments = _track_generator->getNumSegments();
+  long min_segments = num_segments, max_segments = num_segments,
+       total_segments = num_segments;
+  if (_geometry->isDomainDecomposed()) {
+    MPI_Comm_size(_geometry->getMPICart(), &num_ranks);
+    MPI_Reduce(&num_segments, &min_segments, 1, MPI_LONG, MPI_MIN, 0,
+               _geometry->getMPICart());
+    MPI_Reduce(&num_segments, &max_segments, 1, MPI_LONG, MPI_MAX, 0,
+               _geometry->getMPICart());
+    MPI_Reduce(&num_segments, &total_segments, 1, MPI_LONG, MPI_SUM, 0,
+               _geometry->getMPICart());
+  }
+  FP_PRECISION mean_segments = float(total_segments) / num_ranks;
+  log_printf(INFO_ONCE, "Min / max / mean number of segments in domains: "
+             "%.1e / %.1e / %.1e", float(min_segments), float(max_segments),
+             mean_segments);
+
+  /* Give a measure of load imbalance for the communication phase */
+  FP_PRECISION tracks_x = 0, tracks_y = 0, tracks_z = 0;
+  int domain = _geometry->getNeighborDomain(0, 0, 1);
+  if (domain != -1)
+    tracks_z = _boundary_tracks.at(_neighbor_connections.at(domain)).size();
+
+  domain = _geometry->getNeighborDomain(0, 1, 0);
+  if (domain != -1)
+    tracks_y = _boundary_tracks.at(_neighbor_connections.at(domain)).size();
+
+  domain = _geometry->getNeighborDomain(1, 0, 0);
+  if (domain != -1)
+    tracks_x = _boundary_tracks.at(_neighbor_connections.at(domain)).size();
+
+  long sum_border_tracks_200 = std::max(FP_PRECISION(1),
+                                        tracks_x + tracks_y + tracks_z) / 100.;
+  log_printf(INFO_ONCE, "Percentage of tracks exchanged in X/Y/Z direction: "
+             "%.2f / %.2f / %.2f %", tracks_x / sum_border_tracks_200, tracks_y
+             / sum_border_tracks_200, tracks_z / sum_border_tracks_200);
+}
+#endif
 
 
 /**

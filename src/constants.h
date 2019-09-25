@@ -87,7 +87,7 @@
 #endif
 
 #define LOCAL_COORDS_LEN 16
-#define MAX_VERSION_NUM 20
+#define MAX_VERSION_NUM 50
 
 /** The faces, edges, and vertices that collectively make up the surfaces of a
  *  rectangular prism. The edges denoted as "e" and vertices as "v" on the
