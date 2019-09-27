@@ -1,3 +1,6 @@
+// TODO: calls to freeThrustVector are often unnecessary since that memory
+// gets freed anyways when those vectors go out of scope.
+
 #include "GPUSolver.h"
 
 /** The number of FSRs */
@@ -669,6 +672,7 @@ __global__ void addSourceToScalarFluxOnDevice(FP_PRECISION* scalar_flux,
  * @param materials an array of the dev_material pointers
  * @param scalar_flux an array of FSR scalar fluxes
  * @param fission an array of FSR nu-fission rates
+ * @param nu whether total neutron production rate should be calculated
  */
 __global__ void computeFSRFissionRatesOnDevice(FP_PRECISION* FSR_volumes,
                                                int* FSR_materials,
@@ -1127,6 +1131,7 @@ void GPUSolver::initializeExpEvaluators() {
  * @brief Explicitly disallow construction of CMFD, for now.
  */
 void GPUSolver::initializeCmfd() {
+  log_printf(ERROR, "CMFD not implemented for GPUSolver yet. Get to work!");
 }
 
 
@@ -1523,7 +1528,7 @@ void GPUSolver::computeFSRSources(int iteration) {
  */
 void GPUSolver::computeFSRFissionSources() {
 
-  printf("compute FSR fission sources\n");
+  log_printf(DEBUG, "compute FSR fission sources\n");
 
   FP_PRECISION* scalar_flux =
        thrust::raw_pointer_cast(&_scalar_flux[0]);
@@ -1542,7 +1547,7 @@ void GPUSolver::computeFSRFissionSources() {
  */
 void GPUSolver::computeFSRScatterSources() {
 
-  printf("compute fsr scatter sources\n");
+  log_printf(DEBUG, "compute fsr scatter sources\n");
 
   FP_PRECISION* scalar_flux =
        thrust::raw_pointer_cast(&_scalar_flux[0]);
