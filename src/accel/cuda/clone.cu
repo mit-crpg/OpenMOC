@@ -18,6 +18,7 @@ void clone_material(Material* material_h, dev_material* material_d) {
 
   cudaMemcpy((void*)&material_d->_id, (void*)&id, sizeof(int),
              cudaMemcpyHostToDevice);
+  getLastCudaError();
 
   /* Allocate memory on the device for each dev_material data array */
   FP_PRECISION* sigma_t;
@@ -34,6 +35,7 @@ void clone_material(Material* material_h, dev_material* material_d) {
   cudaMalloc((void**)&nu_sigma_f, num_groups * sizeof(FP_PRECISION));
   cudaMalloc((void**)&chi, num_groups * sizeof(FP_PRECISION));
   cudaMalloc((void**)&fiss_matrix, num_groups * num_groups * sizeof(FP_PRECISION));
+  getLastCudaError();
 
   /* Copy Material data from host to arrays on the device */
   cudaMemcpy((void*)sigma_t, (void*)material_h->getSigmaT(),
@@ -50,6 +52,7 @@ void clone_material(Material* material_h, dev_material* material_d) {
   cudaMemcpy((void*)fiss_matrix, (void*)material_h->getFissionMatrix(),
              num_groups * num_groups * sizeof(FP_PRECISION),
              cudaMemcpyHostToDevice);
+  getLastCudaError();
 
   /* Copy Material data pointers to dev_material on GPU */
   cudaMemcpy((void*)&material_d->_sigma_t, (void*)&sigma_t,
@@ -64,8 +67,7 @@ void clone_material(Material* material_h, dev_material* material_d) {
              sizeof(FP_PRECISION*), cudaMemcpyHostToDevice);
   cudaMemcpy((void*)&material_d->_fiss_matrix, (void*)&fiss_matrix,
              sizeof(FP_PRECISION*), cudaMemcpyHostToDevice);
-
-  return;
+  getLastCudaError();
 }
 
 
@@ -93,14 +95,14 @@ void clone_track(Track* track_h, dev_track* track_d,
   new_track._num_segments = track_h->getNumSegments();
   new_track._azim_angle_index = track_h->getAzimIndex();
 
-  // TODO unsure on these things:
-  new_track._next_in = track_h->getNextFwdFwd();
-  new_track._next_out = track_h->getNextBwdFwd();
+  new_track._next_bwd = track_h->getNextFwdFwd();
+  new_track._next_fwd = track_h->getNextBwdFwd();
   new_track._transfer_flux_in = track_h->getBCFwd();
   new_track._transfer_flux_out = track_h->getBCBwd();
 
   cudaMalloc((void**)&dev_segments,
              track_h->getNumSegments() * sizeof(dev_segment));
+  getLastCudaError();
   new_track._segments = dev_segments;
 
   for (int s=0; s < track_h->getNumSegments(); s++) {
@@ -114,10 +116,10 @@ void clone_track(Track* track_h, dev_track* track_d,
   cudaMemcpy((void*)dev_segments, (void*)host_segments,
              track_h->getNumSegments() * sizeof(dev_segment),
              cudaMemcpyHostToDevice);
+  getLastCudaError();
   cudaMemcpy((void*)track_d, (void*)&new_track, sizeof(dev_track),
              cudaMemcpyHostToDevice);
+  getLastCudaError();
 
   delete [] host_segments;
-
-  return;
 }

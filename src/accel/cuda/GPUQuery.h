@@ -23,4 +23,17 @@ void print_basic_gpu_info();
 void print_detailed_gpu_info();
 int get_num_threads_per_warp();
 
+/* Cuda error handling macro */
+#define getLastCudaError() getLastCudaError_inline(__FILE__, __LINE__)
+inline void getLastCudaError_inline(const char* file, const int line) {
+  cudaError_t err = cudaGetLastError();
+
+  if (err != cudaSuccess) {
+    log_printf(ERROR, "%s:%i getLastCudaError() CUDA error:\n"
+        "Error code %i: %s.\n", file, line, static_cast<int>(err),
+        cudaGetErrorString(err));
+  }
+}
+
+
 #endif /* GPUQUERY_H_ */

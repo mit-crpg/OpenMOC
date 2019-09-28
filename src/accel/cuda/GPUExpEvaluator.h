@@ -15,6 +15,7 @@
 #include <math.h>
 #include "../../ExpEvaluator.h"
 #endif
+#include "GPUQuery.h"
 
 
 /**

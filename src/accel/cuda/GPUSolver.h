@@ -32,6 +32,7 @@
 #include <thrust/iterator/permutation_iterator.h>
 #include "clone.h"
 #include "GPUExpEvaluator.h"
+#include "GPUQuery.h"
 
 /** Indexing macro for the scalar flux in each FSR and energy group */
 #define scalar_flux(tid,e) (scalar_flux[(tid)*num_groups + (e)])

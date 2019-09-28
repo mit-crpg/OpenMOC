@@ -63,14 +63,14 @@ struct dev_track {
   long _track_out;
 
   /** A boolean to indicate whether to give the flux to the "forward" (false)
-   *  or "reverse" (true) direction of the next Track going in the "forward"
+   *  or "backward" (true) direction of the next Track going in the "forward"
    *  direction. */
-  bool _next_in;
+  bool _next_bwd;
 
   /** A boolean to indicate whether to give the flux to the "forward" (false)
    *  or "reverse" (true) direction of the next Track going in the "reverse"
    *  direction. */
-  bool _next_out;
+  bool _next_fwd;
 
   /** A boolean to indicate whether the outgoing angular flux along this
    *  Track's "forward" direction should be transferred to the outgoing

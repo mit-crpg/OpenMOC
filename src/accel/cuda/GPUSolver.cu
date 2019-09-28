@@ -509,14 +509,14 @@ __device__ void transferBoundaryFlux(dev_track* curr_track,
   if (direction) {
     transfer_flux = curr_track->_transfer_flux_out;
     track_out_id = curr_track->_track_out;
-    start += curr_track->_next_out * polar_times_groups;
+    start += curr_track->_next_fwd * polar_times_groups;
   }
 
   /* For the "reverse" direction */
   else {
     transfer_flux = curr_track->_transfer_flux_in;
     track_out_id = curr_track->_track_in;
-    start += curr_track->_next_in * polar_times_groups;
+    start += curr_track->_next_bwd * polar_times_groups;
   }
 
   FP_PRECISION* track_out_flux = &boundary_flux(track_out_id,start);
@@ -773,6 +773,7 @@ GPUSolver::~GPUSolver() {
     cudaFree(_dev_tracks);
     _dev_tracks = NULL;
   }
+  getLastCudaError();
 
   /* Clear Thrust vectors's memory on the device */
   freeThrustVector(_boundary_flux);
@@ -844,6 +845,7 @@ double GPUSolver::getFSRSource(long fsr_id, int group) {
   cudaMemcpy((void*)fsr_scalar_fluxes, (void*)&scalar_flux[fsr_id*_num_groups],
              _num_groups * sizeof(FP_PRECISION),
              cudaMemcpyDeviceToHost);
+  getLastCudaError();
 
   FP_PRECISION fission_source = 0.0;
   FP_PRECISION scatter_source = 0.0;
@@ -939,6 +941,7 @@ void GPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
   /* Copy the fluxes from the GPU to the input array */
   cudaMemcpy((void*)out_fluxes, (void*)scalar_flux,
             num_fluxes * sizeof(FP_PRECISION), cudaMemcpyDeviceToHost);
+  getLastCudaError();
 }
 
 
@@ -1049,6 +1052,7 @@ void GPUSolver::setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) {
   /* Copy the input fluxes onto the GPU */
   cudaMemcpy((void*)scalar_flux, (void*)in_fluxes,
              num_fluxes * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
+  getLastCudaError();
   _user_fluxes = true;
 }
 
@@ -1070,10 +1074,12 @@ void GPUSolver::copyQuadrature() {
   int polar2 = _num_polar/2;
   cudaMemcpyToSymbol(num_polar_2, (void*)&polar2, sizeof(int), 0,
                      cudaMemcpyHostToDevice);
+  getLastCudaError();
 
   /* Copy the number of polar angles to constant memory on the GPU */
   cudaMemcpyToSymbol(num_polar, (void*)&_num_polar,
                      sizeof(int), 0, cudaMemcpyHostToDevice);
+  getLastCudaError();
 
   /* Copy the weights to constant memory on the GPU */
   int num_azim_2 = _quad->getNumAzimAngles() / 2;
@@ -1083,6 +1089,7 @@ void GPUSolver::copyQuadrature() {
       total_weights[a*_num_polar/2 + p] = _quad->getWeight(a, p);
   cudaMemcpyToSymbol(weights, (void*)total_weights,
       _num_polar/2 * num_azim_2 * sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
+  getLastCudaError();
 
   /* Copy the sines of the polar angles which is needed if the user
    * requested the use of the exp intrinsic to evaluate exponentials
@@ -1101,6 +1108,7 @@ void GPUSolver::copyQuadrature() {
   cudaMemcpyToSymbol(sin_thetas, (void*)&(_quad->getSinThetas()[0]),
                      _num_polar/2 * sizeof(FP_PRECISION), 0,
                      cudaMemcpyHostToDevice);
+  getLastCudaError();
 }
 
 
@@ -1116,6 +1124,7 @@ void GPUSolver::initializeExpEvaluators() {
   /* Allocate memory for a GPUExpEvaluator on the device */
   GPUExpEvaluator* dev_exp_evaluator;
   cudaMalloc((void**)&dev_exp_evaluator, sizeof(GPUExpEvaluator));
+  getLastCudaError();
 
   /* Clone ExpEvaluator from the host into GPUExpEvaluator on the device */
   clone_exp_evaluator(_exp_evaluators, dev_exp_evaluator);
@@ -1123,6 +1132,7 @@ void GPUSolver::initializeExpEvaluators() {
   /* Copy the GPUExpEvaluator into constant memory on the GPU */
   cudaMemcpyToSymbol(exp_evaluator, (void*)dev_exp_evaluator,
                      sizeof(GPUExpEvaluator), 0, cudaMemcpyDeviceToDevice);
+  getLastCudaError();
 
 }
 
@@ -1131,7 +1141,10 @@ void GPUSolver::initializeExpEvaluators() {
  * @brief Explicitly disallow construction of CMFD, for now.
  */
 void GPUSolver::initializeCmfd() {
-  log_printf(ERROR, "CMFD not implemented for GPUSolver yet. Get to work!");
+  /* Raise an error only if CMFD was attempted to be set.
+     Otherwise this fails every time. */
+  if (_cmfd != NULL)
+    log_printf(ERROR, "CMFD not implemented for GPUSolver yet. Get to work!");
 }
 
 
@@ -1148,11 +1161,13 @@ void GPUSolver::initializeFSRs() {
   /* Delete old FSRs array if it exists */
   if (_FSR_volumes != NULL) {
     cudaFree(_FSR_volumes);
+    getLastCudaError();
     _FSR_volumes = NULL;
   }
 
   if (_FSR_materials != NULL) {
     cudaFree(_FSR_materials);
+    getLastCudaError();
     _FSR_materials = NULL;
   }
 
@@ -1166,9 +1181,10 @@ void GPUSolver::initializeFSRs() {
     FP_PRECISION* host_FSR_volumes = _FSR_volumes;
     int* host_FSR_materials = _FSR_materials;
 
-    /* Allocate memory on device for FSR volumes and Material indices */
     cudaMalloc((void**)&_FSR_volumes, _num_FSRs * sizeof(FP_PRECISION));
+    getLastCudaError();
     cudaMalloc((void**)&_FSR_materials, _num_FSRs * sizeof(int));
+    getLastCudaError();
 
     /* Create a temporary FSR to material indices array */
     int* FSRs_to_material_indices = new int[_num_FSRs];
@@ -1181,12 +1197,15 @@ void GPUSolver::initializeFSRs() {
     /* Copy the arrays of FSR data to the device */
     cudaMemcpy((void*)_FSR_volumes, (void*)host_FSR_volumes,
       _num_FSRs * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
+    getLastCudaError();
     cudaMemcpy((void*)_FSR_materials, (void*)FSRs_to_material_indices,
       _num_FSRs * sizeof(int), cudaMemcpyHostToDevice);
+    getLastCudaError();
 
     /* Copy the number of FSRs into constant memory on the GPU */
     cudaMemcpyToSymbol(num_FSRs, (void*)&_num_FSRs, sizeof(long), 0,
       cudaMemcpyHostToDevice);
+    getLastCudaError();
 
     /* Free the array of FSRs data allocated by the Solver parent class */
     free(host_FSR_materials);
@@ -1217,18 +1236,27 @@ void GPUSolver::initializeMaterials(solverMode mode) {
 
   log_printf(INFO, "Initializing materials on the GPU...");
 
+  /* Sanity check */
+  if (_num_materials <= 0)
+    log_printf(ERROR, "Attempt to initialize GPU materials with zero or less materials.");
+
   /* Copy the number of energy groups to constant memory on the GPU */
   cudaMemcpyToSymbol(num_groups, (void*)&_num_groups, sizeof(int), 0,
                      cudaMemcpyHostToDevice);
+  getLastCudaError();
 
   /* Copy the number of polar angles times energy groups to constant memory
    * on the GPU */
   cudaMemcpyToSymbol(polar_times_groups, (void*)&_fluxes_per_track,
                      sizeof(int), 0, cudaMemcpyHostToDevice);
+  getLastCudaError();
 
   /* Delete old materials array if it exists */
   if (_materials != NULL)
+  {
     cudaFree(_materials);
+    getLastCudaError();
+  }
 
   /* Allocate memory for all dev_materials on the device */
   try{
@@ -1240,6 +1268,8 @@ void GPUSolver::initializeMaterials(solverMode mode) {
     /* Iterate through all Materials and clone them as dev_material structs
      * on the device */
     cudaMalloc((void**)&_materials, _num_materials * sizeof(dev_material));
+    getLastCudaError();
+    
     for (iter=host_materials.begin(); iter != host_materials.end(); ++iter) {
       clone_material(iter->second, &_materials[material_index]);
       material_index++;
@@ -1268,6 +1298,7 @@ void GPUSolver::initializeTracks() {
 
     /* Allocate array of dev_tracks */
     cudaMalloc((void**)&_dev_tracks, _tot_num_tracks * sizeof(dev_track));
+    getLastCudaError();
 
     /* Iterate through all Tracks and clone them as dev_tracks on the device */
     int index;
@@ -1594,6 +1625,7 @@ void GPUSolver::transportSweep() {
   cudaMemcpy((void*)boundary_flux, (void*)start_flux, 2 * _tot_num_tracks *
              _fluxes_per_track * sizeof(FP_PRECISION),
              cudaMemcpyDeviceToDevice);
+  getLastCudaError();
 
   log_printf(DEBUG, "Copied host to device flux.");
 
@@ -1603,6 +1635,7 @@ void GPUSolver::transportSweep() {
                                                  _materials, _dev_tracks,
                                                  0, _tot_num_tracks);
   cudaDeviceSynchronize();
+  getLastCudaError();
   log_printf(DEBUG, "Finished sweep on GPU.\n");
 }
 
@@ -1934,6 +1967,7 @@ void GPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs, boo
   /* Allocate memory for the FSR nu-fission rates on the device and host */
   FP_PRECISION* dev_fission_rates;
   cudaMalloc((void**)&dev_fission_rates, _num_FSRs * sizeof(FP_PRECISION));
+  getLastCudaError();
   FP_PRECISION* host_fission_rates = new FP_PRECISION[_num_FSRs];
 
   FP_PRECISION* scalar_flux =
@@ -1947,6 +1981,7 @@ void GPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs, boo
   /* Copy the nu-fission rate array from the device to the host */
   cudaMemcpy((void*)host_fission_rates, (void*)dev_fission_rates,
              _num_FSRs * sizeof(FP_PRECISION), cudaMemcpyDeviceToHost);
+  getLastCudaError();
 
   /* Populate the double precision NumPy array for the output */
   for (int i=0; i < _num_FSRs; i++)
@@ -1954,5 +1989,6 @@ void GPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs, boo
 
   /* Deallocate the memory assigned to store the fission rates on the device */
   cudaFree(dev_fission_rates);
+  getLastCudaError();
   delete [] host_fission_rates;
 }

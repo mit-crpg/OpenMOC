@@ -37,6 +37,7 @@ void clone_exp_evaluator(ExpEvaluator*** evaluators,
   bool interpolate_exp = evaluator_h->isUsingInterpolation();
   cudaMemcpyToSymbol(interpolate, (void*)&interpolate_exp,
                      sizeof(bool), 0, cudaMemcpyHostToDevice);
+  getLastCudaError();
 
   if (evaluator_h->isUsingInterpolation()) {
 
@@ -44,11 +45,13 @@ void clone_exp_evaluator(ExpEvaluator*** evaluators,
     FP_PRECISION inverse_spacing_h = 1.0 / evaluator_h->getTableSpacing();
     cudaMemcpyToSymbol(inverse_exp_table_spacing, (void*)&inverse_spacing_h,
                        sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
+    getLastCudaError();
 
     /* Copy the number of table entries to constant memory on the device */
     FP_PRECISION max_optical_length_h = evaluator_h->getMaxOpticalLength();
     cudaMemcpyToSymbol(max_optical_length, (void*)&max_optical_length_h,
                sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
+    getLastCudaError();
 
     /* Allocate memory for the interpolation table on the device */
     int exp_table_size_h = evaluator_h->getTableSize();
@@ -56,11 +59,14 @@ void clone_exp_evaluator(ExpEvaluator*** evaluators,
 
     FP_PRECISION* exp_table_d;
     cudaMalloc((void**)&exp_table_d, exp_table_size_h * sizeof(FP_PRECISION));
+    getLastCudaError();
     cudaMemcpy((void*)exp_table_d, (void*)exp_table_h,
                exp_table_size_h * sizeof(FP_PRECISION),
                cudaMemcpyHostToDevice);
+    getLastCudaError();
     cudaMemcpy((void*)&evaluator_d->_exp_table, (void*)&exp_table_d,
                sizeof(FP_PRECISION*), cudaMemcpyHostToDevice);
+    getLastCudaError();
   }
 }
 
