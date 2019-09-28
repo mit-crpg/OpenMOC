@@ -791,6 +791,9 @@ void Solver::initializeMaterials(solverMode mode) {
     if (mode == ADJOINT)
       m_iter->second->transposeProductionMatrices();
   }
+
+  /* GPU solver needs this */
+  _num_materials = _geometry->getNumMaterials();
 }
 
 
