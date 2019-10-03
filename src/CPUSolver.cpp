@@ -1099,10 +1099,22 @@ void CPUSolver::transferAllInterfaceFluxes() {
       int domain = _neighbor_domains.at(i);
       if (num_send_domains > 0) {
         /* Communicate _send_buffers' sizes to adapt _receive_buffers' sizes */
-        MPI_Sendrecv(&_send_size.at(i), 1, MPI_INT, domain, 0,
-                     &_receive_size.at(i), 1, MPI_INT, domain, 0, MPI_cart,
-                     MPI_STATUS_IGNORE);
+        MPI_Isend(&_send_size.at(i), 1, MPI_INT, domain, 0, MPI_cart,
+                  &_MPI_requests[i*2]);
+        MPI_Irecv(&_receive_size.at(i), 1, MPI_INT, domain, 0, MPI_cart,
+                  &_MPI_requests[i*2 + 1]);
+      }
+      else {
+        _MPI_requests[i*2] = MPI_REQUEST_NULL;
+        _MPI_requests[i*2 + 1] = MPI_REQUEST_NULL;
+      }
+    }
 
+    /* Block for communication round to complete */
+    MPI_Waitall(2 * num_domains, _MPI_requests, MPI_STATUSES_IGNORE);
+
+    for (int i=0; i < num_domains; i++) {
+      if (num_send_domains > 0) {
         /* Adjust receiving buffer if incoming message is large */
         if (_receive_size.at(i) > _receive_buffers.at(i).size() / _track_message_size)
           _receive_buffers.at(i).resize(
