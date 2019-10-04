@@ -19,6 +19,7 @@
 
 #include <thrust/copy.h>
 #include <iostream>
+#include <vector>
 
 #include <thrust/device_vector.h>
 #include <thrust/copy.h>
@@ -31,7 +32,7 @@
 #include <thrust/iterator/transform_iterator.h>
 #include <thrust/iterator/permutation_iterator.h>
 #include "clone.h"
-#include "GPUExpEvaluator.h"
+#include "dev_exponential.h"
 #include "GPUQuery.h"
 
 /** Indexing macro for the scalar flux in each FSR and energy group */

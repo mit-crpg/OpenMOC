@@ -9,8 +9,6 @@ from openmoc.cuda import GPUSolver
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
 
-log.set_log_level('DEBUG')
-
 options = Options()
 
 num_threads = options.num_omp_threads
@@ -68,6 +66,7 @@ track_generator.generateTracks()
 ###############################################################################
 
 solver = GPUSolver(track_generator)
+solver.initializeSolver(0)
 solver.setConvergenceThreshold(tolerance)
 solver.computeEigenvalue(max_iters)
 solver.printTimerReport()

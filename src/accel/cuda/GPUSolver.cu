@@ -1,6 +1,5 @@
 // TODO: calls to freeThrustVector are often unnecessary since that memory
 // gets freed anyways when those vectors go out of scope.
-
 #include "GPUSolver.h"
 
 /** The number of FSRs */
@@ -26,10 +25,6 @@ __constant__ FP_PRECISION weights[MAX_POLAR_ANGLES_GPU*MAX_AZIM_ANGLES_GPU];
 
 /** The total number of Tracks */
 __constant__ long tot_num_tracks;
-
-/** An GPUExpEvaluator object to compute exponentials */
-__constant__ GPUExpEvaluator exp_evaluator;
-
 
 /**
  * @brief A struct used to check if a value on the GPU is equal to INF.
@@ -269,6 +264,8 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
   /* Iterate over all FSRs */
   while (tid < num_FSRs) {
 
+    // TODO: does taking the pointer really make sense here?
+    // Why not take it by value? Shouldn't that have better cache efficiency?
     curr_material = &materials[FSR_materials[tid]];
 
     sigma_t = curr_material->_sigma_t;
@@ -467,7 +464,7 @@ __device__ void tallyScalarFlux(dev_segment* curr_segment,
   /* Loop over polar angles */
   for (int p=0; p < num_polar_2; p++) {
     exponential =
-      exp_evaluator.computeExponential(sigma_t[energy_group] * length, p);
+      dev_exponential(sigma_t[energy_group] * length / sin_thetas[p]);
     delta_psi = (track_flux[p] - reduced_sources(fsr_id,energy_group));
     delta_psi *= exponential;
     fsr_flux += delta_psi * weights(azim_index,p);
@@ -557,6 +554,7 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 
   int tid = tid_offset + threadIdx.x + blockIdx.x * blockDim.x;
   int track_id = tid / num_groups;
+
   int track_flux_index = threadIdx.x * num_polar;
   int energy_group = tid % num_groups;
   int energy_angle_index = energy_group * num_polar_2;
@@ -568,8 +566,6 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 
   /* Iterate over Track with azimuthal angles in (0, pi/2) */
   while (track_id < tid_max) {
-
-    printf("Track id: %i\n", track_id);
 
     /* Initialize local registers with important data */
     curr_track = &tracks[track_id];
@@ -1091,50 +1087,28 @@ void GPUSolver::copyQuadrature() {
       _num_polar/2 * num_azim_2 * sizeof(FP_PRECISION), 0, cudaMemcpyHostToDevice);
   getLastCudaError();
 
-  /* Copy the sines of the polar angles which is needed if the user
-   * requested the use of the exp intrinsic to evaluate exponentials
-   * Conversion from std::vectors to a raw array is needed for compatibility */
-
-  // std::vector<DoubleVec> sinThetas = _quad->getSinThetas();
-  // unsigned outer_size = sinThetas.size();
-  // unsigned inner_size = sinThetas[0].size();
-  // Make an array of FP_PRECISION, which is what the old CUDA code took.
-  // It may be possible to just pass in a pointer to the first element of
-  // getSinThetas()... TODO
-  //   FP_PRECISION** sin_theta_array = (FP_PRECISION**)malloc(outer_size * sizeof(FP_PRECISION*));
-  //   for (unsigned j=0; j<outer_size; ++j)
-  //     sin_theta_array[j] = (FP_PRECISION*)malloc(inner_size * sizeof(FP_PRECISION));
-  //   
-  cudaMemcpyToSymbol(sin_thetas, (void*)&(_quad->getSinThetas()[0]),
+  /* Copy the sines of the polar angles which is needed for the rational
+   * approximation to the 1-exp(-x) function
+   * Something really confusing: sin(theta) list is *always* in
+   * double precision! Need to go through and convert a few npolar/2 of them.
+   */
+  auto host_sin_thetas = _quad->getSinThetas();
+  std::vector<FP_PRECISION> fp_precision_sines(_num_polar/2);
+  for (int j=0; j<_num_polar/2; ++j)
+    fp_precision_sines[j] = (FP_PRECISION)host_sin_thetas[0][j];
+  cudaMemcpyToSymbol(sin_thetas, (void*)&fp_precision_sines[0],
                      _num_polar/2 * sizeof(FP_PRECISION), 0,
                      cudaMemcpyHostToDevice);
+
   getLastCudaError();
 }
 
 
 /**
- * @brief Initializes new GPUExpEvaluator object to compute exponentials.
+ * @brief Since rational expression exponential evaluation is easily
+          done in a standalone function on GPU, do no exp evaluator setup.
  */
-void GPUSolver::initializeExpEvaluators() {
-
-  Solver::initializeExpEvaluators();
-
-  log_printf(INFO, "Initializing the exponential evaluator on the GPU...");
-
-  /* Allocate memory for a GPUExpEvaluator on the device */
-  GPUExpEvaluator* dev_exp_evaluator;
-  cudaMalloc((void**)&dev_exp_evaluator, sizeof(GPUExpEvaluator));
-  getLastCudaError();
-
-  /* Clone ExpEvaluator from the host into GPUExpEvaluator on the device */
-  clone_exp_evaluator(_exp_evaluators, dev_exp_evaluator);
-
-  /* Copy the GPUExpEvaluator into constant memory on the GPU */
-  cudaMemcpyToSymbol(exp_evaluator, (void*)dev_exp_evaluator,
-                     sizeof(GPUExpEvaluator), 0, cudaMemcpyDeviceToDevice);
-  getLastCudaError();
-
-}
+void GPUSolver::initializeExpEvaluators() {}
 
 
 /**
@@ -1239,10 +1213,11 @@ void GPUSolver::initializeMaterials(solverMode mode) {
   /* Sanity check */
   if (_num_materials <= 0)
     log_printf(ERROR, "Attempt to initialize GPU materials with zero or less materials.");
+  if (_num_groups <= 0)
+    log_printf(ERROR, "Attempt to initialize GPU XS data with zero or less energy groups.");
 
   /* Copy the number of energy groups to constant memory on the GPU */
-  cudaMemcpyToSymbol(num_groups, (void*)&_num_groups, sizeof(int), 0,
-                     cudaMemcpyHostToDevice);
+  cudaMemcpyToSymbol(num_groups, &_num_groups, sizeof(int));
   getLastCudaError();
 
   /* Copy the number of polar angles times energy groups to constant memory
@@ -1545,7 +1520,6 @@ void GPUSolver::computeFSRSources(int iteration) {
 
   // TODO need to add treatment of negative sources if iteration is under
   // a certain number, as seen in CPUSolver.
-
   computeFSRSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
                                         scalar_flux, fixed_sources,
                                         reduced_sources, 1.0 / _k_eff);

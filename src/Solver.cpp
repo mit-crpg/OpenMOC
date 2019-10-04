@@ -828,6 +828,14 @@ void Solver::initializeFSRs() {
   _num_groups = _geometry->getNumEnergyGroups();
   _num_materials = _geometry->getNumMaterials();
 
+  /* Sanity check */
+  if (_num_FSRs == 0)
+    log_printf(ERROR, "0 flat source regions found!");
+  if (_num_groups == 0)
+    log_printf(ERROR, "0 energy groups found!");
+  if (_num_materials == 0)
+    log_printf(ERROR, "0 materials found!");
+
   if (_SOLVE_3D) {
     _fluxes_per_track = _num_groups;
   }
