@@ -1068,8 +1068,7 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
   double dist;
   double min_dist = std::numeric_limits<double>::infinity();
 
-  /* Save coords and angles in case of a translated/rotated cell */
-  double old_position[3] = {coords->getX(), coords->getY(), coords->getZ()};
+  /* Save angles in case of a rotated cell */
   double old_azim = azim;
   double old_polar = polar;
 
@@ -1107,30 +1106,11 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
         Cell* cell = coords->getCell();
         dist = cell->minSurfaceDist(coords->getPoint(), azim, polar);
 
-        /* Apply translation to position */
-        if (cell->isTranslated()) {
-          double* translation = cell->getTranslation();
-          double new_x = coords->getX() - translation[0];
-          double new_y = coords->getY() - translation[1];
-          double new_z = coords->getZ() - translation[2];
-          coords->setX(new_x);
-          coords->setY(new_y);
-          coords->setZ(new_z);
-        }
-
-        /* Apply rotation to position and direction */
+        /* Apply rotation to direction. Position has already been modified by
+           universe->findCell() in findCellContainingCoords() */
         if (cell->isRotated()) {
-          double x = coords->getX();
-          double y = coords->getY();
-          double z = coords->getZ();
-          double* matrix = cell->getRotationMatrix();
-          double new_x = matrix[0] * x + matrix[1] * y + matrix[2] * z;
-          double new_y = matrix[3] * x + matrix[4] * y + matrix[5] * z;
-          double new_z = matrix[6] * x + matrix[7] * y + matrix[8] * z;
-          coords->setX(new_x);
-          coords->setY(new_y);
-          coords->setZ(new_z);
 
+          double* matrix = cell->getRotationMatrix();
           double uvw[3] = {sin(polar)*cos(azim), sin(polar)*sin(azim),
                            cos(polar)};
           double rot_uvw[3] = {matrix[0]*uvw[0] + matrix[1]*uvw[1] +
@@ -1139,9 +1119,9 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
                                matrix[6]*uvw[0] + matrix[7]*uvw[1] +
                                matrix[8]*uvw[2]};
           polar = acos(rot_uvw[2]);
-          double sin_p = sqrt(1 - rot_uvw[2]*rot_uvw[2]);
-          int sgn = (asin(rot_uvw[1]/sin_p) > 0) - (asin(rot_uvw[1]/sin_p) < 0);
-          azim = acos(rot_uvw[0]/sin_p) * sgn;
+          azim = atan2(rot_uvw[1], rot_uvw[0]);
+          if (azim < 0)
+            azim += 2 * M_PI;
         }
       }
 
@@ -1155,12 +1135,9 @@ Cell* Geometry::findNextCell(LocalCoords* coords, double azim, double polar) {
         coords = coords->getNext();
     }
 
-    /* Reset coords position in case there was a translated or rotated cell */
+    /* Reset coords direction in case there was a rotated cell */
     coords = coords->getHighestLevel();
     coords->prune();
-    coords->setX(old_position[0]);
-    coords->setY(old_position[1]);
-    coords->setZ(old_position[2]);
     azim = old_azim;
     polar = old_polar;
 
