@@ -1065,27 +1065,13 @@ void CPUSolver::transferAllInterfaceFluxes() {
     _timer->recordSplit("Packing time");
 
 #ifdef ONLYVACUUMBC
-    /* Check if any rank needs to send buffers : because of the pre-filling
-       some nodes might have sent all their fluxes before others */
-    _timer->startTimer();
-    int need_to_send = 0;
-    for (int i=0; i < num_domains; i++) {
-
-      long* first_track_idx =
-        reinterpret_cast<long*>(&_send_buffers.at(i)[_fluxes_per_track+1]);
-      long first_track = first_track_idx[0];
-      if (first_track != -1)
-        need_to_send = 1;
-    }
-
-    int num_send_domains;
-    MPI_Allreduce(&need_to_send, &num_send_domains, 1, MPI_INT, MPI_SUM,
-                  MPI_cart);
-    if (round_counter % 20 == 0)
-      log_printf(INFO_ONCE, "Communication round %d : %d domains sending track"
-                 " fluxes.", round_counter, num_send_domains);
-    _timer->stopTimer();
-    _timer->recordSplit("Transfer synchronization time");
+    /* Number of communication rounds is bounded */
+    long max_boundary_tracks = 0;
+    for (int i=0; i < num_domains; i++)
+      max_boundary_tracks = std::max(max_boundary_tracks,
+                                     long(_boundary_tracks.at(i).size()));
+    bool active_communication =
+         max_boundary_tracks > (round_counter * TRACKS_PER_BUFFER);
 #endif
 
     /* Set size of received messages, adjust buffer if needed */
@@ -1097,7 +1083,7 @@ void CPUSolver::transferAllInterfaceFluxes() {
 
 #ifdef ONLYVACUUMBC
       int domain = _neighbor_domains.at(i);
-      if (num_send_domains > 0) {
+      if (active_communication) {
         /* Communicate _send_buffers' sizes to adapt _receive_buffers' sizes */
         MPI_Isend(&_send_size.at(i), 1, MPI_INT, domain, 0, MPI_cart,
                   &_MPI_requests[i*2]);
@@ -1114,7 +1100,7 @@ void CPUSolver::transferAllInterfaceFluxes() {
     MPI_Waitall(2 * num_domains, _MPI_requests, MPI_STATUSES_IGNORE);
 
     for (int i=0; i < num_domains; i++) {
-      if (num_send_domains > 0) {
+      if (active_communication) {
         /* Adjust receiving buffer if incoming message is large */
         if (_receive_size.at(i) > _receive_buffers.at(i).size() / _track_message_size)
           _receive_buffers.at(i).resize(
@@ -1138,7 +1124,7 @@ void CPUSolver::transferAllInterfaceFluxes() {
 #ifndef ONLYVACUUMBC
       if (first_track != -1) {
 #else
-      if (num_send_domains > 0) {
+      if (active_communication) {
 #endif
 
         /* Send outgoing flux */

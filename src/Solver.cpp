@@ -1803,14 +1803,6 @@ void Solver::printTimerReport() {
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), transfer_time);
 
-#ifdef ONLYVACUUMBC
-  /* Time for all nodes to communicate if they need to send fluxes */
-  double intent_time = _timer->getSplit("Transfer synchronization time");
-  msg_string = "    Synchronization of Transfers";
-  msg_string.resize(53, '.');
-  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), intent_time);
-#endif
-
   /* Boundary track angular fluxes packing into buffers */
   double pack_time = _timer->getSplit("Packing time");
   msg_string = "    Angular Flux Packing Time";
