@@ -863,11 +863,22 @@ void Cmfd::collapseXS() {
         double rxn_tally = _reaction_tally[i][e];
 
         if (rxn_tally <= 0) {
+          int cell = getGlobalCMFDCell(i);
+          int x = (cell % (_num_x * _num_y)) % _num_x;
+          int y = (cell % (_num_x * _num_y)) / _num_x;
+          int z = cell / (_num_x * _num_y);
           log_printf(WARNING, "Negative or zero reaction tally calculated in "
-                     "CMFD cell %d in CMFD group %d : %e", i, e + 1, rxn_tally);
+                     "CMFD cell %d [%d %d %d] in CMFD group %d : %e", cell, x,
+                     y, z, e + 1, rxn_tally);
+
+          /* Set all cross sections to be 1 */
           rxn_tally = ZERO_SIGMA_T;
           _reaction_tally[i][e] = ZERO_SIGMA_T;
           _diffusion_tally[i][e] = ZERO_SIGMA_T;
+          total_tally = ZERO_SIGMA_T;
+          nu_fission_tally = ZERO_SIGMA_T;
+          for (int g = 0; g < _num_cmfd_groups; g++)
+            scat_tally[g] = ZERO_SIGMA_T / (2 * _num_cmfd_groups);
         }
 
         cell_material->setSigmaTByGroup(total_tally / rxn_tally, e + 1);
