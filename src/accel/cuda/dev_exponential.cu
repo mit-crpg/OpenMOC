@@ -29,9 +29,9 @@ __device__ FP_PRECISION dev_exponential(FP_PRECISION x)
   num = num*x + p1;
   num = num*x + p0;
 
-  // exponential = num * den * x;
-  // TODO:
-  exponential = 1.0 - __expf(-x);
+  exponential = num * den * x;
+  // Uncomment this if you think this function isn't correct:
+  // exponential = 1.0 - __expf(-x);
 
   return exponential;
 }

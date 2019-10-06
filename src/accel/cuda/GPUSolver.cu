@@ -26,6 +26,19 @@ __constant__ FP_PRECISION weights[MAX_POLAR_ANGLES_GPU*MAX_AZIM_ANGLES_GPU];
 /** The total number of Tracks */
 __constant__ long tot_num_tracks;
 
+__global__ void print_flux(FP_PRECISION* flux)
+{
+  for (int i=0; i<50; ++i)
+    printf("f(%i) = %f\n", i, flux[i]);
+}
+__global__ void print_max_flux(FP_PRECISION* flux)
+{
+  FP_PRECISION max = 0.0;
+  for (int i=0; i<30000; ++i)
+    if (flux[i] > max) max = flux[i];
+  printf("max = %f\n", max);
+}
+
 /**
  * @brief A struct used to check if a value on the GPU is equal to INF.
  * @details This is used as a predicate in Thrust routines.
@@ -1449,11 +1462,13 @@ void GPUSolver::storeFSRFluxes() {
 }
 
 void GPUSolver::computeStabilizingFlux() {
-    // TODO
+  // TODO
+  log_printf(ERROR, "computeStabilizingFlux() is not yet implemented on GPU.");
 }
 
 void GPUSolver::stabilizeFlux() {
-    // TODO
+  // TODO
+  log_printf(ERROR, "stabilizeFlux() is not yet implemented on GPU.");
 }
 
 /**
@@ -1470,6 +1485,10 @@ double GPUSolver::normalizeFluxes() {
 
   FP_PRECISION* scalar_flux =
        thrust::raw_pointer_cast(&_scalar_flux[0]);
+
+  printf("before normalize:\n");
+  print_flux<<<1,1>>>(scalar_flux);
+  cudaDeviceSynchronize();
 
   int shared_mem = sizeof(FP_PRECISION) * _T;
 
@@ -1499,6 +1518,10 @@ double GPUSolver::normalizeFluxes() {
 
   /* Clear Thrust vector of FSR fission sources */
   freeThrustVector(fission_sources_vec);
+
+  printf("after normalize:\n");
+  print_flux<<<1,1>>>(scalar_flux);
+  cudaDeviceSynchronize();
 
   return norm_factor;
 }
@@ -1588,6 +1611,10 @@ void GPUSolver::transportSweep() {
   FP_PRECISION* reduced_sources =
        thrust::raw_pointer_cast(&_reduced_sources[0]);
 
+  printf("before transport sweep:\n");
+  print_flux<<<1,1>>>(scalar_flux);
+  cudaDeviceSynchronize();
+
   log_printf(DEBUG, "Obtained device pointers to thrust vectors.\n");
 
   /* Initialize flux in each FSR to zero */
@@ -1608,6 +1635,11 @@ void GPUSolver::transportSweep() {
                                                  start_flux, reduced_sources,
                                                  _materials, _dev_tracks,
                                                  0, _tot_num_tracks);
+
+  printf("after transport sweep:\n");
+  print_flux<<<1,1>>>(scalar_flux);
+  cudaDeviceSynchronize();
+
   cudaDeviceSynchronize();
   getLastCudaError();
   log_printf(DEBUG, "Finished sweep on GPU.\n");
