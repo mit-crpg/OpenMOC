@@ -876,9 +876,12 @@ void Cmfd::collapseXS() {
           _reaction_tally[i][e] = ZERO_SIGMA_T;
           _diffusion_tally[i][e] = ZERO_SIGMA_T;
           total_tally = ZERO_SIGMA_T;
-          nu_fission_tally = ZERO_SIGMA_T;
+          if (nu_fission_tally != 0)
+            nu_fission_tally = ZERO_SIGMA_T;
+
+          /* Avoid excessive downscatter */
           for (int g = 0; g < _num_cmfd_groups; g++)
-            scat_tally[g] = ZERO_SIGMA_T / (2 * _num_cmfd_groups);
+            scat_tally[g] = 0;
         }
 
         cell_material->setSigmaTByGroup(total_tally / rxn_tally, e + 1);

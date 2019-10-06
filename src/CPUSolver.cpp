@@ -1072,6 +1072,8 @@ void CPUSolver::transferAllInterfaceFluxes() {
                                      long(_boundary_tracks.at(i).size()));
     bool active_communication =
          max_boundary_tracks > (round_counter * TRACKS_PER_BUFFER);
+
+    MPI_Request _MPI_req[2*num_domains];
 #endif
 
     /* Set size of received messages, adjust buffer if needed */
@@ -1082,78 +1084,105 @@ void CPUSolver::transferAllInterfaceFluxes() {
       _receive_size.at(i) = TRACKS_PER_BUFFER;
 
 #ifdef ONLYVACUUMBC
+      _receive_size.at(i) = -1;
       int domain = _neighbor_domains.at(i);
       if (active_communication) {
         /* Communicate _send_buffers' sizes to adapt _receive_buffers' sizes */
         MPI_Isend(&_send_size.at(i), 1, MPI_INT, domain, 0, MPI_cart,
-                  &_MPI_requests[i*2]);
+                  &_MPI_req[i*2]);
         MPI_Irecv(&_receive_size.at(i), 1, MPI_INT, domain, 0, MPI_cart,
-                  &_MPI_requests[i*2 + 1]);
+                  &_MPI_req[i*2 + 1]);
       }
       else {
-        _MPI_requests[i*2] = MPI_REQUEST_NULL;
-        _MPI_requests[i*2 + 1] = MPI_REQUEST_NULL;
+        _MPI_req[i*2] = MPI_REQUEST_NULL;
+        _MPI_req[i*2 + 1] = MPI_REQUEST_NULL;
       }
     }
 
-    /* Block for communication round to complete */
-    MPI_Waitall(2 * num_domains, _MPI_requests, MPI_STATUSES_IGNORE);
+    if (_num_iterations == 0) {
+      /* Block for communication round to complete, to adjust buffer sizes */
+      MPI_Waitall(2 * num_domains, _MPI_req, MPI_STATUSES_IGNORE);
 
-    for (int i=0; i < num_domains; i++) {
-      if (active_communication) {
-        /* Adjust receiving buffer if incoming message is large */
-        if (_receive_size.at(i) > _receive_buffers.at(i).size() / _track_message_size)
-          _receive_buffers.at(i).resize(
-               _receive_size.at(i) * _track_message_size);
+      for (int i=0; i < num_domains; i++) {
+        if (active_communication) {
+          /* Adjust receiving buffer if incoming message is large */
+          if (_receive_size.at(i) > _receive_buffers.at(i).size() /
+              _track_message_size)
+            _receive_buffers.at(i).resize(_receive_size.at(i) *
+                                          _track_message_size);
+        }
       }
 #endif
     }
 
     /* Send and receive from all neighboring domains */
     bool communication_complete = true;
-    for (int i=0; i < num_domains; i++) {
 
-      /* Get the communicating neighbor domain */
-      int domain = _neighbor_domains.at(i);
+#ifdef ONLYVACUUMBC
+    /* Start all sends and receives when the buffers' sizes are known to
+       reduce synchronization */
+    bool all_transfers_started = false;
+    while (!all_transfers_started) {
+      all_transfers_started = true;
+#endif
+      for (int i=0; i < num_domains; i++) {
 
-      /* Check if a send/receive needs to be created */
-      long* first_track_idx =
-        reinterpret_cast<long*>(&_send_buffers.at(i)[_fluxes_per_track+1]);
-      long first_track = first_track_idx[0];
+        /* Get the communicating neighbor domain */
+        int domain = _neighbor_domains.at(i);
 
 #ifndef ONLYVACUUMBC
-      if (first_track != -1) {
+        /* Check if a send/receive needs to be created */
+        long* first_track_idx =
+          reinterpret_cast<long*>(&_send_buffers.at(i)[_fluxes_per_track+1]);
+        long first_track = first_track_idx[0];
+
+        if (first_track != -1) {
 #else
-      if (active_communication) {
+        /* Send/receive fluxes if there are fluxes to be sent, if buffers are
+           the right size and if they haven't been sent already */
+        if (active_communication) {
 #endif
+          /* Send outgoing flux */
+          if (_send_size.at(i) > 0 && !_MPI_sends[i]) {
+            MPI_Isend(&_send_buffers.at(i)[0], _track_message_size *
+                      _send_size.at(i), MPI_FLOAT, domain, 1, MPI_cart,
+                      &_MPI_requests[i*2]);
+            _MPI_sends[i] = true;
+          }
+          else
+            if (!_MPI_sends[i])
+              _MPI_requests[i*2] = MPI_REQUEST_NULL;
 
-        /* Send outgoing flux */
-        if (_send_size.at(i) > 0) {
-          MPI_Isend(&_send_buffers.at(i)[0], _track_message_size *
-                    _send_size.at(i), MPI_FLOAT, domain, 0, MPI_cart,
-                    &_MPI_requests[i*2]);
-          _MPI_sends[i] = true;
+          /* Receive incoming flux */
+          if (_receive_size.at(i) > 0 && !_MPI_receives[i]) {
+            MPI_Irecv(&_receive_buffers.at(i)[0], _track_message_size *
+                      _receive_size.at(i), MPI_FLOAT, domain, 1, MPI_cart,
+                      &_MPI_requests[i*2+1]);
+            _MPI_receives[i] = true;
+          }
+          else
+            if (!_MPI_receives[i])
+              _MPI_requests[i*2+1] = MPI_REQUEST_NULL;
+
+          /* Mark communication as ongoing */
+          communication_complete = false;
         }
-        else
-          _MPI_requests[i*2] = MPI_REQUEST_NULL;
-
-        /* Receive incoming flux */
-        if (_receive_size.at(i) > 0) {
-          MPI_Irecv(&_receive_buffers.at(i)[0], _track_message_size *
-                    _receive_size.at(i), MPI_FLOAT, domain, 0, MPI_cart,
-                    &_MPI_requests[i*2+1]);
-          _MPI_receives[i] = true;
+        else {
+          if (!_MPI_sends[i])
+            _MPI_requests[i*2] = MPI_REQUEST_NULL;
+          if (!_MPI_receives[i])
+            _MPI_requests[i*2+1] = MPI_REQUEST_NULL;
         }
-        else
-          _MPI_requests[i*2+1] = MPI_REQUEST_NULL;
-
-        /* Mark communication as ongoing */
-        communication_complete = false;
+#ifdef ONLYVACUUMBC
+        /* Check that all MPI receive calls have been made */
+        if (active_communication && !_MPI_receives[i] && _receive_size.at(i) != 0) {
+          all_transfers_started = false;
+          int flag;
+          if (_receive_size.at(i) == -1)
+            MPI_Test(&_MPI_req[i*2 + 1], &flag, MPI_STATUSES_IGNORE);
+        }
       }
-      else {
-        _MPI_requests[i*2] = MPI_REQUEST_NULL;
-        _MPI_requests[i*2+1] = MPI_REQUEST_NULL;
-      }
+#endif
     }
 
     /* Check if communication is done */
@@ -1164,6 +1193,7 @@ void CPUSolver::transferAllInterfaceFluxes() {
     }
 
     /* Block for communication round to complete */
+    //FIXME Not necessary, buffers could be unpacked while waiting
     MPI_Waitall(2 * num_domains, _MPI_requests, MPI_STATUSES_IGNORE);
     _timer->stopTimer();
     _timer->recordSplit("Communication time");
