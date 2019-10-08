@@ -80,6 +80,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _calculate_residuals_by_reference = false;
   _negative_fluxes_allowed = false;
   _OTF_transport = false;
+  _materials_initialized = false;
 
   _xs_log_level = ERROR;
 
@@ -779,6 +780,9 @@ void Solver::initializeExpEvaluators() {
  */
 void Solver::initializeMaterials(solverMode mode) {
 
+  // Don't reinitialize.
+  if (_materials_initialized) return;
+
   log_printf(INFO, "Initializing materials...");
   _solver_mode = mode;
 
@@ -794,6 +798,8 @@ void Solver::initializeMaterials(solverMode mode) {
 
   /* GPU solver needs this */
   _num_materials = _geometry->getNumMaterials();
+
+  _materials_initialized = true;
 }
 
 

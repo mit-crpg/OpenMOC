@@ -1,6 +1,5 @@
 #include "clone.h"
 
-
 /**
  * @brief Given a pointer to a Material on the host and a dev_material on the
  *        GPU, copy all of the properties from the Material object on the host
@@ -97,8 +96,8 @@ void clone_track(Track* track_h, dev_track* track_d,
 
   new_track._next_bwd = track_h->getNextBwdFwd();
   new_track._next_fwd = track_h->getNextFwdFwd();
-  new_track._transfer_flux_in = track_h->getBCFwd();
-  new_track._transfer_flux_out = track_h->getBCBwd();
+  new_track._transfer_flux_in = track_h->getBCBwd();
+  new_track._transfer_flux_out = track_h->getBCFwd();
 
   cudaMalloc((void**)&dev_segments,
              track_h->getNumSegments() * sizeof(dev_segment));

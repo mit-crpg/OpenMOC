@@ -26,6 +26,13 @@ __constant__ FP_PRECISION weights[MAX_POLAR_ANGLES_GPU*MAX_AZIM_ANGLES_GPU];
 /** The total number of Tracks */
 __constant__ long tot_num_tracks;
 
+__global__ void printmateriald(dev_material* matd)
+{
+  printf("Printing the material %i\n", matd->_id);
+  for (int g=0; g<num_groups; ++g)
+    printf("    sigmaf(%i) = %f\n", g, matd->_sigma_f[g]);
+}
+
 /**
  * @brief A struct used to check if a value on the GPU is equal to INF.
  * @details This is used as a predicate in Thrust routines.
@@ -675,7 +682,8 @@ __global__ void computeFSRFissionRatesOnDevice(FP_PRECISION* FSR_volumes,
                                                dev_material* materials,
                                                FP_PRECISION* scalar_flux,
                                                FP_PRECISION* fission,
-                                               bool nu = false) {
+                                               bool nu = false,
+                                               bool computekeff = false) {
 
   int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -707,13 +715,19 @@ __global__ void computeFSRFissionRatesOnDevice(FP_PRECISION* FSR_volumes,
 
     fiss += curr_fiss * volume;
 
+    if (!computekeff)
+      fission[tid] = curr_fiss * volume;
+
     /* Increment thread id */
     tid += blockDim.x * gridDim.x;
+
   }
 
   /* Copy this thread's fission to global memory */
-  tid = threadIdx.x + blockIdx.x * blockDim.x;
-  fission[tid] = fiss;
+  if (computekeff) {
+    tid = threadIdx.x + blockIdx.x * blockDim.x;
+    fission[tid] = fiss;
+  }
 }
 
 
@@ -1206,6 +1220,9 @@ void GPUSolver::initializeFSRs() {
  */
 void GPUSolver::initializeMaterials(solverMode mode) {
 
+  /* Don't double-initialize */
+  if(_materials_initialized) return;
+
   Solver::initializeMaterials(mode);
 
   log_printf(INFO, "Initializing materials on the GPU...");
@@ -1247,6 +1264,15 @@ void GPUSolver::initializeMaterials(solverMode mode) {
     
     for (iter=host_materials.begin(); iter != host_materials.end(); ++iter) {
       clone_material(iter->second, &_materials[material_index]);
+
+      // DBG remove, spot check materials copied correctly
+      // printf("Host material %i:\n", iter->second->getId());
+      // FP_PRECISION* sigmaff = iter->second->getSigmaF();
+      // for (int g=0; g<_num_groups; ++g)
+      //   printf("    sigmaf(%i)=%f\n", g, sigmaff[g]);
+      // printmateriald<<<1,1>>>(&_materials[material_index]);
+      // cudaDeviceSynchronize();
+
       material_index++;
     }
   }
@@ -1658,7 +1684,7 @@ void GPUSolver::computeKeff() {
    * This kernel stores partial rates in a Thrust vector with as many
    * entries as CUDAthreads executed by the kernel */
   computeFSRFissionRatesOnDevice<<<_B, _T>>>(_FSR_volumes, _FSR_materials,
-                                             _materials, flux, fiss_ptr);
+                                             _materials, flux, fiss_ptr, true, true);
 
   /* Compute the total fission source */
   fission = thrust::reduce(fission_vec.begin(), fission_vec.end());
@@ -1953,7 +1979,7 @@ void GPUSolver::computeFSRFissionRates(double* fission_rates, long num_FSRs, boo
   /* Compute the FSR nu-fission rates on the device */
   computeFSRFissionRatesOnDevice<<<_B, _T>>>(_FSR_volumes, _FSR_materials,
                                              _materials, scalar_flux,
-                                             dev_fission_rates, nu);
+                                             dev_fission_rates, nu, false);
 
   /* Copy the nu-fission rate array from the device to the host */
   cudaMemcpy(host_fission_rates, dev_fission_rates,
