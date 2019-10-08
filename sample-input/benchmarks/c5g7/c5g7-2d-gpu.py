@@ -13,7 +13,8 @@ options = Options()
 
 num_threads = options.num_omp_threads
 azim_spacing = options.azim_spacing
-num_azim = options.num_azim
+# num_azim = options.num_azim
+num_azim = 32
 polar_spacing = options.polar_spacing
 num_polar = options.num_polar
 tolerance = options.tolerance
@@ -68,7 +69,7 @@ track_generator.generateTracks()
 solver = GPUSolver(track_generator)
 solver.initializeSolver(0)
 solver.setConvergenceThreshold(tolerance)
-solver.computeEigenvalue(max_iters)
+solver.computeEigenvalue(50)
 solver.printTimerReport()
 
 ###############################################################################
@@ -82,6 +83,7 @@ plotter.plot_cells(geometry, gridsize=500)
 plotter.plot_flat_source_regions(geometry, gridsize=500)
 plotter.plot_spatial_fluxes(solver, energy_groups=[1,2,3,4,5,6,7],
                             gridsize=500, plane='xy', offset=0.)
+plotter.plot_fission_rates(solver, gridsize=500)
 
 
 log.py_printf('TITLE', 'Finished')

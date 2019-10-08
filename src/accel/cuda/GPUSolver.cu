@@ -1164,7 +1164,7 @@ void GPUSolver::initializeFSRs() {
     int* FSRs_to_material_indices = new int[_num_FSRs];
 
     /* Populate FSR Material indices array */
-    for (int i = 0; i < _num_FSRs; i++)
+    for (long i = 0; i < _num_FSRs; i++)
       FSRs_to_material_indices[i] = _material_IDs_to_indices[_geometry->
         findFSRMaterial(i)->getId()];
 
