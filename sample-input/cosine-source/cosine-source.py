@@ -1,6 +1,8 @@
 import openmoc
 import math
 
+use_gpu = False
+
 ###############################################################################
 #                          Main Simulation Parameters
 ###############################################################################
@@ -106,8 +108,13 @@ track_generator.generateTracks()
 ###############################################################################
 
 # initialize the solver
-solver = openmoc.CPUSolver(track_generator)
-solver.setNumThreads(opts.num_omp_threads)
+if use_gpu:
+    from openmoc.cuda import GPUSolver
+    solver= GPUSolver(track_generator)
+else:
+    solver = openmoc.CPUSolver(track_generator)
+    solver.setNumThreads(opts.num_omp_threads)
+solver.initializeSolver(0)
 solver.setConvergenceThreshold(opts.tolerance)
 
 # Set the source in every cell to a cosine distribution
