@@ -509,23 +509,32 @@ __device__ void transferBoundaryFlux(dev_track* curr_track,
   bool transfer_flux;
   int track_out_id;
 
+  /* TODO possible micro-optimization: go back to storing next_fwd_is_bwd
+     rather than next_fwd_is_bwd. More confusing that way, but avoids one
+     "!" operation. If it gives more than a 0.5% speed increase, I'd say
+     it's worth it. */
+
   /* For the "forward" direction */
   if (direction) {
-    transfer_flux = curr_track->_transfer_flux_out;
-    track_out_id = curr_track->_track_out;
-    start += curr_track->_next_fwd * polar_times_groups;
+    transfer_flux = curr_track->_transfer_flux_fwd;
+    track_out_id = curr_track->_next_track_fwd;
+    start += !curr_track->_next_fwd_is_fwd * polar_times_groups;
   }
 
   /* For the "reverse" direction */
   else {
-    transfer_flux = curr_track->_transfer_flux_in;
-    track_out_id = curr_track->_track_in;
-    start += curr_track->_next_bwd * polar_times_groups;
+    transfer_flux = curr_track->_transfer_flux_bwd;
+    track_out_id = curr_track->_next_track_bwd;
+    start += !curr_track->_next_bwd_is_fwd * polar_times_groups;
   }
 
   FP_PRECISION* track_out_flux = &boundary_flux(track_out_id,start);
 
   /* Put Track's flux in the shared memory temporary flux array */
+  /* TODO check if just writing if(transfer_flux) will be usable here and
+     not incur a performance penalty. The original intention of this code
+     must have been not to get thread divergence, but the speed should be
+     exactly the same since using an if statement just leaves threads idling. */
   for (int p=0; p < num_polar_2; p++)
     track_out_flux[p] = track_flux[p] * transfer_flux;
 }
@@ -1310,11 +1319,11 @@ void GPUSolver::initializeTracks() {
 
       /* Get indices to next tracks along "forward" and "reverse" directions */
       index = _tracks[i]->getTrackNextFwd();
-      cudaMemcpy(&_dev_tracks[i]._track_in,
+      cudaMemcpy(&_dev_tracks[i]._next_track_fwd,
                  &index, sizeof(int), cudaMemcpyHostToDevice);
 
       index = _tracks[i]->getTrackNextBwd();
-      cudaMemcpy(&_dev_tracks[i]._track_out,
+      cudaMemcpy(&_dev_tracks[i]._next_track_bwd,
                  &index, sizeof(int), cudaMemcpyHostToDevice);
     }
 

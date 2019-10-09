@@ -94,10 +94,12 @@ void clone_track(Track* track_h, dev_track* track_d,
   new_track._num_segments = track_h->getNumSegments();
   new_track._azim_angle_index = track_h->getAzimIndex();
 
-  new_track._next_bwd = track_h->getNextBwdFwd();
-  new_track._next_fwd = track_h->getNextFwdFwd();
-  new_track._transfer_flux_in = track_h->getBCBwd();
-  new_track._transfer_flux_out = track_h->getBCFwd();
+  new_track._next_fwd_is_fwd = track_h->getNextFwdFwd();
+  new_track._next_bwd_is_fwd = track_h->getNextBwdFwd();
+  new_track._transfer_flux_fwd = track_h->getBCFwd();
+  new_track._transfer_flux_bwd = track_h->getBCBwd();
+  new_track._next_track_fwd = track_h->getTrackNextFwd();
+  new_track._next_track_bwd = track_h->getTrackNextBwd();
 
   cudaMalloc((void**)&dev_segments,
              track_h->getNumSegments() * sizeof(dev_segment));
