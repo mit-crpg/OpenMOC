@@ -32,6 +32,7 @@ Cmfd::Cmfd() {
   _cell_width_x = 0.;
   _cell_width_y = 0.;
   _cell_width_z = 0.;
+  _num_unbounded_iterations = 0;
   _flux_update_on = true;
   _centroid_update_on = false;
   _use_axial_interpolation = 0;
@@ -1483,10 +1484,10 @@ void Cmfd::updateMOCFlux() {
 
         /* Limit the update ratio for stability purposes. For very low flux
            regions, update ratio may be left unrestricted a few iterations*/
-        if (update_ratio > 20.0)
-          update_ratio = 20.0;
-        if (_moc_iteration > 5)
-          if (update_ratio < 0.05)
+        if (_moc_iteration > _num_unbounded_iterations)
+          if (update_ratio > 20.0)
+            update_ratio = 20.0;
+          else if (update_ratio < 0.05)
             update_ratio = 0.05;
 
         /* Save max update ratio among fsrs and groups in a cell */
@@ -3337,6 +3338,16 @@ double Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
  */
 void Cmfd::setGeometry(Geometry* geometry) {
   _geometry = geometry;
+}
+
+
+/**
+ * @brief Set the number of iterations where the CMFD update ratios are not
+ *        bounded.
+ * @param unbounded number of iterations without bounds on CMFD update ratios
+ */
+void Cmfd::setNumUnboundedIterations(int unbounded_iterations) {
+  _num_unbounded_iterations = unbounded_iterations;
 }
 
 

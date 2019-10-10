@@ -250,6 +250,9 @@ private:
   /** Whether to allow the CMFD solver to work with / return negative fluxes */
   bool _negative_fluxes_allowed;
 
+  /** Number of MOC iterations before the CMFD update ratios are limited */
+  int _num_unbounded_iterations;
+
   /** Number of cells to use in updating MOC flux */
   int _k_nearest;
 
@@ -457,6 +460,7 @@ public:
   void setGroupStructure(std::vector< std::vector<int> > group_indices);
   void setSourceConvergenceThreshold(double source_thresh);
   void setQuadrature(Quadrature* quadrature);
+  void setNumUnboundedIterations(int unbounded_iterations);
   void setKNearest(int k_nearest);
   void setSolve3D(bool solve_3d);
   void setAzimSpacings(const std::vector<double>& azim_spacings,

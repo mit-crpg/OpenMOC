@@ -752,6 +752,7 @@ void CPUSolver::deleteMPIBuffers() {
   delete [] _MPI_sends;
   delete [] _MPI_receives;
 }
+#endif
 
 
 #ifdef ONLYVACUUMBC
@@ -784,6 +785,7 @@ void CPUSolver::resetBoundaryFluxes() {
 #endif
 
 
+#ifdef MPIx
 /**
  * @brief Prints out tracking information for cycles, traversing domain
  *        interfaces.

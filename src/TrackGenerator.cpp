@@ -143,6 +143,15 @@ void TrackGenerator::initializeVolumes() {
   initializeFSRVolumesBuffer();
   FP_PRECISION* fsr_volumes = getFSRVolumes();
 
+  /* Reset cell and material volumes */
+  for (int i=0; i < num_FSRs; i++) {
+    cell = _geometry->findCellContainingFSR(i);
+    cell->setVolume(0);
+
+    material = cell->getFillMaterial();
+    material->setVolume(0);
+  }
+
   /* Compute volume and number of instances for each Cell and Material */
   for (int i=0; i < num_FSRs; i++) {
     cell = _geometry->findCellContainingFSR(i);
