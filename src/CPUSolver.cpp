@@ -1865,7 +1865,7 @@ void CPUSolver::computeFSRSources(int iteration) {
         num_negative_sources++;
         negative_source_in_fsr = true;
         if (iteration < 30 && !_negative_fluxes_allowed)
-          _reduced_sources(r,G) = 1.0e-20;
+          _reduced_sources(r,G) = FLUX_EPSILON;
       }
     }
 
@@ -2511,7 +2511,7 @@ void CPUSolver::addSourceToScalarFlux() {
       _scalar_flux(r, e) += FOUR_PI * _reduced_sources(r, e) / sigma_t[e];
 
       if (_scalar_flux(r, e) < 0.0 && !_negative_fluxes_allowed) {
-        _scalar_flux(r, e) = 1e-20;
+        _scalar_flux(r, e) = FLUX_EPSILON;
 #pragma omp atomic update
         num_negative_fluxes++;
       }
@@ -3004,7 +3004,7 @@ void CPUSolver::printNegativeSources(int iteration, int num_x, int num_y,
 
     /* Determine the number of negative sources */
     for (int e=0; e < _NUM_GROUPS; e++) {
-      if (_reduced_sources(r,e) < 1e-19) {
+      if (_reduced_sources(r,e) < 10 * FLUX_EPSILON) {
         by_group[e]++;
         mapping[lat_cell]++;
       }

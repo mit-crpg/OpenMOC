@@ -1289,6 +1289,24 @@ void Cmfd::rescaleFlux() {
 #endif
   _new_flux->scaleByValue(1.0 / new_source_sum);
   _old_flux->scaleByValue(1.0 / old_source_sum);
+
+  /* Check for negative fluxes in CMFD flux */
+  long num_negative_fluxes = _new_fluxes->getNumNegativeValues();
+  int total_negative_CMFD_flux_domains = (num_negative_fluxes > 0);
+#ifdef MPIx
+  if (_domain_communicator != NULL) {
+    double temp_sum_neg = num_negative_fluxes;
+    MPI_Allreduce(&temp_sum_neg, &num_negative_fluxes, 1, MPI_LONG, MPI_SUM,
+                  _domain_communicator->_MPI_cart);
+    double temp_sum_dom = total_negative_CMFD_flux_domains;
+    MPI_Allreduce(&temp_sum_dom, &total_negative_CMFD_flux_domains, 1,
+                  MPI_INT, MPI_SUM, _domain_communicator->_MPI_cart);
+  }
+#endif
+
+  if (num_negative_fluxes > 0)
+    log_printf(WARNING, "Negative CMFD fluxes in %ld cells on %d domains.",
+               num_negative_fluxes, total_negative_CMFD_flux_domains);
 }
 
 
@@ -2720,8 +2738,8 @@ void Cmfd::enforceBalanceOnDiagonal(int cmfd_cell, int group) {
         _FSR_sources[fsr_id * _num_moc_groups + h];
   }
 
-  if (fabs(moc_source) < FLT_EPSILON)
-    moc_source = 1e-20;
+  if (fabs(moc_source) < FLUX_EPSILON)
+    moc_source = FLUX_EPSILON;
 
   /* Compute updated value */
   double flux = _old_flux->getValue(cmfd_cell, group);
@@ -3201,12 +3219,12 @@ CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, long fsr) {
            interpolants[1] * new_flux_mid +
            interpolants[2] * new_flux_next;
 
-    if (fabs(old_flux) > 0)
+    if (fabs(old_flux) > FLUX_EPSILON)
       ratio = new_flux / old_flux;
 
     /* Fallback: using the cell average flux ratio */
     if (ratio < 0) {
-      if (fabs(_old_flux->getValue(cell_id, group)) > 0)
+      if (fabs(_old_flux->getValue(cell_id, group)) > FLUX_EPSILON)
         ratio = _new_flux->getValue(cell_id, group) /
                 _old_flux->getValue(cell_id, group);
       else
@@ -3216,7 +3234,7 @@ CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, long fsr) {
     return ratio;
   }
   else {
-    if (fabs(_old_flux->getValue(cell_id, group)) > 0)
+    if (fabs(_old_flux->getValue(cell_id, group)) > FLUX_EPSILON)
       return _new_flux->getValue(cell_id, group) /
               _old_flux->getValue(cell_id, group);
     else
@@ -5040,7 +5058,7 @@ void Cmfd::unpackSplitCurrents(bool faces) {
                     _received_split_currents[s][idx][f * _num_cmfd_groups + g];
 
                   /* Treat nonzero values */
-                  if (fabs(value) > FLT_EPSILON)
+                  if (fabs(value) > FLUX_EPSILON)
                     _surface_currents->incrementValue(cell_id,
                                                       f * _num_cmfd_groups + g,
                                                       value);
@@ -5062,7 +5080,7 @@ void Cmfd::unpackSplitCurrents(bool faces) {
                     _received_split_currents[s][idx][e * _num_cmfd_groups + g];
 
                   /* Treat nonzero values */
-                  if (fabs(value) > FLT_EPSILON) {
+                  if (fabs(value) > FLUX_EPSILON) {
 
                     int new_ind = surf_idx + g;
 

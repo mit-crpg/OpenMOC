@@ -82,6 +82,7 @@ class LinearFixedSourceTestHarness(TestHarness):
         self.solver = openmoc.CPULSSolver(self.track_generator)
         self.solver.setNumThreads(self.num_threads)
         self.solver.setConvergenceThreshold(self.tolerance)
+        self.solver.allowNegativeFluxes(True)
         solver = self.solver
 
         # Set the flat fixed source
