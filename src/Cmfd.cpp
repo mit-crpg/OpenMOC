@@ -32,6 +32,7 @@ Cmfd::Cmfd() {
   _cell_width_x = 0.;
   _cell_width_y = 0.;
   _cell_width_z = 0.;
+  _num_unbounded_iterations = 0;
   _flux_update_on = true;
   _centroid_update_on = false;
   _use_axial_interpolation = 0;
@@ -863,11 +864,25 @@ void Cmfd::collapseXS() {
         double rxn_tally = _reaction_tally[i][e];
 
         if (rxn_tally <= 0) {
+          int cell = getGlobalCMFDCell(i);
+          int x = (cell % (_num_x * _num_y)) % _num_x;
+          int y = (cell % (_num_x * _num_y)) / _num_x;
+          int z = cell / (_num_x * _num_y);
           log_printf(WARNING, "Negative or zero reaction tally calculated in "
-                     "CMFD cell %d in CMFD group %d : %e", i, e + 1, rxn_tally);
+                     "CMFD cell %d [%d %d %d] in CMFD group %d : %e", cell, x,
+                     y, z, e + 1, rxn_tally);
+
+          /* Set all cross sections to be 1 */
           rxn_tally = ZERO_SIGMA_T;
           _reaction_tally[i][e] = ZERO_SIGMA_T;
           _diffusion_tally[i][e] = ZERO_SIGMA_T;
+          total_tally = ZERO_SIGMA_T;
+          if (nu_fission_tally != 0)
+            nu_fission_tally = ZERO_SIGMA_T;
+
+          /* Avoid excessive downscatter */
+          for (int g = 0; g < _num_cmfd_groups; g++)
+            scat_tally[g] = 0;
         }
 
         cell_material->setSigmaTByGroup(total_tally / rxn_tally, e + 1);
@@ -1274,6 +1289,24 @@ void Cmfd::rescaleFlux() {
 #endif
   _new_flux->scaleByValue(1.0 / new_source_sum);
   _old_flux->scaleByValue(1.0 / old_source_sum);
+
+  /* Check for negative fluxes in CMFD flux */
+  long num_negative_fluxes = _new_flux->getNumNegativeValues();
+  int total_negative_CMFD_flux_domains = (num_negative_fluxes > 0);
+#ifdef MPIx
+  if (_domain_communicator != NULL) {
+    double temp_sum_neg = num_negative_fluxes;
+    MPI_Allreduce(&temp_sum_neg, &num_negative_fluxes, 1, MPI_LONG, MPI_SUM,
+                  _domain_communicator->_MPI_cart);
+    double temp_sum_dom = total_negative_CMFD_flux_domains;
+    MPI_Allreduce(&temp_sum_dom, &total_negative_CMFD_flux_domains, 1,
+                  MPI_INT, MPI_SUM, _domain_communicator->_MPI_cart);
+  }
+#endif
+
+  if (num_negative_fluxes > 0)
+    log_printf(WARNING_ONCE, "Negative CMFD fluxes in %ld cells on %d domains.",
+               num_negative_fluxes, total_negative_CMFD_flux_domains);
 }
 
 
@@ -1467,11 +1500,13 @@ void Cmfd::updateMOCFlux() {
         /* Get the update ratio */
         CMFD_PRECISION update_ratio = getUpdateRatio(i, e, *iter);
 
-        /* Limit the update ratio */
-        if (update_ratio > 20.0)
-          update_ratio = 20.0;
-        if (update_ratio < 0.05)
-          update_ratio = 0.05;
+        /* Limit the update ratio for stability purposes. For very low flux
+           regions, update ratio may be left unrestricted a few iterations*/
+        if (_moc_iteration > _num_unbounded_iterations)
+          if (update_ratio > 20.0)
+            update_ratio = 20.0;
+          else if (update_ratio < 0.05)
+            update_ratio = 0.05;
 
         /* Save max update ratio among fsrs and groups in a cell */
         if (_convergence_data != NULL)
@@ -2703,8 +2738,8 @@ void Cmfd::enforceBalanceOnDiagonal(int cmfd_cell, int group) {
         _FSR_sources[fsr_id * _num_moc_groups + h];
   }
 
-  if (fabs(moc_source) < FLT_EPSILON)
-    moc_source = 1e-20;
+  if (fabs(moc_source) < FLUX_EPSILON)
+    moc_source = FLUX_EPSILON;
 
   /* Compute updated value */
   double flux = _old_flux->getValue(cmfd_cell, group);
@@ -3184,12 +3219,12 @@ CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, long fsr) {
            interpolants[1] * new_flux_mid +
            interpolants[2] * new_flux_next;
 
-    if (fabs(old_flux) > 0)
+    if (fabs(old_flux) > FLUX_EPSILON)
       ratio = new_flux / old_flux;
 
     /* Fallback: using the cell average flux ratio */
     if (ratio < 0) {
-      if (fabs(_old_flux->getValue(cell_id, group)) > 0)
+      if (fabs(_old_flux->getValue(cell_id, group)) > FLUX_EPSILON)
         ratio = _new_flux->getValue(cell_id, group) /
                 _old_flux->getValue(cell_id, group);
       else
@@ -3199,7 +3234,7 @@ CMFD_PRECISION Cmfd::getFluxRatio(int cell_id, int group, long fsr) {
     return ratio;
   }
   else {
-    if (fabs(_old_flux->getValue(cell_id, group)) > 0)
+    if (fabs(_old_flux->getValue(cell_id, group)) > FLUX_EPSILON)
       return _new_flux->getValue(cell_id, group) /
               _old_flux->getValue(cell_id, group);
     else
@@ -3321,6 +3356,16 @@ double Cmfd::getDistanceToCentroid(Point* centroid, int cell_id,
  */
 void Cmfd::setGeometry(Geometry* geometry) {
   _geometry = geometry;
+}
+
+
+/**
+ * @brief Set the number of iterations where the CMFD update ratios are not
+ *        bounded.
+ * @param unbounded number of iterations without bounds on CMFD update ratios
+ */
+void Cmfd::setNumUnboundedIterations(int unbounded_iterations) {
+  _num_unbounded_iterations = unbounded_iterations;
 }
 
 
@@ -5013,7 +5058,7 @@ void Cmfd::unpackSplitCurrents(bool faces) {
                     _received_split_currents[s][idx][f * _num_cmfd_groups + g];
 
                   /* Treat nonzero values */
-                  if (fabs(value) > FLT_EPSILON)
+                  if (fabs(value) > FLUX_EPSILON)
                     _surface_currents->incrementValue(cell_id,
                                                       f * _num_cmfd_groups + g,
                                                       value);
@@ -5035,7 +5080,7 @@ void Cmfd::unpackSplitCurrents(bool faces) {
                     _received_split_currents[s][idx][e * _num_cmfd_groups + g];
 
                   /* Treat nonzero values */
-                  if (fabs(value) > FLT_EPSILON) {
+                  if (fabs(value) > FLUX_EPSILON) {
 
                     int new_ind = surf_idx + g;
 

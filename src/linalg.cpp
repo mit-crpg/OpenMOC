@@ -628,7 +628,7 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated,
         new_source += X->getValue(i, g);
         old_source += Y->getValue(i, g);
       }
-      if (fabs(old_source) > FLT_EPSILON)
+      if (fabs(old_source) > FLUX_EPSILON)
         residual[i] = pow((new_source - old_source) / old_source, 2);
     }
 
@@ -648,7 +648,7 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated,
 #pragma omp parallel for
     for (int i = 0; i < num_x*num_y*num_z; i++) {
       for (int g = 0; g < num_groups; g++) {
-        if (fabs(X->getValue(i, g)) > FLT_EPSILON)
+        if (fabs(X->getValue(i, g)) > FLUX_EPSILON)
           residual.setValue(i, g, pow((X->getValue(i, g) - Y->getValue(i, g)) /
                                       X->getValue(i, g), 2));
       }

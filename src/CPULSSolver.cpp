@@ -445,8 +445,8 @@ void CPULSSolver::computeFSRSources(int iteration) {
 
         /* Compute total (scatter+fission) reduced source moments */
         if (_SOLVE_3D) {
-          if (_negative_fluxes_allowed || _reduced_sources(r,g) > 1e-15
-              || iteration > 29) {
+          if (_negative_fluxes_allowed ||
+              _reduced_sources(r,g) > 10 * FLUX_EPSILON || iteration > 29) {
             _reduced_sources_xyz(r,g,0) = ONE_OVER_FOUR_PI / 2 *
                  (_FSR_lin_exp_matrix[r*num_coeffs  ] * src_x +
                   _FSR_lin_exp_matrix[r*num_coeffs+2] * src_y +
@@ -461,14 +461,14 @@ void CPULSSolver::computeFSRSources(int iteration) {
                   _FSR_lin_exp_matrix[r*num_coeffs+5] * src_z);
           }
           else {
-            _reduced_sources_xyz(r,g,0) = 1e-25;
-            _reduced_sources_xyz(r,g,1) = 1e-25;
-            _reduced_sources_xyz(r,g,2) = 1e-25;
+            _reduced_sources_xyz(r,g,0) = 0;
+            _reduced_sources_xyz(r,g,1) = 0;
+            _reduced_sources_xyz(r,g,2) = 0;
           }
         }
         else {
-          if (_negative_fluxes_allowed || _reduced_sources(r,g) > 1e-15
-              || iteration > 29) {
+          if (_negative_fluxes_allowed ||
+              _reduced_sources(r,g) > 10 * FLUX_EPSILON || iteration > 29) {
             _reduced_sources_xyz(r,g,0) = ONE_OVER_FOUR_PI / 2 *
                  (_FSR_lin_exp_matrix[r*num_coeffs  ] * src_x +
                   _FSR_lin_exp_matrix[r*num_coeffs+2] * src_y);
@@ -477,8 +477,8 @@ void CPULSSolver::computeFSRSources(int iteration) {
                   _FSR_lin_exp_matrix[r*num_coeffs+1] * src_y);
           }
           else {
-            _reduced_sources_xyz(r,g,0) = 1e-20;
-            _reduced_sources_xyz(r,g,1) = 1e-20;
+            _reduced_sources_xyz(r,g,0) = 0;
+            _reduced_sources_xyz(r,g,1) = 0;
           }
         }
       }
@@ -569,6 +569,10 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
         /* Compute the change in flux across the segment */
         FP_PRECISION delta_psi = (tau[e] * track_flux[e] - length * src_flat[e])
              * exp_F1 - src_linear[e] * length * length * exp_F2;
+
+        /* Limit delta psi to avoid negative track fluxes */
+        delta_psi = std::min(float(delta_psi), track_flux[e]);
+
         track_flux[e] -= delta_psi;
 
         /* Increment the fsr scalar flux and scalar flux moments */
@@ -593,6 +597,10 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       /* Compute the change in flux across the segment */
       FP_PRECISION delta_psi = (tau[e] * track_flux[e] - length * src_flat[e])
            * exp_F1 - src_linear[e] * length * length * exp_F2;
+
+      /* Limit delta psi to avoid negative track fluxes */
+      delta_psi = std::min(float(delta_psi), track_flux[e]);
+
       track_flux[e] -= delta_psi;
 
       /* Increment the fsr scalar flux and scalar flux moments */
@@ -805,6 +813,10 @@ void CPULSSolver::addSourceToScalarFlux() {
         if (_scalar_flux(r, e) < 0.0 && !_negative_fluxes_allowed) {
 #pragma omp atomic update
           num_negative_fluxes++;
+          _scalar_flux(r,e) = std::max(_old_scalar_flux(r,e), FLUX_EPSILON);
+          _scalar_flux_xyz(r,e,0) = 0;
+          _scalar_flux_xyz(r,e,1) = 0;
+          _scalar_flux_xyz(r,e,2) = 0;
         }
       }
     }

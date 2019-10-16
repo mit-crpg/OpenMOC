@@ -539,7 +539,7 @@ void CPUSolver::setupMPIBuffers() {
               _neighbor_domains.push_back(domain);
               idx++;
 
-              /* Inititalize vector of starting indexes into send_buffers */
+              /* Inititalize vector that shows how filled send_buffers are */
               _send_buffers_index.push_back(0);
             }
           }
@@ -560,6 +560,11 @@ void CPUSolver::setupMPIBuffers() {
     _send_buffers.resize(num_domains);
     _receive_buffers.resize(num_domains);
     for (int i=0; i < num_domains; i++) {
+#ifdef ONLYVACUUMBC
+      /* Increase capacity because buffers will overflow and need a resize */
+      _send_buffers.at(i).reserve(3*message_length);
+      _receive_buffers.at(i).reserve(3*message_length);
+#endif
       _send_buffers.at(i).resize(message_length);
       _receive_buffers.at(i).resize(message_length);
     }
@@ -708,6 +713,7 @@ void CPUSolver::setupMPIBuffers() {
         delete track;
     }
 
+    printLoadBalancingReport();
     log_printf(NORMAL, "Finished setting up MPI buffers...");
 
     /* Setup MPI communication bookkeeping */
@@ -746,6 +752,7 @@ void CPUSolver::deleteMPIBuffers() {
   delete [] _MPI_sends;
   delete [] _MPI_receives;
 }
+#endif
 
 
 #ifdef ONLYVACUUMBC
@@ -778,6 +785,7 @@ void CPUSolver::resetBoundaryFluxes() {
 #endif
 
 
+#ifdef MPIx
 /**
  * @brief Prints out tracking information for cycles, traversing domain
  *        interfaces.
@@ -1026,7 +1034,7 @@ void CPUSolver::transferAllInterfaceFluxes() {
   MPI_Comm MPI_cart = _geometry->getMPICart();
   MPI_Status stat;
 
-  /* Wait for all MPI Ranks to be done with communication */
+  /* Wait for all MPI Ranks to be done with sweeping */
   _timer->startTimer();
   MPI_Barrier(MPI_cart);
   _timer->stopTimer();
@@ -1034,6 +1042,10 @@ void CPUSolver::transferAllInterfaceFluxes() {
 
   /* Initialize timer for total transfer cost */
   _timer->startTimer();
+
+  /* Get rank of each process */
+  int rank;
+  MPI_Comm_rank(MPI_cart, &rank);
 
   /* Create bookkeeping vectors */
   std::vector<long> packing_indexes;
@@ -1047,8 +1059,6 @@ void CPUSolver::transferAllInterfaceFluxes() {
   while (true) {
 
     round_counter++;
-    int rank;
-    MPI_Comm_rank(MPI_cart, &rank);
 
     /* Pack buffers with angular flux data */
     _timer->startTimer();
@@ -1057,24 +1067,15 @@ void CPUSolver::transferAllInterfaceFluxes() {
     _timer->recordSplit("Packing time");
 
 #ifdef ONLYVACUUMBC
-    /* Check if any rank needs to send buffers : because of the pre-filling
-       some nodes might have sent all their fluxes before others */
-    int need_to_send = 0;
-    for (int i=0; i < num_domains; i++) {
+    /* Number of communication rounds is bounded */
+    long max_boundary_tracks = 0;
+    for (int i=0; i < num_domains; i++)
+      max_boundary_tracks = std::max(max_boundary_tracks,
+                                     long(_boundary_tracks.at(i).size()));
+    bool active_communication =
+         max_boundary_tracks > (round_counter * TRACKS_PER_BUFFER);
 
-      long* first_track_idx =
-        reinterpret_cast<long*>(&_send_buffers.at(i)[_fluxes_per_track+1]);
-      long first_track = first_track_idx[0];
-      if (first_track != -1)
-        need_to_send = 1;
-    }
-
-    int num_send_domains;
-    MPI_Allreduce(&need_to_send, &num_send_domains, 1, MPI_INT, MPI_SUM,
-                  MPI_cart);
-    if (round_counter % 20 == 0)
-      log_printf(INFO_ONCE, "Communication round %d : %d domains sending track"
-                 " fluxes.", round_counter, num_send_domains);
+    MPI_Request _MPI_req[2*num_domains];
 #endif
 
     /* Set size of received messages, adjust buffer if needed */
@@ -1085,58 +1086,105 @@ void CPUSolver::transferAllInterfaceFluxes() {
       _receive_size.at(i) = TRACKS_PER_BUFFER;
 
 #ifdef ONLYVACUUMBC
+      _receive_size.at(i) = -1;
       int domain = _neighbor_domains.at(i);
-      if (num_send_domains > 0) {
+      if (active_communication) {
         /* Communicate _send_buffers' sizes to adapt _receive_buffers' sizes */
-        MPI_Sendrecv(&_send_size.at(i), 1, MPI_INT, domain, 0,
-                     &_receive_size.at(i), 1, MPI_INT, domain, 0, MPI_cart,
-                     MPI_STATUS_IGNORE);
+        MPI_Isend(&_send_size.at(i), 1, MPI_INT, domain, 0, MPI_cart,
+                  &_MPI_req[i*2]);
+        MPI_Irecv(&_receive_size.at(i), 1, MPI_INT, domain, 0, MPI_cart,
+                  &_MPI_req[i*2 + 1]);
+      }
+      else {
+        _MPI_req[i*2] = MPI_REQUEST_NULL;
+        _MPI_req[i*2 + 1] = MPI_REQUEST_NULL;
+      }
+    }
 
-        /* Adjust receiving buffer if incoming message is large */
-        if (_receive_size.at(i) > _receive_buffers.at(i).size() / _track_message_size)
-          _receive_buffers.at(i).resize(
-               _receive_size.at(i) * _track_message_size);
+    if (_num_iterations == 0) {
+      /* Block for communication round to complete, to adjust buffer sizes */
+      MPI_Waitall(2 * num_domains, _MPI_req, MPI_STATUSES_IGNORE);
+
+      for (int i=0; i < num_domains; i++) {
+        if (active_communication) {
+          /* Adjust receiving buffer if incoming message is large */
+          if (_receive_size.at(i) > _receive_buffers.at(i).size() /
+              _track_message_size)
+            _receive_buffers.at(i).resize(_receive_size.at(i) *
+                                          _track_message_size);
+        }
       }
 #endif
     }
 
     /* Send and receive from all neighboring domains */
     bool communication_complete = true;
-    for (int i=0; i < num_domains; i++) {
 
-      /* Get the communicating neighbor domain */
-      int domain = _neighbor_domains.at(i);
+#ifdef ONLYVACUUMBC
+    /* Start all sends and receives when the buffers' sizes are known to
+       reduce synchronization */
+    bool all_transfers_started = false;
+    while (!all_transfers_started) {
+      all_transfers_started = true;
+#endif
+      for (int i=0; i < num_domains; i++) {
 
-      /* Check if a send/receive needs to be created */
-      long* first_track_idx =
-        reinterpret_cast<long*>(&_send_buffers.at(i)[_fluxes_per_track+1]);
-      long first_track = first_track_idx[0];
+        /* Get the communicating neighbor domain */
+        int domain = _neighbor_domains.at(i);
 
 #ifndef ONLYVACUUMBC
-      if (first_track != -1) {
+        /* Check if a send/receive needs to be created */
+        long* first_track_idx =
+          reinterpret_cast<long*>(&_send_buffers.at(i)[_fluxes_per_track+1]);
+        long first_track = first_track_idx[0];
+
+        if (first_track != -1) {
 #else
-      if (num_send_domains > 0) {
+        /* Send/receive fluxes if there are fluxes to be sent, if buffers are
+           the right size and if they haven't been sent already */
+        if (active_communication) {
 #endif
+          /* Send outgoing flux */
+          if (_send_size.at(i) > 0 && !_MPI_sends[i]) {
+            MPI_Isend(&_send_buffers.at(i)[0], _track_message_size *
+                      _send_size.at(i), MPI_FLOAT, domain, 1, MPI_cart,
+                      &_MPI_requests[i*2]);
+            _MPI_sends[i] = true;
+          }
+          else
+            if (!_MPI_sends[i])
+              _MPI_requests[i*2] = MPI_REQUEST_NULL;
 
-        /* Send outgoing flux */
-        MPI_Isend(&_send_buffers.at(i)[0], _track_message_size *
-                  _send_size.at(i), MPI_FLOAT, domain, 0, MPI_cart,
-                  &_MPI_requests[i*2]);
-        _MPI_sends[i] = true;
+          /* Receive incoming flux */
+          if (_receive_size.at(i) > 0 && !_MPI_receives[i]) {
+            MPI_Irecv(&_receive_buffers.at(i)[0], _track_message_size *
+                      _receive_size.at(i), MPI_FLOAT, domain, 1, MPI_cart,
+                      &_MPI_requests[i*2+1]);
+            _MPI_receives[i] = true;
+          }
+          else
+            if (!_MPI_receives[i])
+              _MPI_requests[i*2+1] = MPI_REQUEST_NULL;
 
-        /* Receive incoming flux */
-        MPI_Irecv(&_receive_buffers.at(i)[0], _track_message_size *
-                  _receive_size.at(i), MPI_FLOAT, domain, 0, MPI_cart,
-                  &_MPI_requests[i*2+1]);
-        _MPI_receives[i] = true;
-
-        /* Mark communication as ongoing */
-        communication_complete = false;
+          /* Mark communication as ongoing */
+          communication_complete = false;
+        }
+        else {
+          if (!_MPI_sends[i])
+            _MPI_requests[i*2] = MPI_REQUEST_NULL;
+          if (!_MPI_receives[i])
+            _MPI_requests[i*2+1] = MPI_REQUEST_NULL;
+        }
+#ifdef ONLYVACUUMBC
+        /* Check that all MPI receive calls have been made */
+        if (active_communication && !_MPI_receives[i] && _receive_size.at(i) != 0) {
+          all_transfers_started = false;
+          int flag;
+          if (_receive_size.at(i) == -1)
+            MPI_Test(&_MPI_req[i*2 + 1], &flag, MPI_STATUSES_IGNORE);
+        }
       }
-      else {
-        _MPI_requests[i*2] = MPI_REQUEST_NULL;
-        _MPI_requests[i*2+1] = MPI_REQUEST_NULL;
-      }
+#endif
     }
 
     /* Check if communication is done */
@@ -1147,9 +1195,13 @@ void CPUSolver::transferAllInterfaceFluxes() {
     }
 
     /* Block for communication round to complete */
+    //FIXME Not necessary, buffers could be unpacked while waiting
     MPI_Waitall(2 * num_domains, _MPI_requests, MPI_STATUSES_IGNORE);
+    _timer->stopTimer();
+    _timer->recordSplit("Communication time");
 
     /* Reset status for next communication round and copy fluxes */
+    _timer->startTimer();
     for (int i=0; i < num_domains; i++) {
 
       /* Reset send */
@@ -1205,9 +1257,10 @@ void CPUSolver::transferAllInterfaceFluxes() {
                   if (buffer_index >= _send_buffers.at(i_next).size()) {
                     log_printf(WARNING, "MPI angular flux communication buffer"
                                " from rank %d to %d overflowed. Buffer memory "
-                               "doubled dynamically.", rank, send_domain);
+                               "increased dynamically.", rank, send_domain);
                     _send_buffers.at(i_next).resize(_send_buffers.at(
-                          i_next).size() * 2);
+                          i_next).size() + TRACKS_PER_BUFFER *
+                          _track_message_size);
                   }
 
                   /* Copy flux, direction and next track in send_buffer */
@@ -1242,8 +1295,9 @@ void CPUSolver::transferAllInterfaceFluxes() {
       /* Reset receive */
       _MPI_receives[i] = false;
     }
+
     _timer->stopTimer();
-    _timer->recordSplit("Communication time");
+    _timer->recordSplit("Unpacking time");
   }
 
 #ifdef ONLYVACUUMBC
@@ -1811,7 +1865,7 @@ void CPUSolver::computeFSRSources(int iteration) {
         num_negative_sources++;
         negative_source_in_fsr = true;
         if (iteration < 30 && !_negative_fluxes_allowed)
-          _reduced_sources(r,G) = 1.0e-20;
+          _reduced_sources(r,G) = FLUX_EPSILON;
       }
     }
 
@@ -2457,7 +2511,7 @@ void CPUSolver::addSourceToScalarFlux() {
       _scalar_flux(r, e) += FOUR_PI * _reduced_sources(r, e) / sigma_t[e];
 
       if (_scalar_flux(r, e) < 0.0 && !_negative_fluxes_allowed) {
-        _scalar_flux(r, e) = 1e-20;
+        _scalar_flux(r, e) = FLUX_EPSILON;
 #pragma omp atomic update
         num_negative_fluxes++;
       }
@@ -2728,6 +2782,55 @@ void CPUSolver::printInputParamsSummary() {
 }
 
 
+#ifdef MPIx
+/**
+ * @brief A function that prints the repartition of integrations and tracks
+ *        among domains and interfaces.
+ */
+void CPUSolver::printLoadBalancingReport() {
+
+  /* Give a measure of the load imbalance for the sweep step (segments) */
+  int num_ranks = 1;
+  long num_segments = _track_generator->getNumSegments();
+  long min_segments = num_segments, max_segments = num_segments,
+       total_segments = num_segments;
+  if (_geometry->isDomainDecomposed()) {
+    MPI_Comm_size(_geometry->getMPICart(), &num_ranks);
+    MPI_Reduce(&num_segments, &min_segments, 1, MPI_LONG, MPI_MIN, 0,
+               _geometry->getMPICart());
+    MPI_Reduce(&num_segments, &max_segments, 1, MPI_LONG, MPI_MAX, 0,
+               _geometry->getMPICart());
+    MPI_Reduce(&num_segments, &total_segments, 1, MPI_LONG, MPI_SUM, 0,
+               _geometry->getMPICart());
+  }
+  FP_PRECISION mean_segments = float(total_segments) / num_ranks;
+  log_printf(INFO_ONCE, "Min / max / mean number of segments in domains: "
+             "%.1e / %.1e / %.1e", float(min_segments), float(max_segments),
+             mean_segments);
+
+  /* Give a measure of load imbalance for the communication phase */
+  FP_PRECISION tracks_x = 0, tracks_y = 0, tracks_z = 0;
+  int domain = _geometry->getNeighborDomain(0, 0, 1);
+  if (domain != -1)
+    tracks_z = _boundary_tracks.at(_neighbor_connections.at(domain)).size();
+
+  domain = _geometry->getNeighborDomain(0, 1, 0);
+  if (domain != -1)
+    tracks_y = _boundary_tracks.at(_neighbor_connections.at(domain)).size();
+
+  domain = _geometry->getNeighborDomain(1, 0, 0);
+  if (domain != -1)
+    tracks_x = _boundary_tracks.at(_neighbor_connections.at(domain)).size();
+
+  long sum_border_tracks_200 = std::max(FP_PRECISION(1),
+                                        tracks_x + tracks_y + tracks_z) / 100.;
+  log_printf(INFO_ONCE, "Percentage of tracks exchanged in X/Y/Z direction: "
+             "%.2f / %.2f / %.2f %", tracks_x / sum_border_tracks_200, tracks_y
+             / sum_border_tracks_200, tracks_z / sum_border_tracks_200);
+}
+#endif
+
+
 /**
  * @brief A function that prints the source region fluxes on a 2D mesh grid
  * @param dim1 coordinates of the mesh grid in the first direction
@@ -2901,7 +3004,7 @@ void CPUSolver::printNegativeSources(int iteration, int num_x, int num_y,
 
     /* Determine the number of negative sources */
     for (int e=0; e < _NUM_GROUPS; e++) {
-      if (_reduced_sources(r,e) < 1e-19) {
+      if (_reduced_sources(r,e) < 10 * FLUX_EPSILON) {
         by_group[e]++;
         mapping[lat_cell]++;
       }

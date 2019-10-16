@@ -349,7 +349,7 @@ void LocalCoords::setZ(double z) {
 
 /**
  * @brief Set the azimuthal angle for this LocalCoords.
- * @param phi the azimuthal angle
+ * @param phi the azimuthal angle, should be between 0 and 2 Pi
  */
 void LocalCoords::setPhi(double phi) {
   _phi = phi;

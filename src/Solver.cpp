@@ -1796,30 +1796,34 @@ void Solver::printTimerReport() {
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), transport_sweep);
 
-  double transfer_time = 0.;
-  double idle_time = 0.;
 #ifdef MPIx
   /* Boundary track angular fluxes transfer */
-  transfer_time = _timer->getSplit("Total transfer time");
-  msg_string = "    Angular Flux Transfer";
+  double transfer_time = _timer->getSplit("Total transfer time");
+  msg_string = "  Angular Flux Transfer";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), transfer_time);
 
   /* Boundary track angular fluxes packing into buffers */
   double pack_time = _timer->getSplit("Packing time");
-  msg_string = "      Angular Flux Packing Time";
+  msg_string = "    Angular Flux Packing Time";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), pack_time);
 
   /* Communication of track angular fluxes */
   double comm_time = _timer->getSplit("Communication time");
-  msg_string = "      Angular Flux Communication Time";
+  msg_string = "    Angular Flux Communication Time";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), comm_time);
 
+  /* Boundary track angular fluxes packing into buffers */
+  double unpack_time = _timer->getSplit("Unpacking time");
+  msg_string = "    Angular Flux Unpacking Time";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), unpack_time);
+
   /* Idle time between transport sweep and angular fluxes transfer */
-  idle_time = _timer->getSplit("Idle time");
-  msg_string = "    Total Idle Time Between Sweeps";
+  double idle_time = _timer->getSplit("Idle time");
+  msg_string = "  Total Idle Time Between Sweep and Transfer";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), idle_time);
 #endif
@@ -1860,13 +1864,18 @@ void Solver::printTimerReport() {
 
   long num_integrations = 2 * _fluxes_per_track * total_num_segments *
       _num_iterations;
-  double time_per_integration = ((transport_sweep - transfer_time - idle_time) /
-                                 num_integrations * (omp_get_max_threads() *
-                                 num_ranks));
+  double time_per_integration = transport_sweep / num_integrations *
+                                (omp_get_max_threads() * num_ranks);
+  double time_per_integ_total = tot_time / num_integrations *
+                                (omp_get_max_threads() * num_ranks);
 
-  msg_string = "Integration time by segment-group-thread (w/o idle)";
+  msg_string = "Integration time by segment-group-thread (sweep)";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_integration);
+
+  msg_string = "Integration time by segment-group-thread (total)";
+  msg_string.resize(53, '.');
+  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_integ_total);
 
   /* Print footer with number of tracks, segments and fsrs */
   set_separator_character('-');
