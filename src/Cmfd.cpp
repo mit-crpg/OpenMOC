@@ -1305,7 +1305,7 @@ void Cmfd::rescaleFlux() {
 #endif
 
   if (num_negative_fluxes > 0)
-    log_printf(WARNING, "Negative CMFD fluxes in %ld cells on %d domains.",
+    log_printf(WARNING_ONCE, "Negative CMFD fluxes in %ld cells on %d domains.",
                num_negative_fluxes, total_negative_CMFD_flux_domains);
 }
 
