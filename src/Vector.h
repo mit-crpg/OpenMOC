@@ -64,6 +64,7 @@ class Vector {
   int getNumGroups();
   int getNumRows();
   double getSum();
+  long getNumNegativeValues();
   omp_lock_t* getCellLocks();
 
   /* Setter functions */

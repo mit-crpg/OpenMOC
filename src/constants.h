@@ -12,7 +12,7 @@
 #define FLT_EPSILON 1.0E-12
 
 /** Threshold to determine if a flux is equal to 0.0 */
-#define FLUX_EPSILON 1.0E-25
+#define FLUX_EPSILON FP_PRECISION(1.0E-25)
 
 /** Threshold to determine if a float is equal to infinity */
 #define FLT_INFINITY 1.0E300

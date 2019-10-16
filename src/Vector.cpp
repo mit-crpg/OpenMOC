@@ -312,6 +312,21 @@ double Vector::getSum() {
 
 
 /**
+ * @brief Get the number of negative values in the vector.
+ * @return The number of negative values in the vector.
+ */
+long  Vector::getNumNegativeValues() {
+
+  long num_negative_values = 0;
+#pragma omp simd reduction(+:num_negative_values)
+  for (long i=0; i<_num_rows; i++) 
+    num_negative_values += (_array[i] < 0);
+
+  return num_negative_values;
+}
+
+
+/**
  * @brief Set the number of cells in the x dimension.
  * @param num_x The number of cells in the x dimension.
  */

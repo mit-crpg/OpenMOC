@@ -569,6 +569,10 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
         /* Compute the change in flux across the segment */
         FP_PRECISION delta_psi = (tau[e] * track_flux[e] - length * src_flat[e])
              * exp_F1 - src_linear[e] * length * length * exp_F2;
+
+        /* Limit delta psi to avoid negative track fluxes */
+        delta_psi = std::min(float(delta_psi), track_flux[e]);
+
         track_flux[e] -= delta_psi;
 
         /* Increment the fsr scalar flux and scalar flux moments */
@@ -594,8 +598,8 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       FP_PRECISION delta_psi = (tau[e] * track_flux[e] - length * src_flat[e])
            * exp_F1 - src_linear[e] * length * length * exp_F2;
 
-      /* Limit delta psi to avoid negative fluxes in thermal fluxes */
-      delta_psi = std::min(delta_psi, track_flux[e]);
+      /* Limit delta psi to avoid negative track fluxes */
+      delta_psi = std::min(float(delta_psi), track_flux[e]);
 
       track_flux[e] -= delta_psi;
 

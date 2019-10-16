@@ -1291,7 +1291,7 @@ void Cmfd::rescaleFlux() {
   _old_flux->scaleByValue(1.0 / old_source_sum);
 
   /* Check for negative fluxes in CMFD flux */
-  long num_negative_fluxes = _new_fluxes->getNumNegativeValues();
+  long num_negative_fluxes = _new_flux->getNumNegativeValues();
   int total_negative_CMFD_flux_domains = (num_negative_fluxes > 0);
 #ifdef MPIx
   if (_domain_communicator != NULL) {
