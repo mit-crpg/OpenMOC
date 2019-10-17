@@ -1206,9 +1206,6 @@ void GPUSolver::initializeFSRs() {
  */
 void GPUSolver::initializeMaterials(solverMode mode) {
 
-  /* Don't double-initialize */
-  if(_materials_initialized) return;
-
   Solver::initializeMaterials(mode);
 
   log_printf(INFO, "Initializing materials on the GPU...");
@@ -1250,14 +1247,6 @@ void GPUSolver::initializeMaterials(solverMode mode) {
     
     for (iter=host_materials.begin(); iter != host_materials.end(); ++iter) {
       clone_material(iter->second, &_materials[material_index]);
-
-      // DBG remove, spot check materials copied correctly
-      // printf("Host material %i:\n", iter->second->getId());
-      // FP_PRECISION* sigmaff = iter->second->getSigmaF();
-      // for (int g=0; g<_num_groups; ++g)
-      //   printf("    sigmaf(%i)=%f\n", g, sigmaff[g]);
-      // printmateriald<<<1,1>>>(&_materials[material_index]);
-      // cudaDeviceSynchronize();
 
       material_index++;
     }
@@ -1587,8 +1576,6 @@ void GPUSolver::transportSweep() {
 
   /* Initialize flux in each FSR to zero */
   flattenFSRFluxes(0.0);
-
-  log_printf(DEBUG, "Flattened FSR fluxes.");
 
   /* Copy starting flux to current flux */
   cudaMemcpy(boundary_flux, start_flux, 2 * _tot_num_tracks *

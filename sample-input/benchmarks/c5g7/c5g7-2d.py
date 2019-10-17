@@ -4,7 +4,7 @@ import openmoc.plotter as plotter
 from openmoc.options import Options
 from lattices import lattices, universes, cells, surfaces
 
-use_gpu = True
+use_gpu = False
 
 if use_gpu:
     from openmoc.cuda import GPUSolver
@@ -87,12 +87,11 @@ track_generator.generateTracks()
 
 if use_gpu:
     solver = GPUSolver(track_generator)
+    solver.initializeSolver(0)
 else:
     solver = openmoc.CPUSolver(track_generator)
-solver.initializeSolver(0)
-solver.setConvergenceThreshold(tolerance)
-if not use_gpu:
     solver.setNumThreads(num_threads)
+solver.setConvergenceThreshold(tolerance)
 solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
 

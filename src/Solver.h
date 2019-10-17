@@ -427,9 +427,6 @@ protected:
   /* Whether to ray-trace and propagate fluxes at the same time */
   bool _OTF_transport;
 
-  /* Whether materials have been initialized (sometimes called twice unnecessarily) */
-  bool _materials_initialized;
-
 public:
   Solver(TrackGenerator* track_generator=NULL);
   virtual ~Solver();
