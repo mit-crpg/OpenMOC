@@ -256,8 +256,6 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
   /* Iterate over all FSRs */
   while (tid < num_FSRs) {
 
-    // TODO: does taking the pointer really make sense here?
-    // Why not take it by value? Shouldn't that have better cache efficiency?
     curr_material = &materials[FSR_materials[tid]];
 
     sigma_t = curr_material->_sigma_t;
@@ -505,11 +503,6 @@ __device__ void transferBoundaryFlux(dev_track* curr_track,
 
   FP_PRECISION* track_out_flux = &boundary_flux(track_out_id,start);
 
-  /* Put Track's flux in the shared memory temporary flux array */
-  /* TODO check if just writing if(transfer_flux) will be usable here and
-     not incur a performance penalty. The original intention of this code
-     must have been not to get thread divergence, but the speed should be
-     exactly the same since using an if statement just leaves threads idling. */
   for (int p=0; p < num_polar_2; p++)
     track_out_flux[p] = track_flux[p] * transfer_flux;
 }
