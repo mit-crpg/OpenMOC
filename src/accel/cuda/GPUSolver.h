@@ -83,7 +83,7 @@ private:
   /** A pointer to an array of the Materials on the device */
   dev_material* _materials;
 
-  /** Pointer to chi spectrum material, on device! */
+  /** Pointer to chi spectrum material on the device */
   dev_material* _dev_chi_spectrum_material;
 
   /** A pointer to the array of Tracks on the device */

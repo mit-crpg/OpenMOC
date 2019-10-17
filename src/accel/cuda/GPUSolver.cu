@@ -404,11 +404,6 @@ __global__ void computeFSRScatterSourcesOnDevice(int* FSR_materials,
  */
 __global__ void flattenFSRFluxesChiSpectrumOnDevice(dev_material* chi_material,
                                                     FP_PRECISION* scalar_flux) {
-  /* NOTE, if this needs to go faster, copy Chi spectrum to each
-     thread block, then fill fluxes from there. Now, memory contention
-     may arise when many threads access elements of chi here at the
-     ~same~ time. */
-
   int tid = threadIdx.x + blockIdx.x * blockDim.x;
   while (tid < num_FSRs) {
     for (int g=0; g < num_groups; g++) {
@@ -493,11 +488,6 @@ __device__ void transferBoundaryFlux(dev_track* curr_track,
   int start = energy_angle_index;
   bool transfer_flux;
   int track_out_id;
-
-  /* TODO possible micro-optimization: go back to storing next_fwd_is_bwd
-     rather than next_fwd_is_bwd. More confusing that way, but avoids one
-     "!" operation. If it gives more than a 0.5% speed increase, I'd say
-     it's worth it. */
 
   /* For the "forward" direction */
   if (direction) {
@@ -670,6 +660,9 @@ __global__ void addSourceToScalarFluxOnDevice(FP_PRECISION* scalar_flux,
  * @param scalar_flux an array of FSR scalar fluxes
  * @param fission an array of FSR nu-fission rates
  * @param nu whether total neutron production rate should be calculated
+ * @param computing_fission_norm This gets set to true if integrating total
+ *            fission source, otherwise this kernel calculates the local
+ *            fission source. In short, it switches on a parallel reduction.
  */
 __global__ void computeFSRFissionRatesOnDevice(FP_PRECISION* FSR_volumes,
                                                int* FSR_materials,
@@ -677,7 +670,7 @@ __global__ void computeFSRFissionRatesOnDevice(FP_PRECISION* FSR_volumes,
                                                FP_PRECISION* scalar_flux,
                                                FP_PRECISION* fission,
                                                bool nu = false,
-                                               bool computekeff = false) {
+                                               bool computing_fission_norm= false) {
 
   int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -709,7 +702,7 @@ __global__ void computeFSRFissionRatesOnDevice(FP_PRECISION* FSR_volumes,
 
     fiss += curr_fiss * volume;
 
-    if (!computekeff)
+    if (!computing_fission_norm)
       fission[tid] = curr_fiss * volume;
 
     /* Increment thread id */
@@ -718,7 +711,7 @@ __global__ void computeFSRFissionRatesOnDevice(FP_PRECISION* FSR_volumes,
   }
 
   /* Copy this thread's fission to global memory */
-  if (computekeff) {
+  if (computing_fission_norm) {
     tid = threadIdx.x + blockIdx.x * blockDim.x;
     fission[tid] = fiss;
   }
@@ -743,9 +736,6 @@ GPUSolver::GPUSolver(TrackGenerator* track_generator) :
   _dev_tracks = NULL;
   _FSR_materials = NULL;
   _dev_chi_spectrum_material = NULL;
-
-  // TODO, take chi_spectrum_material from solver, and translate it
-  // to a pointer on the GPU. But it might not be copied there yet?
 
   if (track_generator != NULL)
     setTrackGenerator(track_generator);
