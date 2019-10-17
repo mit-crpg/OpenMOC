@@ -1295,10 +1295,10 @@ void Cmfd::rescaleFlux() {
   int total_negative_CMFD_flux_domains = (num_negative_fluxes > 0);
 #ifdef MPIx
   if (_domain_communicator != NULL) {
-    double temp_sum_neg = num_negative_fluxes;
+    long temp_sum_neg = num_negative_fluxes;
     MPI_Allreduce(&temp_sum_neg, &num_negative_fluxes, 1, MPI_LONG, MPI_SUM,
                   _domain_communicator->_MPI_cart);
-    double temp_sum_dom = total_negative_CMFD_flux_domains;
+    int temp_sum_dom = total_negative_CMFD_flux_domains;
     MPI_Allreduce(&temp_sum_dom, &total_negative_CMFD_flux_domains, 1,
                   MPI_INT, MPI_SUM, _domain_communicator->_MPI_cart);
   }
