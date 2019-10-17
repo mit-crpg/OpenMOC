@@ -19,6 +19,7 @@
 
 #include <thrust/copy.h>
 #include <iostream>
+#include <vector>
 
 #include <thrust/device_vector.h>
 #include <thrust/copy.h>
@@ -30,34 +31,34 @@
 #include <thrust/iterator/counting_iterator.h>
 #include <thrust/iterator/transform_iterator.h>
 #include <thrust/iterator/permutation_iterator.h>
-#include <sm_20_atomic_functions.h>
 #include "clone.h"
-#include "GPUExpEvaluator.h"
+#include "dev_exponential.h"
+#include "GPUQuery.h"
 
 /** Indexing macro for the scalar flux in each FSR and energy group */
-#define scalar_flux(tid,e) (scalar_flux[(tid)*(*num_groups) + (e)])
+#define scalar_flux(tid,e) (scalar_flux[(tid)*num_groups + (e)])
 
 /** Indexing macro for the old scalar flux in each FSR and energy group */
-#define old_scalar_flux(tid,e) (old_scalar_flux[(tid)*(*num_groups) + (e)])
+#define old_scalar_flux(tid,e) (old_scalar_flux[(tid)*num_groups + (e)])
 
 /** Indexing macro for the total source divided by the total cross-section,
  *  \f$ \frac{Q}{\Sigma_t} \f$, in each FSR and energy group */
-#define reduced_sources(tid,e) (reduced_sources[(tid)*(*num_groups) + (e)])
+#define reduced_sources(tid,e) (reduced_sources[(tid)*num_groups + (e)])
 
 /** Indexing scheme for fixed sources for each FSR and energy group */
-#define fixed_sources(r,e) (fixed_sources[(r)*(*num_groups) + (e)])
+#define fixed_sources(r,e) (fixed_sources[(r)*num_groups + (e)])
 
 /** Indexing macro for the azimuthal and polar weights */
-#define weights(i,p) (weights[(i)*(*num_polar_2) + (p)])
+#define weights(i,p) (weights[(i)*num_polar_2 + (p)])
 
 /** Indexing macro for the angular fluxes for each polar angle and energy
  *  group for a given Track */
-#define boundary_flux(t,pe2) (boundary_flux[2*(t)*(*polar_times_groups)+(pe2)])
+#define boundary_flux(t,pe2) (boundary_flux[2*(t)*polar_times_groups+(pe2)])
 
 /** Indexing macro for the starting angular fluxes for each polar angle and
  *  energy group for a given Track. These are copied to the boundary fluxes
  *  array at the beginning of each transport sweep */
-#define start_flux(t,pe2) (start_flux[2*(t)*(*polar_times_groups)+(pe2)])
+#define start_flux(t,pe2) (start_flux[2*(t)*polar_times_groups+(pe2)])
 
 /**
  * @class GPUSolver GPUSolver.h "openmoc/src/dev/gpu/GPUSolver.h"
@@ -81,6 +82,9 @@ private:
 
   /** A pointer to an array of the Materials on the device */
   dev_material* _materials;
+
+  /** Pointer to chi spectrum material on the device */
+  dev_material* _dev_chi_spectrum_material;
 
   /** A pointer to the array of Tracks on the device */
   dev_track* _dev_tracks;
@@ -120,37 +124,41 @@ public:
    * @return the number of threads per block
    */
   int getNumThreadsPerBlock();
-  FP_PRECISION getFSRSource(int fsr_id, int group);
-  FP_PRECISION getFlux(int fsr_id, int group);
-  void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes);
+  double getFSRSource(long fsr_id, int group) override;
+  double getFlux(long fsr_id, int group) override;
+  void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) override;
 
   void setNumThreadBlocks(int num_blocks);
   void setNumThreadsPerBlock(int num_threads);
-  void setGeometry(Geometry* geometry);
-  void setTrackGenerator(TrackGenerator* track_generator);
-  void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes);
+  void setGeometry(Geometry* geometry) override;
+  void setTrackGenerator(TrackGenerator* track_generator) override;
+  void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) override;
 
-  void initializeExpEvaluator();
-  void initializeMaterials(solverMode mode=ADJOINT);
-  void initializeFSRs();
+  void initializeExpEvaluators() override;
+  void initializeMaterials(solverMode mode) override;
+  void initializeFSRs() override;
   void initializeTracks();
-  void initializeFluxArrays();
-  void initializeSourceArrays();
-  void initializeFixedSources();
+  void initializeFluxArrays() override;
+  void initializeSourceArrays() override;
+  void initializeFixedSources() override;
+  void initializeCmfd() override;
 
   void zeroTrackFluxes();
   void flattenFSRFluxes(FP_PRECISION value);
+  void flattenFSRFluxesChiSpectrum();
   void storeFSRFluxes();
-  void normalizeFluxes();
-  void computeFSRSources();
+  void computeStabilizingFlux();
+  void stabilizeFlux();
+  void computeFSRSources(int iteration);
   void computeFSRFissionSources();
   void computeFSRScatterSources();
   void transportSweep();
   void addSourceToScalarFlux();
   void computeKeff();
+  double normalizeFluxes();
   double computeResidual(residualType res_type);
 
-  void computeFSRFissionRates(double* fission_rates, int num_FSRs);
+  void computeFSRFissionRates(double* fission_rates, long num_FSRs, bool nu = false);
 };
 
 

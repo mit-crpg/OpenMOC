@@ -2790,46 +2790,6 @@ Parameters
     Boolean indicating whether this is a 3D quadrature  
 ";
 
-// File: classGPUExpEvaluator.xml
-
-
-%feature("docstring") GPUExpEvaluator "
-
-This is a class for evaluating exponentials on GPUs.  
-
-The ExpEvaluator includes different algorithms to evaluate exponentials with varying
-degrees of accuracy and speed. This is a helper class for the Solver and its subclasses
-and it not intended to be initialized as a standalone object.  
-
-Attributes
-----------
-* _exp_table : FP_PRECISION *  
-    The exponential linear interpolation table  
-
-C++ includes: src/accel/cuda/ExpEvaluator.h
-";
-
-%feature("docstring") GPUExpEvaluator::computeExponential "
-computeExponential(FP_PRECISION tau, int polar) -> __device__ FP_PRECISION  
-
-Computes the exponential term for a optical length and polar angle.  
-
-This method computes $ 1 - exp(-\\tau/sin(\\theta_p)) $ for some optical path length and
-polar angle. This method uses either a linear interpolation table (default) or the
-exponential intrinsic exp(...) function.  
-
-Parameters
-----------
-* tau :  
-    the optical path length (e.g., sigma_t times length)  
-* polar :  
-    the polar angle index  
-
-Returns
--------
-the evaluated exponential  
-";
-
 // File: classGPUSolver.xml
 
 
@@ -3067,7 +3027,7 @@ Populates array of fixed sources assigned by FSR.
 %feature("docstring") GPUSolver::initializeExpEvaluator "
 initializeExpEvaluator()  
 
-Initializes new GPUExpEvaluator object to compute exponentials.  
+does nothing.
 ";
 
 %feature("docstring") GPUSolver::computeFSRScatterSources "
@@ -9482,44 +9442,6 @@ Parameters
     pointer to a Material on the host  
 * material_d :  
     pointer to a dev_material on the GPU  
-";
-
-// File: GPUExpEvaluator_8cu.xml
-
-%feature("docstring") clone_exp_evaluator "
-clone_exp_evaluator(ExpEvaluator *evaluator_h, GPUExpEvaluator *evaluator_d)  
-
-Given a pointer to an ExpEvaluator on the host and a GPUExpEvaluator on the GPU, copy all
-of the properties from the ExpEvaluator object on the host to the GPU.  
-
-This routine is called by the GPUSolver::initializeExpEvaluator() private class method and
-is not intended to be called directly.  
-
-Parameters
-----------
-* eavluator_h :  
-    pointer to a ExpEvaluator on the host  
-* evaluator_d :  
-    pointer to a GPUExpEvaluator on the GPU  
-";
-
-// File: GPUExpEvaluator_8h.xml
-
-%feature("docstring") clone_exp_evaluator "
-clone_exp_evaluator(ExpEvaluator *evaluator_h, GPUExpEvaluator *evaluator_d)  
-
-Given a pointer to an ExpEvaluator on the host and a GPUExpEvaluator on the GPU, copy all
-of the properties from the ExpEvaluator object on the host to the GPU.  
-
-This routine is called by the GPUSolver::initializeExpEvaluator() private class method and
-is not intended to be called directly.  
-
-Parameters
-----------
-* eavluator_h :  
-    pointer to a ExpEvaluator on the host  
-* evaluator_d :  
-    pointer to a GPUExpEvaluator on the GPU  
 ";
 
 // File: GPUQuery_8cu.xml

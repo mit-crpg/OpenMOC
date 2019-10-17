@@ -1,6 +1,5 @@
 #include "clone.h"
 
-
 /**
  * @brief Given a pointer to a Material on the host and a dev_material on the
  *        GPU, copy all of the properties from the Material object on the host
@@ -16,8 +15,9 @@ void clone_material(Material* material_h, dev_material* material_d) {
   int id = material_h->getId();
   int num_groups = material_h->getNumEnergyGroups();
 
-  cudaMemcpy((void*)&material_d->_id, (void*)&id, sizeof(int),
+  cudaMemcpy(&material_d->_id, &id, sizeof(int),
              cudaMemcpyHostToDevice);
+  getLastCudaError();
 
   /* Allocate memory on the device for each dev_material data array */
   FP_PRECISION* sigma_t;
@@ -28,44 +28,45 @@ void clone_material(Material* material_h, dev_material* material_d) {
   FP_PRECISION* fiss_matrix;
 
   /* Allocate memory on device for dev_material data arrays */
-  cudaMalloc((void**)&sigma_t, num_groups * sizeof(FP_PRECISION));
-  cudaMalloc((void**)&sigma_s, num_groups * num_groups * sizeof(FP_PRECISION));
-  cudaMalloc((void**)&sigma_f, num_groups * sizeof(FP_PRECISION));
-  cudaMalloc((void**)&nu_sigma_f, num_groups * sizeof(FP_PRECISION));
-  cudaMalloc((void**)&chi, num_groups * sizeof(FP_PRECISION));
-  cudaMalloc((void**)&fiss_matrix, num_groups * num_groups * sizeof(FP_PRECISION));
+  cudaMalloc(&sigma_t, num_groups * sizeof(FP_PRECISION));
+  cudaMalloc(&sigma_s, num_groups * num_groups * sizeof(FP_PRECISION));
+  cudaMalloc(&sigma_f, num_groups * sizeof(FP_PRECISION));
+  cudaMalloc(&nu_sigma_f, num_groups * sizeof(FP_PRECISION));
+  cudaMalloc(&chi, num_groups * sizeof(FP_PRECISION));
+  cudaMalloc(&fiss_matrix, num_groups * num_groups * sizeof(FP_PRECISION));
+  getLastCudaError();
 
   /* Copy Material data from host to arrays on the device */
-  cudaMemcpy((void*)sigma_t, (void*)material_h->getSigmaT(),
+  cudaMemcpy(sigma_t, material_h->getSigmaT(),
              num_groups * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
-  cudaMemcpy((void*)sigma_s, (void*)material_h->getSigmaS(),
+  cudaMemcpy(sigma_s, material_h->getSigmaS(),
              num_groups * num_groups * sizeof(FP_PRECISION),
              cudaMemcpyHostToDevice);
-  cudaMemcpy((void*)sigma_f, (void*)material_h->getSigmaF(),
+  cudaMemcpy(sigma_f, material_h->getSigmaF(),
              num_groups * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
-  cudaMemcpy((void*)nu_sigma_f, (void*)material_h->getNuSigmaF(),
+  cudaMemcpy(nu_sigma_f, material_h->getNuSigmaF(),
              num_groups * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
-  cudaMemcpy((void*)chi, (void*)material_h->getChi(),
+  cudaMemcpy(chi, material_h->getChi(),
              num_groups * sizeof(FP_PRECISION), cudaMemcpyHostToDevice);
-  cudaMemcpy((void*)fiss_matrix, (void*)material_h->getFissionMatrix(),
+  cudaMemcpy(fiss_matrix, material_h->getFissionMatrix(),
              num_groups * num_groups * sizeof(FP_PRECISION),
              cudaMemcpyHostToDevice);
+  getLastCudaError();
 
   /* Copy Material data pointers to dev_material on GPU */
-  cudaMemcpy((void*)&material_d->_sigma_t, (void*)&sigma_t,
+  cudaMemcpy(&material_d->_sigma_t, &sigma_t,
              sizeof(FP_PRECISION*), cudaMemcpyHostToDevice);
-  cudaMemcpy((void*)&material_d->_sigma_s, (void*)&sigma_s,
+  cudaMemcpy(&material_d->_sigma_s, &sigma_s,
              sizeof(FP_PRECISION*), cudaMemcpyHostToDevice);
-  cudaMemcpy((void*)&material_d->_sigma_f, (void*)&sigma_f,
+  cudaMemcpy(&material_d->_sigma_f, &sigma_f,
              sizeof(FP_PRECISION*), cudaMemcpyHostToDevice);
-  cudaMemcpy((void*)&material_d->_nu_sigma_f, (void*)&nu_sigma_f,
+  cudaMemcpy(&material_d->_nu_sigma_f, &nu_sigma_f,
              sizeof(FP_PRECISION*), cudaMemcpyHostToDevice);
-  cudaMemcpy((void*)&material_d->_chi, (void*)&chi,
+  cudaMemcpy(&material_d->_chi, &chi,
              sizeof(FP_PRECISION*), cudaMemcpyHostToDevice);
-  cudaMemcpy((void*)&material_d->_fiss_matrix, (void*)&fiss_matrix,
+  cudaMemcpy(&material_d->_fiss_matrix, &fiss_matrix,
              sizeof(FP_PRECISION*), cudaMemcpyHostToDevice);
-
-  return;
+  getLastCudaError();
 }
 
 
@@ -91,14 +92,18 @@ void clone_track(Track* track_h, dev_track* track_d,
 
   new_track._uid = track_h->getUid();
   new_track._num_segments = track_h->getNumSegments();
-  new_track._azim_angle_index = track_h->getAzimAngleIndex();
-  new_track._next_in = track_h->isNextIn();
-  new_track._next_out = track_h->isNextOut();
-  new_track._transfer_flux_in = track_h->getTransferFluxIn();
-  new_track._transfer_flux_out = track_h->getTransferFluxOut();
+  new_track._azim_angle_index = track_h->getAzimIndex();
 
-  cudaMalloc((void**)&dev_segments,
+  new_track._next_fwd_is_fwd = track_h->getNextFwdFwd();
+  new_track._next_bwd_is_fwd = track_h->getNextBwdFwd();
+  new_track._transfer_flux_fwd = track_h->getBCFwd();
+  new_track._transfer_flux_bwd = track_h->getBCBwd();
+  new_track._next_track_fwd = track_h->getTrackNextFwd();
+  new_track._next_track_bwd = track_h->getTrackNextBwd();
+
+  cudaMalloc(&dev_segments,
              track_h->getNumSegments() * sizeof(dev_segment));
+  getLastCudaError();
   new_track._segments = dev_segments;
 
   for (int s=0; s < track_h->getNumSegments(); s++) {
@@ -109,13 +114,13 @@ void clone_track(Track* track_h, dev_track* track_d,
       material_IDs_to_indices[curr->_material->getId()];
   }
 
-  cudaMemcpy((void*)dev_segments, (void*)host_segments,
+  cudaMemcpy(dev_segments, host_segments,
              track_h->getNumSegments() * sizeof(dev_segment),
              cudaMemcpyHostToDevice);
-  cudaMemcpy((void*)track_d, (void*)&new_track, sizeof(dev_track),
+  getLastCudaError();
+  cudaMemcpy(track_d, &new_track, sizeof(dev_track),
              cudaMemcpyHostToDevice);
+  getLastCudaError();
 
   delete [] host_segments;
-
-  return;
 }

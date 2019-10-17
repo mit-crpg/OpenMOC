@@ -332,8 +332,9 @@ protected:
   /* Initialize interp. tables, constants for computing source exponentials */
   virtual void initializeExpEvaluators();
 
-  /* Build fission matrices, transpose production for adjoint calculations */
-  void initializeMaterials(solverMode mode);
+  /* Build fission matrices, transpose production for adjoint calculations
+   * Must be virtual for the GPU solver to override this */
+  virtual void initializeMaterials(solverMode mode);
 
   virtual void initializeFSRs();
   void countFissionableFSRs();
@@ -430,7 +431,7 @@ public:
   Solver(TrackGenerator* track_generator=NULL);
   virtual ~Solver();
 
-  void setGeometry(Geometry* geometry);
+  virtual void setGeometry(Geometry* geometry);
 
   Geometry* getGeometry();
   TrackGenerator* getTrackGenerator();
@@ -457,11 +458,11 @@ public:
   void loadInitialFSRFluxes(std::string fname);
   void loadFSRFluxes(std::string fname, bool assign_k_eff=false, double tolerance=0.01);
 
-  double getFlux(long fsr_id, int group);
+  virtual double getFlux(long fsr_id, int group);
   virtual void getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) = 0;
-  double getFSRSource(long fsr_id, int group);
+  virtual double getFSRSource(long fsr_id, int group);
 
-  void setTrackGenerator(TrackGenerator* track_generator);
+  virtual void setTrackGenerator(TrackGenerator* track_generator);
   void setConvergenceThreshold(double threshold);
   virtual void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) = 0;
   virtual void setFixedSourceByFSR(long fsr_id, int group, double source);
@@ -492,7 +493,9 @@ public:
                          residualType res_type=FISSION_SOURCE);
   void computeInitialFluxGuess(bool is_source_computation=false);
 
+  #ifdef BGQ
   void printBGQMemory();
+  #endif
 
  /**
   * @brief Computes the volume-weighted, energy integrated fission rate in

@@ -56,31 +56,31 @@ struct dev_track {
 
   /** Index of the next Track when traveling along this Track in the "forward"
    * direction. */
-  int _track_in;
+  long _next_track_fwd;
 
   /** Index of the next Track when traveling along this Track in the "reverse"
    * direction. */
-  int _track_out;
+  long _next_track_bwd;
 
-  /** A boolean to indicate whether to give the flux to the "forward" (false)
-   *  or "reverse" (true) direction of the next Track going in the "forward"
+  /** A boolean to indicate whether to give the flux to the "forward" (true)
+   *  or "backward" (false) direction of the next Track going in the "forward"
    *  direction. */
-  bool _next_in;
+  bool _next_fwd_is_fwd;
 
-  /** A boolean to indicate whether to give the flux to the "forward" (false)
-   *  or "reverse" (true) direction of the next Track going in the "reverse"
+  /** A boolean to indicate whether to give the flux to the "forward" (true)
+   *  or "reverse" (false) direction of the next Track going in the "reverse"
    *  direction. */
-  bool _next_out;
+  bool _next_bwd_is_fwd;
 
   /** A boolean to indicate whether the outgoing angular flux along this
    *  Track's "forward" direction should be transferred to the outgoing
    *  Track. */
-  bool _transfer_flux_in;
+  bool _transfer_flux_fwd;
 
   /** A boolean to indicate whether the outgoing angular flux along this
    *  Track's "reverse" direction should be transferred to the incoming
    *  Track. */
-  bool _transfer_flux_out;
+  bool _transfer_flux_bwd;
 };
 
 

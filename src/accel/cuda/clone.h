@@ -8,6 +8,7 @@
 
 #include "../DeviceMaterial.h"
 #include "../DeviceTrack.h"
+#include "GPUQuery.h"
 #include <map>
 
 void clone_material(Material* material_h, dev_material* material_d);

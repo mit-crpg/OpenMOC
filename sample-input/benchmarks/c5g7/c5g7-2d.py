@@ -4,6 +4,11 @@ import openmoc.plotter as plotter
 from openmoc.options import Options
 from lattices import lattices, universes, cells, surfaces
 
+use_gpu = False
+
+if use_gpu:
+    from openmoc.cuda import GPUSolver
+
 ###############################################################################
 #######################   Main Simulation Parameters   ########################
 ###############################################################################
@@ -12,8 +17,8 @@ options = Options()
 
 num_threads = options.num_omp_threads
 azim_spacing = options.azim_spacing
-num_azim = options.num_azim
 polar_spacing = options.polar_spacing
+num_azim = options.num_azim
 num_polar = options.num_polar
 tolerance = options.tolerance
 max_iters = options.max_iters
@@ -40,14 +45,15 @@ cells['Root'].setFill(lattices['Root'])
 ##########################     Creating Cmfd mesh    ##########################
 ###############################################################################
 
-log.py_printf('NORMAL', 'Creating Cmfd mesh...')
+if not use_gpu:
+    log.py_printf('NORMAL', 'Creating Cmfd mesh...')
 
-cmfd = openmoc.Cmfd()
-cmfd.setSORRelaxationFactor(1.5)
-cmfd.setLatticeStructure(51,51)
-cmfd.setGroupStructure([[1,2,3], [4,5,6,7]])
-cmfd.setCentroidUpdateOn(True)
-cmfd.setKNearest(3)
+    cmfd = openmoc.Cmfd()
+    cmfd.setSORRelaxationFactor(1.5)
+    cmfd.setLatticeStructure(51,51)
+    cmfd.setGroupStructure([[1,2,3], [4,5,6,7]])
+    cmfd.setCentroidUpdateOn(True)
+    cmfd.setKNearest(3)
 
 ###############################################################################
 ##########################   Creating the Geometry   ##########################
@@ -57,7 +63,8 @@ log.py_printf('NORMAL', 'Creating geometry...')
 
 geometry = openmoc.Geometry()
 geometry.setRootUniverse(universes['Root'])
-geometry.setCmfd(cmfd)
+if not use_gpu:
+    geometry.setCmfd(cmfd)
 geometry.initializeFlatSourceRegions()
 
 ###############################################################################
@@ -78,9 +85,13 @@ track_generator.generateTracks()
 ###########################   Running a Simulation   ##########################
 ###############################################################################
 
-solver = openmoc.CPUSolver(track_generator)
+if use_gpu:
+    solver = GPUSolver(track_generator)
+    solver.initializeSolver(0)
+else:
+    solver = openmoc.CPUSolver(track_generator)
+    solver.setNumThreads(num_threads)
 solver.setConvergenceThreshold(tolerance)
-solver.setNumThreads(num_threads)
 solver.computeEigenvalue(max_iters)
 solver.printTimerReport()
 

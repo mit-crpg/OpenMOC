@@ -791,6 +791,9 @@ void Solver::initializeMaterials(solverMode mode) {
     if (mode == ADJOINT)
       m_iter->second->transposeProductionMatrices();
   }
+
+  /* GPU solver needs this */
+  _num_materials = _geometry->getNumMaterials();
 }
 
 
@@ -1353,8 +1356,8 @@ void Solver::computeFlux(int max_iters, bool only_fixed_source) {
   /* Initialize data structures */
   initializeMaterials(_solver_mode);
   initializeFSRs();
-  initializeSourceArrays();
   countFissionableFSRs();
+  initializeSourceArrays();
   initializeExpEvaluators();
 
   /* Initialize new flux arrays if a) the user requested the use of
