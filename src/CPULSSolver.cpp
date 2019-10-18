@@ -209,9 +209,12 @@ void CPULSSolver::initializeFixedSources() {
     source_z = fsr_iter->second[2];
 
     /* Warn the user if a fixed source has already been assigned to this FSR */
-    if (fabs(_fixed_sources_xyz(fsr_id,group,0) - source_x) > FLT_EPSILON ||
-        fabs(_fixed_sources_xyz(fsr_id,group,1) - source_y) > FLT_EPSILON ||
-        fabs(_fixed_sources_xyz(fsr_id,group,2) - source_z) > FLT_EPSILON)
+    if ((fabs(_fixed_sources_xyz(fsr_id,group,0)) > FLT_EPSILON &&
+         fabs(_fixed_sources_xyz(fsr_id,group,0) - source_x) > FLT_EPSILON) ||
+        (fabs(_fixed_sources_xyz(fsr_id,group,1)) > FLT_EPSILON &&
+         fabs(_fixed_sources_xyz(fsr_id,group,1) - source_y) > FLT_EPSILON) ||
+        (fabs(_fixed_sources_xyz(fsr_id,group,2)) > FLT_EPSILON &&
+         fabs(_fixed_sources_xyz(fsr_id,group,2) - source_z) > FLT_EPSILON))
       log_printf(WARNING, "Overriding fixed linear source %f %f %f in FSR ID=%d"
                  " group %d with %f %f %f", _fixed_sources_xyz(fsr_id,group, 0),
                  _fixed_sources_xyz(fsr_id,group,1),
