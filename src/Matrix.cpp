@@ -108,6 +108,9 @@ void Matrix::incrementValue(int cell_from, int group_from,
 
   /* Release Matrix cell mutual exclusion lock */
   omp_unset_lock(&_cell_locks[cell_to]);
+#ifdef INTEL
+#pragma omp flush
+#endif
 
   /* Set global modified flag to true */
   _modified = true;
@@ -153,6 +156,9 @@ void Matrix::setValue(int cell_from, int group_from,
 
   /* Release Matrix cell mutual exclusion lock */
   omp_unset_lock(&_cell_locks[cell_to]);
+#ifdef INTEL
+#pragma omp flush
+#endif
 
   /* Set global modified flag to true */
   _modified = true;
