@@ -2095,6 +2095,7 @@ int Lattice::getLatticeSurface(int cell, Point* point) {
   int lat_z = cell / (_num_x*_num_y);
 
   /* Create planes representing the boundaries of the lattice cell */
+  //NOTE This creates a benign race condition on the surface ids
   XPlane xplane(0.0);
   YPlane yplane(0.0);
   ZPlane zplane(0.0);

@@ -2404,6 +2404,9 @@ void CPUSolver::accumulateScalarFluxContribution(long fsr_id,
     _scalar_flux(fsr_id,e) += weight * fsr_flux[e];
 
   omp_unset_lock(&_FSR_locks[fsr_id]);
+#ifdef INTEL
+#pragma omp flush
+#endif
 
   /* Reset buffers */
   memset(fsr_flux, 0, _NUM_GROUPS * sizeof(FP_PRECISION));

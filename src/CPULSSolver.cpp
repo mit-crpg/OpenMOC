@@ -741,6 +741,9 @@ void CPULSSolver::accumulateLinearFluxContribution(long fsr_id,
   }
 
   omp_unset_lock(&_FSR_locks[fsr_id]);
+#ifdef INTEL
+#pragma omp flush
+#endif
 
   /* Reset buffers to 0 */
   memset(fsr_flux, 0, 4 * num_groups_aligned * sizeof(FP_PRECISION));

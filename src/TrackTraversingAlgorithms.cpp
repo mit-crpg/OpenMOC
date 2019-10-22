@@ -446,6 +446,9 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
 
     /* Unset the lock for this FSR */
     omp_unset_lock(&_FSR_locks[fsr]);
+#ifdef INTEL
+#pragma omp flush
+#endif
 
     x += cos_phi * sin_theta * curr_segment->_length;
     y += sin_phi * sin_theta * curr_segment->_length;
@@ -716,7 +719,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
     double yc = y + length * 0.5 * sin_phi * sin_theta;
     double zc = z + length * 0.5 * cos_theta;
 
-    /* Set the FSR src constants buffer to zero */
+    /* Allocate a buffer for the FSR source constants on the stack */
     double thread_src_constants[_NUM_GROUPS * _NUM_COEFFS]  __attribute__
        ((aligned (VEC_ALIGNMENT)));
 
@@ -810,6 +813,9 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 
     /* Unset the lock for this FSR */
     omp_unset_lock(&_FSR_locks[fsr]);
+#ifdef INTEL
+#pragma omp flush
+#endif
   }
 
   /* Determine progress */
