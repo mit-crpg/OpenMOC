@@ -318,6 +318,9 @@ protected:
   /** A string indicating the type of source approximation */
   std::string _source_type;
 
+  /** A boolean to know which type of solver is being used */
+  bool _gpu_solver;
+
   /**
    * @brief Initializes Track boundary angular flux and leakage and
    *        FSR scalar flux arrays.

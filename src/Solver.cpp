@@ -80,8 +80,8 @@ Solver::Solver(TrackGenerator* track_generator) {
   _calculate_residuals_by_reference = false;
   _negative_fluxes_allowed = false;
   _OTF_transport = false;
-
   _xs_log_level = ERROR;
+  _gpu_solver = false;
 
   //FIXME Parameters for xs modification, should be deleted
   _reset_iteration = -1;
@@ -1872,13 +1872,28 @@ void Solver::printTimerReport() {
   double time_per_integ_total = tot_time / num_integrations *
                                 (omp_get_max_threads() * num_ranks);
 
-  msg_string = "Integration time by segment-group-thread (sweep)";
-  msg_string.resize(53, '.');
-  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_integration);
+  if (!_gpu_solver) {
+    msg_string = "Integration time by segment-group-thread (sweep)";
+    msg_string.resize(53, '.');
+    log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(),
+               time_per_integration);
 
-  msg_string = "Integration time by segment-group-thread (total)";
-  msg_string.resize(53, '.');
-  log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_integ_total);
+    msg_string = "Integration time by segment-group-thread (total)";
+    msg_string.resize(53, '.');
+    log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(),
+               time_per_integ_total);
+  }
+  else {
+    msg_string = "Integration time by segment-group-device (sweep)";
+    msg_string.resize(53, '.');
+    log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_integration
+               / omp_get_max_threads());
+
+    msg_string = "Integration time by segment-group-device (total)";
+    msg_string.resize(53, '.');
+    log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), time_per_integ_total
+               / omp_get_max_threads());
+  }
 
   /* Print footer with number of tracks, segments and fsrs */
   set_separator_character('-');
