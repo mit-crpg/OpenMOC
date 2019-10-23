@@ -567,8 +567,9 @@ void LinearExpansionGenerator::execute() {
       double volume = _FSR_volumes[r];
       if (std::abs(det) < MIN_DET || volume < 1e-6) {
         if (volume > 0)
-          log_printf(INFO, "Unable to form linear source components in "
-                     "source region %d.", r);
+          log_printf(DEBUG, "Unable to form linear source components in "
+                     "source region %d : determinant %.2e volume %.2e", r, det,
+                     volume);
 #pragma omp atomic update
         _num_flat++;
         ilem[r*nc + 0] = 0.0;
@@ -617,8 +618,8 @@ void LinearExpansionGenerator::execute() {
         ilem[r*nc + 0] = 0.0;
         ilem[r*nc + 1] = 0.0;
         ilem[r*nc + 2] = 0.0;
-        log_printf(INFO, "Unable to form linear source components in "
-                   "source region %d.", r);
+        log_printf(DEBUG, "Unable to form linear source components in "
+                   "source region %d : determinant = %.2e", r, det);
 #pragma omp atomic update
         _num_flat++;
       }

@@ -573,8 +573,11 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
         FP_PRECISION delta_psi = (tau[e] * track_flux[e] - length * src_flat[e])
              * exp_F1 - src_linear[e] * length * length * exp_F2;
 
+#ifdef ONLYVACUUMBC
         /* Limit delta psi to avoid negative track fluxes */
         delta_psi = std::min(float(delta_psi), track_flux[e]);
+        //FIXME Not vectorized. Performance issue
+#endif
 
         track_flux[e] -= delta_psi;
 
@@ -601,8 +604,11 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       FP_PRECISION delta_psi = (tau[e] * track_flux[e] - length * src_flat[e])
            * exp_F1 - src_linear[e] * length * length * exp_F2;
 
+#ifdef ONLYVACUUMBC
       /* Limit delta psi to avoid negative track fluxes */
       delta_psi = std::min(float(delta_psi), track_flux[e]);
+      //FIXME Not vectorized. Performance issue
+#endif
 
       track_flux[e] -= delta_psi;
 
