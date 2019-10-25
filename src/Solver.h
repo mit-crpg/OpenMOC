@@ -496,9 +496,9 @@ public:
                          residualType res_type=FISSION_SOURCE);
   void computeInitialFluxGuess(bool is_source_computation=false);
 
-  #ifdef BGQ
+#ifdef BGQ
   void printBGQMemory();
-  #endif
+#endif
 
  /**
   * @brief Computes the volume-weighted, energy integrated fission rate in
@@ -540,6 +540,10 @@ public:
                               int reset_iteration);
   void checkLimitXS(int iteration);
 
+  /** Functions to check the MPI implemtation, accessible from Python */
+  virtual void printCycle(long track_start, int domain_start, int length)=0;
+  virtual void printLoadBalancingReport()=0;
+  virtual void boundaryFluxChecker()=0;
 
   /**
    * @brief Activate On-The-Fly transport, to OTF ray-trace and propagate the

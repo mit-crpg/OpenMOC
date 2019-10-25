@@ -1240,30 +1240,49 @@ void TrackGenerator::segmentize() {
                "TrackGenerators.", min_z, max_z);
 
 #ifdef MPIx
-  /* Check that the geometry is not domain decomposed in Z */
-  int domains_xyz[3];
-  _geometry->getDomainStructure(domains_xyz);
-  if (domains_xyz[2] > 1)
-    log_printf(ERROR, "A geometry with an axial domain domain decomposition "
-               "has been supplied to a 2D ray tracer.");
+    /* Check that the geometry is not domain decomposed in Z */
+    int domains_xyz[3];
+    _geometry->getDomainStructure(domains_xyz);
+    if (domains_xyz[2] > 1)
+      log_printf(ERROR, "A geometry with an axial domain domain decomposition "
+                 "has been supplied to a 2D ray tracer.");
+#endif
+  }
+
+#ifdef MPIx
+  /* If domain decomposed, add artificial infinite Z bounds */
+  if (_geometry->isDomainDecomposed()) {
+    ZPlane* min_z_plane = new ZPlane(-FLT_INFINITY);
+    ZPlane* max_z_plane = new ZPlane(+FLT_INFINITY);
+    min_z_plane->setBoundaryType(REFLECTIVE);
+    max_z_plane->setBoundaryType(REFLECTIVE);
+
+    std::map<int, Cell*>::iterator cell;
+    std::map<int, Cell*> cells = _geometry->getRootUniverse()->getCells();
+    for (cell = cells.begin(); cell != cells.end(); ++cell) {
+      (cell->second)->addSurface(+1, min_z_plane);
+      (cell->second)->addSurface(-1, max_z_plane);
+    }
+    _geometry->getRootUniverse()->calculateBoundaries();
+  }
 #endif
 
-    Cmfd* cmfd = _geometry->getCmfd();
-    if (cmfd != NULL) {
+  /* Make sure CMFD lattice is initialized and has right offset for 2D */
+  Cmfd* cmfd = _geometry->getCmfd();
+  if (cmfd != NULL) {
 
-      /* Check that CMFD has been initialized */
-      if (cmfd->getLattice() == NULL)
-        log_printf(ERROR, "CMFD has not been initialized before generating "
-                   "tracks. A call to geometry.initializeFlatSourceRegions() "
-                   "may be missing.");
+    /* Check that CMFD has been initialized */
+    if (cmfd->getLattice() == NULL)
+      log_printf(ERROR, "CMFD has not been initialized before generating "
+                 "tracks. A call to geometry.initializeFlatSourceRegions() "
+                 "may be missing.");
 
-      /* Re-initialize CMFD lattice with 2D dimensions */
-      Point offset;
-      offset.setX(cmfd->getLattice()->getOffset()->getX());
-      offset.setY(cmfd->getLattice()->getOffset()->getY());
-      offset.setZ(_z_coord);
-      cmfd->initializeLattice(&offset, true);
-    }
+    /* Re-initialize CMFD lattice with 2D dimensions */
+    Point offset;
+    offset.setX(cmfd->getLattice()->getOffset()->getX());
+    offset.setY(cmfd->getLattice()->getOffset()->getY());
+    offset.setZ(_z_coord);
+    cmfd->initializeLattice(&offset, true);
   }
 
   std::string msg = "Segmenting 2D tracks";

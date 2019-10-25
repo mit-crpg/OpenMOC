@@ -7,6 +7,7 @@ import sys
 import shutil
 import re
 import glob
+import copy
 import subprocess
 from collections import OrderedDict
 from optparse import OptionParser
@@ -33,6 +34,9 @@ parser.add_option('-c', '--coverage', action="store_true", dest='coverage',
 parser.add_option('-l', '--list', action="store_true",
                   dest="list_build_configs", default=False,
                   help="List out build configurations.")
+parser.add_option('-m', '--with-mpi', action="store_true",
+                  dest="with_mpi", default=False,
+                  help="Run MPI build configuration")
 (options, args) = parser.parse_args()
 
 # Default build options
@@ -122,13 +126,17 @@ class Test(object):
         if options.verbose:
             ctest_cmd += ['--verbose']
 
-        # Check for parallel
+        # Check for running tests in parallel
         if options.n_procs:
             ctest_cmd += ['-j', str(options.n_procs)]
 
         # Check for subset of tests
         if options.regex_tests:
             ctest_cmd += ['-R', str(options.regex_tests)]
+
+        # Avoid MPI tests when running a non-mpi build
+        if 'mpi' not in self.name:
+            ctest_cmd += ['-E', 'mpi']
 
         # Run CTest
         rc = subprocess.call(ctest_cmd)
@@ -147,6 +155,7 @@ def add_test(name, cc='gcc', num_threads=1, debug=False, ):
 # a subset of these configurations
 add_test('normal-gcc', cc='gcc', num_threads=1)
 add_test('normal-openmp-gcc', cc='gcc', num_threads=2)
+add_test('mpi-openmp-gcc', cc='mpicc', num_threads=2)
 #add_test('normal-gcc-debug', cc='gcc', num_threads=1, debug=True)
 #add_test('normal-openmp-gcc-debug', cc='gcc', num_threads=4, debug=True)
 #add_test('normal-icpc', cc='icpc', num_threads=1)
@@ -162,9 +171,15 @@ if options.list_build_configs:
 
 # Delete items of dictionary that don't match regular expression
 if options.build_config is not None:
+    tests_copy = copy.deepcopy(tests)
     for key in tests:
         if not re.search(options.build_config, key):
-            del tests[key]
+            del tests_copy[key]
+    tests = tests_copy
+
+# Delete MPI build test from test run unless specified
+if not options.with_mpi:
+    del tests['mpi-openmp-gcc']
 
 # Check if tests empty
 if len(list(tests.keys())) == 0:

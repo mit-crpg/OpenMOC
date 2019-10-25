@@ -126,9 +126,6 @@ protected:
   void deleteMPIBuffers();
   void packBuffers(std::vector<long> &packing_indexes);
   void transferAllInterfaceFluxes();
-  void printCycle(long track_start, int domain_start, int length);
-  void printLoadBalancingReport();
-  void boundaryFluxChecker();
 #endif
 #ifdef ONLYVACUUMBC
   void resetBoundaryFluxes();
@@ -179,6 +176,12 @@ public:
                       const char* plane);
   void printFluxesTemp();
   void printNegativeSources(int iteration, int num_x, int num_y, int num_z);
+
+#ifdef MPIx
+  void printCycle(long track_start, int domain_start, int length);
+  void printLoadBalancingReport();
+  void boundaryFluxChecker();
+#endif
 };
 
 
