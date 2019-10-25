@@ -3,4 +3,4 @@
 set -ev
 
 # Run all tests
-./run_tests.py --coverage --with-mpi
+./run_tests.py --coverage --with-mpi --verbose
