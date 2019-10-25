@@ -617,6 +617,9 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
           _edge_corner_currents[first_ind+g] += currents[g];
 
         omp_unset_lock(&_edge_corner_lock);
+#ifdef INTEL
+#pragma omp flush
+#endif
       }
     }
     else {
@@ -649,7 +652,9 @@ inline void Cmfd::tallyCurrent(segment* curr_segment, float* track_flux,
           _edge_corner_currents[first_ind+g] += currents[g];
 
         omp_unset_lock(&_edge_corner_lock);
-
+#ifdef INTEL
+#pragma omp flush
+#endif
       }
     }
   }

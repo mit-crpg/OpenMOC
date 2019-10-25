@@ -94,6 +94,7 @@ fluxes_sph *= sph
 num_fsrs = openmoc_geometry.getNumFSRs()
 num_groups = openmoc_geometry.getNumEnergyGroups()
 openmc_fluxes = np.zeros((num_fsrs, num_groups), dtype=np.float64)
+nufission_xs = np.zeros((num_fsrs, num_groups), dtype=np.float64)
 
 # Get the OpenMC flux in each FSR
 for fsr in range(num_fsrs):
@@ -108,21 +109,19 @@ for fsr in range(num_fsrs):
     flux = mgxs.tallies['flux'].mean.flatten()
     flux = np.flipud(flux) / fsr_volume
     openmc_fluxes[fsr, :] = flux
+    nufission_xs[fsr, :] = mgxs.get_xs(nuclide='all')
 
 # Extract energy group edges
 group_edges = mgxs_lib.energy_groups.group_edges
-group_edges *= 1e6      # Convert to units of eV
-group_edges += 1e-5     # Adjust lower bound to 1e-3 eV (for loglog scaling)
+group_edges += 1e-3     # Adjust lower bound to 1e-3 eV (for loglog scaling)
 
 # Compute difference in energy bounds for each group
-group_deltas = np.ediff1d(group_edges)
 group_edges = np.flipud(group_edges)
-group_deltas = np.flipud(group_deltas)
 
-# Normalize fluxes to the total integrated flux
-openmc_fluxes /= np.sum(openmc_fluxes * group_deltas, axis=1)[:,np.newaxis]
-fluxes_sph /= np.sum(fluxes_sph * group_deltas, axis=1)[:,np.newaxis]
-fluxes_no_sph /= np.sum(fluxes_no_sph * group_deltas, axis=1)[:,np.newaxis]
+# Normalize fluxes with the fission source
+openmc_fluxes /= np.sum(openmc_fluxes * nufission_xs)
+fluxes_sph /= np.sum(fluxes_sph * nufission_xs)
+fluxes_no_sph /= np.sum(fluxes_no_sph * nufission_xs)
 
 
 ###############################################################################

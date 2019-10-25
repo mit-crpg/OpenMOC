@@ -140,7 +140,12 @@ ifeq ($(DEBUG),yes)
   CFLAGS += -g
   CFLAGS += -fno-omit-frame-pointer
 else
-  CFLAGS += -Wno-unused-result
+  ifeq ($(COMPILER),gnu)
+    CFLAGS += -Wno-unused-result
+  endif
+  ifeq ($(COMPILER),mpi)
+    CFLAGS += -Wno-unused-result
+  endif
 endif
 
 # Profiling Flags

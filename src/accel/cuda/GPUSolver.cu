@@ -732,6 +732,8 @@ GPUSolver::GPUSolver(TrackGenerator* track_generator) :
 
   if (track_generator != NULL)
     setTrackGenerator(track_generator);
+
+  _gpu_solver = true;
 }
 
 
@@ -1569,6 +1571,7 @@ void GPUSolver::transportSweep() {
   log_printf(DEBUG, "Copied host to device flux.");
 
   /* Perform transport sweep on all tracks */
+  _timer->startTimer();
   transportSweepOnDevice<<<_B, _T, shared_mem>>>(scalar_flux, boundary_flux,
                                                  start_flux, reduced_sources,
                                                  _materials, _dev_tracks,
@@ -1576,6 +1579,8 @@ void GPUSolver::transportSweep() {
 
   cudaDeviceSynchronize();
   getLastCudaError();
+  _timer->stopTimer();
+  _timer->recordSplit("Transport Sweep");
   log_printf(DEBUG, "Finished sweep on GPU.\n");
 }
 

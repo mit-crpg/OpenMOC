@@ -209,9 +209,12 @@ void CPULSSolver::initializeFixedSources() {
     source_z = fsr_iter->second[2];
 
     /* Warn the user if a fixed source has already been assigned to this FSR */
-    if (fabs(_fixed_sources_xyz(fsr_id,group,0) - source_x) > FLT_EPSILON ||
-        fabs(_fixed_sources_xyz(fsr_id,group,1) - source_y) > FLT_EPSILON ||
-        fabs(_fixed_sources_xyz(fsr_id,group,2) - source_z) > FLT_EPSILON)
+    if ((fabs(_fixed_sources_xyz(fsr_id,group,0)) > FLT_EPSILON &&
+         fabs(_fixed_sources_xyz(fsr_id,group,0) - source_x) > FLT_EPSILON) ||
+        (fabs(_fixed_sources_xyz(fsr_id,group,1)) > FLT_EPSILON &&
+         fabs(_fixed_sources_xyz(fsr_id,group,1) - source_y) > FLT_EPSILON) ||
+        (fabs(_fixed_sources_xyz(fsr_id,group,2)) > FLT_EPSILON &&
+         fabs(_fixed_sources_xyz(fsr_id,group,2) - source_z) > FLT_EPSILON))
       log_printf(WARNING, "Overriding fixed linear source %f %f %f in FSR ID=%d"
                  " group %d with %f %f %f", _fixed_sources_xyz(fsr_id,group, 0),
                  _fixed_sources_xyz(fsr_id,group,1),
@@ -570,8 +573,11 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
         FP_PRECISION delta_psi = (tau[e] * track_flux[e] - length * src_flat[e])
              * exp_F1 - src_linear[e] * length * length * exp_F2;
 
+#ifdef ONLYVACUUMBC
         /* Limit delta psi to avoid negative track fluxes */
         delta_psi = std::min(float(delta_psi), track_flux[e]);
+        //FIXME Not vectorized. Performance issue
+#endif
 
         track_flux[e] -= delta_psi;
 
@@ -598,8 +604,11 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       FP_PRECISION delta_psi = (tau[e] * track_flux[e] - length * src_flat[e])
            * exp_F1 - src_linear[e] * length * length * exp_F2;
 
+#ifdef ONLYVACUUMBC
       /* Limit delta psi to avoid negative track fluxes */
       delta_psi = std::min(float(delta_psi), track_flux[e]);
+      //FIXME Not vectorized. Performance issue
+#endif
 
       track_flux[e] -= delta_psi;
 
@@ -738,6 +747,9 @@ void CPULSSolver::accumulateLinearFluxContribution(long fsr_id,
   }
 
   omp_unset_lock(&_FSR_locks[fsr_id]);
+#ifdef INTEL
+#pragma omp flush
+#endif
 
   /* Reset buffers to 0 */
   memset(fsr_flux, 0, 4 * num_groups_aligned * sizeof(FP_PRECISION));

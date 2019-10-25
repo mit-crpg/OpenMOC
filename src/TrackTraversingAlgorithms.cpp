@@ -446,6 +446,9 @@ void CentroidGenerator::onTrack(Track* track, segment* segments) {
 
     /* Unset the lock for this FSR */
     omp_unset_lock(&_FSR_locks[fsr]);
+#ifdef INTEL
+#pragma omp flush
+#endif
 
     x += cos_phi * sin_theta * curr_segment->_length;
     y += sin_phi * sin_theta * curr_segment->_length;
@@ -564,8 +567,9 @@ void LinearExpansionGenerator::execute() {
       double volume = _FSR_volumes[r];
       if (std::abs(det) < MIN_DET || volume < 1e-6) {
         if (volume > 0)
-          log_printf(INFO, "Unable to form linear source components in "
-                     "source region %d.", r);
+          log_printf(DEBUG, "Unable to form linear source components in "
+                     "source region %d : determinant %.2e volume %.2e", r, det,
+                     volume);
 #pragma omp atomic update
         _num_flat++;
         ilem[r*nc + 0] = 0.0;
@@ -614,8 +618,8 @@ void LinearExpansionGenerator::execute() {
         ilem[r*nc + 0] = 0.0;
         ilem[r*nc + 1] = 0.0;
         ilem[r*nc + 2] = 0.0;
-        log_printf(INFO, "Unable to form linear source components in "
-                   "source region %d.", r);
+        log_printf(DEBUG, "Unable to form linear source components in "
+                   "source region %d : determinant = %.2e", r, det);
 #pragma omp atomic update
         _num_flat++;
       }
@@ -716,7 +720,7 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
     double yc = y + length * 0.5 * sin_phi * sin_theta;
     double zc = z + length * 0.5 * cos_theta;
 
-    /* Set the FSR src constants buffer to zero */
+    /* Allocate a buffer for the FSR source constants on the stack */
     double thread_src_constants[_NUM_GROUPS * _NUM_COEFFS]  __attribute__
        ((aligned (VEC_ALIGNMENT)));
 
@@ -810,6 +814,9 @@ void LinearExpansionGenerator::onTrack(Track* track, segment* segments) {
 
     /* Unset the lock for this FSR */
     omp_unset_lock(&_FSR_locks[fsr]);
+#ifdef INTEL
+#pragma omp flush
+#endif
   }
 
   /* Determine progress */

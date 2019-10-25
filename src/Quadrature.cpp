@@ -1156,7 +1156,7 @@ DoubleVec GLPolarQuad::getLegendreRoots(size_t n) {
 
   bool all_roots_converged = false;
 
-  /* use the Alberth-Housholder_n method to nudge guesses towards roots */
+  /* use the Alberth-Householder_n method to nudge guesses towards roots */
   for (size_t iter=0; iter < MAX_LG_ITERS; ++iter) {
 
     /* set S tildes */

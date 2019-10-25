@@ -74,6 +74,9 @@ void Vector::incrementValue(int cell, int group, CMFD_PRECISION val) {
 
   /* Release Vector cell mutual exclusion lock */
   omp_unset_lock(&_cell_locks[cell]);
+#ifdef INTEL
+#pragma omp flush
+#endif
 }
 
 
@@ -115,6 +118,9 @@ void Vector::incrementValues(int cell, int group_first, int group_last,
 
   /* Release Vector cell mutual exclusion lock */
   omp_unset_lock(&_cell_locks[cell]);
+#ifdef INTEL
+#pragma omp flush
+#endif
 }
 
 
@@ -154,6 +160,9 @@ void Vector::setValue(int cell, int group, CMFD_PRECISION val) {
 
   /* Release Vector cell mutual exclusion lock */
   omp_unset_lock(&_cell_locks[cell]);
+#ifdef INTEL
+#pragma omp flush
+#endif
 }
 
 
@@ -194,6 +203,9 @@ void Vector::setValues(int cell, int group_first, int group_last,
 
   /* Release Vector cell mutual exclusion lock */
   omp_unset_lock(&_cell_locks[cell]);
+#ifdef INTEL
+#pragma omp flush
+#endif
 }
 
 
