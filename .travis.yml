@@ -38,6 +38,7 @@ install:
   #- sudo rm /usr/bin/g++
   #- sudo ln -s /usr/bin/gcc-6 /usr/bin/gcc
   #- sudo ln -s /usr/bin/g++-6 /usr/bin/g++
+  - conda config --add channels conda-forge
   - conda install mpi4py openmpi-mpicc openmpi-mpicxx
   - export LD_PRELOAD="$HOME/miniconda/envs/test-environment/lib/libmpi_cxx.so"
 
