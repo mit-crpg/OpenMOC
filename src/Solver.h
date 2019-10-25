@@ -540,10 +540,12 @@ public:
                               int reset_iteration);
   void checkLimitXS(int iteration);
 
+#ifdef MPIx
   /** Functions to check the MPI implemtation, accessible from Python */
   virtual void printCycle(long track_start, int domain_start, int length)=0;
   virtual void printLoadBalancingReport()=0;
   virtual void boundaryFluxChecker()=0;
+#endif
 
   /**
    * @brief Activate On-The-Fly transport, to OTF ray-trace and propagate the
