@@ -1,6 +1,5 @@
+sudo: required
 language: python
-python:
-  - "3.6"
 addons:
   apt:
     packages:
@@ -12,6 +11,14 @@ cache:
   directories:
 notifications:
   webhooks: https://coveralls.io/webhook?repo_token=$COVERALLS_REPO_TOKEN
+matrix:
+  include:
+    - python: "3.6"
+      env: OMP=n MPI=n
+    - python: "3.6"
+      env: OMP=y MPI=n
+    - python: "3.6"
+      env: OMP=y MPI=y
 before_install:
   # ========== Point apt-get to C++11-compatible compiler =====================
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
@@ -26,29 +33,20 @@ before_install:
   - conda info -a
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy h5py pandas matplotlib pillow
   - source activate test-environment
+  - sudo apt-get install swig
+  # For coverage testing of C++ and Python source files
   - pip install coverage
   - pip install cpp-coveralls
   - pip install coveralls
-
 install:
-  # ================= Get C++11 and MPI-compatible compiler ===================
-  #- sudo apt-get install -qq gcc-6 g++-6
-  - sudo apt-get install swig
-  #- sudo rm /usr/bin/gcc
-  #- sudo rm /usr/bin/g++
-  #- sudo ln -s /usr/bin/gcc-6 /usr/bin/gcc
-  #- sudo ln -s /usr/bin/g++-6 /usr/bin/g++
-  - conda config --add channels conda-forge
-  - conda install mpi4py openmpi-mpicc openmpi-mpicxx
-  - export LD_PRELOAD="$HOME/miniconda/envs/test-environment/lib/libmpi_cxx.so"
-
+  - chmod +x ./tools/ci/travis-install.sh
+  - . ./tools/ci/travis-install.sh
 script:
   - cd tests
   - ./travis.sh
-
 after_success:
   - cd ..
   - cpp-coveralls -i src -i build/temp.linux*/src/ --exclude-pattern "/usr/*" --dump cpp_cov.json
   - cp tests/.coverage ./
-  # Switch to Python version, which can merge reports
+  # Switch to Python coveralls, which can merge reports
   - coveralls --rcfile=./tests/.coveragerc --merge=cpp_cov.json

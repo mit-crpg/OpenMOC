@@ -19,9 +19,10 @@ class PwrAssemblyTestHarness(TestHarness):
         super(PwrAssemblyTestHarness, self).__init__()
         self.input_set = SimpleLatticeInput(num_dimensions=3)
         self.num_polar = 4
-        self.azim_spacing = 0.12
-        self.z_spacing = 0.5
+        self.azim_spacing = 0.24
+        self.z_spacing = 0.7
         self.tolerance = 1E-4
+        self.max_iters = 50
 
     def _create_geometry(self):
         """Initialize CMFD and add it to the Geometry."""

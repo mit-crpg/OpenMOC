@@ -151,11 +151,18 @@ class Test(object):
 def add_test(name, cc='gcc', num_threads=1, debug=False, ):
     tests.update({name: Test(name, cc, num_threads, debug, options.coverage)})
 
+# Look at environment variables to see which tests should be run
+omp = (os.environ.get('OMP') == 'y')
+mpi = (os.environ.get('MPI') == 'y')
+
 # List of all tests that may be run. User can add -C to command line to specify
 # a subset of these configurations
-add_test('normal-gcc', cc='gcc', num_threads=1)
-add_test('normal-openmp-gcc', cc='gcc', num_threads=2)
-add_test('mpi-openmp-gcc', cc='mpicc', num_threads=2)
+if not omp and not mpi:
+    add_test('normal-gcc', cc='gcc', num_threads=1)
+elif omp and not mpi:
+    add_test('normal-openmp-gcc', cc='gcc', num_threads=4)
+elif (omp and mpi) or options.with_mpi:
+    add_test('mpi-openmp-gcc', cc='mpicc', num_threads=2)
 #add_test('normal-gcc-debug', cc='gcc', num_threads=1, debug=True)
 #add_test('normal-openmp-gcc-debug', cc='gcc', num_threads=4, debug=True)
 #add_test('normal-icpc', cc='icpc', num_threads=1)
@@ -176,10 +183,6 @@ if options.build_config is not None:
         if not re.search(options.build_config, key):
             del tests_copy[key]
     tests = tests_copy
-
-# Delete MPI build test from test run unless specified
-if not options.with_mpi:
-    del tests['mpi-openmp-gcc']
 
 # Check if tests empty
 if len(list(tests.keys())) == 0:

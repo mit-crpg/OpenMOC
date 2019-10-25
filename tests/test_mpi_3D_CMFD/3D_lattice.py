@@ -23,6 +23,7 @@ class PwrAssemblyTestHarness(TestHarness):
         self.azim_spacing = 0.12
         self.z_spacing = 0.5
         self.tolerance = 1E-4
+        self.max_iters = 1
 
     def _create_geometry(self):
         """Initialize CMFD and add it to the Geometry."""
@@ -32,7 +33,7 @@ class PwrAssemblyTestHarness(TestHarness):
 
         # Initialize CMFD
         cmfd = openmoc.Cmfd()
-        cmfd.setLatticeStructure(6,8,9)
+        cmfd.setLatticeStructure(2,4,6)
         cmfd.setGroupStructure([[1,2,3], [4,5,6,7]])
 
         # Add CMFD to the Geometry
