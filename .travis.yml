@@ -9,8 +9,8 @@ env:
     - COVERALLS_PARALLEL=true
 cache:
   directories:
-    - openmc
-    - $HOME/Miniconda
+    - $HOME/openmc
+    - $HOME/miniconda
 notifications:
   webhooks: https://coveralls.io/webhook?repo_token=$COVERALLS_REPO_TOKEN
 matrix:

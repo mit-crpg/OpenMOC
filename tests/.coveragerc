@@ -8,6 +8,7 @@ omit =
     tests/openmoc/openmoc/openmoc.py
     openmoc/openmoc/openmoc.py
     openmoc/openmoc.py
+    */openmc/*
 
 # Regexes for lines to exclude from consideration
 exclude_lines =

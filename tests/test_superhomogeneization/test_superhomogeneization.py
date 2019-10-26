@@ -7,6 +7,7 @@ sys.path.insert(0, os.pardir)
 sys.path.insert(0, os.path.join(os.pardir, 'openmoc'))
 from testing_harness import TestHarness
 import openmoc
+
 try:
     import openmc.openmoc_compatible
     import openmc.mgxs
