@@ -231,7 +231,7 @@ for key in iter(tests):
 
 # Combine all coverage files
 if options.coverage:
-    os.system('coverage combine test*/.coverage')
+    os.system('coverage combine test*/.coverage unit_tests/.coverage')
 
 # Clear build directory and remove binary and hdf5 files
 shutil.rmtree('build', ignore_errors=True)

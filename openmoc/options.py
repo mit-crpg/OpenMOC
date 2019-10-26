@@ -159,7 +159,7 @@ class Options(object):
             if opt in ('-h', '--help'):
 
                 print('{:-^80}'.format(''))
-                print('{: ^80}'.format('OpenMOC v.0.1.1 runtime options'))
+                print('{: ^80}'.format('OpenMOC v.0.4.0 runtime options'))
                 print('{:-^80}'.format(''))
                 print('')
 
