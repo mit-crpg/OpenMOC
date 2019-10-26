@@ -4772,16 +4772,16 @@ void Cmfd::checkNeutronBalance(bool pre_split, bool moc_balance) {
   int y = (max_imbalance_cell % (_local_num_x * _local_num_y)) / _local_num_x;
   int z = max_imbalance_cell / (_local_num_x * _local_num_y);
   if (moc_balance) {
-    log_printf(NODAL, "Maximum neutron imbalance MOC %f (CMFD %f) at cell %i "
-               "(%d %d %d) and group %d.", max_imbalance_moc,
+    log_printf(NODAL, "Maximum neutron imbalance MOC %.2e (CMFD %.2e) at cell "
+               "%i (%d %d %d) and group %d.", max_imbalance_moc,
                max_imbalance_cmfd, max_imbalance_cell, x, y, z,
                max_imbalance_grp);
     log_printf(NODAL, "%d CMFD cells report a MOC neutron imbalance",
                num_imbalanced);
   }
   else {
-    log_printf(NODAL, "Maximum neutron imbalance between MOC and CMFD : %f "
-               "(MOC %f CMFD %f) at cell %i (%d %d %d) and group %d.",
+    log_printf(NODAL, "Maximum neutron imbalance between MOC and CMFD : %.2e "
+               "(MOC %.2e CMFD %.2e) at cell %i (%d %d %d) and group %d.",
                max_imbalance_moc - max_imbalance_cmfd, max_imbalance_moc,
                max_imbalance_cmfd, max_imbalance_cell, x, y, z,
                max_imbalance_grp);
