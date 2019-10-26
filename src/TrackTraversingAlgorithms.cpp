@@ -568,7 +568,9 @@ void LinearExpansionGenerator::execute() {
       if (std::abs(det) < MIN_DET || volume < 1e-6) {
         if (volume > 0)
           log_printf(DEBUG, "Unable to form linear source components in "
-                     "source region %d: det %.2e volume %.2e", r, det, volume);
+                     "source region %d : determinant %.2e volume %.2e", r, det,
+                     volume);
+
 #pragma omp atomic update
         _num_flat++;
         ilem[r*nc + 0] = 0.0;
