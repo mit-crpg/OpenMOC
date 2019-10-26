@@ -1128,6 +1128,10 @@ void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
 
         dif_surf_corr = -(sense * dif_surf * (flux_next - flux) + current)
                         / (flux_next + flux);
+
+        /* Make sure diffusion coefficient is larger than the corrected one,
+           to floating point precision */
+        dif_surf = std::max(dif_surf, std::abs(dif_surf_corr));
       }
     }
   }
