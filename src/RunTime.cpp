@@ -443,6 +443,6 @@ int RuntimeParameters::setRuntimeParameters(int argc, char *argv[]) {
 #ifdef MPIx
     MPI_Finalize();
 #endif
-    exit(0);
+    return 0;
   }
 }
