@@ -43,9 +43,9 @@ materials_file.export_to_xml()
 ###############################################################################
 
 # Instantiate ZCylinder surfaces
-fuel_or = openmc.ZCylinder(x0=0, y0=0, R=0.39218, name='Fuel OR')
-clad_ir = openmc.ZCylinder(x0=0, y0=0, R=0.40005, name='Clad IR')
-clad_or = openmc.ZCylinder(x0=0, y0=0, R=0.45720, name='Clad OR')
+fuel_or = openmc.ZCylinder(x0=0, y0=0, r=0.39218, name='Fuel OR')
+clad_ir = openmc.ZCylinder(x0=0, y0=0, r=0.40005, name='Clad IR')
+clad_or = openmc.ZCylinder(x0=0, y0=0, r=0.45720, name='Clad OR')
 min_x = openmc.XPlane(x0=-0.62992, name='min x')
 max_x = openmc.XPlane(x0=+0.62992, name='max x')
 min_y = openmc.YPlane(y0=-0.62992, name='min y')

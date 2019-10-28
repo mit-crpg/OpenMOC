@@ -1649,7 +1649,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     }
     else {
       log_printf(NORMAL, "Iteration %d:  k_eff = %1.6f   "
-                 "res = %1.3E  delta-k (pcm) = %d D.R. = %1.2f", i, _k_eff,
+                 "res = %1.3E  delta-k (pcm) = %d D.R. = %1.4f", i, _k_eff,
                  residual, dk, dr);
     }
 

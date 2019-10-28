@@ -37,6 +37,9 @@ class RuntimeTestHarness(TestHarness):
 
         runtime = openmoc.RuntimeParameters()
 
+        # Display help message
+        runtime.setRuntimeParameters(["--help".encode('utf8')])
+        
         string_input = ['-debug', '1',
         '-log_level', 'NORMAL',
         '-domain_decompose', '2,2,2',
@@ -74,7 +77,6 @@ class RuntimeTestHarness(TestHarness):
         string_input = [s.encode('utf8') for s in string_input]
 
         runtime.setRuntimeParameters(string_input)
-        print(string_input)
 
         # Define simulation parameters
         num_threads = runtime._num_threads;

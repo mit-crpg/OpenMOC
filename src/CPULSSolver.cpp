@@ -526,7 +526,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     for (int i=0; i<3; i++)
       center_x2[i] = 2 * position[i] + length * direction[i];
 
-    // Compute the sources
+    /* Compute the sources */
     FP_PRECISION src_flat[_NUM_GROUPS]
                  __attribute__ ((aligned(VEC_ALIGNMENT)));
     FP_PRECISION src_linear[_NUM_GROUPS]
@@ -542,7 +542,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       src_linear[e] += _reduced_sources_xyz(fsr_id, e, 2) * direction[2];
     }
 
-    // Compute the exponential term G, intermediate step to F1, F2, H
+    /* Compute the exponential term G, intermediate step to F1, F2, H */
     FP_PRECISION exp_G[_NUM_GROUPS] __attribute__ ((aligned(VEC_ALIGNMENT)));
     FP_PRECISION tau[_NUM_GROUPS] __attribute__ ((aligned(VEC_ALIGNMENT)));
 
@@ -553,12 +553,13 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       expG_fractional(std::max(FP_PRECISION(1e-8), tau[e]), &exp_G[e]);
     }
 
-    // Determine number of SIMD vector groups
+    /* Determine number of SIMD vector groups */
     const int num_vector_groups = _NUM_GROUPS / VEC_LENGTH;
 
+    /* Compute the flux attenuation and tally contribution */
     for (int v=0; v < num_vector_groups; v++) {
       int start_vector = v * VEC_LENGTH;
-    // Compute the flux attenuation and tally contribution
+
 #pragma omp simd aligned(tau, src_flat, src_linear, fsr_flux, exp_G, fsr_flux_x\
      , fsr_flux_y, fsr_flux_z)
       for (int e=start_vector; e < start_vector + VEC_LENGTH; e++) {
@@ -573,12 +574,6 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
         FP_PRECISION delta_psi = (tau[e] * track_flux[e] - length * src_flat[e])
              * exp_F1 - src_linear[e] * length * length * exp_F2;
 
-#ifdef ONLYVACUUMBC
-        /* Limit delta psi to avoid negative track fluxes */
-        delta_psi = std::min(float(delta_psi), track_flux[e]);
-        //FIXME Not vectorized. Performance issue
-#endif
-
         track_flux[e] -= delta_psi;
 
         /* Increment the fsr scalar flux and scalar flux moments */
@@ -589,7 +584,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       }
     }
 
-    // Handle remainder of energy groups
+    /* Handle remainder of energy groups */
 #pragma omp simd aligned(tau, src_flat, src_linear, fsr_flux, exp_G, fsr_flux_x\
      , fsr_flux_y, fsr_flux_z)
     for (int e=num_vector_groups * VEC_LENGTH; e < _NUM_GROUPS; e++) {
@@ -604,12 +599,6 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       FP_PRECISION delta_psi = (tau[e] * track_flux[e] - length * src_flat[e])
            * exp_F1 - src_linear[e] * length * length * exp_F2;
 
-#ifdef ONLYVACUUMBC
-      /* Limit delta psi to avoid negative track fluxes */
-      delta_psi = std::min(float(delta_psi), track_flux[e]);
-      //FIXME Not vectorized. Performance issue
-#endif
-
       track_flux[e] -= delta_psi;
 
       /* Increment the fsr scalar flux and scalar flux moments */
@@ -618,6 +607,10 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       fsr_flux_y[e] += exp_H * direction[1] + delta_psi * position[1];
       fsr_flux_z[e] += exp_H * direction[2] + delta_psi * position[2];
     }
+
+    /* Ensure track flux remains positive */
+    for (int e=0; e < _NUM_GROUPS; e++)
+      track_flux[e] = std::max(0.f, track_flux[e]);
   }
   else {
 //FIXME Implement strip mining for the 2D linear source solver
@@ -686,7 +679,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       FP_PRECISION wgt = _quad->getWeightInline(azim_index, int(pe/_NUM_GROUPS));
       exp_H[pe] *=  wgt * tau[pe] * length * track_flux[pe];
 
-      // Compute the change in flux across the segment
+      /* Compute the change in flux across the segment */
       delta_psi[pe] = (tau[pe] * track_flux[pe] - length
             * src_flat[pe % _NUM_GROUPS]) * exp_F1[pe] - length * length
             * src_linear[pe] * exp_F2[pe];
@@ -733,13 +726,13 @@ void CPULSSolver::accumulateLinearFluxContribution(long fsr_id,
   FP_PRECISION* fsr_flux_y = &fsr_flux[2*num_groups_aligned];
   FP_PRECISION* fsr_flux_z = &fsr_flux[3*num_groups_aligned];
 
-  // Atomically increment the FSR scalar flux from the temporary array
+  /* Atomically increment the FSR scalar flux from the temporary array */
   omp_set_lock(&_FSR_locks[fsr_id]);
 
 #pragma omp simd aligned(fsr_flux, fsr_flux_x, fsr_flux_y, fsr_flux_z)
   for (int e=0; e < _NUM_GROUPS; e++) {
 
-    // Add to global scalar flux vector
+    /* Add to global scalar flux vector */
     _scalar_flux(fsr_id, e) += weight * fsr_flux[e];
     _scalar_flux_xyz(fsr_id, e, 0) += weight * fsr_flux_x[e];
     _scalar_flux_xyz(fsr_id, e, 1) += weight * fsr_flux_y[e];

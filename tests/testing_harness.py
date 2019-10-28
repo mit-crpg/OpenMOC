@@ -99,25 +99,45 @@ class TestHarness(object):
 
     def _execute_test(self):
         """Build geometry, ray trace, run calculation, and verify results."""
+
+        # If running the test suite with MPI, only rank 0 should check the result
+        try:
+            from mpi4py import MPI
+            rank = MPI.COMM_WORLD.Get_rank()
+        except:
+            rank = 0
+
         try:
             self._setup()
             self._run_openmoc()
             results = self._get_results()
-            self._write_results(results)
-            self._compare_results()
+            if rank == 0:
+                self._write_results(results)
+                self._compare_results()
         finally:
-            self._cleanup()
+            if rank == 0:
+                self._cleanup()
 
     def _update_results(self):
         """Update the results_true using the current version of OpenMOC."""
+
+        # If running the test suite with MPI, only rank 0 should write the result
+        try:
+            from mpi4py import MPI
+            rank = MPI.COMM_WORLD.Get_rank()
+        except:
+            rank = 0
+
         try:
             self._setup()
             self._run_openmoc()
             results = self._get_results()
-            self._write_results(results)
-            self._overwrite_results()
+            if rank == 0:
+                self._write_results(results)
+                self._overwrite_results()
         finally:
-            self._cleanup()
+            if rank == 0:
+                self._cleanup()
 
     def _run_openmoc(self):
         """Run an OpenMOC eigenvalue or fixed source calculation."""

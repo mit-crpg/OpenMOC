@@ -46,6 +46,39 @@ class TestLogParameters(unittest.TestCase):
         openmoc.set_log_level(openmoc.ERROR)
         self.assertEqual(openmoc.get_log_level(), 13)
 
+        openmoc.set_log_level("DEBUG")
+        self.assertEqual(openmoc.get_log_level(), 0)
+
+        openmoc.set_log_level("INFO")
+        self.assertEqual(openmoc.get_log_level(), 1)
+
+        openmoc.set_log_level("NORMAL")
+        self.assertEqual(openmoc.get_log_level(), 3)
+
+        openmoc.set_log_level("SEPARATOR")
+        self.assertEqual(openmoc.get_log_level(), 5)
+
+        openmoc.set_log_level("HEADER")
+        self.assertEqual(openmoc.get_log_level(), 6)
+
+        openmoc.set_log_level("TITLE")
+        self.assertEqual(openmoc.get_log_level(), 7)
+
+        openmoc.set_log_level("WARNING")
+        self.assertEqual(openmoc.get_log_level(), 8)
+
+        openmoc.set_log_level("CRITICAL")
+        self.assertEqual(openmoc.get_log_level(), 10)
+
+        openmoc.set_log_level("RESULT")
+        self.assertEqual(openmoc.get_log_level(), 11)
+
+        openmoc.set_log_level("UNITTEST")
+        self.assertEqual(openmoc.get_log_level(), 12)
+
+        openmoc.set_log_level("ERROR")
+        self.assertEqual(openmoc.get_log_level(), 13)
+
         # Setting log level with an integer
         openmoc.set_log_level(3)
         self.assertEqual(openmoc.get_log_level(), 3)

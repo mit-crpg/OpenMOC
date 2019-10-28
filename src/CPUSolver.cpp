@@ -603,9 +603,9 @@ void CPUSolver::setupMPIBuffers() {
 
     /* Determine how many Tracks communicate with each neighbor domain */
     log_printf(NORMAL, "Initializing Track connections accross domains...");
-    long num_tracks[num_domains];
-    for (int i=0; i < num_domains; i++)
-      num_tracks[i] = 0;
+    std::vector<long> num_tracks;
+    num_tracks. resize(num_domains, 0);
+
 #pragma omp parallel for
     for (long t=0; t<_tot_num_tracks; t++) {
 
@@ -639,7 +639,7 @@ void CPUSolver::setupMPIBuffers() {
       for (int d=0; d < 2; d++) {
         if (domains[d] != -1 && interface[d]) {
           int neighbor = _neighbor_connections.at(domains[d]);
-#pragma omp atomic
+#pragma omp atomic update
           num_tracks[neighbor]++;
         }
       }
@@ -1861,7 +1861,7 @@ void CPUSolver::computeFSRSources(int iteration) {
 
       /* Correct negative sources to (near) zero */
       if (_reduced_sources(r,G) < 0.0) {
-#pragma omp atomic
+#pragma omp atomic update
         num_negative_sources++;
         negative_source_in_fsr = true;
         if (iteration < 30 && !_negative_fluxes_allowed)
@@ -1870,7 +1870,7 @@ void CPUSolver::computeFSRSources(int iteration) {
     }
 
     if (negative_source_in_fsr)
-#pragma omp atomic
+#pragma omp atomic update
       num_negative_fsrs++;
   }
 

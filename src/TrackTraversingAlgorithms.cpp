@@ -570,6 +570,7 @@ void LinearExpansionGenerator::execute() {
           log_printf(DEBUG, "Unable to form linear source components in "
                      "source region %d : determinant %.2e volume %.2e", r, det,
                      volume);
+
 #pragma omp atomic update
         _num_flat++;
         ilem[r*nc + 0] = 0.0;
