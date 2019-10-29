@@ -35,18 +35,26 @@
 #include "dev_exponential.h"
 #include "GPUQuery.h"
 
+/** If number of groups is known at compile time */
+#ifdef NGROUPS
+#define NUM_GROUPS (NGROUPS)
+#define _NUM_GROUPS (NGROUPS)
+#else
+#define _NUM_GROUPS (_num_groups)
+#endif
+
 /** Indexing macro for the scalar flux in each FSR and energy group */
-#define scalar_flux(tid,e) (scalar_flux[(tid)*num_groups + (e)])
+#define scalar_flux(tid,e) (scalar_flux[(tid)*NUM_GROUPS + (e)])
 
 /** Indexing macro for the old scalar flux in each FSR and energy group */
-#define old_scalar_flux(tid,e) (old_scalar_flux[(tid)*num_groups + (e)])
+#define old_scalar_flux(tid,e) (old_scalar_flux[(tid)*NUM_GROUPS + (e)])
 
 /** Indexing macro for the total source divided by the total cross-section,
  *  \f$ \frac{Q}{\Sigma_t} \f$, in each FSR and energy group */
-#define reduced_sources(tid,e) (reduced_sources[(tid)*num_groups + (e)])
+#define reduced_sources(tid,e) (reduced_sources[(tid)*NUM_GROUPS + (e)])
 
 /** Indexing scheme for fixed sources for each FSR and energy group */
-#define fixed_sources(r,e) (fixed_sources[(r)*num_groups + (e)])
+#define fixed_sources(r,e) (fixed_sources[(r)*NUM_GROUPS + (e)])
 
 /** Indexing macro for the azimuthal and polar weights */
 #define weights(i,p) (weights[(i)*num_polar_2 + (p)])
