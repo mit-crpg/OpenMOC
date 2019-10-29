@@ -2053,6 +2053,8 @@ void Solver::dumpFSRFluxes(std::string fname) {
   /* Write the FSR fluxes file */
   FILE* out;
   out = fopen(filename.c_str(), "w");
+  if (out == NULL)
+    log_printf(ERROR, "Fluxes file %s could not be written.", &filename[0]);
 
   /* Write k-eff */
   fwrite(&_k_eff, sizeof(double), 1, out);
