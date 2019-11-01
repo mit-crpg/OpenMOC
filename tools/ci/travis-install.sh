@@ -36,7 +36,7 @@ export PYTHONPATH="$HOME/openmc/:$PYTHONPATH"
 # Install mpi4py and MPI-wrapped compilers for MPI configurations
 if [[ $MPI == 'y' ]]; then
     conda config --add channels conda-forge
-    conda install mpi4py openmpi-mpicc openmpi-mpicxx
+    conda install -y mpi4py openmpi-mpicc openmpi-mpicxx
     export LD_PRELOAD="$HOME/miniconda/envs/test-environment/lib/libmpi_cxx.so"
 # Get regular C++11-compatible compiler for non-MPI configurations
 else
