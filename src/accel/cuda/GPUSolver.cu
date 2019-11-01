@@ -3,8 +3,10 @@
 /** The number of FSRs */
 __constant__ long num_FSRs;
 
+#ifndef NGROUPS
 /** The number of energy groups */
-__constant__ int num_groups;
+__constant__ int NUM_GROUPS;
+#endif
 
 /** The number of polar angles */
 __constant__ int num_polar;
@@ -27,7 +29,7 @@ __constant__ long tot_num_tracks;
 __global__ void printmateriald(dev_material* matd)
 {
   printf("Printing the material %i\n", matd->_id);
-  for (int g=0; g<num_groups; ++g)
+  for (int g=0; g<NUM_GROUPS; ++g)
     printf("    sigmaf(%i) = %f\n", g, matd->_sigma_f[g]);
 }
 
@@ -210,7 +212,7 @@ __global__ void computeFissionSourcesOnDevice(FP_PRECISION* FSR_volumes,
 
     /* Iterate over energy groups and update fission source for
      * this thread block */
-    for (int e=0; e < num_groups; e++) {
+    for (int e=0; e < NUM_GROUPS; e++) {
       source = nu_sigma_f[e] * scalar_flux(tid,e) * volume;
       shared_fission_source[threadIdx.x] += source;
     }
@@ -263,13 +265,13 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
     fiss_mat = curr_material->_fiss_matrix;
 
     /* Compute scatter + fission source for group g */
-    for (int g=0; g < num_groups; g++) {
+    for (int g=0; g < NUM_GROUPS; g++) {
       scatter_source = 0;
       fission_source = 0;
 
-      for (int g_prime=0; g_prime < num_groups; g_prime++) {
-        scatter_source += sigma_s[g*num_groups+g_prime] * scalar_flux(tid,g_prime);
-        fission_source += fiss_mat[g*num_groups+g_prime] * scalar_flux(tid,g_prime);
+      for (int g_prime=0; g_prime < NUM_GROUPS; g_prime++) {
+        scatter_source += sigma_s[g*NUM_GROUPS+g_prime] * scalar_flux(tid,g_prime);
+        fission_source += fiss_mat[g*NUM_GROUPS+g_prime] * scalar_flux(tid,g_prime);
       }
 
       fission_source *= inverse_k_eff;
@@ -322,11 +324,11 @@ __global__ void computeFSRFissionSourcesOnDevice(int* FSR_materials,
     fiss_mat = curr_material->_fiss_matrix;
 
     /* Compute fission source for group g */
-    for (int g=0; g < num_groups; g++) {
+    for (int g=0; g < NUM_GROUPS; g++) {
       fission_source = 0;
 
-      for (int g_prime=0; g_prime < num_groups; g_prime++)
-        fission_source += fiss_mat[g*num_groups+g_prime] * scalar_flux(tid,g_prime);
+      for (int g_prime=0; g_prime < NUM_GROUPS; g_prime++)
+        fission_source += fiss_mat[g*NUM_GROUPS+g_prime] * scalar_flux(tid,g_prime);
 
       /* Set the reduced fission source for FSR tid in group g */
       reduced_sources(tid,g) = fission_source;
@@ -376,11 +378,11 @@ __global__ void computeFSRScatterSourcesOnDevice(int* FSR_materials,
     sigma_t = curr_material->_sigma_t;
 
     /* Compute total scattering source for this FSR in group g */
-    for (int g=0; g < num_groups; g++) {
+    for (int g=0; g < NUM_GROUPS; g++) {
       scatter_source = 0;
 
-      for (int g_prime=0; g_prime < num_groups; g_prime++)
-        scatter_source += sigma_s[g*num_groups+g_prime] * scalar_flux(tid,g_prime);
+      for (int g_prime=0; g_prime < NUM_GROUPS; g_prime++)
+        scatter_source += sigma_s[g*NUM_GROUPS+g_prime] * scalar_flux(tid,g_prime);
 
       /* Set the reduced scatter source for FSR tid in group g */
       reduced_sources(tid,g) = scatter_source;
@@ -404,7 +406,7 @@ __global__ void flattenFSRFluxesChiSpectrumOnDevice(dev_material* chi_material,
                                                     FP_PRECISION* scalar_flux) {
   int tid = threadIdx.x + blockIdx.x * blockDim.x;
   while (tid < num_FSRs) {
-    for (int g=0; g < num_groups; g++) {
+    for (int g=0; g < NUM_GROUPS; g++) {
       scalar_flux(tid,g) = chi_material->_chi[g];
     }
     tid += blockDim.x * gridDim.x;
@@ -537,10 +539,10 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
   FP_PRECISION* track_flux;
 
   int tid = tid_offset + threadIdx.x + blockIdx.x * blockDim.x;
-  int track_id = tid / num_groups;
+  int track_id = tid / NUM_GROUPS;
 
   int track_flux_index = threadIdx.x * num_polar;
-  int energy_group = tid % num_groups;
+  int energy_group = tid % NUM_GROUPS;
   int energy_angle_index = energy_group * num_polar_2;
 
   dev_track* curr_track;
@@ -596,8 +598,8 @@ __global__ void transportSweepOnDevice(FP_PRECISION* scalar_flux,
 
     /* Update the indices for this thread to the next Track, energy group */
     tid += blockDim.x * gridDim.x;
-    track_id = tid / num_groups;
-    energy_group = tid % num_groups;
+    track_id = tid / NUM_GROUPS;
+    energy_group = tid % NUM_GROUPS;
     energy_angle_index = energy_group * (num_polar_2);
   }
 }
@@ -632,7 +634,7 @@ __global__ void addSourceToScalarFluxOnDevice(FP_PRECISION* scalar_flux,
     sigma_t = curr_material->_sigma_t;
 
     /* Iterate over all energy groups */
-    for (int i=0; i < num_groups; i++) {
+    for (int i=0; i < NUM_GROUPS; i++) {
       scalar_flux(tid,i) = __fdividef(scalar_flux(tid,i),
                                      (sigma_t[i] * volume));
       scalar_flux(tid,i) += FOUR_PI * reduced_sources(tid,i);
@@ -690,7 +692,7 @@ __global__ void computeFSRFissionRatesOnDevice(FP_PRECISION* FSR_volumes,
     FP_PRECISION curr_fiss = 0.;
 
     /* Compute fission rates rates for this thread block */
-    for (int e=0; e < num_groups; e++)
+    for (int e=0; e < NUM_GROUPS; e++)
       curr_fiss += fiss_xs[e] * scalar_flux(tid,e);
 
     fiss += curr_fiss * volume;
@@ -801,9 +803,9 @@ double GPUSolver::getFSRSource(long fsr_id, int group) {
     log_printf(ERROR, "Unable to return a source for FSR ID = %d "
                "since FSRs do not have negative IDs", fsr_id);
 
-  else if (group-1 >= _num_groups)
+  else if (group-1 >= _NUM_GROUPS)
     log_printf(ERROR, "Unable to return a source in group %d "
-               "since there are only %d groups", group, _num_groups);
+               "since there are only %d groups", group, _NUM_GROUPS);
 
   else if (group <= 0)
     log_printf(ERROR, "Unable to return a source in group %d "
@@ -820,11 +822,11 @@ double GPUSolver::getFSRSource(long fsr_id, int group) {
   FP_PRECISION* sigma_s = host_material->getSigmaS();
   FP_PRECISION* fiss_mat = host_material->getFissionMatrix();
 
-  FP_PRECISION* fsr_scalar_fluxes = new FP_PRECISION[_num_groups];
+  FP_PRECISION* fsr_scalar_fluxes = new FP_PRECISION[_NUM_GROUPS];
   FP_PRECISION* scalar_flux =
        thrust::raw_pointer_cast(&_scalar_flux[0]);
-  cudaMemcpy(fsr_scalar_fluxes, &scalar_flux[fsr_id*_num_groups],
-             _num_groups * sizeof(FP_PRECISION),
+  cudaMemcpy(fsr_scalar_fluxes, &scalar_flux[fsr_id*_NUM_GROUPS],
+             _NUM_GROUPS * sizeof(FP_PRECISION),
              cudaMemcpyDeviceToHost);
   getLastCudaError();
 
@@ -833,10 +835,10 @@ double GPUSolver::getFSRSource(long fsr_id, int group) {
   FP_PRECISION total_source;
 
   /* Compute total scattering and fission sources for this FSR */
-  for (int g=0; g < _num_groups; g++) {
-    scatter_source += sigma_s[(group-1)*(_num_groups)+g]
+  for (int g=0; g < _NUM_GROUPS; g++) {
+    scatter_source += sigma_s[(group-1)*(_NUM_GROUPS)+g]
                       * fsr_scalar_fluxes[g];
-    fission_source += fiss_mat[(group-1)*(_num_groups)+g]
+    fission_source += fiss_mat[(group-1)*(_NUM_GROUPS)+g]
                       * fsr_scalar_fluxes[g];
   }
 
@@ -873,9 +875,9 @@ double GPUSolver::getFlux(long fsr_id, int group) {
     log_printf(ERROR, "Unable to return a scalar flux for FSR ID = %d "
                "since FSRs do not have negative IDs", fsr_id);
 
-  else if (group-1 >= _num_groups)
+  else if (group-1 >= _NUM_GROUPS)
     log_printf(ERROR, "Unable to return a scalar flux in group %d "
-               "since there are only %d groups", group, _num_groups);
+               "since there are only %d groups", group, _NUM_GROUPS);
 
   else if (group <= 0)
     log_printf(ERROR, "Unable to return a scalar flux in group %d "
@@ -898,7 +900,7 @@ double GPUSolver::getFlux(long fsr_id, int group) {
  *          from within Python as follows:
  *
  * @code
- *          num_fluxes = num_groups * num_FSRs
+ *          num_fluxes = NUM_GROUPS * num_FSRs
  *          fluxes = solver.getFluxes(num_fluxes)
  * @endcode
  *
@@ -907,10 +909,10 @@ double GPUSolver::getFlux(long fsr_id, int group) {
  */
 void GPUSolver::getFluxes(FP_PRECISION* out_fluxes, int num_fluxes) {
 
-  if (num_fluxes != _num_groups * _num_FSRs)
+  if (num_fluxes != _NUM_GROUPS * _num_FSRs)
     log_printf(ERROR, "Unable to get FSR scalar fluxes since there are "
                "%d groups and %d FSRs which does not match the requested "
-               "%d flux values", _num_groups, _num_FSRs, num_fluxes);
+               "%d flux values", _NUM_GROUPS, _num_FSRs, num_fluxes);
 
   else if (_scalar_flux.size() == 0)
     log_printf(ERROR, "Unable to get FSR scalar fluxes since they "
@@ -1006,8 +1008,8 @@ void GPUSolver::setTrackGenerator(TrackGenerator* track_generator) {
  *
  * @code
  *          num_FSRs = solver.getGeometry.getNumFSRs()
- *          num_groups = solver.getGeometry.getNumEnergyGroups()
- *          fluxes = numpy.random.rand(num_FSRs * num_groups, dtype=np.float)
+ *          NUM_GROUPS = solver.getGeometry.getNumEnergyGroups()
+ *          fluxes = numpy.random.rand(num_FSRs * NUM_GROUPS, dtype=np.float)
  *          solver.setFluxes(fluxes)
  * @endcode
  *
@@ -1019,9 +1021,9 @@ void GPUSolver::setTrackGenerator(TrackGenerator* track_generator) {
  * @param num_fluxes the number of flux values (# groups x # FSRs)
  */
 void GPUSolver::setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) {
-  if (num_fluxes != _num_groups * _num_FSRs)
+  if (num_fluxes != _NUM_GROUPS * _num_FSRs)
     log_printf(ERROR, "Unable to set an array with %d flux values for %d "
-               " groups and %d FSRs", num_fluxes, _num_groups, _num_FSRs);
+               " groups and %d FSRs", num_fluxes, _NUM_GROUPS, _num_FSRs);
 
   /* Allocate array if flux arrays have not yet been initialized */
   if (_scalar_flux.size() == 0)
@@ -1198,12 +1200,14 @@ void GPUSolver::initializeMaterials(solverMode mode) {
   /* Sanity check */
   if (_num_materials <= 0)
     log_printf(ERROR, "Attempt to initialize GPU materials with zero or less materials.");
-  if (_num_groups <= 0)
+  if (_NUM_GROUPS <= 0)
     log_printf(ERROR, "Attempt to initialize GPU XS data with zero or less energy groups.");
 
   /* Copy the number of energy groups to constant memory on the GPU */
-  cudaMemcpyToSymbol(num_groups, &_num_groups, sizeof(int));
+#ifndef NGROUPS
+  cudaMemcpyToSymbol(NUM_GROUPS, &_NUM_GROUPS, sizeof(int));
   getLastCudaError();
+#endif
 
   /* Copy the number of polar angles times energy groups to constant memory
    * on the GPU */
@@ -1305,7 +1309,7 @@ void GPUSolver::initializeFluxArrays() {
     _boundary_flux.resize(size);
     _start_flux.resize(size);
 
-    size = _num_FSRs * _num_groups;
+    size = _num_FSRs * _NUM_GROUPS;
     _scalar_flux.resize(size);
     _old_scalar_flux.resize(size);
   }
@@ -1324,7 +1328,7 @@ void GPUSolver::initializeFluxArrays() {
 void GPUSolver::initializeSourceArrays() {
 
   log_printf(INFO, "Initializing source vectors on the GPU...");
-  int size = _num_FSRs * _num_groups;
+  int size = _num_FSRs * _NUM_GROUPS;
 
   /* Allocate memory for all source arrays on the device */
   try{
@@ -1364,9 +1368,9 @@ void GPUSolver::initializeFixedSources() {
     fsr_id = fsr_group_key.first;
     group = fsr_group_key.second;
 
-    if (group <= 0 || group > _num_groups)
+    if (group <= 0 || group > _NUM_GROUPS)
       log_printf(ERROR,"Unable to use fixed source for group %d in "
-                 "a %d energy group problem", group, _num_groups);
+                 "a %d energy group problem", group, _NUM_GROUPS);
 
     if (fsr_id < 0 || fsr_id >= _num_FSRs)
       log_printf(ERROR,"Unable to use fixed source for FSR %d with only "
@@ -1656,7 +1660,7 @@ double GPUSolver::computeResidual(residualType res_type) {
     norm = _num_FSRs;
 
     /* Allocate Thrust vector for residuals */
-    thrust::device_vector<FP_PRECISION> fp_residuals(_num_FSRs * _num_groups);
+    thrust::device_vector<FP_PRECISION> fp_residuals(_num_FSRs * _NUM_GROUPS);
     thrust::device_vector<FP_PRECISION> FSR_fp_residuals(_num_FSRs);
 
     /* Compute the relative flux change in each FSR and group */
@@ -1679,9 +1683,9 @@ double GPUSolver::computeResidual(residualType res_type) {
     typedef thrust::device_vector<FP_PRECISION>::iterator Iterator;
 
     /* Reduce flux residuals across energy groups within each FSR */
-    for (int e=0; e < _num_groups; e++) {
+    for (int e=0; e < _NUM_GROUPS; e++) {
       strided_range<Iterator> strider(fp_residuals.begin() + e,
-                                      fp_residuals.end(), _num_groups);
+                                      fp_residuals.end(), _NUM_GROUPS);
       thrust::transform(FSR_fp_residuals.begin(), FSR_fp_residuals.end(),
                         strider.begin(), FSR_fp_residuals.begin(),
                         thrust::plus<FP_PRECISION>());
@@ -1709,8 +1713,8 @@ double GPUSolver::computeResidual(residualType res_type) {
     norm = _num_fissionable_FSRs;
 
     /* Allocate Thrust vectors for fission sources in each FSR, group */
-    thrust::device_vector<FP_PRECISION> new_fission_sources_vec(_num_FSRs * _num_groups);
-    thrust::device_vector<FP_PRECISION> old_fission_sources_vec(_num_FSRs * _num_groups);
+    thrust::device_vector<FP_PRECISION> new_fission_sources_vec(_num_FSRs * _NUM_GROUPS);
+    thrust::device_vector<FP_PRECISION> old_fission_sources_vec(_num_FSRs * _NUM_GROUPS);
 
     /* Allocate Thrust vectors for energy-integrated fission sources in each FSR */
     thrust::device_vector<FP_PRECISION> FSR_old_fiss_src(_num_FSRs);
@@ -1735,11 +1739,11 @@ double GPUSolver::computeResidual(residualType res_type) {
     typedef thrust::device_vector<FP_PRECISION>::iterator Iterator;
 
     /* Reduce nu-fission sources across energy groups within each FSR */
-    for (int e=0; e < _num_groups; e++) {
+    for (int e=0; e < _NUM_GROUPS; e++) {
       strided_range<Iterator> old_strider(old_fission_sources_vec.begin() + e,
-                                          old_fission_sources_vec.end(), _num_groups);
+                                          old_fission_sources_vec.end(), _NUM_GROUPS);
       strided_range<Iterator> new_strider(new_fission_sources_vec.begin() + e,
-                                          new_fission_sources_vec.end(), _num_groups);
+                                          new_fission_sources_vec.end(), _NUM_GROUPS);
       thrust::transform(FSR_old_fiss_src.begin(), FSR_old_fiss_src.end(),
                         old_strider.begin(), FSR_old_fiss_src.begin(),
                         thrust::plus<FP_PRECISION>());
@@ -1762,8 +1766,8 @@ double GPUSolver::computeResidual(residualType res_type) {
     norm = _num_FSRs;
 
     /* Allocate Thrust vectors for fission/scatter sources in each FSR, group */
-    thrust::device_vector<FP_PRECISION> new_sources_vec(_num_FSRs * _num_groups);
-    thrust::device_vector<FP_PRECISION> old_sources_vec(_num_FSRs * _num_groups);
+    thrust::device_vector<FP_PRECISION> new_sources_vec(_num_FSRs * _NUM_GROUPS);
+    thrust::device_vector<FP_PRECISION> old_sources_vec(_num_FSRs * _NUM_GROUPS);
     thrust::fill(new_sources_vec.begin(), new_sources_vec.end(), 0.0);
     thrust::fill(old_sources_vec.begin(), old_sources_vec.end(), 0.0);
 
@@ -1794,11 +1798,11 @@ double GPUSolver::computeResidual(residualType res_type) {
     typedef thrust::device_vector<FP_PRECISION>::iterator Iterator;
 
     /* Reduce nu-fission sources across energy groups within each FSR */
-    for (int e=0; e < _num_groups; e++) {
+    for (int e=0; e < _NUM_GROUPS; e++) {
       strided_range<Iterator> old_strider(old_sources_vec.begin() + e,
-                                          old_sources_vec.end(), _num_groups);
+                                          old_sources_vec.end(), _NUM_GROUPS);
       strided_range<Iterator> new_strider(new_sources_vec.begin() + e,
-                                          new_sources_vec.end(), _num_groups);
+                                          new_sources_vec.end(), _NUM_GROUPS);
       thrust::transform(FSR_old_src.begin(), FSR_old_src.end(),
                         old_strider.begin(), FSR_old_src.begin(),
                         thrust::plus<FP_PRECISION>());
@@ -1826,11 +1830,11 @@ double GPUSolver::computeResidual(residualType res_type) {
                                                  scalar_flux, new_sources);
 
     /* Reduce scatter sources across energy groups within each FSR */
-    for (int e=0; e < _num_groups; e++) {
+    for (int e=0; e < _NUM_GROUPS; e++) {
       strided_range<Iterator> old_strider(old_sources_vec.begin() + e,
-                                          old_sources_vec.end(), _num_groups);
+                                          old_sources_vec.end(), _NUM_GROUPS);
       strided_range<Iterator> new_strider(new_sources_vec.begin() + e,
-                                          new_sources_vec.end(), _num_groups);
+                                          new_sources_vec.end(), _NUM_GROUPS);
       thrust::transform(FSR_old_src.begin(), FSR_old_src.end(),
                         old_strider.begin(), FSR_old_src.begin(),
                         thrust::plus<FP_PRECISION>());

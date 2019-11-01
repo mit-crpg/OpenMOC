@@ -3585,6 +3585,9 @@ void Geometry::dumpToFile(std::string filename) {
 
   FILE* out;
   out = fopen(filename.c_str(), "w");
+  if (out == NULL)
+    log_printf(ERROR, "Geometry file %s cannot be written. Wrong folder?",
+               &filename[0]);
 
   /* Print number of energy groups */
   int num_groups = getNumEnergyGroups();
@@ -3949,7 +3952,9 @@ void Geometry::loadFromFile(std::string filename, bool twiddle) {
   if (_root_universe != NULL)
     delete _root_universe;
 
-  log_printf(NORMAL, "Reading Geometry from %s", filename.c_str());
+  log_printf(NORMAL, "Reading Geometry from %s", &filename[0]);
+  if (in == NULL)
+    log_printf(ERROR, "Geometry file %s was not found.", &filename[0]);
 
   std::map<int, Surface*> all_surfaces;
   std::map<int, Cell*> all_cells;

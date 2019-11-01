@@ -731,6 +731,25 @@ void Cmfd::collapseXS() {
     communicateSplits(true);
 #endif
 
+  /* Report number of negative currents */
+  long num_negative_currents = _surface_currents->getNumNegativeValues();
+  int total_negative_CMFD_current_domains = (num_negative_currents > 0);
+#ifdef MPIx
+  if (_domain_communicator != NULL) {
+    long temp_sum_neg = num_negative_currents;
+    MPI_Allreduce(&temp_sum_neg, &num_negative_currents, 1, MPI_LONG, MPI_SUM,
+                  _domain_communicator->_MPI_cart);
+    int temp_sum_dom = total_negative_CMFD_current_domains;
+    MPI_Allreduce(&temp_sum_dom, &total_negative_CMFD_current_domains, 1,
+                  MPI_INT, MPI_SUM, _domain_communicator->_MPI_cart);
+  }
+#endif
+
+  if (_SOLVE_3D && num_negative_currents > 0)
+    log_printf(WARNING_ONCE, "Negative CMFD currents in %ld surfaces-groups in"
+               " %d domains.", num_negative_currents,
+               total_negative_CMFD_current_domains);
+
 #pragma omp parallel
   {
 

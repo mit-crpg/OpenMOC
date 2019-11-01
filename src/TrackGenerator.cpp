@@ -1390,6 +1390,9 @@ void TrackGenerator::dumpSegmentsToFile() {
 
   FILE* out;
   out = fopen(_tracks_filename.c_str(), "w");
+  if (out == NULL)
+    log_printf(ERROR, "Segments file %s could not be written.",
+               &_tracks_filename[0]);
 
   /* Get a string representation of the Geometry's attributes. This is used to
    * check whether or not ray tracing has been performed for this Geometry */
@@ -1506,6 +1509,9 @@ bool TrackGenerator::readSegmentsFromFile() {
 
   int ret;
   FILE* in = fopen(_tracks_filename.c_str(), "r");
+  if (in == NULL)
+    log_printf(ERROR, "Segments file %s could not be found.",
+               &_tracks_filename[0]);
 
   int string_length;
 
