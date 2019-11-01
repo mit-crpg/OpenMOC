@@ -1247,6 +1247,15 @@ void TrackGenerator::segmentize() {
       log_printf(ERROR, "A geometry with an axial domain domain decomposition "
                  "has been supplied to a 2D ray tracer.");
 #endif
+
+    /* Check that the track generator is ray tracing within bounds */
+    if (_z_coord < min_z || _z_coord > max_z) {
+      log_printf(WARNING_ONCE, "The track generator z-coordinate (%.2e cm) "
+                 "lies outside the geometry bounds [%.2e %.2e] cm. Z"
+                 "-coordinate moved to %.2e cm", _z_coord, min_z, max_z,
+                 (min_z + max_z) / 2);
+      _z_coord = (min_z + max_z) / 2;
+    }
   }
 
 #ifdef MPIx
