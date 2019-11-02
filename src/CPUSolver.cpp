@@ -1277,7 +1277,7 @@ void CPUSolver::transferAllInterfaceFluxes() {
                   /* Remember that track flux has been placed in send buffer
                    * to avoid sending a wrong track flux when packing buffer */
                   //NOTE Track fluxes are always communicated in the same order
-                  if (_moc_iteration == 0)
+                  if (_num_iterations == 0)
                     _track_flux_sent.at(dir).at(track_id) = true;
                 }
               }
