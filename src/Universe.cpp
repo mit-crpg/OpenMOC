@@ -1488,6 +1488,11 @@ void Lattice::setNonUniform(bool non_uniform) {
  */
 void Lattice::setWidthsX(std::vector<double> widthsx) {
   _widths_x = widthsx;
+
+  /* Set to non-uniform if the user forgot */
+  _non_uniform = true;
+  if (_universes.size() == 0)
+    _num_x = widthsx.size();
 }
 
 
@@ -1497,6 +1502,11 @@ void Lattice::setWidthsX(std::vector<double> widthsx) {
  */
 void Lattice::setWidthsY(std::vector<double> widthsy) {
   _widths_y = widthsy;
+
+  /* Set to non-uniform if the user forgot */
+  _non_uniform = true;
+  if (_universes.size() == 0)
+    _num_y = widthsy.size();
 }
 
 
@@ -1506,6 +1516,11 @@ void Lattice::setWidthsY(std::vector<double> widthsy) {
  */
 void Lattice::setWidthsZ(std::vector<double> widthsz) {
   _widths_z = widthsz;
+
+  /* Set to non-uniform if the user forgot */
+  _non_uniform = true;
+  if (_universes.size() == 0)
+    _num_z = widthsz.size();
 }
 
 
@@ -2328,6 +2343,13 @@ void Lattice::setWidths(std::vector<double> widths_x,
   _widths_x = widths_x;
   _widths_y = widths_y;
   _widths_z = widths_z;
+
+  /* Convenient for mesh tally lattice */
+  if (_universes.size() == 0) {
+    _num_x = _widths_x.size();
+    _num_y = _widths_y.size();
+    _num_z = _widths_z.size();
+  }
 }
 
 

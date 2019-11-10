@@ -655,7 +655,9 @@ void CPUSolver::setupMPIBuffers() {
     }
 
     /* Determine which Tracks communicate with each neighbor domain */
+#ifndef ONLYVACUUMBC
 #pragma omp parallel for
+#endif
     for (long t=0; t<_tot_num_tracks; t++) {
 
       Track* track;
@@ -693,6 +695,7 @@ void CPUSolver::setupMPIBuffers() {
           }
           _boundary_tracks.at(neighbor).at(slot) = 2*t + d;
 #ifdef ONLYVACUUMBC
+          //NOTE _boundary_tracks needs to be ordered if ONLYVACUUMBC is used
           _domain_connections.at(d).at(t) = domains[d];
 #endif
         }
@@ -942,6 +945,7 @@ void CPUSolver::packBuffers(std::vector<long> &packing_indexes) {
 
   /* Fill send buffers for every domain */
   int num_domains = packing_indexes.size();
+#pragma omp parallel for num_threads(num_domains)
   for (int i=0; i < num_domains; i++) {
 
     /* Reset send buffers : start at beginning if the buffer has not been
@@ -949,7 +953,7 @@ void CPUSolver::packBuffers(std::vector<long> &packing_indexes) {
     int start_idx = _send_buffers_index.at(i) * _track_message_size +
                     _fluxes_per_track + 1;
     int max_idx = _track_message_size * TRACKS_PER_BUFFER;
-#pragma omp parallel for
+#pragma omp parallel for num_threads(_num_threads / num_domains)
     for (int idx = start_idx; idx < max_idx; idx += _track_message_size) {
       long* track_info_location =
         reinterpret_cast<long*>(&_send_buffers.at(i)[idx]);
@@ -972,7 +976,7 @@ void CPUSolver::packBuffers(std::vector<long> &packing_indexes) {
          _send_buffers_index.at(i));
 
 #ifndef ONLYVACUUMBC
-#pragma omp parallel for
+#pragma omp parallel for num_threads(_num_threads / num_domains)
 #endif
     for (int b=0; b < max_buffer_idx; b++) {
 
@@ -1099,21 +1103,6 @@ void CPUSolver::transferAllInterfaceFluxes() {
         _MPI_req[i*2] = MPI_REQUEST_NULL;
         _MPI_req[i*2 + 1] = MPI_REQUEST_NULL;
       }
-    }
-
-    if (_num_iterations == 0) {
-      /* Block for communication round to complete, to adjust buffer sizes */
-      MPI_Waitall(2 * num_domains, _MPI_req, MPI_STATUSES_IGNORE);
-
-      for (int i=0; i < num_domains; i++) {
-        if (active_communication) {
-          /* Adjust receiving buffer if incoming message is large */
-          if (_receive_size.at(i) > _receive_buffers.at(i).size() /
-              _track_message_size)
-            _receive_buffers.at(i).resize(_receive_size.at(i) *
-                                          _track_message_size);
-        }
-      }
 #endif
     }
 
@@ -1140,8 +1129,8 @@ void CPUSolver::transferAllInterfaceFluxes() {
 
         if (first_track != -1) {
 #else
-        /* Send/receive fluxes if there are fluxes to be sent, if buffers are
-           the right size and if they haven't been sent already */
+        /* Send/receive fluxes if there are fluxes to be sent, if the size of
+           the message is known and if they haven't been sent already */
         if (active_communication) {
 #endif
           /* Send outgoing flux */
@@ -1157,6 +1146,16 @@ void CPUSolver::transferAllInterfaceFluxes() {
 
           /* Receive incoming flux */
           if (_receive_size.at(i) > 0 && !_MPI_receives[i]) {
+
+#ifdef ONLYVACUUMBC
+            /* Adjust receiving buffer if incoming message is too large */
+            if (_num_iterations == 0)
+              if (_receive_size.at(i) > _receive_buffers.at(i).size() /
+                                        _track_message_size)
+                _receive_buffers.at(i).resize(_receive_size.at(i) *
+                                              _track_message_size);
+#endif
+
             MPI_Irecv(&_receive_buffers.at(i)[0], _track_message_size *
                       _receive_size.at(i), MPI_FLOAT, domain, 1, MPI_cart,
                       &_MPI_requests[i*2+1]);
@@ -1277,7 +1276,9 @@ void CPUSolver::transferAllInterfaceFluxes() {
 
                   /* Remember that track flux has been placed in send buffer
                    * to avoid sending a wrong track flux when packing buffer */
-                  _track_flux_sent.at(dir).at(track_id) = true;
+                  //NOTE Track fluxes are always communicated in the same order
+                  if (_num_iterations == 0)
+                    _track_flux_sent.at(dir).at(track_id) = true;
                 }
               }
             }
@@ -1299,12 +1300,6 @@ void CPUSolver::transferAllInterfaceFluxes() {
     _timer->stopTimer();
     _timer->recordSplit("Unpacking time");
   }
-
-#ifdef ONLYVACUUMBC
-  /* Reset book-keeping on which track fluxes have been sent already */
-  std::fill(_track_flux_sent.at(0).begin(), _track_flux_sent.at(0).end(), 0);
-  std::fill(_track_flux_sent.at(1).begin(), _track_flux_sent.at(1).end(), 0);
-#endif
 
   /* Join MPI at the end of communication */
   MPI_Barrier(MPI_cart);

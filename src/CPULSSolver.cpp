@@ -607,10 +607,6 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
       fsr_flux_y[e] += exp_H * direction[1] + delta_psi * position[1];
       fsr_flux_z[e] += exp_H * direction[2] + delta_psi * position[2];
     }
-
-    /* Ensure track flux remains positive */
-    for (int e=0; e < _NUM_GROUPS; e++)
-      track_flux[e] = std::max(0.f, track_flux[e]);
   }
   else {
 //FIXME Implement strip mining for the 2D linear source solver
