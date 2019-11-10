@@ -109,6 +109,9 @@ private:
   /** Thrust vector of old FSR scalar fluxes */
   thrust::device_vector<FP_PRECISION> _old_scalar_flux;
 
+  /** Thrust vector of stabilizing flux */
+  thrust::device_vector<FP_PRECISION> _stabilizing_flux;
+
   /** Thrust vector of fixed sources in each FSR */
   thrust::device_vector<FP_PRECISION> _fixed_sources;
 

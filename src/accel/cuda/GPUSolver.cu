@@ -26,6 +26,10 @@ __constant__ FP_PRECISION weights[MAX_POLAR_ANGLES_GPU*MAX_AZIM_ANGLES_GPU];
 /** The total number of Tracks */
 __constant__ long tot_num_tracks;
 
+/** The type of stabilization to be employed */
+__constant__ stabilizationType stabilization_type;
+__constant__ double stabilization_factor;
+
 __global__ void printmateriald(dev_material* matd)
 {
   printf("Printing the material %i\n", matd->_id);
@@ -178,6 +182,48 @@ protected:
 
 
 /**
+ * @brief Compute the stabilizing flux
+ * @param scalar_flux the scalar flux in each FSR and energy group
+ * @param stabilizing_flux the array of stabilizing fluxes
+ */
+__global__ void computeStabilizingFluxOnDevice(FP_PRECISION* scalar_flux,
+                                               FP_PRECISION* stabilizing_flux)
+{
+  if (stabilization_type == GLOBAL)
+  {
+    int tid = threadIdx.x + blockIdx.x * blockDim.x;
+    double multiplicative_factor = 1.0/stabilization_factor - 1.0;
+    while (tid < num_FSRs * NUM_GROUPS)
+    {
+      stabilizing_flux[tid] = multiplicative_factor * scalar_flux[tid];
+      tid += blockDim.x * gridDim.x;
+    }
+  }
+}
+
+
+/**
+ * @brief Stabilize the current flux with a previously computed stabilizing flux
+ * @param scalar_flux the scalar flux in each FSR and energy group
+ * @param stabilizing_flux the array of stabilizing fluxes
+ */
+__global__ void stabilizeFluxOnDevice(FP_PRECISION* scalar_flux,
+                                      FP_PRECISION* stabilizing_flux)
+{
+  if (stabilization_type == GLOBAL)
+  {
+    int tid = threadIdx.x + blockIdx.x * blockDim.x;
+    while (tid < num_FSRs * NUM_GROUPS)
+    {
+      scalar_flux[tid] += stabilizing_flux[tid];
+      scalar_flux[tid] *= stabilization_factor;
+      tid += blockDim.x * gridDim.x;
+    }
+  }
+}
+
+
+/**
  * @brief Compute the total fission source from all FSRs.
  * @param FSR_volumes an array of FSR volumes
  * @param FSR_materials an array of FSR Material indices
@@ -237,13 +283,15 @@ __global__ void computeFissionSourcesOnDevice(FP_PRECISION* FSR_volumes,
  * @param fixed_sources an array of fixed (user-defined) sources
  * @param reduced_sources an array of FSR sources / total xs
  * @param inverse_k_eff the inverse of keff
+ * @param zeroNegatives whether to zero out negative fluxes
  */
 __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
                                           dev_material* materials,
                                           FP_PRECISION* scalar_flux,
                                           FP_PRECISION* fixed_sources,
                                           FP_PRECISION* reduced_sources,
-                                          FP_PRECISION inverse_k_eff) {
+                                          FP_PRECISION inverse_k_eff,
+                                          bool zeroNegatives) {
 
   int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -281,6 +329,7 @@ __global__ void computeFSRSourcesOnDevice(int* FSR_materials,
       reduced_sources(tid,g) += scatter_source + fission_source;
       reduced_sources(tid,g) *= ONE_OVER_FOUR_PI;
       reduced_sources(tid,g) = __fdividef(reduced_sources(tid,g), sigma_t[g]);
+      if (zeroNegatives & reduced_sources(tid,g) < 0.0) reduced_sources(tid,g) = 0.0;
     }
 
     /* Increment the thread id */
@@ -736,6 +785,9 @@ GPUSolver::GPUSolver(TrackGenerator* track_generator) :
     setTrackGenerator(track_generator);
 
   _gpu_solver = true;
+
+  /* Since only global stabilization is implemented, let that be default */
+  _stabilization_type = GLOBAL;
 }
 
 
@@ -1168,6 +1220,13 @@ void GPUSolver::initializeFSRs() {
       cudaMemcpyHostToDevice);
     getLastCudaError();
 
+    /* There isn't any other great place to put what comes next */
+    cudaMemcpyToSymbol(stabilization_type, &_stabilization_type,
+        sizeof(stabilizationType), 0, cudaMemcpyHostToDevice);
+    cudaMemcpyToSymbol(stabilization_factor, &_stabilization_factor,
+        sizeof(double), 0, cudaMemcpyHostToDevice);
+    getLastCudaError();
+
     /* Free the array of FSRs data allocated by the Solver parent class */
     free(host_FSR_materials);
 
@@ -1312,6 +1371,9 @@ void GPUSolver::initializeFluxArrays() {
     size = _num_FSRs * _NUM_GROUPS;
     _scalar_flux.resize(size);
     _old_scalar_flux.resize(size);
+
+    if (_stabilize_transport)
+      _stabilizing_flux.resize(size);
   }
   catch(std::exception &e) {
     log_printf(DEBUG, e.what());
@@ -1423,13 +1485,25 @@ void GPUSolver::storeFSRFluxes() {
 }
 
 void GPUSolver::computeStabilizingFlux() {
-  // TODO
-  log_printf(ERROR, "computeStabilizingFlux() is not yet implemented on GPU.");
+  if (!_stabilize_transport) return;
+
+  if (_stabilization_type == GLOBAL) {
+    FP_PRECISION* scalar_flux = thrust::raw_pointer_cast(&_scalar_flux[0]);
+    FP_PRECISION* stabilizing_flux = thrust::raw_pointer_cast(&_stabilizing_flux[0]);
+    computeStabilizingFluxOnDevice<<<_B, _T>>>(scalar_flux, stabilizing_flux);
+  }
+  else
+    log_printf(ERROR, "Only global stabilization works on GPUSolver now.");
 }
 
 void GPUSolver::stabilizeFlux() {
-  // TODO
-  log_printf(ERROR, "stabilizeFlux() is not yet implemented on GPU.");
+  if (!_stabilize_transport) return;
+
+  if (_stabilization_type == GLOBAL) {
+    FP_PRECISION* scalar_flux = thrust::raw_pointer_cast(&_scalar_flux[0]);
+    FP_PRECISION* stabilizing_flux = thrust::raw_pointer_cast(&_stabilizing_flux[0]);
+    stabilizeFluxOnDevice<<<_B, _T>>>(scalar_flux, stabilizing_flux);
+  }
 }
 
 /**
@@ -1491,11 +1565,17 @@ void GPUSolver::computeFSRSources(int iteration) {
   FP_PRECISION* reduced_sources =
        thrust::raw_pointer_cast(&_reduced_sources[0]);
 
-  // TODO need to add treatment of negative sources if iteration is under
-  // a certain number, as seen in CPUSolver.
+  // Zero sources if under 30 iterations, as is custom in CPUSolver
+  bool zeroSources;
+  if (iteration < 30)
+    zeroSources = true;
+  else
+    zeroSources = false;
+
   computeFSRSourcesOnDevice<<<_B, _T>>>(_FSR_materials, _materials,
                                         scalar_flux, fixed_sources,
-                                        reduced_sources, 1.0 / _k_eff);
+                                        reduced_sources, 1.0 / _k_eff,
+                                        zeroSources);
 }
 
 
