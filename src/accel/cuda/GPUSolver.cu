@@ -199,13 +199,6 @@ __global__ void computeStabilizingFluxOnDevice(FP_PRECISION* scalar_flux,
       tid += blockDim.x * gridDim.x;
     }
   }
-  else
-  {
-    // TODO, write other stabilization types.
-    // Apparently this is the only way to throw an error from a kernel at the
-    // moment... inline PTX assembly. craziness, man
-    asm("trap;");
-  }
 }
 
 
@@ -792,6 +785,9 @@ GPUSolver::GPUSolver(TrackGenerator* track_generator) :
     setTrackGenerator(track_generator);
 
   _gpu_solver = true;
+
+  /* Since only global stabilization is implemented, let that be default */
+  _stabilization_type = GLOBAL;
 }
 
 
