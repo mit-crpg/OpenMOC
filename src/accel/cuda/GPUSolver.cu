@@ -180,6 +180,7 @@ protected:
 
 };
 
+
 /**
  * @brief Compute the stabilizing flux
  * @param scalar_flux the scalar flux in each FSR and energy group
@@ -207,13 +208,14 @@ __global__ void computeStabilizingFluxOnDevice(FP_PRECISION* scalar_flux,
   }
 }
 
+
 /**
  * @brief Stabilize the current flux with a previously computed stabilizing flux
  * @param scalar_flux the scalar flux in each FSR and energy group
  * @param stabilizing_flux the array of stabilizing fluxes
  */
 __global__ void stabilizeFluxOnDevice(FP_PRECISION* scalar_flux,
-                                               FP_PRECISION* stabilizing_flux)
+                                      FP_PRECISION* stabilizing_flux)
 {
   if (stabilization_type == GLOBAL)
   {
@@ -224,13 +226,6 @@ __global__ void stabilizeFluxOnDevice(FP_PRECISION* scalar_flux,
       scalar_flux[tid] *= stabilization_factor;
       tid += blockDim.x * gridDim.x;
     }
-  }
-  else
-  {
-    // TODO, write other stabilization types.
-    // Apparently this is the only way to throw an error from a kernel at the
-    // moment... inline PTX assembly. craziness, man
-    asm("trap;");
   }
 }
 
