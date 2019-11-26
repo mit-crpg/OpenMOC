@@ -86,11 +86,11 @@ class configuration:
     # that the number of energy groups is be fit too a multiple of this
     # vector_length, and restructuring the innermost loops in the solver to
     # loop from 0 to the vector length
-    vector_length = 32
+    vector_length = 8
 
     # The vector alignment used in the VectorizedSolver class when allocating
     # aligned data structures using MM_MALLOC and MM_FREE
-    vector_alignment = 32
+    vector_alignment = 64
 
     # List of C/C++/CUDA distutils.extension objects which are created based
     # on which flags are specified at compile time.
@@ -336,9 +336,10 @@ class configuration:
     # add flags for vector size and alignment for SIMD vectorization
     for compiler in macros:
         for precision in macros[compiler]:
-            macros[compiler][precision].append(('VEC_LENGTH', vector_length))
             macros[compiler][precision].append(('VEC_ALIGNMENT',
                                                 vector_alignment))
+        macros[compiler]['single'].append(('VEC_LENGTH', vector_length))
+        macros[compiler]['double'].append(('VEC_LENGTH', vector_length//2))
 
     # set extra flag for determining precision
     for compiler in macros:

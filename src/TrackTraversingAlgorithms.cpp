@@ -946,8 +946,9 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
 #else
   const int num_moments = 4;
 #endif
-  int num_groups_aligned = (_NUM_GROUPS / VEC_ALIGNMENT +
-                            (_NUM_GROUPS % VEC_ALIGNMENT != 0)) * VEC_ALIGNMENT;
+  int vec_alignment = VEC_ALIGNMENT / sizeof(FP_PRECISION);
+  int num_groups_aligned = (_NUM_GROUPS / vec_alignment +
+                            (_NUM_GROUPS % vec_alignment != 0)) * vec_alignment;
 
   /* Allocate an aligned buffer on the stack */
   FP_PRECISION fsr_flux[num_moments * num_groups_aligned] __attribute__
