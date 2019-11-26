@@ -394,8 +394,8 @@ void TransportKernel::execute(FP_PRECISION length, Material* mat, long fsr_id,
     curr_segment._region_id = fsr_id;
 
     /* Apply MOC equations */
-    _cpu_solver->tallyScalarFlux(&curr_segment, _azim_index, _polar_index,
-                                 fsr_flux, track_flux);
+    _cpu_solver->tallyScalarFlux(&curr_segment, _azim_index, fsr_flux,
+                                 track_flux);
 
     /* CMFD surfaces can only be on the segment ends, and the propagation is
        always in the forward direction */

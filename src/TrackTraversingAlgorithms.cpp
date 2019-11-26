@@ -969,8 +969,8 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     /* Apply MOC equations */
 #ifndef LINEARSOURCE
     if (_ls_solver == NULL)
-      _cpu_solver->tallyScalarFlux(curr_segment, azim_index, polar_index,
-                                   fsr_flux, track_flux);
+      _cpu_solver->tallyScalarFlux(curr_segment, azim_index, fsr_flux,
+                                   track_flux);
     else
 #endif
       _ls_solver->tallyLSScalarFlux(curr_segment, azim_index, polar_index,
@@ -1017,8 +1017,8 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     /* Apply MOC equations */
 #ifndef LINEARSOURCE
     if (_ls_solver == NULL)
-      _cpu_solver->tallyScalarFlux(curr_segment, azim_index, polar_index,
-                                   fsr_flux, track_flux);
+      _cpu_solver->tallyScalarFlux(curr_segment, azim_index, fsr_flux,
+                                   track_flux);
     else
 #endif
       _ls_solver->tallyLSScalarFlux(curr_segment, azim_index, polar_index,

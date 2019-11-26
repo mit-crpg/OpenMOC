@@ -2277,12 +2277,11 @@ void CPUSolver::transportSweep() {
  *          scalar flux, and updates the Track's angular flux.
  * @param curr_segment a pointer to the Track segment of interest
  * @param azim_index azimuthal angle index for this segment
- * @param polar_index polar angle index for this segment
  * @param fsr_flux buffer to store the contribution to the region's scalar flux
  * @param track_flux a pointer to the Track's angular flux
  */
 void CPUSolver::tallyScalarFlux(segment* curr_segment,
-                                int azim_index, int polar_index,
+                                int azim_index,
                                 FP_PRECISION* __restrict__ fsr_flux,
                                 float* track_flux) {
 
@@ -2335,7 +2334,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
   }
   else {
 //FIXME: Implement strip mining for the 2D flat source solver
-    ExpEvaluator* exp_evaluator = _exp_evaluators[azim_index][polar_index];
+    ExpEvaluator* exp_evaluator = _exp_evaluators[azim_index][0];
     const int num_polar_2 = _num_polar / 2;
 
     /* Compute tau in advance to simplify attenuation loop */
@@ -2363,6 +2362,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
       /* Compute attenuation of the track angular flux */
       delta_psi[pe] = (tau[pe] * track_flux[pe] - length *
                       _reduced_sources(fsr_id, pe%_NUM_GROUPS)) * exponential;
+
       track_flux[pe] -= delta_psi[pe];
       delta_psi[pe] *= wgt;
     }
