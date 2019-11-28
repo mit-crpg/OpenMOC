@@ -3329,12 +3329,9 @@ Cell* Geometry::findCellContainingFSR(long fsr_id) {
 
   std::string& key = _FSRs_to_keys[fsr_id];
   Point* point = _FSR_keys_map.at(key)->_point;
-  LocalCoords* coords = new LocalCoords(point->getX(), point->getY(),
-                                        point->getZ(), true);
-  coords->setUniverse(_root_universe);
-  Cell* cell = findCellContainingCoords(coords);
-
-  delete coords;
+  LocalCoords coords(point->getX(), point->getY(), point->getZ(), true);
+  coords.setUniverse(_root_universe);
+  Cell* cell = findCellContainingCoords(&coords);
 
   return cell;
 }
