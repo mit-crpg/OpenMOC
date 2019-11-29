@@ -610,7 +610,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
   }
   else {
 //FIXME Implement strip mining for the 2D linear source solver
-    ExpEvaluator* exp_evaluator = _exp_evaluators[azim_index][polar_index];
+    ExpEvaluator* exp_evaluator = _exp_evaluators[azim_index][0];
     const int num_polar_2 = _num_polar / 2;
 
     /* Compute the segment midpoint (with factor 2 for LS) */
@@ -657,11 +657,10 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
 
 #pragma omp simd aligned(src_linear)
     for (int pe=0; pe < num_polar_2 * _NUM_GROUPS; pe++) {
-      FP_PRECISION sin_the = _quad->getSinThetaInline(azim_index,
-                                                      int(pe/_NUM_GROUPS));
-      src_linear[pe] = direction[0] * sin_the *
+      //NOTE sin(theta) term cancels out with F2
+      src_linear[pe] = direction[0] *
             _reduced_sources_xyz(fsr_id, pe % _NUM_GROUPS, 0);
-      src_linear[pe] += direction[1] * sin_the *
+      src_linear[pe] += direction[1] *
             _reduced_sources_xyz(fsr_id, pe % _NUM_GROUPS, 1);
     }
 
@@ -672,7 +671,8 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
 #pragma omp simd aligned(tau, src_flat, src_linear, delta_psi, exp_F1, exp_F2, exp_H)
     for (int pe=0; pe < num_polar_2 * _NUM_GROUPS; pe++) {
 
-      FP_PRECISION wgt = _quad->getWeightInline(azim_index, int(pe/_NUM_GROUPS));
+      FP_PRECISION wgt = _quad->getWeightInline(azim_index,
+                                                int(pe/_NUM_GROUPS));
       exp_H[pe] *=  wgt * tau[pe] * length * track_flux[pe];
 
       /* Compute the change in flux across the segment */
@@ -699,7 +699,7 @@ void CPULSSolver::tallyLSScalarFlux(segment* curr_segment, int azim_index,
     }
   }
 
-  /* Advance starting position for the next segment on this track */
+  /* Move starting position to the end of segment for the opposite direction */
   for (int i=0; i < 3; i++)
     position[i] += direction[i] * length;
 }
@@ -717,7 +717,8 @@ void CPULSSolver::accumulateLinearFluxContribution(long fsr_id,
                                                    FP_PRECISION* __restrict__
                                                    fsr_flux) {
 
-  int num_groups_aligned = (_NUM_GROUPS / VEC_ALIGNMENT + 1) * VEC_ALIGNMENT;
+  int vec_alignment = VEC_ALIGNMENT / sizeof(FP_PRECISION);
+  int num_groups_aligned = (_NUM_GROUPS / vec_alignment + 1) * vec_alignment;
   FP_PRECISION* fsr_flux_x = &fsr_flux[num_groups_aligned];
   FP_PRECISION* fsr_flux_y = &fsr_flux[2*num_groups_aligned];
   FP_PRECISION* fsr_flux_z = &fsr_flux[3*num_groups_aligned];

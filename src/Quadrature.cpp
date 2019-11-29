@@ -716,6 +716,7 @@ void Quadrature::precomputeWeights(bool solve_3D) {
 
   /* Allocate memory if it was not allocated previously */
   resize2D(_sin_thetas, _num_azim/2, _num_polar);
+  resize2D(_inv_sin_thetas, _num_azim/2, _num_polar);
   resize2D(_total_weights, _num_azim/2, _num_polar);
 
   /* Compute multiples of sine thetas and weights */
@@ -729,7 +730,8 @@ void Quadrature::precomputeWeights(bool solve_3D) {
       else
         weight *= 2.0 * sin_theta;
       setPolarValues(_sin_thetas, a, p, sin_theta);
-      setPolarValues(_total_weights, a, p, weight);
+      setPolarValues(_inv_sin_thetas, a, p, FP_PRECISION(1.f / sin_theta));
+      setPolarValues(_total_weights, a, p, FP_PRECISION(weight));
     }
   }
 }

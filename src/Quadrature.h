@@ -42,6 +42,7 @@ enum QuadratureType {
 
 /** Shorthand for vectors of floats */
 typedef std::vector<double> DoubleVec;
+typedef std::vector<FP_PRECISION> FloatVec;
 typedef DoubleVec::const_iterator DVCI;
 
 /** Template function for writing vectors to a stream */
@@ -89,6 +90,9 @@ protected:
   /** An array of the sines of quadrature polar angles */
   std::vector<DoubleVec> _sin_thetas;
 
+  /** An array of the inverse sines of quadrature polar angles */
+  std::vector<FloatVec> _inv_sin_thetas;
+
   /** An array of the quadrature polar angles */
   std::vector<DoubleVec> _thetas;
 
@@ -108,7 +112,7 @@ protected:
   std::vector<DoubleVec> _polar_weights;
 
   /** An array of the total weights for each azimuthal/polar angle pair */
-  std::vector<DoubleVec> _total_weights;
+  std::vector<FloatVec> _total_weights;
 
   /* Templates for setting the same values to complimentary and supplementary
    * angles */
@@ -147,12 +151,13 @@ public:
   size_t getNumAzimAngles() const;
   double getSinTheta(size_t azim, size_t polar) const;
   double getSinThetaInline(size_t azim, size_t polar) const;
+  FP_PRECISION getInvSinThetaInline(size_t azim, size_t polar) const;
   double getTheta(size_t azim, size_t polar) const;
   double getPhi(size_t azim) const;
   double getAzimWeight(size_t azim) const;
   double getPolarWeight(size_t azim, size_t polar) const;
   double getWeight(size_t azim, size_t polar) const;
-  double getWeightInline(size_t azim, size_t polar) const;
+  FP_PRECISION getWeightInline(size_t azim, size_t polar) const;
   const std::vector<DoubleVec>& getSinThetas() const;
   const std::vector<DoubleVec>& getThetas() const;
   const DoubleVec& getPhis() const;
@@ -303,6 +308,22 @@ inline double Quadrature::getSinThetaInline(size_t azim, size_t polar) const {
 
 
 /**
+ * @brief Returns the \f$ 1/sin(\theta)\f$ value for a particular polar angle.
+ * @param azim index of the azimthal angle of interest
+ * @param polar index of the polar angle of interest
+ * @return the value of \f$ 1 / \sin(\theta) \f$ for this azimuthal and polar angle
+ * @details azim must be between 0 and _num_azim / 2
+ */
+inline FP_PRECISION Quadrature::getInvSinThetaInline(size_t azim, size_t polar) const {
+
+  if (azim >= _num_azim/2)
+    azim = _num_azim - azim - 1;
+
+  return _inv_sin_thetas[azim][polar];
+}
+
+
+/**
  * @brief Returns the total weight for Tracks with the given azimuthal and
  *        polar indexes without error checking and inlined
  * @details Angular weights are multiplied by Track spacings
@@ -310,7 +331,7 @@ inline double Quadrature::getSinThetaInline(size_t azim, size_t polar) const {
  * @param polar index of the polar angle of interest
  * @return the total weight of each Track with the given indexes
  */
-inline double Quadrature::getWeightInline(size_t azim, size_t polar) const {
+inline FP_PRECISION Quadrature::getWeightInline(size_t azim, size_t polar) const {
   return _total_weights[azim][polar];
 }
 

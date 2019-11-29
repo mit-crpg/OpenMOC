@@ -169,8 +169,8 @@ inline FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau,
                                                      int polar_offset) {
 
 #ifndef THREED
-  FP_PRECISION inv_sin_theta = 1.f / _quadrature->getSinThetaInline(_azim_index,
-                                                   _polar_index + polar_offset);
+  FP_PRECISION inv_sin_theta = _quadrature->getInvSinThetaInline(_azim_index,
+                                                  _polar_index + polar_offset);
 #else
   FP_PRECISION inv_sin_theta = _inverse_sin_theta_no_offset;
 #endif
@@ -357,8 +357,8 @@ inline void ExpEvaluator::retrieveExponentialComponents(FP_PRECISION tau,
 #endif
 
 #ifndef THREED
-  FP_PRECISION inv_sin_theta = 1.f / _quadrature->getSinThetaInline(_azim_index,
-                                                   _polar_index + polar_offset);
+  FP_PRECISION inv_sin_theta = _quadrature->getInvSinThetaInline(_azim_index,
+                                                  _polar_index + polar_offset);
 #else
   FP_PRECISION inv_sin_theta = _inverse_sin_theta_no_offset;
 #endif
@@ -374,7 +374,6 @@ inline void ExpEvaluator::retrieveExponentialComponents(FP_PRECISION tau,
 
    exp_G *= inv_sin_theta;
    *exp_F2 = 2.f*exp_G - *exp_F1;
-   *exp_F2 *= inv_sin_theta;
 
    *exp_H = *exp_F1 - exp_G;
 
