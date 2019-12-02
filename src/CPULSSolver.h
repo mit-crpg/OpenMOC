@@ -88,6 +88,7 @@ public:
                                    double source_y, double source_z);
   void setFixedSourceMomentByFSR(long fsr_id, int group, double source_x,
                                  double source_y, double source_z);
+  void resetFixedSources();
 
   /* Worker routines */
   void flattenFSRFluxes(FP_PRECISION value);

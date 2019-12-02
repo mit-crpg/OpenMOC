@@ -152,6 +152,7 @@ public:
   void setNumThreads(int num_threads);
   void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes);
   void setFixedSourceByFSR(long fsr_id, int group, FP_PRECISION source);
+  void resetFixedSources();
   void computeFSRFissionRates(double* fission_rates, long num_FSRs,
                               bool nu = false);
   void printInputParamsSummary();

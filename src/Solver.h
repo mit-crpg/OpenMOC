@@ -486,6 +486,7 @@ public:
   void setCheckXSLogLevel(logLevel log_level);
   void setChiSpectrumMaterial(Material* material);
   void resetMaterials(solverMode mode);
+  virtual void resetFixedSources() = 0;
 
   void fissionTransportSweep();
   void scatterTransportSweep();

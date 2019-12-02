@@ -223,6 +223,34 @@ void CPUSolver::setFixedSourceByFSR(long fsr_id, int group,
 
 
 /**
+ * @brief Reset all fixed sources and fixed sources moments to 0.
+ */
+void CPUSolver::resetFixedSources() {
+
+  /* Reset fixed source by FSR map */
+  std::map< std::pair<int, int>, FP_PRECISION >::iterator fsr_iter;
+  for (fsr_iter = _fix_src_FSR_map.begin();
+       fsr_iter != _fix_src_FSR_map.end(); ++fsr_iter)
+    fsr_iter->second = 0;
+
+  /* Reset fixed source by cell map */
+  std::map< std::pair<Cell*, int>, FP_PRECISION >::iterator cell_iter;
+  for (cell_iter = _fix_src_cell_map.begin();
+       cell_iter != _fix_src_cell_map.end(); ++cell_iter)
+    cell_iter->second = 0;
+
+  /* Reset fixed source by material map */
+  std::map< std::pair<Material*, int>, FP_PRECISION >::iterator mat_iter;
+  for (mat_iter = _fix_src_material_map.begin();
+       mat_iter != _fix_src_material_map.end(); ++mat_iter)
+    mat_iter->second = 0;
+
+  /* Reset array of fixed sources */
+  memset(_fixed_sources, 0, _num_FSRs * _NUM_GROUPS * sizeof(FP_PRECISION));
+}
+
+
+/**
  * @brief Initializes the FSR volumes and Materials array.
  * @details This method allocates and initializes an array of OpenMP
  *          mutual exclusion locks for each FSR for use in the
