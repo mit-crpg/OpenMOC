@@ -669,9 +669,6 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     # Create a new MGXS library with cross sections updated by SPH factors
     sph_mgxs_lib = _apply_sph_factors(mgxs_lib, geometry, sph, sph_domains)
 
-    # Load the new MGXS library data into the OpenMOC geometry
-    load_openmc_mgxs_lib(sph_mgxs_lib, geometry)
-
     # Reset fixed sources in solver if one wants to compute the eigenvalue
     solver.resetFixedSources()
 
