@@ -319,6 +319,9 @@ public:
   void initializeFSRVectors();
   void computeFissionability(Universe* univ=NULL);
   void manipulateXS();
+  void loadSPHFactors(double* sph_factors, int num_domains_groups,
+                      double* sph_to_domain_ids, int num_sph_domains,
+                      const char* domain_type);
 
   /* Obtain or print information about the geometry */
   std::vector<long> getSpatialDataOnGrid(std::vector<double> dim1,

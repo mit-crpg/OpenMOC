@@ -65,6 +65,10 @@
  * quadrature weights using a NumPy array */
 %apply (double* IN_ARRAY1, int DIM1) {(double* weights, int num_polar)}
 
+/* The typemap used to match the method signature for Geometry::loadSPHFactors */
+%apply (double* INPLACE_ARRAY1, int DIM1) {(double* sph_factors, int num_domains_groups),
+                                           (double* sph_to_domain_ids, int num_sph_domains)}
+
 /* The typemap used to match the method signature for Solver::getFluxes */
 %apply (FP_PRECISION* ARGOUT_ARRAY1, int DIM1) {(FP_PRECISION* out_fluxes, int num_fluxes)}
 

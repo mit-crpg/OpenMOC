@@ -242,6 +242,8 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
             py_printf('DEBUG', 'Loaded "fission" MGXS for "%s %s"',
                       domain_type, str(domain_spec))
 
+        #FIXME Add absorption cross section
+
     # Inform SWIG to garbage collect any old Materials from the Geometry
     for material_id in old_materials:
         old_materials[material_id].thisown = False
@@ -589,7 +591,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
         if domain.getId() in sph_domains:
             sph_to_fsr_indices.append(fsr)
 
-    # Build a list of indices into the SPH array for fissionable domains
+    # Build a list of indices into the SPH array for domains with SPH
     sph_to_domain_indices = []
     for i, openmc_domain in enumerate(mgxs_lib.domains):
         if openmc_domain.id in openmoc_domains:
@@ -603,7 +605,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     # Initialize array of domain-averaged fluxes and SPH factors
     num_domains = len(mgxs_lib.domains)
     openmoc_fluxes = np.zeros((num_domains, num_groups))
-    sph = np.ones((num_domains, num_groups))
+    sph = np.ones((num_domains, num_groups), 'd')
 
     # Store starting verbosity log level
     log_level = openmoc.get_log_level()
@@ -644,17 +646,17 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
         res = np.abs((sph - old_sph) / old_sph)
         res = np.nan_to_num(res)
 
-        # Extract residuals for fissionable domains only
+        # Extract residuals for domains with SPH factors only only
         res = res[sph_to_domain_indices, :]
+
+        # Load SPH factors in geometry
+        geometry.loadSPHFactors((sph/old_sph).flatten(),
+                                np.double([domain.id for domain in
+                                     mgxs_lib.domains])[sph_to_domain_indices],
+                                mgxs_lib.domain_type)
 
         # Report maximum SPH factor residual
         py_printf('NORMAL', 'SPH Iteration %d:\tres = %1.3e', i, res.max())
-
-        # Create a new MGXS library with cross sections updated by SPH factors
-        sph_mgxs_lib = _apply_sph_factors(mgxs_lib, geometry, sph, sph_domains)
-
-        # Load the new MGXS library data into the OpenMOC geometry
-        load_openmc_mgxs_lib(sph_mgxs_lib, geometry)
 
         # Check max SPH factor residual for this domain for convergence
         if res.max() < sph_tol and i > 0:
@@ -663,6 +665,15 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     # Warn user if SPH factors did not converge
     else:
         py_printf('WARNING', 'SPH factors did not converge')
+
+    # Create a new MGXS library with cross sections updated by SPH factors
+    sph_mgxs_lib = _apply_sph_factors(mgxs_lib, geometry, sph, sph_domains)
+
+    # Load the new MGXS library data into the OpenMOC geometry
+    load_openmc_mgxs_lib(sph_mgxs_lib, geometry)
+
+    # Reset fixed sources in solver if one wants to compute the eigenvalue
+    solver.resetFixedSources()
 
     # Collect SPH factors for each FSR, energy group
     fsrs_to_sph = np.ones((num_fsrs, num_groups), dtype=np.float)
