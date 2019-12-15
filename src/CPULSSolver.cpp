@@ -265,6 +265,7 @@ void CPULSSolver::setFixedSourceMomentsByCell(Cell* cell, int group,
 
   /* Keep a trace that fixed moments have been provided */
   _fixed_source_moments_on = true;
+  _fixed_sources_initialized = false;
 }
 
 
@@ -298,6 +299,7 @@ void CPULSSolver::setFixedSourceMomentByFSR(long fsr_id, int group,
 
   /* Keep a trace that fixed moments have been provided */
   _fixed_source_moments_on = true;
+  _fixed_sources_initialized = false;
 }
 
 

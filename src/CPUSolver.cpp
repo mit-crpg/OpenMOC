@@ -391,14 +391,14 @@ void CPUSolver::initializeSourceArrays() {
   /* Delete old sources arrays if they exist */
   if (_reduced_sources != NULL)
     delete [] _reduced_sources;
-  if (_fixed_sources != NULL)
+  if (_fixed_sources != NULL && !_fixed_sources_initialized)
     delete [] _fixed_sources;
 
   long size = _num_FSRs * _NUM_GROUPS;
 
   /* Allocate memory for all source arrays */
   _reduced_sources = new FP_PRECISION[size]();
-  if (_fixed_sources_on)
+  if (_fixed_sources_on && !_fixed_sources_initialized)
     _fixed_sources = new FP_PRECISION[size]();
 
   long max_size = size;
@@ -415,7 +415,7 @@ void CPUSolver::initializeSourceArrays() {
              max_size_mb);
 
   /* Populate fixed source array with any user-defined sources */
-  if (_fixed_sources_on)
+  if (_fixed_sources_on && !_fixed_sources_initialized)
     initializeFixedSources();
 }
 
@@ -451,6 +451,9 @@ void CPUSolver::initializeFixedSources() {
 
     _fixed_sources(fsr_id, group-1) = _fix_src_FSR_map[fsr_group_key];
   }
+
+  /* Remember initialization to avoid re-initializing unless it's necessary */
+  _fixed_sources_initialized = true;
 }
 
 
