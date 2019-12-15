@@ -498,6 +498,100 @@ void Geometry::manipulateXS() {
 
 
 /**
+ * @brief Loads an array of SPH factors into the geometry's domains.
+ * @details This method is called by compute_sph_factors in the 'materialize'
+ *          module but may also be called by the user in Python if needed:
+ *
+ * @code
+ *          geometry.loadSPHFactors(sph_factors.flatten(),
+ *                                  double(sph_to_domains), "cell")
+ * @endcode
+ * @param sph_factors 1D array of SPH factors (group dependence in inner loop)
+ * @param num_domains_groups number of domains times number of groups
+ * @param sph_to_domain_ids map to link sph_factors array into domains, must be
+          doubles //FIXME write a typemap to allow ints
+ * @param num_domains total number of domains (may be larger than the number of
+          domains in the OpenMOC geometry)
+ * @param domain_type type of domain (material or cell) containing the cross
+ *        sections that the SPH factors apply to
+ */
+void Geometry::loadSPHFactors(double* sph_factors, int num_domains_groups,
+                              double* sph_to_domain_ids, int num_sph_domains,
+                              const char* domain_type) {
+
+  /* Check type of domain */
+  if (strcmp(domain_type, "material") != 0 && strcmp(domain_type, "cell") != 0)
+    log_printf(ERROR, "Domain type %s is not supported for loading SPH factor",
+               &domain_type[0]);
+
+  int num_groups = getNumEnergyGroups();
+
+  /* If by material, loop on materials */
+  if (strcmp(domain_type, "material") == 0) {
+    std::map<int, Material*> all_materials = getAllMaterials();
+    std::map<int, Material*>::iterator iter;
+
+    for (int i=0; i<num_sph_domains; i++) {
+
+      /* Find material */
+      iter = all_materials.find(int(sph_to_domain_ids[i]));
+      if (iter == all_materials.end()) {
+        log_printf(WARNING, "SPH material %d is not in geometry",
+                   int(sph_to_domain_ids[i]));
+        continue;
+      }
+      Material* mat = iter->second;
+
+      /* Use sph factors */
+      double* sph = &sph_factors[i*num_groups];
+
+      for (int g=1; g<=num_groups; g++) {
+
+        mat->setSigmaTByGroup(mat->getSigmaTByGroup(g) * sph[g-1], g);
+        mat->setSigmaAByGroup(mat->getSigmaAByGroup(g) * sph[g-1], g);
+        mat->setSigmaFByGroup(mat->getSigmaFByGroup(g) * sph[g-1], g);
+        mat->setNuSigmaFByGroup(mat->getNuSigmaFByGroup(g) * sph[g-1], g);
+        for (int g2=1; g2<=num_groups; g2++) {
+          mat->setSigmaSByGroup(mat->getSigmaSByGroup(g, g2) * sph[g-1], g, g2);
+        }
+      }
+    }
+  }
+  /* SPH factors by cells */
+  if (strcmp(domain_type, "cell") == 0) {
+    std::map<int, Cell*> all_cells = getAllMaterialCells();
+    std::map<int, Cell*>::iterator iter;
+
+    for (int i=0; i<num_sph_domains; i++) {
+
+      /* Find cell then material to use SPH factor on */
+      iter = all_cells.find(int(sph_to_domain_ids[i]));
+      if (iter == all_cells.end()) {
+        log_printf(WARNING, "SPH cell %d is not in geometry",
+                   int(sph_to_domain_ids[i]));
+        continue;
+      }
+      Material* mat = iter->second->getFillMaterial();
+
+      /* Use sph factors */
+      double* sph = &sph_factors[i*num_groups];
+
+      for (int g=1; g<=num_groups; g++) {
+
+        mat->setSigmaTByGroup(mat->getSigmaTByGroup(g) * sph[g-1], g);
+        mat->setSigmaAByGroup(mat->getSigmaAByGroup(g) * sph[g-1], g);
+        mat->setSigmaFByGroup(mat->getSigmaFByGroup(g) * sph[g-1], g);
+        mat->setNuSigmaFByGroup(mat->getNuSigmaFByGroup(g) * sph[g-1], g);
+        for (int g2=1; g2<=num_groups; g2++) {
+          mat->setSigmaSByGroup(mat->getSigmaSByGroup(g, g2) * sph[g-1], g, g2);
+        }
+      }
+    }
+  }
+}
+
+
+/**
  * @brief Return a std::map container of Cell IDs (keys) with Cells
  *        pointers (values).
  * @return a std::map of Cells indexed by Cell ID in the geometry
@@ -3329,12 +3423,9 @@ Cell* Geometry::findCellContainingFSR(long fsr_id) {
 
   std::string& key = _FSRs_to_keys[fsr_id];
   Point* point = _FSR_keys_map.at(key)->_point;
-  LocalCoords* coords = new LocalCoords(point->getX(), point->getY(),
-                                        point->getZ(), true);
-  coords->setUniverse(_root_universe);
-  Cell* cell = findCellContainingCoords(coords);
-
-  delete coords;
+  LocalCoords coords(point->getX(), point->getY(), point->getZ(), true);
+  coords.setUniverse(_root_universe);
+  Cell* cell = findCellContainingCoords(&coords);
 
   return cell;
 }

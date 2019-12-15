@@ -199,6 +199,9 @@ protected:
   /** Boolean to indicate whether there are any fixed sources */
   bool _fixed_sources_on;
 
+  /** Boolean to indicate whether fixed sources needs to be initialized */
+  bool _fixed_sources_initialized;
+
   /** Boolean for whether to correct unphysical cross-sections */
   bool _correct_xs;
 
@@ -486,6 +489,7 @@ public:
   void setCheckXSLogLevel(logLevel log_level);
   void setChiSpectrumMaterial(Material* material);
   void resetMaterials(solverMode mode);
+  virtual void resetFixedSources() = 0;
 
   void fissionTransportSweep();
   void scatterTransportSweep();

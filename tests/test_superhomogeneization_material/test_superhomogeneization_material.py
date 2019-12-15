@@ -15,12 +15,11 @@ except:
     print("OpenMC could not be imported, it's required for loading MGXS files")
 
 
-class ComputeFluxTestHarness(TestHarness):
-    """A fixed source flux calculation in a cube of water with 7-group
-    cross sections. This tests the Solver::computeFlux(...) method."""
+class ComputeMaterialSPHTestHarness(TestHarness):
+    """Computing SPH factors from a material-based OpenMC MGXS library."""
 
     def __init__(self):
-        super(ComputeFluxTestHarness, self).__init__()
+        super(ComputeMaterialSPHTestHarness, self).__init__()
         self.azim_spacing = 0.12
 
     def _create_geometry(self):
@@ -41,13 +40,19 @@ class ComputeFluxTestHarness(TestHarness):
         # Initialize 2-group OpenMC multi-group cross section library for a pin cell
         mgxs_lib = openmc.mgxs.Library.load_from_file(filename='mgxs', directory='.')
 
+        # Compute SPH factors
+        sph, sph_mgxs_lib, sph_indices = \
+            openmoc.materialize.compute_sph_factors(
+                mgxs_lib, azim_spacing=self.azim_spacing,
+                num_azim=self.num_azim, num_threads=self.num_threads)
+
         # Create an OpenMOC Geometry from the OpenMOC Geometry
         openmoc_geometry = \
-            openmc.openmoc_compatible.get_openmoc_geometry(mgxs_lib.geometry)
+            openmc.openmoc_compatible.get_openmoc_geometry(sph_mgxs_lib.geometry)
 
         # Load cross section data
         openmoc_materials = \
-            openmoc.materialize.load_openmc_mgxs_lib(mgxs_lib, openmoc_geometry)
+            openmoc.materialize.load_openmc_mgxs_lib(sph_mgxs_lib, openmoc_geometry)
 
         # Initialize FSRs
         openmoc_geometry.initializeFlatSourceRegions()
@@ -62,23 +67,18 @@ class ComputeFluxTestHarness(TestHarness):
         self.solver.setConvergenceThreshold(self.tolerance)
         self.solver.setNumThreads(self.num_threads)
 
-        # Compute SPH factors
-        sph, sph_mgxs_lib, sph_indices = \
-            openmoc.materialize.compute_sph_factors(
-                mgxs_lib, azim_spacing=self.azim_spacing,
-                num_azim=self.num_azim, num_threads=self.num_threads,
-                solver=self.solver, track_generator=track_generator,
-                geometry=openmoc_geometry)
+        # Compute an eigenvalue with the SPH library
+        self.solver.computeEigenvalue()
 
     def _get_results(self, num_iters=True, keff=True, fluxes=True,
                      num_fsrs=False, num_tracks=False, num_segments=False,
                      hash_output=False):
         """Digest info in the solver"""
-        return super(ComputeFluxTestHarness, self)._get_results(
+        return super(ComputeMaterialSPHTestHarness, self)._get_results(
                 num_iters=num_iters, keff=keff, fluxes=fluxes,
                 num_fsrs=num_fsrs, num_tracks=num_tracks,
                 num_segments=num_segments, hash_output=hash_output)
 
 if __name__ == '__main__':
-    harness = ComputeFluxTestHarness()
+    harness = ComputeMaterialSPHTestHarness()
     harness.main()

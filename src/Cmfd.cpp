@@ -4374,11 +4374,13 @@ void Cmfd::printTimerReport() {
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), matrix_construction_time);
 
+#ifdef MPIx
   /* Get the MPI communication time */
   double comm_time = _timer->getSplit("CMFD MPI communication time");
   msg_string = "    MPI communication time";
   msg_string.resize(53, '.');
   log_printf(RESULT, "%s%1.4E sec", msg_string.c_str(), comm_time);
+#endif
 
   /* Get the total solver time */
   double solver_time = _timer->getSplit("Total solver time");

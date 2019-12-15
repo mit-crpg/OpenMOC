@@ -265,6 +265,7 @@ void CPULSSolver::setFixedSourceMomentsByCell(Cell* cell, int group,
 
   /* Keep a trace that fixed moments have been provided */
   _fixed_source_moments_on = true;
+  _fixed_sources_initialized = false;
 }
 
 
@@ -298,6 +299,39 @@ void CPULSSolver::setFixedSourceMomentByFSR(long fsr_id, int group,
 
   /* Keep a trace that fixed moments have been provided */
   _fixed_source_moments_on = true;
+  _fixed_sources_initialized = false;
+}
+
+
+/**
+ * @brief Reset all fixed sources and fixed sources moments to 0.
+ */
+void CPULSSolver::resetFixedSources() {
+  CPUSolver::resetFixedSources();
+
+  /* Reset fixed source FSR map */
+  std::map< std::pair<int, int>, std::vector<double> >::iterator fsr_iter;
+  for (fsr_iter = _fix_src_xyz_FSR_map.begin();
+       fsr_iter != _fix_src_xyz_FSR_map.end(); ++fsr_iter) {
+    fsr_iter->second[0] = 0;
+    fsr_iter->second[1] = 0;
+    fsr_iter->second[2] = 0;
+  }
+
+  /* Reset fixed source cell map */
+  std::map< std::pair<Cell*, int>, std::vector<double> >::iterator cell_iter;
+  for (cell_iter = _fix_src_xyz_cell_map.begin();
+       cell_iter != _fix_src_xyz_cell_map.end(); ++cell_iter) {
+    cell_iter->second[0] = 0;
+    cell_iter->second[1] = 0;
+    cell_iter->second[2] = 0;
+  }
+
+  /* Reset array of fixed sources */
+  std::vector<std::vector<double> >::iterator iter;
+  for (iter = _fixed_sources_xyz.begin(); iter != _fixed_sources_xyz.end();
+       iter++)
+    std::fill((*iter).begin(), (*iter).end(), 0.);
 }
 
 

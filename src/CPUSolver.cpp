@@ -223,6 +223,34 @@ void CPUSolver::setFixedSourceByFSR(long fsr_id, int group,
 
 
 /**
+ * @brief Reset all fixed sources and fixed sources moments to 0.
+ */
+void CPUSolver::resetFixedSources() {
+
+  /* Reset fixed source by FSR map */
+  std::map< std::pair<int, int>, FP_PRECISION >::iterator fsr_iter;
+  for (fsr_iter = _fix_src_FSR_map.begin();
+       fsr_iter != _fix_src_FSR_map.end(); ++fsr_iter)
+    fsr_iter->second = 0;
+
+  /* Reset fixed source by cell map */
+  std::map< std::pair<Cell*, int>, FP_PRECISION >::iterator cell_iter;
+  for (cell_iter = _fix_src_cell_map.begin();
+       cell_iter != _fix_src_cell_map.end(); ++cell_iter)
+    cell_iter->second = 0;
+
+  /* Reset fixed source by material map */
+  std::map< std::pair<Material*, int>, FP_PRECISION >::iterator mat_iter;
+  for (mat_iter = _fix_src_material_map.begin();
+       mat_iter != _fix_src_material_map.end(); ++mat_iter)
+    mat_iter->second = 0;
+
+  /* Reset array of fixed sources */
+  memset(_fixed_sources, 0, _num_FSRs * _NUM_GROUPS * sizeof(FP_PRECISION));
+}
+
+
+/**
  * @brief Initializes the FSR volumes and Materials array.
  * @details This method allocates and initializes an array of OpenMP
  *          mutual exclusion locks for each FSR for use in the
@@ -363,14 +391,14 @@ void CPUSolver::initializeSourceArrays() {
   /* Delete old sources arrays if they exist */
   if (_reduced_sources != NULL)
     delete [] _reduced_sources;
-  if (_fixed_sources != NULL)
+  if (_fixed_sources != NULL && !_fixed_sources_initialized)
     delete [] _fixed_sources;
 
   long size = _num_FSRs * _NUM_GROUPS;
 
   /* Allocate memory for all source arrays */
   _reduced_sources = new FP_PRECISION[size]();
-  if (_fixed_sources_on)
+  if (_fixed_sources_on && !_fixed_sources_initialized)
     _fixed_sources = new FP_PRECISION[size]();
 
   long max_size = size;
@@ -387,7 +415,7 @@ void CPUSolver::initializeSourceArrays() {
              max_size_mb);
 
   /* Populate fixed source array with any user-defined sources */
-  if (_fixed_sources_on)
+  if (_fixed_sources_on && !_fixed_sources_initialized)
     initializeFixedSources();
 }
 
@@ -423,6 +451,9 @@ void CPUSolver::initializeFixedSources() {
 
     _fixed_sources(fsr_id, group-1) = _fix_src_FSR_map[fsr_group_key];
   }
+
+  /* Remember initialization to avoid re-initializing unless it's necessary */
+  _fixed_sources_initialized = true;
 }
 
 
