@@ -246,7 +246,8 @@ void CPUSolver::resetFixedSources() {
     mat_iter->second = 0;
 
   /* Reset array of fixed sources */
-  memset(_fixed_sources, 0, _num_FSRs * _NUM_GROUPS * sizeof(FP_PRECISION));
+  if (_fixed_sources != NULL)
+    memset(_fixed_sources, 0, _num_FSRs * _NUM_GROUPS * sizeof(FP_PRECISION));
 }
 
 

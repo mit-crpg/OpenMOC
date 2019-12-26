@@ -450,7 +450,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
                         fix_src_tol=1E-5, num_azim=4, azim_spacing=0.1,
                         zcoord=0.0, num_threads=1, throttle_output=True,
                         geometry=None, track_generator=None, solver=None,
-                        sph_domains=None):
+                        sph_domains=None, sph_mode="fixed source"):
     """Compute SPH factors for an OpenMC multi-group cross section library.
 
     This routine coputes SuPerHomogenisation (SPH) factors for an OpenMC MGXS
@@ -495,6 +495,10 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     sph_domains : list of int
         A list of domain (cell or material, based on mgxs_lib domain type) ids,
         in which SPH factors should be computed. Default is only fissonable FSRs
+    sph_mode : string
+        Whether to compute SPH factors using fixed source or eigenvalue
+        calculations. Fixed source calculations tend to converge better but
+        require knowing the source distribution everywhere
 
     Returns
     -------
@@ -510,6 +514,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     import openmc.mgxs
 
     cv.check_type('mgxs_lib', mgxs_lib, openmc.mgxs.Library)
+    cv.check_value('sph_mode', sph_mode, ('fixed source', 'eigenvalue'))
 
     # For Python 2.X.X
     if sys.version_info[0] == 2:
@@ -531,7 +536,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
 
     if not track_generator:
         # Initialize an OpenMOC TrackGenerator
-        track_generator = openmoc.TrackGenerator(geometry, num_azim, 
+        track_generator = openmoc.TrackGenerator(geometry, num_azim,
                                                  azim_spacing)
         track_generator.setZCoord(zcoord)
         track_generator.generateTracks()
@@ -566,7 +571,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
             if openmoc_domain.isFissionable():
                 sph_domains.append(openmoc_domain.getId())
 
-    openmc_fluxes = _load_openmc_src(mgxs_lib, solver)
+    openmc_fluxes = _load_openmc_src(mgxs_lib, solver, sph_mode)
 
     # Initialize SPH factors
     num_groups = geometry.getNumEnergyGroups()
@@ -621,8 +626,12 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
         if i == 1:
             solver.setRestartStatus(True)
 
-        # Fixed source calculation
-        solver.computeFlux()
+        if sph_mode == "fixed source":
+            # Fixed source calculation
+            solver.computeFlux()
+        else:
+            # Eigenvalue calculation
+            solver.computeEigenvalue()
 
         # Restore log output level
         if throttle_output:
@@ -635,6 +644,10 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
         for j, openmc_domain in enumerate(mgxs_lib.domains):
             domain_fluxes = fsr_fluxes[fsrs_to_domains == openmc_domain.id, :]
             openmoc_fluxes[j, :] = np.mean(domain_fluxes, axis=0)
+
+        # Re-normalize MOC fluxes
+        if sph_mode == "eigenvalue":
+            openmoc_fluxes /= num_fsrs
 
         # Compute SPH factors
         old_sph = np.copy(sph)
@@ -670,7 +683,8 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     sph_mgxs_lib = _apply_sph_factors(mgxs_lib, geometry, sph, sph_domains)
 
     # Reset fixed sources in solver if one wants to compute the eigenvalue
-    solver.resetFixedSources()
+    if sph_mode == "fixed source":
+        solver.resetFixedSources()
 
     # Collect SPH factors for each FSR, energy group
     fsrs_to_sph = np.ones((num_fsrs, num_groups), dtype=np.float)
@@ -684,7 +698,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     return fsrs_to_sph, sph_mgxs_lib, np.array(sph_to_fsr_indices)
 
 
-def _load_openmc_src(mgxs_lib, solver):
+def _load_openmc_src(mgxs_lib, solver, sph_mode):
     """Assign fixed sources to an OpenMOC model from an OpenMC MGXS library.
 
     This routine computes the fission source and scattering source in
@@ -698,6 +712,8 @@ def _load_openmc_src(mgxs_lib, solver):
         An OpenMC multi-group cross section library
     solver : openmoc.Solver
         An OpenMOC solver into which to load the fixed sources
+    sph_mode : string
+        Only load sources in solver for fixed source calculations
 
     Returns
     -------
@@ -783,6 +799,10 @@ def _load_openmc_src(mgxs_lib, solver):
         openmc_fluxes[i, :] = np.atleast_1d(np.flipud(flux))
         openmc_fluxes[i, :] /= tot_volume
 
+        # Eigenvalue calculations have no fixed sources
+        if sph_mode != "fixed source":
+            continue
+
         # Extract a NumPy array for each MGXS summed across all nuclides
         scatter = scatter.get_xs(nuclides='sum')
         nu_fission = nu_fission.get_xs(nuclides='sum')
@@ -801,6 +821,10 @@ def _load_openmc_src(mgxs_lib, solver):
                 solver.setFixedSourceByMaterial(openmoc_domain, group+1, source)
             else:
                 solver.setFixedSourceByCell(openmoc_domain, group+1, source)
+
+    # Normalize MC fluxes to the same convention as OpenMOC
+    if sph_mode == "eigenvalue":
+        openmc_fluxes /= keff
 
     return openmc_fluxes
 

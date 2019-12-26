@@ -683,6 +683,11 @@ void Quadrature::precomputeWeights(bool solve_3D) {
     log_printf(ERROR, "Unable to precompute weights since polar angles have "
                       "not yet been set");
 
+  /* Check that polar spacings have been set in 3D cases */
+  if (solve_3D && _polar_spacings.size() == 0)
+    log_printf(ERROR, "Unable to precompute weights for the 3D quadrature since"
+                      " polar spacings have not yet been set");
+
   /* Clear azimuthal weights */
   _azim_weights.resize(_num_azim/2);
 
@@ -887,7 +892,6 @@ void TYPolarQuad::precomputeWeights(bool solve_3D) {
   Quadrature::setPolarWeights(weights);
   Quadrature::precomputeWeights(solve_3D);
 }
-
 
 
 /**
