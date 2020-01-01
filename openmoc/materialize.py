@@ -357,17 +357,17 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
         material.setNumEnergyGroups(num_groups)
 
         # Search for the total/transport cross section
-        if 'transport' in mgxs_lib.mgxs_types:
-            mgxs = mgxs_lib.get_mgxs(domain, 'transport')
-            sigma = mgxs.get_xs(nuclides='sum')
-            material.setSigmaT(sigma)
-            py_printf('DEBUG', 'Loaded "transport" MGXS for "%s %d"',
-                      domain_type, domain.id)
-        elif 'nu-transport' in mgxs_lib.mgxs_types:
+        if 'nu-transport' in mgxs_lib.mgxs_types:
             mgxs = mgxs_lib.get_mgxs(domain, 'nu-transport')
             sigma = mgxs.get_xs(nuclides='sum')
             material.setSigmaT(sigma)
             py_printf('DEBUG', 'Loaded "nu-transport" MGXS for "%s %d"',
+                      domain_type, domain.id)
+        elif 'transport' in mgxs_lib.mgxs_types:
+            mgxs = mgxs_lib.get_mgxs(domain, 'transport')
+            sigma = mgxs.get_xs(nuclides='sum')
+            material.setSigmaT(sigma)
+            py_printf('DEBUG', 'Loaded "transport" MGXS for "%s %d"',
                       domain_type, domain.id)
         elif 'total' in mgxs_lib.mgxs_types:
             mgxs = mgxs_lib.get_mgxs(domain, 'total')
@@ -611,6 +611,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     num_domains = len(mgxs_lib.domains)
     openmoc_fluxes = np.zeros((num_domains, num_groups))
     sph = np.ones((num_domains, num_groups), 'd')
+    old_sph = np.ones((len(sph_to_domain_indices), num_groups), 'd')
 
     # Store starting verbosity log level
     log_level = openmoc.get_log_level()
@@ -650,17 +651,18 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
             openmoc_fluxes /= num_fsrs
 
         # Compute SPH factors
-        old_sph = np.copy(sph)
+        if i > 0:
+            old_sph = np.copy(sph)
         sph = openmc_fluxes / openmoc_fluxes
         sph = np.nan_to_num(sph)
         sph[sph == 0.0] = 1.0
 
+        # Extract SPH factors for domains with SPH factors only
+        sph = sph[sph_to_domain_indices, :]
+
         # Compute SPH factor residuals
         res = np.abs((sph - old_sph) / old_sph)
         res = np.nan_to_num(res)
-
-        # Extract residuals for domains with SPH factors only only
-        res = res[sph_to_domain_indices, :]
 
         # Load SPH factors in geometry
         geometry.loadSPHFactors((sph/old_sph).flatten(),
@@ -669,7 +671,11 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
                                 mgxs_lib.domain_type)
 
         # Report maximum SPH factor residual
-        py_printf('NORMAL', 'SPH Iteration %d:\tres = %1.3e', i, res.max())
+        if sph_mode == "fixed source":
+            py_printf('NORMAL', 'SPH Iteration %d:\tres = %1.3e', i, res.max())
+        else:
+            py_printf('NORMAL', 'SPH Iteration %d:\tres = %1.3e keff = %1.5f',
+                      i, res.max(), solver.getKeff())
 
         # Check max SPH factor residual for this domain for convergence
         if res.max() < sph_tol and i > 0:
@@ -680,6 +686,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
         py_printf('WARNING', 'SPH factors did not converge')
 
     # Create a new MGXS library with cross sections updated by SPH factors
+    sph = openmc_fluxes / openmoc_fluxes
     sph_mgxs_lib = _apply_sph_factors(mgxs_lib, geometry, sph, sph_domains)
 
     # Reset fixed sources in solver if one wants to compute the eigenvalue
