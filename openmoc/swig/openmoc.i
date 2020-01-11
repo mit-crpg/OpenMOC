@@ -94,7 +94,6 @@
 %ignore twiddleRead(long* ptr, size_t size, size_t nmemb, FILE* stream);
 %ignore setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]); 
 
-
 /* Instruct SWIG to ignore methods used in getting CSR Matrix format and Vector
  * attributes. These attributes should be used internally only by the Matrix and
  * Vector class methods and linear algrebra (linalg.h/linalg.cpp) methods. */
@@ -178,5 +177,15 @@ namespace std {
 %include ../../src/TrackTraversingAlgorithms.h
 %include ../../src/Universe.h
 %include ../../src/Vector.h
+
+/* Use the toString routines for printing objects in Python */
+%extend Cell{ std::string __repr__() { return self->toString(); } };
+%extend Cmfd{ std::string __repr__() { return self->toString(); } };
+%extend LocalCoords{ std::string __repr__() { return self->toString(); } };
+%extend Material{ std::string __repr__() { return self->toString(); } };
+%extend Point{ std::string __repr__() { return self->toString(); } };
+%extend Quadrature{ std::string __repr__() { return self->toString(); } };
+%extend Surface{ std::string __repr__() { return self->toString(); } };
+%extend Universe{ std::string __repr__() { return self->toString(); } };
 
 #define printf PySys_WriteStdout
