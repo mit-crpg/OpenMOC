@@ -1160,7 +1160,8 @@ void Solver::initializeCmfd() {
   _cmfd->setQuadrature(_quad);
   _cmfd->setGeometry(_geometry);
   _cmfd->setAzimSpacings(_quad->getAzimSpacings(), _num_azim);
-  _cmfd->initialize();
+  if (!_is_restart)
+    _cmfd->initialize();
 
 
   TrackGenerator3D* track_generator_3D =
@@ -1666,7 +1667,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     _num_iterations++;
 
     /* Check for convergence of the fission source distribution */
-    if (i > 1 && residual < _converge_thresh && std::abs(dk) < 1)
+    if (residual < _converge_thresh && std::abs(dk) < 1)
       break;
   }
 

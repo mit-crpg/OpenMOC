@@ -26,12 +26,12 @@ class CmfdPwrAssemblyTestHarness(TestHarness):
         # Change boundary condition on two opposite sides to periodic
         cell_id = list(self.input_set.geometry.getRootUniverse().getCells())[0]
         surface_id = list(self.input_set.geometry.getRootUniverse().getCells()[
-             cell_id].getSurfaces())[0]
+             cell_id].getSurfaces())[2]
         self.input_set.geometry.getRootUniverse().getCells()[
              cell_id].getSurfaces()[surface_id].getSurface().setBoundaryType(
              openmoc.PERIODIC)
         surface_id = list(self.input_set.geometry.getRootUniverse().getCells()[
-             cell_id].getSurfaces())[1]
+             cell_id].getSurfaces())[3]
         self.input_set.geometry.getRootUniverse().getCells()[
              cell_id].getSurfaces()[surface_id].getSurface().setBoundaryType(
              openmoc.PERIODIC)
@@ -46,6 +46,12 @@ class CmfdPwrAssemblyTestHarness(TestHarness):
 
         # Add CMFD to the Geometry
         self.input_set.geometry.setCmfd(cmfd)
+
+    def _run_openmoc(self):
+        """Run an OpenMOC eigenvalue calculation."""
+        super(CmfdPwrAssemblyTestHarness, self)._run_openmoc()
+        self.solver.setRestartStatus(True)
+        super(CmfdPwrAssemblyTestHarness, self)._run_openmoc()
 
     def _get_results(self, num_iters=True, keff=True, fluxes=True,
                      num_fsrs=False, num_tracks=False, num_segments=False,
