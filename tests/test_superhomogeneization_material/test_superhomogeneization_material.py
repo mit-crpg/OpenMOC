@@ -37,7 +37,7 @@ class ComputeMaterialSPHTestHarness(TestHarness):
     def _run_openmoc(self):
         """Run an SPH calculation."""
 
-        # Initialize 2-group OpenMC multi-group cross section library for a pin cell
+        # Initialize 16-group OpenMC multi-group cross section library for a pin cell
         mgxs_lib = openmc.mgxs.Library.load_from_file(filename='mgxs', directory='.')
 
         # Compute SPH factors

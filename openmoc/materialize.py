@@ -176,7 +176,12 @@ def load_from_hdf5(filename='mgxs.h5', directory='mgxs',
         material.setNumEnergyGroups(num_groups)
 
         # Search for the total/transport cross section
-        if 'transport' in domain_group:
+        if 'nu-transport' in domain_group:
+            sigma = _get_numpy_array(domain_group, 'nu-transport', suffix)
+            material.setSigmaT(sigma)
+            py_printf('DEBUG', 'Loaded "nu-transport" MGXS for "%s %s"',
+                      domain_type, str(domain_spec))
+        elif 'transport' in domain_group:
             sigma = _get_numpy_array(domain_group, 'transport', suffix)
             material.setSigmaT(sigma)
             py_printf('DEBUG', 'Loaded "transport" MGXS for "%s %s"',

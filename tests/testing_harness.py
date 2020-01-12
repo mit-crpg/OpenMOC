@@ -9,7 +9,10 @@ import glob
 import pickle
 from collections import OrderedDict
 from optparse import OptionParser
-from PIL import Image, ImageOps
+try:
+    from PIL import Image, ImageOps
+except ImportError as error:
+    print(error.__class__.__name__ + ": " + str(error))
 
 sys.path.insert(0, 'openmoc')
 import openmoc

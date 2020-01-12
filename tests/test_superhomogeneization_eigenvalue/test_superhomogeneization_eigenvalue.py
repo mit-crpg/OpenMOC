@@ -38,8 +38,9 @@ class ComputeMaterialSPHTestHarness(TestHarness):
     def _run_openmoc(self):
         """Run an SPH calculation."""
 
-        # Initialize 2-group OpenMC multi-group cross section library for a pin cell
-        mgxs_lib = openmc.mgxs.Library.load_from_file(filename='mgxs', directory='.')
+        # Initialize 16-group OpenMC multi-group XS library for a pin cell
+        mgxs_lib = openmc.mgxs.Library.load_from_file(filename='mgxs',
+             directory='../test_superhomogeneization_material')
 
         # Compute SPH factors
         sph, sph_mgxs_lib, sph_indices = \
@@ -64,7 +65,7 @@ class ComputeMaterialSPHTestHarness(TestHarness):
             openmoc_geometry, self.num_azim, self.azim_spacing)
         track_generator.generateTracks()
 
-        # Initialize an OpenMOC Solver
+        # Initialize a new OpenMOC Solver
         self.solver = openmoc.CPUSolver(track_generator)
         self.solver.setConvergenceThreshold(self.tolerance)
         self.solver.setNumThreads(self.num_threads)
