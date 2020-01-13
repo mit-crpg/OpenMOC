@@ -650,10 +650,11 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
         for j, openmc_domain in enumerate(mgxs_lib.domains):
             domain_fluxes = fsr_fluxes[fsrs_to_domains == openmc_domain.id, :]
             openmoc_fluxes[j, :] = np.mean(domain_fluxes, axis=0)
+            #FIXME Should be volume averaged
 
         # Re-normalize MOC fluxes
         if sph_mode == "eigenvalue":
-            openmoc_fluxes /= num_fsrs
+            openmoc_fluxes /= np.nansum(openmoc_fluxes)
 
         # Compute SPH factors
         if i > 0:
@@ -836,7 +837,7 @@ def _load_openmc_src(mgxs_lib, solver, sph_mode):
 
     # Normalize MC fluxes to the same convention as OpenMOC
     if sph_mode == "eigenvalue":
-        openmc_fluxes /= keff
+        openmc_fluxes /= np.sum(openmc_fluxes)
 
     return openmc_fluxes
 
