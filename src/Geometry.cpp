@@ -3454,6 +3454,17 @@ void Geometry::setFSRCentroid(long fsr, Point* centroid) {
 
 
 /**
+ * @brief Sets the boolean keeping track of FSR centroids generation to false.
+ * @details The FSR numbering may change if trying to use the same geometry
+ *          in a restart run. The centroids generated with the previous FSR
+ *          numbering should not be used when ray tracing again.
+ */
+void Geometry::resetContainsFSRCentroids() {
+  _contains_FSR_centroids = false;
+}
+
+
+/**
  * @brief Returns a vector of z-coords defining a superposition of all axial
  *        boundaries in the Geometry.
  * @details The Geometry is traversed to retrieve all Z-planes and implicit

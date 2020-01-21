@@ -1294,6 +1294,9 @@ void TrackGenerator::segmentize() {
     cmfd->initializeLattice(&offset, true);
   }
 
+  /* FSR numbering can change between two ray tracing */
+  _geometry->resetContainsFSRCentroids();
+
   std::string msg = "Segmenting 2D tracks";
   Progress progress(_num_2D_tracks, msg, 0.1, _geometry, true);
 
