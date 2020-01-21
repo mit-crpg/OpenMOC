@@ -2814,6 +2814,7 @@ void Geometry::initializeFSRVectors() {
   _FSRs_to_centroids = std::vector<Point*>(num_FSRs, NULL);
   _FSRs_to_material_IDs = std::vector<int>(num_FSRs);
   _FSRs_to_CMFD_cells = std::vector<int>(num_FSRs);
+  _contains_FSR_centroids = false;
 
   /* Fill vectors key and material ID information */
 #pragma omp parallel for

@@ -3,4 +3,4 @@
 set -ev
 
 # Run all tests
-./run_tests.py --coverage -v
+./run_tests.py --coverage

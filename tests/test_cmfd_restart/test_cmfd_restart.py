@@ -23,26 +23,10 @@ class CmfdPwrAssemblyTestHarness(TestHarness):
 
         super(CmfdPwrAssemblyTestHarness, self)._create_geometry()
 
-        # Change boundary condition on two opposite sides to periodic
-        cell_id = list(self.input_set.geometry.getRootUniverse().getCells())[0]
-        surface_id = list(self.input_set.geometry.getRootUniverse().getCells()[
-             cell_id].getSurfaces())[2]
-        self.input_set.geometry.getRootUniverse().getCells()[
-             cell_id].getSurfaces()[surface_id].getSurface().setBoundaryType(
-             openmoc.PERIODIC)
-        surface_id = list(self.input_set.geometry.getRootUniverse().getCells()[
-             cell_id].getSurfaces())[3]
-        self.input_set.geometry.getRootUniverse().getCells()[
-             cell_id].getSurfaces()[surface_id].getSurface().setBoundaryType(
-             openmoc.PERIODIC)
-
         # Initialize CMFD
         cmfd = openmoc.Cmfd()
-        cmfd.setCMFDRelaxationFactor(0.7)
-        cmfd.setSORRelaxationFactor(1.0)
         cmfd.setLatticeStructure(17,17)
-        cmfd.setGroupStructure([[1,2,3], [4,5,6,7]])
-        cmfd.setKNearest(3)
+        cmfd.setCMFDRelaxationFactor(1.0)
 
         # Add CMFD to the Geometry
         self.input_set.geometry.setCmfd(cmfd)
