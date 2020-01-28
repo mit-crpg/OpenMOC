@@ -495,6 +495,9 @@ public:
 
   /* For debug use */
   void printCmfdCellSizes();
+
+  /* For printing infomation about the CMFD object */
+  std::string toString();
 };
 
 

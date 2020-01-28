@@ -2814,6 +2814,7 @@ void Geometry::initializeFSRVectors() {
   _FSRs_to_centroids = std::vector<Point*>(num_FSRs, NULL);
   _FSRs_to_material_IDs = std::vector<int>(num_FSRs);
   _FSRs_to_CMFD_cells = std::vector<int>(num_FSRs);
+  _contains_FSR_centroids = false;
 
   /* Fill vectors key and material ID information */
 #pragma omp parallel for
@@ -3449,6 +3450,17 @@ void Geometry::setFSRCentroid(long fsr, Point* centroid) {
   std::string& key = _FSRs_to_keys[fsr];
   _FSR_keys_map.at(key)->_centroid = centroid;
   _FSRs_to_centroids[fsr] = centroid;
+}
+
+
+/**
+ * @brief Sets the boolean keeping track of FSR centroids generation to false.
+ * @details The FSR numbering may change if trying to use the same geometry
+ *          in a restart run. The centroids generated with the previous FSR
+ *          numbering should not be used when ray tracing again.
+ */
+void Geometry::resetContainsFSRCentroids() {
+  _contains_FSR_centroids = false;
 }
 
 

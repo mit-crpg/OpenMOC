@@ -1160,7 +1160,8 @@ void Solver::initializeCmfd() {
   _cmfd->setQuadrature(_quad);
   _cmfd->setGeometry(_geometry);
   _cmfd->setAzimSpacings(_quad->getAzimSpacings(), _num_azim);
-  _cmfd->initialize();
+  if (!_is_restart)
+    _cmfd->initialize();
 
 
   TrackGenerator3D* track_generator_3D =
@@ -1538,7 +1539,9 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   /* Clear all timing data from a previous simulation run */
   clearTimerSplits();
-  _num_iterations = 0;
+
+  /* Reset number of iterations, start at 1 if restarting */
+  _num_iterations = _is_restart;
 
   /* Start the timers to record the total solve and initialization times */
   _timer->startTimer();
@@ -1580,15 +1583,12 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 #endif
 
   /* Create object to track convergence data if requested */
-  ConvergenceData* convergence_data = NULL;
-  if (_verbose) {
-    if (_cmfd != NULL) {
-      convergence_data = new ConvergenceData;
-      _cmfd->setConvergenceData(convergence_data);
-      log_printf(NORMAL, "iter   k-eff   eps-k  eps-MOC   D.R.   "
+  ConvergenceData convergence_data;
+  if (_verbose && _cmfd != NULL) {
+    _cmfd->setConvergenceData(&convergence_data);
+    log_printf(NORMAL, "iter   k-eff   eps-k  eps-MOC   D.R.   "
                "eps-FS1   eps-FSN   #FS  eps-flux1 eps-fluxN"
                "  #FX1 #FXN  MAX P.F.");
-    }
   }
 
   /* Stop timer for solver initialization */
@@ -1615,7 +1615,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
     /* Solve CMFD diffusion problem and update MOC flux */
     if (_cmfd != NULL && _cmfd->isFluxUpdateOn())
-      _k_eff = _cmfd->computeKeff(i);
+      _k_eff = _cmfd->computeKeff(_num_iterations);
     else
       computeKeff();
 
@@ -1635,17 +1635,17 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     k_prev = _k_eff;
 
     /* Ouptut iteration report */
-    if (_verbose && convergence_data != NULL) {
+    if (_verbose && _cmfd != NULL) {
 
       /* Unpack convergence data */
-      double pf = convergence_data->pf;
-      double cmfd_res_1 = convergence_data->cmfd_res_1;
-      double cmfd_res_end = convergence_data->cmfd_res_end;
-      double linear_res_1 = convergence_data->linear_res_1;
-      double linear_res_end = convergence_data->linear_res_end;
-      int cmfd_iters = convergence_data->cmfd_iters;
-      int linear_iters_1 = convergence_data->linear_iters_1;
-      int linear_iters_end = convergence_data->linear_iters_end;
+      double pf = convergence_data.pf;
+      double cmfd_res_1 = convergence_data.cmfd_res_1;
+      double cmfd_res_end = convergence_data.cmfd_res_end;
+      double linear_res_1 = convergence_data.linear_res_1;
+      double linear_res_end = convergence_data.linear_res_end;
+      int cmfd_iters = convergence_data.cmfd_iters;
+      int linear_iters_1 = convergence_data.linear_iters_1;
+      int linear_iters_end = convergence_data.linear_iters_end;
       log_printf(NORMAL, "%3d  %1.6f  %5d  %1.6f  %1.3f  %1.6f  %1.6f"
                  "  %3d  %1.6f  %1.6f  %3d  %3d    %.4e", i, _k_eff,
                  dk, residual, dr, cmfd_res_1, cmfd_res_end,
@@ -1667,7 +1667,7 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
     _num_iterations++;
 
     /* Check for convergence of the fission source distribution */
-    if (i > 1 && residual < _converge_thresh && std::abs(dk) < 1)
+    if (residual < _converge_thresh && std::abs(dk) < 1)
       break;
   }
 
@@ -1676,9 +1676,6 @@ void Solver::computeEigenvalue(int max_iters, residualType res_type) {
 
   _timer->stopTimer();
   _timer->recordSplit("Total time");
-
-  if (convergence_data != NULL)
-    delete convergence_data;
 }
 
 
