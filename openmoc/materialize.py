@@ -455,7 +455,8 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
                         fix_src_tol=1E-5, num_azim=4, azim_spacing=0.1,
                         zcoord=0.0, num_threads=1, throttle_output=True,
                         geometry=None, track_generator=None, solver=None,
-                        sph_domains=None, sph_mode="fixed source"):
+                        sph_domains=None, sph_mode="fixed source",
+                        normalization="fission"):
     """Compute SPH factors for an OpenMC multi-group cross section library.
 
     This routine coputes SuPerHomogenisation (SPH) factors for an OpenMC MGXS
@@ -504,6 +505,10 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
         Whether to compute SPH factors using fixed source or eigenvalue
         calculations. Fixed source calculations tend to converge better but
         require knowing the source distribution everywhere
+    normalization : string
+        Which type of normalization should the solver use to compare fluxes
+        "fission" normalizes the fission source
+        "flux" normalizes the sum of fluxes in SPH domains
 
     Returns
     -------
@@ -577,6 +582,12 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
                 sph_domains.append(openmoc_domain.getId())
 
     openmc_fluxes = _load_openmc_src(mgxs_lib, solver, sph_mode)
+
+    # Normalize MC fluxes to the same convention as OpenMOC
+    if sph_mode == "eigenvalue" and normalization == "flux":
+        openmc_fluxes /= np.sum(openmc_fluxes[sph_to_domain_indices, :])
+    elif sph_mode == "eigenvalue" and normalization == "fission":
+        openmc_fluxes /= mgxs_lib.keff
 
     # Initialize SPH factors
     num_groups = geometry.getNumEnergyGroups()
@@ -653,8 +664,11 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
             #FIXME Should be volume averaged
 
         # Re-normalize MOC fluxes
-        if sph_mode == "eigenvalue":
-            openmoc_fluxes /= np.nansum(openmoc_fluxes)
+        if sph_mode == "eigenvalue" and normalization == "flux":
+            openmoc_fluxes /= np.nansum(openmoc_fluxes[sph_to_domain_indices, :])
+        elif sph_mode == "eigenvalue" and normalization == "fission":
+            openmoc_fluxes /= num_fsrs
+        print(np.nansum(openmoc_fluxes), np.sum(openmc_fluxes))
 
         # Compute SPH factors
         if i > 0:
@@ -834,10 +848,6 @@ def _load_openmc_src(mgxs_lib, solver, sph_mode):
                 solver.setFixedSourceByMaterial(openmoc_domain, group+1, source)
             else:
                 solver.setFixedSourceByCell(openmoc_domain, group+1, source)
-
-    # Normalize MC fluxes to the same convention as OpenMOC
-    if sph_mode == "eigenvalue":
-        openmc_fluxes /= np.sum(openmc_fluxes)
 
     return openmc_fluxes
 
