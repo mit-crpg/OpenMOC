@@ -358,8 +358,8 @@ class configuration:
     # set CMFD precision and linear algebra solver tolerance
     for compiler in macros:
         for precision in macros[compiler]:
-            macros[compiler][precision].append(('CMFD_PRECISION', 'double'))
-            macros[compiler][precision].append(('LINALG_TOL', 1E-15))
+            macros[compiler][precision].append(('CMFD_PRECISION', 'float'))
+            macros[compiler][precision].append(('LINALG_TOL', 1E-7))
 
 
     def setup_extension_modules(self):
