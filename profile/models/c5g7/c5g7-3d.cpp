@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
 
   /* Define simulation parameters */
 #ifdef OPENMP
-  int num_threads = omp_get_num_threads();
+  int num_threads = omp_get_max_threads();
 #else
   int num_threads = 1;
 #endif
@@ -25,6 +25,14 @@ int main(int argc, char* argv[]) {
   double tolerance = 1e-5;
   int max_iters = 1000;
   int axial_refines = 1;
+
+  /* Domain decomposition / modular ray tracing */
+  int nx = 1;
+  int ny = 1;
+  int nz = 1;
+#ifdef MPIx
+  num_threads = std::max(1, num_threads / (nx*ny*nz));
+#endif
 
   /* Set logging information */
   set_log_level("NORMAL");
@@ -530,6 +538,11 @@ int main(int argc, char* argv[]) {
   log_printf(NORMAL, "Creating geometry...");
   Geometry geometry;
   geometry.setRootUniverse(root_universe);
+#ifdef MPIx
+  geometry.setDomainDecomposition(nx, ny, nz, MPI_COMM_WORLD);
+#else
+  geometry.setNumDomainModules(nx, ny, nz);
+#endif
   geometry.initializeFlatSourceRegions();
 
   /* Generate tracks */
