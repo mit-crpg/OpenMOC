@@ -678,7 +678,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
         if sph_mode == "eigenvalue":
             if normalization == "flux":
                 openmoc_fluxes /= np.nansum(openmoc_fluxes)
-            elif normalization == "SPH flux":
+            elif normalization == "SPH-flux":
                 openmoc_fluxes /= np.nansum(openmoc_fluxes[
                                             sph_to_domain_indices, :])
             elif normalization == "fission":
