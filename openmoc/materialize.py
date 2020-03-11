@@ -455,7 +455,9 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
                         fix_src_tol=1E-5, num_azim=4, azim_spacing=0.1,
                         zcoord=0.0, num_threads=1, throttle_output=True,
                         geometry=None, track_generator=None, solver=None,
-                        sph_domains=None, sph_mode="fixed source"):
+                        sph_domains=None, sph_mode="fixed source",
+                        normalization="fission", relax_factor=1.,
+                        return_library=True):
     """Compute SPH factors for an OpenMC multi-group cross section library.
 
     This routine coputes SuPerHomogenisation (SPH) factors for an OpenMC MGXS
@@ -504,6 +506,17 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
         Whether to compute SPH factors using fixed source or eigenvalue
         calculations. Fixed source calculations tend to converge better but
         require knowing the source distribution everywhere
+    normalization : string
+        Which type of normalization should the solver use to compare fluxes
+        "fission" normalizes the fission source to 1
+        "flux" normalizes the sum of fluxes to 1
+        "SPH-flux" normalizes the sum of fluxes in SPH domains to 1
+    relax_factor : Real
+        Relaxation factor used to dampen the fixed point algorithm. Useful when
+        there are many SPH factors to converge
+    return_library : bool
+        Whether to return a copy of the MGXS library with SPH factors applied.
+        Creating the copy and loading SPH factors can be time consuming.
 
     Returns
     -------
@@ -576,6 +589,7 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
             if openmoc_domain.isFissionable():
                 sph_domains.append(openmoc_domain.getId())
 
+    # Get reference fluxes ordered by domain
     openmc_fluxes = _load_openmc_src(mgxs_lib, solver, sph_mode)
 
     # Initialize SPH factors
@@ -605,12 +619,20 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     sph_to_domain_indices = []
     for i, openmc_domain in enumerate(mgxs_lib.domains):
         if openmc_domain.id in openmoc_domains:
-            openmoc_domain = openmoc_domains[openmc_domain.id]
-            if openmoc_domain.getId() in sph_domains:
+            if openmc_domain.id in sph_domains:
                 sph_to_domain_indices.append(i)
 
     py_printf('NORMAL', 'Computing SPH factors for %d "%s" domains',
                len(sph_to_domain_indices), mgxs_lib.domain_type)
+
+    # Normalize OpenMC fluxes
+    if sph_mode == "eigenvalue":
+        if normalization == "flux":
+            openmc_fluxes /= np.sum(openmc_fluxes)
+        if normalization == "SPH-flux":
+            openmc_fluxes /= np.sum(openmc_fluxes[sph_to_domain_indices, :])
+        elif normalization == "fission":
+            openmc_fluxes /= mgxs_lib.keff
 
     # Initialize array of domain-averaged fluxes and SPH factors
     num_domains = len(mgxs_lib.domains)
@@ -654,7 +676,13 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
 
         # Re-normalize MOC fluxes
         if sph_mode == "eigenvalue":
-            openmoc_fluxes /= np.nansum(openmoc_fluxes)
+            if normalization == "flux":
+                openmoc_fluxes /= np.nansum(openmoc_fluxes)
+            elif normalization == "SPH-flux":
+                openmoc_fluxes /= np.nansum(openmoc_fluxes[
+                                            sph_to_domain_indices, :])
+            elif normalization == "fission":
+                openmoc_fluxes /= num_fsrs
 
         # Compute SPH factors
         if i > 0:
@@ -669,6 +697,9 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
         # Compute SPH factor residuals
         res = np.abs((sph - old_sph) / old_sph)
         res = np.nan_to_num(res)
+
+        # Apply relaxation factors on SPH after computing residuals
+        sph = relax_factor * sph + (1.-relax_factor) * old_sph
 
         # Load SPH factors in geometry
         geometry.loadSPHFactors((sph/old_sph).flatten(),
@@ -693,7 +724,8 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
 
     # Create a new MGXS library with cross sections updated by SPH factors
     sph = openmc_fluxes / openmoc_fluxes
-    sph_mgxs_lib = _apply_sph_factors(mgxs_lib, geometry, sph, sph_domains)
+    if return_library:
+        sph_mgxs_lib = _apply_sph_factors(mgxs_lib, geometry, sph, sph_domains)
 
     # Reset fixed sources in solver if one wants to compute the eigenvalue
     if sph_mode == "fixed source":
@@ -703,13 +735,14 @@ def compute_sph_factors(mgxs_lib, max_sph_iters=30, sph_tol=1E-5,
     fsrs_to_sph = np.ones((num_fsrs, num_groups), dtype=np.float)
     for i, openmc_domain in enumerate(mgxs_lib.domains):
         if openmc_domain.id in openmoc_domains:
-            openmoc_domain = openmoc_domains[openmc_domain.id]
-            if openmoc_domain.getId() in sph_domains:
+            if openmc_domain.id in sph_domains:
                 fsr_ids = domains_to_fsrs[openmc_domain.id]
                 fsrs_to_sph[fsr_ids,:] = sph[i,:]
 
-    return fsrs_to_sph, sph_mgxs_lib, np.array(sph_to_fsr_indices)
-
+    if return_library:
+        return fsrs_to_sph, sph_mgxs_lib, np.array(sph_to_fsr_indices)
+    else:
+        return fsrs_to_sph, np.array(sph_to_fsr_indices)
 
 def _load_openmc_src(mgxs_lib, solver, sph_mode):
     """Assign fixed sources to an OpenMOC model from an OpenMC MGXS library.
@@ -835,10 +868,6 @@ def _load_openmc_src(mgxs_lib, solver, sph_mode):
             else:
                 solver.setFixedSourceByCell(openmoc_domain, group+1, source)
 
-    # Normalize MC fluxes to the same convention as OpenMOC
-    if sph_mode == "eigenvalue":
-        openmc_fluxes /= np.sum(openmc_fluxes)
-
     return openmc_fluxes
 
 
@@ -883,7 +912,7 @@ def _apply_sph_factors(mgxs_lib, geometry, sph, sph_domains):
         openmoc_domain = openmoc_domains[openmc_domain.id]
 
         # Ignore domains with no SPH factors
-        if openmoc_domain.getId() not in sph_domains:
+        if openmc_domain.id not in sph_domains:
             continue
 
         # Loop over all cross section types in the MGXS library

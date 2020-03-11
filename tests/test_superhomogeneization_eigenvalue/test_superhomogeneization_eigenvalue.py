@@ -47,7 +47,7 @@ class ComputeMaterialSPHTestHarness(TestHarness):
             openmoc.materialize.compute_sph_factors(
                 mgxs_lib, azim_spacing=self.azim_spacing,
                 num_azim=self.num_azim, num_threads=self.num_threads,
-                sph_mode="eigenvalue")
+                sph_mode="eigenvalue", normalization="flux")
 
         # Create an OpenMOC Geometry from the OpenMOC Geometry
         openmoc_geometry = \

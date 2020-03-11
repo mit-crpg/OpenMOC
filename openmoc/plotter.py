@@ -1275,7 +1275,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
         # Use domain IDs to appropriately index into FSR data
         # If domains-to-data was input as a Pandas DataFrame
         if pandas_df:
-            surface = domains_to_data.ix[:,i].values
+            surface = domains_to_data.iloc[:,i].values
             surface = surface.take(domains.flatten())
         # If domains-to-data was input as a NumPy array
         elif isinstance(domains_to_data, np.ndarray):
