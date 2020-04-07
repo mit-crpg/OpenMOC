@@ -73,6 +73,5 @@ class TestLattice(unittest.TestCase):
         self.lattice.removeUniverse(self.universe)
         self.assertEqual(self.lattice.getUniverse(0,1,0), None)
 
-
 if __name__ == '__main__':
     unittest.main()

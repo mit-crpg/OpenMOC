@@ -194,7 +194,5 @@ class TestCells(unittest.TestCase):
         with self.assertRaises(Exception): self.assertEqual(
              complement.getMinZBoundaryType(), openmoc.VACUUM)
 
-
-
 if __name__ == '__main__':
     unittest.main()
