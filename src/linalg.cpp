@@ -362,7 +362,8 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
     }
 
     // Copy the new source to the old source
-    if (iter > MIN_LINEAR_SOLVE_ITERATIONS - 1)
+    if (iter > MIN_LINEAR_SOLVE_ITERATIONS - 1 &&
+        iter < MAX_LINEAR_SOLVE_ITERATIONS)
       new_source.copyTo(&old_source);
   }
 
@@ -385,18 +386,18 @@ bool linearSolve(Matrix* A, Matrix* M, Vector* X, Vector* B, double tol,
 
 #ifdef MPIx
 /**
- * @brief Get coupling fluxes and other information from neighbors. 
+ * @brief Get coupling fluxes and other information from neighbors.
  *        The information are transfered by reference.
  * @param comm Structure for communication of fluxes between neighbor domains
  * @param color red or black color
  * @param coupling_sizes Number of connecting neighbors for each surface cell
- * @param coupling_indexes Surface numbers of connecting neighbors for each 
+ * @param coupling_indexes Surface numbers of connecting neighbors for each
  *        surface cell
- * @param coupling_coeffs Coupling coeffs between connecting neighbors and 
+ * @param coupling_coeffs Coupling coeffs between connecting neighbors and
  *        itself for each surface cell
  * @param coupling_fluxes Fluxes of connecting neighbors for each surface cell
  * @param curr_fluxes CMFD cell fluxes of current iteration
- * @param offset Sum of the starting CMFD global indexes of a domain, for 
+ * @param offset Sum of the starting CMFD global indexes of a domain, for
  *        calculation of the color
  */
 void getCouplingTerms(DomainCommunicator* comm, int color, int*& coupling_sizes,
@@ -693,16 +694,16 @@ double computeRMSE(Vector* X, Vector* Y, bool integrated,
 
 
 /**
- * @brief Solves a linear system using the linear solver above, but makes the 
+ * @brief Solves a linear system using the linear solver above, but makes the
  *        loss and streaming matrix diagonally dominant first, to increase
  *        likelihood of convergence.
  * @details This function takes in a loss + streaming Matrix (A),
  *          a fission gain Matrix (M), a flux Vector (X), a source Vector (B),
  *          a source convergence tolerance (tol) and a successive
- *          over-relaxation factor (SOR_factor) and makes (A) diagonally 
+ *          over-relaxation factor (SOR_factor) and makes (A) diagonally
  *          dominant before calling the linear solve routine to compute the
  *          solution to the linear system. The input X Vector is modified in
- *          place to be the solution vector. The transformation to make (A) 
+ *          place to be the solution vector. The transformation to make (A)
  *          diagonally dominant is compensated by another matrix multiplication.
  * @param A the loss + streaming Matrix object
  * @param M the fission gain Matrix object

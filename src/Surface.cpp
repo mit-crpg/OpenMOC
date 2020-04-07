@@ -453,7 +453,8 @@ int Plane::intersection(Point* point, double azim, double polar, Point* points) 
   double y0 = point->getY();
   double z0 = point->getZ();
 
-  int num = 0;                /* number of intersections */
+  /* Number of intersections */
+  int num = 0;
 
   /* The track and plane are parallel */
   double mx = sin(polar) * cos(azim);
@@ -879,7 +880,13 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
   double xcurr = 0;
   double ycurr = 0;
   double zcurr = 0;
-  int num = 0;                        /* Number of intersection Points */
+
+  /* Number of intersection Points */
+  int num = 0;
+
+  /* Vertical tracks only intersect Z cylinders at infinity */
+  if (fabs(polar) < FLT_EPSILON || fabs(polar - M_PI) < FLT_EPSILON)
+    return 0;
 
   /* If the track is vertical in y */
   if ((fabs(azim - M_PI_2)) < 1.0e-10 || (fabs(azim - 3.0 * M_PI_2)) < 1.0e-10) {
