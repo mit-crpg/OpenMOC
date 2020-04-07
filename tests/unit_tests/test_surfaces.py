@@ -60,29 +60,46 @@ class ZCylinderTests(SurfacesTestCases.TestSurfaces):
         self.assertEqual(self.surface.getMinDistance(point, np.pi/4, np.pi/4),
                          self.surface.getRadius() / (np.sqrt(2) / 2))
 
-        # Two intersections, since inside the circle
+        # One intersections, from inside the cylinder
         point.setX(4)
         point.setY(1)
         self.assertEqual(self.surface.getMinDistance(point, 0, np.pi/2),
                          self.surface.getRadius())
 
-        # Test the vertical (in y) case as well
+        # Two intersections
+        point.setX(-15)
+        self.assertEqual(self.surface.getMinDistance(point, 0, np.pi/2), 9)
+
+        # Test the vertical (in y) case as well, and test using coords
         # No intersection
-        point.setX(20)
-        point.setY(0)
-        self.assertGreater(self.surface.getMinDistance(point, np.pi/2, np.pi/4), 1e20)
+        coords = openmoc.LocalCoords()
+        coords.setX(20)
+        coords.setY(0)
+        coords.setPhi(np.pi/2)
+        coords.setPolar(np.pi/4)
+        self.assertGreater(self.surface.getMinDistance(coords), 1e20)
 
         # Tangeant intersection
-        point.setX(-6)
-        point.setY(20)
-        self.assertAlmostEqual(self.surface.getMinDistance(point, 3*np.pi/2, np.pi/4),
+        coords.setX(-6)
+        coords.setY(20)
+        coords.setPhi(3*np.pi/2)
+        coords.setPolar(np.pi/4)
+        self.assertAlmostEqual(self.surface.getMinDistance(coords),
                                19 * np.sqrt(2))
 
-        # Two intersections, since inside the circle
-        point.setX(4)
-        point.setY(1)
-        self.assertTrue(self.surface.getMinDistance(point, np.pi/2, np.pi/2),
+        # One intersection, from inside the circle
+        coords.setX(4)
+        coords.setY(1)
+        coords.setPhi(np.pi/2)
+        coords.setPolar(np.pi/2)
+        self.assertTrue(self.surface.getMinDistance(coords),
                         self.surface.getRadius())
+
+        # Two intersections
+        coords.setY(15)
+        coords.setPhi(np.pi/2)
+        coords.setPolar(np.pi/2)
+        self.assertTrue(self.surface.getMinDistance(coords), 6)
 
     def test_onsurface(self):
 
