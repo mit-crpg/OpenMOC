@@ -93,5 +93,139 @@ class ZCylinderTests(SurfacesTestCases.TestSurfaces):
             self.assertTrue(self.surface.isPointOnSurface(point))
             self.assertEqual(self.surface.evaluate(point), 0)
 
+
+class PlaneTests(SurfacesTestCases.TestSurfaces):
+
+    def setUp(self):
+        self.surface = openmoc.Plane(A=2, B=1, C=2, D=0, name="test surface",
+                                     id=12)
+        self.surface.setBoundaryType(openmoc.VACUUM)
+
+    def test_onsurface(self):
+
+        point = openmoc.Point()
+        point.setX(-8)
+        point.setY(14)
+        point.setZ(1)
+        self.assertTrue(self.surface.isPointOnSurface(point))
+        self.assertEqual(self.surface.evaluate(point), 0)
+
+
+class XPlaneTests(PlaneTests):
+
+    def setUp(self):
+        self.surface = openmoc.XPlane(x=-8, name="test surface", id=12)
+        self.surface.setBoundaryType(openmoc.VACUUM)
+
+    def test_surfaceType(self):
+        self.assertEqual(self.surface.getSurfaceType(), openmoc.XPLANE)
+
+    def test_bounds(self):
+
+        self.assertLess(self.surface.getMinZ(-1), -1e20)
+        self.assertGreater(self.surface.getMaxZ(-1), 1e20)
+        self.assertLess(self.surface.getMinY(-1), -1e20)
+        self.assertGreater(self.surface.getMaxY(-1), 1e20)
+        self.assertEqual(self.surface.getMinX(1), -8)
+        self.assertEqual(self.surface.getMaxX(-1), -8)
+        self.assertLess(self.surface.getMinX(-1), -1e20)
+        self.assertGreater(self.surface.getMaxX(1), 1e20)
+
+    def test_distance(self):
+
+        point = openmoc.Point()
+
+        # minDistance calls intersection()
+        # No intersection
+        point.setX(-10)
+        point.setY(10)
+        self.assertGreater(self.surface.getMinDistance(point, np.pi, 3*np.pi/4), 1e20)
+
+        # Tangeant intersection : returns 0 intersection, as track parallel to the plane
+        point.setX(-8)
+        self.assertGreater(self.surface.getMinDistance(point, 0, np.pi/2), 1e20)
+
+        # Intersection
+        point.setX(-9)
+        self.assertEqual(self.surface.getMinDistance(point, np.pi/4, np.pi/4), 2)
+
+
+class YPlaneTests(PlaneTests):
+
+    def setUp(self):
+        self.surface = openmoc.YPlane(y=14, name="test surface", id=12)
+        self.surface.setBoundaryType(openmoc.VACUUM)
+
+    def test_surfaceType(self):
+        self.assertEqual(self.surface.getSurfaceType(), openmoc.YPLANE)
+
+    def test_bounds(self):
+
+        self.assertLess(self.surface.getMinX(-1), -1e20)
+        self.assertGreater(self.surface.getMaxX(-1), 1e20)
+        self.assertLess(self.surface.getMinZ(-1), -1e20)
+        self.assertGreater(self.surface.getMaxZ(-1), 1e20)
+        self.assertEqual(self.surface.getMinY(1), 14)
+        self.assertEqual(self.surface.getMaxY(-1), 14)
+        self.assertLess(self.surface.getMinY(-1), -1e20)
+        self.assertGreater(self.surface.getMaxY(1), 1e20)
+
+    def test_distance(self):
+
+        point = openmoc.Point()
+
+        # minDistance calls intersection()
+        # No intersection
+        point.setX(-10)
+        point.setY(10)
+        self.assertGreater(self.surface.getMinDistance(point, np.pi, 3*np.pi/4), 1e20)
+
+        # Tangeant intersection : returns 0 intersection, as track parallel to the plane
+        point.setY(14)
+        self.assertGreater(self.surface.getMinDistance(point, 0, np.pi/2), 1e20)
+
+        # Intersection
+        point.setY(13)
+        self.assertEqual(self.surface.getMinDistance(point, np.pi/4, np.pi/4), 2)
+
+
+class ZPlaneTests(SurfacesTestCases.TestSurfaces):
+
+    def setUp(self):
+        self.surface = openmoc.ZPlane(z=1, name="test surface", id=12)
+        self.surface.setBoundaryType(openmoc.VACUUM)
+
+    def test_surfaceType(self):
+        self.assertEqual(self.surface.getSurfaceType(), openmoc.ZPLANE)
+
+    def test_bounds(self):
+
+        self.assertLess(self.surface.getMinX(-1), -1e20)
+        self.assertGreater(self.surface.getMaxX(-1), 1e20)
+        self.assertLess(self.surface.getMinY(-1), -1e20)
+        self.assertGreater(self.surface.getMaxY(-1), 1e20)
+        self.assertEqual(self.surface.getMinZ(1), 1)
+        self.assertEqual(self.surface.getMaxZ(-1), 1)
+        self.assertLess(self.surface.getMinZ(-1), -1e20)
+        self.assertGreater(self.surface.getMaxZ(1), 1e20)
+
+    def test_distance(self):
+
+        point = openmoc.Point()
+
+        # minDistance calls intersection()
+        # No intersection, z of point is 0
+        point.setX(4)
+        point.setY(10)
+        self.assertGreater(self.surface.getMinDistance(point, 0, 3*np.pi/4), 1e20)
+
+        # Tangeant intersection : returns 0 intersection, as track parallel to the plane
+        point.setZ(1)
+        self.assertGreater(self.surface.getMinDistance(point, 0, np.pi/2), 1e20)
+
+        # Intersection
+        point.setZ(0)
+        self.assertEqual(self.surface.getMinDistance(point, 0, np.pi/4), np.sqrt(2))
+
 if __name__ == '__main__':
     unittest.main()
