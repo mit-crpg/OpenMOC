@@ -175,7 +175,7 @@ inline FP_PRECISION ExpEvaluator::computeExponential(FP_PRECISION tau,
   FP_PRECISION inv_sin_theta = _inverse_sin_theta_no_offset;
 #endif
   FP_PRECISION exp_F1;
-  expF1_fractional(tau * inv_sin_theta, &exp_F1);
+  expF1_continued(tau * inv_sin_theta, &exp_F1);
 
   return inv_sin_theta * exp_F1;
 }

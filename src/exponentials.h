@@ -191,6 +191,23 @@ inline void expF1_fractional(FP_PRECISION x, FP_PRECISION* expF1) {
   *expF1 = num*den;
 }
 
+/**
+ * @brief Computes the F1 exponential term.
+ * @details Exact same as computeF1_exponential, but simplified the algebra
+ *          some. You'd think more divisions would be slower. But the compiler
+ *          optimizes this out with SIMD quite well.
+ * @param x the value at which to evaluate the function, usually tau
+ * @param expF1 a pointer to the exponential
+ */
+inline void expF1_continued(FP_PRECISION x, FP_PRECISION* expF1) {
+  FP_PRECISION t1 = -0.0007706618174095522f + x;
+  FP_PRECISION t2 = 430.4417106253813f + 8.065530110666254f*x;
+  FP_PRECISION t3 = -0.0014907526842255446f + 0.00007959230164620542f*x;
+  FP_PRECISION t4 = -909.733382360302f + 72.8109059813554f*x;
+  FP_PRECISION t5 = -0.002868787847637995f + 0.00030789156651464197f*x;
+  FP_PRECISION t6 = -1527.156986843306f + 200.5065021575783f*x;
+  *expF1 = 1.f/(t1 + 1.f/(t2 + 1.f/(t3 + 1.f/(t4 + 1.f/(t5 + 1.f/t6)))));
+}
 
 /**
  * @brief Computes the F2 exponential term.

@@ -2338,7 +2338,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
 
         /* Compute the exponential */
         FP_PRECISION exponential;
-        expF1_fractional(tau, &exponential);
+        expF1_continued(tau, &exponential);
 
         /* Compute attenuation and tally the contribution to the scalar flux */
         FP_PRECISION delta_psi = (tau * track_flux[e] - length *
@@ -2355,7 +2355,7 @@ void CPUSolver::tallyScalarFlux(segment* curr_segment,
 
       /* Compute the exponential */
       FP_PRECISION exponential;
-      expF1_fractional(tau, &exponential);
+      expF1_continued(tau, &exponential);
 
       /* Compute attenuation and tally the contribution to the scalar flux */
       FP_PRECISION delta_psi = (tau * track_flux[e] - length *
