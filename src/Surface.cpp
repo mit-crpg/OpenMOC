@@ -453,7 +453,8 @@ int Plane::intersection(Point* point, double azim, double polar, Point* points) 
   double y0 = point->getY();
   double z0 = point->getZ();
 
-  int num = 0;                /* number of intersections */
+  /* Number of intersections */
+  int num = 0;
 
   /* The track and plane are parallel */
   double mx = sin(polar) * cos(azim);
@@ -867,8 +868,9 @@ double ZCylinder::getMaxZ(int halfspace) {
  * @param point pointer to the Point of interest
  * @param azim the azimuthal angle defining the trajectory in radians
  * @param polar the polar angle defining the trajectory in radians
- * @param points pointer to a an array of Points to store intersection Points
- * @return the number of intersection Points (0 or 1)
+ * @param points pointer to a an array of Points to store intersection Points,
+ *        the array is not sorted by how close the points are to point
+ * @return the number of intersection Points (0, 1 or 2)
  */
 int ZCylinder::intersection(Point* point, double azim, double polar, Point* points) {
 
@@ -878,7 +880,13 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
   double xcurr = 0;
   double ycurr = 0;
   double zcurr = 0;
-  int num = 0;                        /* Number of intersection Points */
+
+  /* Number of intersection Points */
+  int num = 0;
+
+  /* Vertical tracks only intersect Z cylinders at infinity */
+  if (fabs(polar) < FLT_EPSILON || fabs(polar - M_PI) < FLT_EPSILON)
+    return 0;
 
   /* If the track is vertical in y */
   if ((fabs(azim - M_PI_2)) < 1.0e-10 || (fabs(azim - 3.0 * M_PI_2)) < 1.0e-10) {
@@ -894,86 +902,44 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
     double discr = b*b - 4*c;
 
     /* There are no intersections */
-    if (discr < 0)
+    if (discr <= -ON_SURFACE_THRESH)
       return 0;
 
     /* There is one intersection (ie on the Surface) */
-    else if (fabs(discr) < FLT_EPSILON) {
+    else if (fabs(discr) < ON_SURFACE_THRESH) {
       double xcurr = x0;
       double ycurr = -b / 2;
-      double interior = pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0);
-      if (interior < 0.0)
-        interior = 0.0;
-      zcurr = z0 + sqrt(interior) * tan(M_PI_2 - polar);
+      zcurr = z0 + fabs(ycurr - y0) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
 
       /* Check that point is in same direction as angle */
-      if (azim < M_PI && ycurr > y0) {
-        if (zcurr > z0 && polar < M_PI_2)
-          num++;
-        else if (zcurr < z0 && polar > M_PI_2)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
-      else if (azim > M_PI && ycurr < y0) {
-        if (zcurr > z0 && polar < M_PI_2)
-          num++;
-        else if (zcurr < z0 && polar > M_PI_2)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
+      if (azim < M_PI && ycurr > y0)
+        num++;
+      else if (azim > M_PI && ycurr < y0)
+        num++;
     }
 
     /* There are two intersections */
     else {
-      xcurr = x0;
-      if (discr < 0.0)
-        discr = 0.0;
-      ycurr = (-b + sqrt(discr)) / (2 * a);
-      double interior = pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0);
-      if (interior < 0.0)
-        interior = 0.0;
-      zcurr = z0 + sqrt(interior) * tan(M_PI_2 - polar);
-      points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0) {
-        if (zcurr > z0 && polar < M_PI_2)
-          num++;
-        else if (zcurr < z0 && polar > M_PI_2)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
-      else if (azim > M_PI && ycurr < y0) {
-        if (zcurr > z0 && polar < M_PI_2)
-          num++;
-        else if (zcurr < z0 && polar > M_PI_2)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
 
+      /* Compute first intersection point */
       xcurr = x0;
-      ycurr = (-b - sqrt(discr)) / (2 * a);
-      zcurr = z0 + sqrt(interior) * tan(M_PI_2 - polar);
+      ycurr = (-b + sqrt(discr)) / (2 * a);
+      zcurr = z0 + fabs(ycurr - y0) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
-      if (azim < M_PI && ycurr > y0) {
-        if (zcurr > z0 && polar < M_PI_2)
-          num++;
-        else if (zcurr < z0 && polar > M_PI_2)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
-      else if (azim > M_PI && ycurr < y0) {
-        if (zcurr > z0 && polar < M_PI_2)
-          num++;
-        else if (zcurr < z0 && polar > M_PI_2)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
+      if (azim < M_PI && ycurr > y0)
+        num++;
+      else if (azim > M_PI && ycurr < y0)
+        num++;
+
+      /* Compute second intersection point */
+      ycurr = (-b - sqrt(discr)) / (2 * a);
+      zcurr = z0 + fabs(ycurr - y0) * tan(M_PI_2 - polar);
+      points[num].setCoords(xcurr, ycurr, zcurr);
+      if (azim < M_PI && ycurr > y0)
+        num++;
+      else if (azim > M_PI && ycurr < y0)
+        num++;
     }
   }
 
@@ -997,37 +963,23 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
     bool right = azim < M_PI / 2. || azim > 3. * M_PI / 2.;
 
     /* There are no intersections */
-    if (discr < 0)
+    if (discr <= -ON_SURFACE_THRESH)
       return 0;
 
     /* There is one intersection (ie on the Surface) */
-    else if (fabs(discr) < FLT_EPSILON) {
-      double interior = pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0);
-      if (interior < 0.0)
-        interior = 0.0;
+    else if (fabs(discr) < ON_SURFACE_THRESH) {
       xcurr = -b / (2*a);
-      ycurr = y0 + m * (points[num].getX() - x0);
+      ycurr = y0 + m * (xcurr - x0);
+      double interior = pow(ycurr - y0, 2.0) + pow(xcurr - x0, 2.0);
       zcurr = z0 + sqrt(interior) * tan(M_PI_2 - polar);
       points[num].setCoords(xcurr, ycurr, zcurr);
 
       /* Increase the number of intersections if the intersection is in the
        * direction of the track is heading */
-      if (right && xcurr > x0) {
-        if (zcurr > z0 && polar < M_PI_2)
-          num++;
-        else if (zcurr < z0 && polar > M_PI_2)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
-      else if (!right && xcurr < x0) {
-        if (zcurr > z0 && polar < M_PI_2)
-          num++;
-        else if (zcurr < z0 && polar > M_PI_2)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
+      if (right && xcurr > x0)
+        num++;
+      else if (!right && xcurr < x0)
+        num++;
     }
 
     /* There are two intersections */
@@ -1042,22 +994,10 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
 
       /* Increase the number of intersections if the intersection is in the
        * direction of the track is heading */
-      if (right && xcurr > x0) {
-        if (zcurr > z0 && polar < M_PI_2)
-          num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
-      else if (!right && xcurr < x0) {
-        if (zcurr > z0 && polar < M_PI_2)
-          num++;
-        else if (zcurr < z0 && polar > M_PI_2)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
+      if (right && xcurr > x0)
+        num++;
+      else if (!right && xcurr < x0)
+        num++;
 
       /* Determine second point of intersection */
       xcurr = (-b - sqrt(discr)) / (2*a);
@@ -1068,22 +1008,10 @@ int ZCylinder::intersection(Point* point, double azim, double polar, Point* poin
 
       /* Increase the number of intersections if the intersection is in the
        * direction of the track is heading */
-      if (right && xcurr > x0) {
-        if (zcurr > z0 && polar < M_PI_2)
-          num++;
-        else if (zcurr < z0 && polar > M_PI_2)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
-      else if (!right && xcurr < x0) {
-        if (zcurr > z0 && polar < M_PI/2.0)
-          num++;
-        else if (zcurr < z0 && polar > M_PI/2.0)
-          num++;
-        else if (fabs(zcurr - z0) < 1.e-10 && fabs(polar - M_PI_2) < 1.e-10)
-          num++;
-      }
+      if (right && xcurr > x0)
+        num++;
+      else if (!right && xcurr < x0)
+        num++;
     }
   }
   return num;

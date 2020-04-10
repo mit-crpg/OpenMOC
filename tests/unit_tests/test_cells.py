@@ -82,6 +82,5 @@ class TestCells(unittest.TestCase):
         output = self.cell.retrieveTranslation(3)
         np.testing.assert_array_almost_equal(translation, output, 10)
 
-
 if __name__ == '__main__':
     unittest.main()

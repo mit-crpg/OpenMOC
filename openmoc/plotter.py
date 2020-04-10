@@ -375,7 +375,7 @@ def plot_materials(geometry, gridsize=250, xlim=None, ylim=None, zlim=None,
             return figures[0]
 
 
-def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zlim = None,
+def plot_cells(geometry, gridsize=250, xlim=None, ylim=None, zlim=None,
                plane='xy', offset=None, get_figure=False,
                library='matplotlib'):
     """Plots a color-coded 2D surface plot of the cells in the geometry.

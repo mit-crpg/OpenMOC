@@ -51,7 +51,5 @@ class TestUniverse(unittest.TestCase):
         self.universe.setFissionability(True)
         self.assertEqual(self.universe.isFissionable(), True)
 
-
-
 if __name__ == '__main__':
     unittest.main()
