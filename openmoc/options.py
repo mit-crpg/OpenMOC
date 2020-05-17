@@ -1,6 +1,7 @@
 import sys
 import getopt
 import multiprocessing
+import os
 
 # For Python 2.X.X
 if sys.version_info[0] == 2:
@@ -69,7 +70,7 @@ class Options(object):
                            'num-polar=',
                            'polar-spacing=',
                            'max-iters=',
-                           'tolerance=',                           
+                           'tolerance=',
                            'num-omp-threads=',
                            'num-thread-blocks=',
                            'num-threads-per-block=']
@@ -80,7 +81,10 @@ class Options(object):
         self._polar_spacing = 1.5
         self._max_iters = 1000
         self._tolerance = 1E-5
-        self._num_omp_threads = multiprocessing.cpu_count()
+        try:
+            self._num_omp_threads = int(os.environ["OMP_NUM_THREADS"])
+        else:
+            self._num_omp_threads = multiprocessing.cpu_count()
         self._num_thread_blocks = 64
         self._num_threads_per_block = 64
 
