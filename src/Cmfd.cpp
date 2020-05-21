@@ -48,11 +48,13 @@ Cmfd::Cmfd() {
   _tallies_allocated = false;
   _domain_communicator_allocated = false;
   _linear_source = false;
-  _check_neutron_balance = false;
   _old_dif_surf_valid = false;
-
   _non_uniform = false;
   _widths_adjusted_for_domains = false;
+
+  /* Additional debug output */
+  _check_neutron_balance = false;
+  _print_cmfd_prolongation_ratios = false;
 
   /* Energy group and polar angle problem parameters */
   _num_moc_groups = 0;
@@ -1278,7 +1280,7 @@ double Cmfd::computeKeff(int moc_iteration) {
   _timer->recordSplit("Total CMFD time");
 
   /* If debugging, print CMFD prolongation factors */
-  if (get_log_level() == DEBUG)
+  if (get_log_level() == DEBUG || _print_cmfd_prolongation_ratios)
     printProlongationFactors();
 
   return _k_eff;
@@ -1721,6 +1723,14 @@ void Cmfd::setCMFDRelaxationFactor(double relaxation_factor) {
  */
 void Cmfd::checkBalance() {
   _check_neutron_balance = true;
+}
+
+
+/**
+ * @brief Print the CMFD prolongation factors at every iteration.
+ */
+void Cmfd::printProlongation() {
+  _print_cmfd_prolongation_ratios = true;
 }
 
 

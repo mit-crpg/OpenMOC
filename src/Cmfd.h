@@ -247,6 +247,9 @@ private:
   /** Flag indicating whether to check neutron balance on every CMFD solve */
   bool _check_neutron_balance;
 
+  /** Flag indicating whether to print prolongation factors at every solve */
+  bool _print_cmfd_prolongation_ratios;
+
   /** Whether to allow the CMFD solver to work with / return negative fluxes */
   bool _negative_fluxes_allowed;
 
@@ -418,9 +421,12 @@ public:
   void tallyStartingCurrent(Point* point, double delta_x, double delta_y,
                             double delta_z, float* track_flux, double weight);
   void recordNetCurrents();
+
+  /* Debug and information output */
   void printInputParamsSummary();
   void printTimerReport();
   void checkBalance();
+  void printProlongation();
 
   /* Get parameters */
   int getNumCmfdGroups();
