@@ -83,7 +83,7 @@ class Options(object):
         self._tolerance = 1E-5
         try:
             self._num_omp_threads = int(os.environ["OMP_NUM_THREADS"])
-        else:
+        except KeyError:
             self._num_omp_threads = multiprocessing.cpu_count()
         self._num_thread_blocks = 64
         self._num_threads_per_block = 64
