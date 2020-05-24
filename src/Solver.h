@@ -228,6 +228,9 @@ protected:
   /** Boolean for whether the solver allows negative fluxes */
   bool _negative_fluxes_allowed;
 
+  /** Boolean for whether negative sources are printed after each iteration */
+  bool _print_negative_sources;
+
   /** File to load initial FSR fluxes from */
   std::string _initial_FSR_fluxes_file;
 
@@ -437,12 +440,14 @@ public:
   Solver(TrackGenerator* track_generator=NULL);
   virtual ~Solver();
 
+  /* Geometry and ray tracing */
   virtual void setGeometry(Geometry* geometry);
-
   Geometry* getGeometry();
   TrackGenerator* getTrackGenerator();
   FP_PRECISION getFSRVolume(long fsr_id);
   int getNumPolarAngles();
+
+  /* Solver characteristics */
   int getNumIterations();
   double getTotalTime();
   double getKeff();
@@ -471,26 +476,37 @@ public:
   virtual void setTrackGenerator(TrackGenerator* track_generator);
   void setConvergenceThreshold(double threshold);
   virtual void setFluxes(FP_PRECISION* in_fluxes, int num_fluxes) = 0;
+
+  /* Setting fixed sources */
   virtual void setFixedSourceByFSR(long fsr_id, int group, double source);
   void setFixedSourceByCell(Cell* cell, int group, double source);
   void setFixedSourceByMaterial(Material* material, int group,
                                 double source);
+  virtual void resetFixedSources() = 0;
+
+  /* Exponential terms options */
   void setMaxOpticalLength(FP_PRECISION max_optical_length);
   void setExpPrecision(double precision);
   void useExponentialInterpolation();
   void useExponentialIntrinsic();
-  void setSolverMode(solverMode solver_mode);
-  void setRestartStatus(bool is_restart);
+
+  /* Negative fluxes and sources treatment */
   void allowNegativeFluxes(bool negative_fluxes_on);
+  void printAllNegativeSources(bool print_negative_sources);
   void correctXS();
   void stabilizeTransport(double stabilization_factor,
                           stabilizationType stabilization_type=DIAGONAL);
+
+  /* Initial guesses for the flux */
+  void setRestartStatus(bool is_restart);
   void setInitialSpectrumCalculation(double threshold);
   void setCheckXSLogLevel(logLevel log_level);
   void setChiSpectrumMaterial(Material* material);
   void resetMaterials(solverMode mode);
-  virtual void resetFixedSources() = 0;
+  void computeInitialFluxGuess(bool is_source_computation=false);
 
+  /* General / highest level solver sweeps and routines */
+  void setSolverMode(solverMode solver_mode);
   void fissionTransportSweep();
   void scatterTransportSweep();
   void computeFlux(int max_iters=1000, bool only_fixed_source=true);
@@ -498,7 +514,6 @@ public:
                      residualType res_type=TOTAL_SOURCE);
   void computeEigenvalue(int max_iters=1000,
                          residualType res_type=FISSION_SOURCE);
-  void computeInitialFluxGuess(bool is_source_computation=false);
 
 #ifdef BGQ
   void printBGQMemory();

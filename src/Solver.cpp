@@ -80,6 +80,7 @@ Solver::Solver(TrackGenerator* track_generator) {
   _load_initial_FSR_fluxes = false;
   _calculate_residuals_by_reference = false;
   _negative_fluxes_allowed = false;
+  _print_negative_sources = false;
   _OTF_transport = false;
   _xs_log_level = ERROR;
   _gpu_solver = false;
@@ -621,6 +622,15 @@ void Solver::setRestartStatus(bool is_restart) {
  */
 void Solver::allowNegativeFluxes(bool negative_fluxes_on) {
   _negative_fluxes_allowed = negative_fluxes_on;
+}
+
+
+/**
+ * @brief Set whether to print negative sources at each iteration.
+ * @param print_negative_sources whether to print negative sources
+ */
+void Solver::printAllNegativeSources(bool print_negative_sources) {
+  _print_negative_sources = print_negative_sources;
 }
 
 
