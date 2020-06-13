@@ -877,8 +877,6 @@ void TrackGenerator::generateTracks() {
 #endif
   _timer->stopTimer();
   _timer->recordSplit("Track Generation Time");
-
-  printTimerReport(true);
 }
 
 
