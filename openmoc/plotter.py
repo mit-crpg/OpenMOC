@@ -113,7 +113,7 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
     vals_per_track = openmoc.NUM_VALUES_PER_RETRIEVED_TRACK
     num_azim = track_generator.getNumAzim()
     spacing = track_generator.getDesiredAzimSpacing()
-    if plot_3D:
+    if plot_3D and isinstance(track_generator, openmoc.TrackGenerator3D):
         num_polar = track_generator.getNumPolarAngles()
         z_spacing = track_generator.getDesiredZSpacing()
     num_tracks = int(track_generator.getNumTracks())
@@ -144,7 +144,7 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
 
     title = 'Tracks for {0} angles and {1} cm spacing'\
         .format(num_azim, spacing)
-    if plot_3D:
+    if plot_3D and isinstance(track_generator, openmoc.TrackGenerator3D):
         title = 'Tracks for {0}/{1} azimuthal/polar angles and {2}/{3} cm '\
                 'azimuthal/axial spacings'.format(num_azim, num_polar, spacing,
                                                   z_spacing)
@@ -161,7 +161,7 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
             filename = \
                 'tracks-{0}-angles-{1}.png'.format(num_azim,
                                                    spacing)
-            if plot_3D:
+            if plot_3D and isinstance(track_generator, openmoc.TrackGenerator3D):
                 filename = '3d-tracks-{0}-azimuthal-{1}-polar-angles-{2}-'\
                     'azimuthal-{3}-z-spacing.png'.format(num_azim, num_polar,
                     spacing, z_spacing)
@@ -224,8 +224,8 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
     vals_per_segment = openmoc.NUM_VALUES_PER_RETRIEVED_SEGMENT
     num_azim = track_generator.getNumAzim()
     spacing = track_generator.getDesiredAzimSpacing()
-    if plot_3D:
-        num_polar = track_generator.getNumPolarAngles()
+    if plot_3D and isinstance(track_generator, openmoc.TrackGenerator3D):
+        num_polar = track_generator.getNumPolar()
         z_spacing = track_generator.getDesiredZSpacing()
     num_segments = int(track_generator.getNumSegments())
     num_fsrs = int(track_generator.getGeometry().getNumTotalFSRs())
@@ -280,7 +280,7 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
 
     suptitle = 'Segments ({0} angles, {1} cm spacing)'.format(num_azim,
                                                               spacing)
-    if plot_3D:
+    if plot_3D and isinstance(track_generator, openmoc.TrackGenerator3D):
         suptitle = 'Segments ({0}/{1} azimuthal/polar angles and {2}/{3} cm '\
                 'azimuthal/axial spacings'.format(num_azim, num_polar, spacing,
                                                   z_spacing)
@@ -299,7 +299,7 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
             filename = 'segments-{0}-angles-{1}-spacing'.format(num_azim,
                                                                 spacing)
             filename = '{0}-z-{1}.png'.format(filename, z[0])
-            if plot_3D:
+            if plot_3D and isinstance(track_generator, openmoc.TrackGenerator3D):
                 filename = '3d-segments-{0}-azimuthal-{1}-polar-angles-{2}-'\
                     'azimuthal-{3}-z-spacing.png'.format(num_azim, num_polar,
                     spacing, z_spacing)
