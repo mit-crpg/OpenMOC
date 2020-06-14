@@ -51,7 +51,6 @@ matplotlib_rcparams['font.weight'] = 'normal'
 matplotlib_rcparams['font.size'] = 15
 matplotlib_rcparams['savefig.dpi'] = 500
 matplotlib_rcparams['figure.dpi'] = 500
-matplotlib_rcparams['figure.constrained_layout.use'] = True
 
 # A static variable for the output directory in which to save plots
 subdirectory = "/plots/"
@@ -255,7 +254,7 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
     numpy.random.shuffle(color_map)
 
     # Make figure of line segments for each track
-    fig = plt.figure()
+    fig = plt.figure(constrained_layout=True)
     fig.patch.set_facecolor('none')
 
     # Create a color map corresponding to FSR IDs
@@ -1353,7 +1352,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
                        < '3.0' or k not in deprecated}
             matplotlib.rcParams.update(curr_rc)
 
-            fig = plt.figure()
+            fig = plt.figure(constrained_layout=True)
             fig.patch.set_facecolor('none')
             plt.imshow(np.flipud(surface), extent=coords['bounds'],
                        interpolation=plot_params.interpolation,
