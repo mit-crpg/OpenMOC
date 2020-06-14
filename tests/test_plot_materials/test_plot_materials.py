@@ -15,6 +15,7 @@ class PlotMaterialsTestHarness(PlottingTestHarness):
     def __init__(self):
         super(PlotMaterialsTestHarness, self).__init__()
         self.input_set = SimpleLatticeInput()
+        self.input_set.dimensions = 3
 
     def _run_openmoc(self):
         """Plot the materials in the geometry."""
@@ -26,13 +27,19 @@ class PlotMaterialsTestHarness(PlottingTestHarness):
                            get_figure=True))
         self.figures.append(
             plot_materials(self.input_set.geometry, gridsize=100,
-                           offset=10., get_figure=True))
+                           offset=2.5, get_figure=True))
         self.figures.append(
             plot_materials(self.input_set.geometry, gridsize=100,
                            get_figure=True, xlim=(0., 2.), ylim=(0., 2.)))
         self.figures.append(
             plot_materials(self.input_set.geometry, gridsize=100,
                            get_figure=True, library='pil'))
+        self.figures.append(
+            plot_materials(self.input_set.geometry, gridsize=100, plane="yz",
+                       get_figure=True))
+        self.figures.append(
+            plot_materials(self.input_set.geometry, gridsize=100, plane="xz",
+                       get_figure=True))
 
 
 if __name__ == '__main__':
