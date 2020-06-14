@@ -51,6 +51,7 @@ matplotlib_rcparams['font.weight'] = 'normal'
 matplotlib_rcparams['font.size'] = 15
 matplotlib_rcparams['savefig.dpi'] = 500
 matplotlib_rcparams['figure.dpi'] = 500
+matplotlib_rcparams['figure.constrained_layout.use'] = True
 
 # A static variable for the output directory in which to save plots
 subdirectory = "/plots/"
