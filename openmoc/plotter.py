@@ -112,6 +112,9 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
     vals_per_track = openmoc.NUM_VALUES_PER_RETRIEVED_TRACK
     num_azim = track_generator.getNumAzim()
     spacing = track_generator.getDesiredAzimSpacing()
+    if plot_3D:
+        num_polar = track_generator.getNumPolarAngles()
+        z_spacing = track_generator.getDesiredZSpacing()
     num_tracks = int(track_generator.getNumTracks())
     coords = track_generator.retrieveTrackCoords(num_tracks*vals_per_track)
 
@@ -140,6 +143,10 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
 
     title = 'Tracks for {0} angles and {1} cm spacing'\
         .format(num_azim, spacing)
+    if plot_3D:
+        title = 'Tracks for {0}/{1} azimuthal/polar angles and {2}/{3} cm '\
+                'azimuthal/axial spacings'.format(num_azim, num_polar, spacing,
+                                                  z_spacing)
     plt.title(title)
 
     # Restore settings if called from ipython
@@ -151,10 +158,13 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
             return fig
         else:
             filename = \
-                'tracks-{1}-angles-{2}.png'.format(directory, num_azim,
+                'tracks-{0}-angles-{1}.png'.format(num_azim,
                                                    spacing)
             if plot_3D:
-                filename = '3d-' + filename
+                filename = '3d-tracks-{0}-azimuthal-{1}-polar-angles-{2}-'\
+                    'azimuthal-{3}-z-spacing.png'.format(num_azim, num_polar,
+                    spacing, z_spacing)
+
             fig.savefig(directory+filename, bbox_inches='tight')
             plt.close(fig)
 
@@ -213,6 +223,9 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
     vals_per_segment = openmoc.NUM_VALUES_PER_RETRIEVED_SEGMENT
     num_azim = track_generator.getNumAzim()
     spacing = track_generator.getDesiredAzimSpacing()
+    if plot_3D:
+        num_polar = track_generator.getNumPolarAngles()
+        z_spacing = track_generator.getDesiredZSpacing()
     num_segments = int(track_generator.getNumSegments())
     num_fsrs = int(track_generator.getGeometry().getNumTotalFSRs())
     coords = \
@@ -266,9 +279,14 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
 
     suptitle = 'Segments ({0} angles, {1} cm spacing)'.format(num_azim,
                                                               spacing)
+    if plot_3D:
+        suptitle = 'Segments ({0}/{1} azimuthal/polar angles and {2}/{3} cm '\
+                'azimuthal/axial spacings'.format(num_azim, num_polar, spacing,
+                                                  z_spacing)
     title = 'z = {0}'.format(z[0])
     plt.suptitle(suptitle)
-    plt.title(title)
+    if not plot_3D:
+        plt.title(title)
 
     # Restore settings if called from ipython
     matplotlib.rcParams.update(curr_rc)
@@ -281,7 +299,9 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
                                                                 spacing)
             filename = '{0}-z-{1}.png'.format(filename, z[0])
             if plot_3D:
-                filename = '3d-' + filename
+                filename = '3d-segments-{0}-azimuthal-{1}-polar-angles-{2}-'\
+                    'azimuthal-{3}-z-spacing.png'.format(num_azim, num_polar,
+                    spacing, z_spacing)
             fig.savefig(directory+filename, bbox_inches='tight')
             plt.close(fig)
 
@@ -544,18 +564,18 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     plot_params.zlim = zlim
     plot_params.plane = plane
     plot_params.offset = offset
-    plot_params.suptitle = 'Flat Source Regions'
+    plot_params.suptitle = 'Source Regions'
     if plane == 'xy':
         plot_params.title = 'z = {0}'.format(plot_params.offset)
-        plot_params.filename = 'flat-source-regions-z-{0}'\
+        plot_params.filename = 'source-regions-z-{0}'\
             .format(plot_params.offset)
     elif plane == 'xz':
         plot_params.title = 'y = {0}'.format(plot_params.offset)
-        plot_params.filename = 'flat-source-regions-y-{0}'\
+        plot_params.filename = 'source-regions-y-{0}'\
             .format(plot_params.offset)
     elif plane == 'yz':
         plot_params.title = 'x = {0}'.format(plot_params.offset)
-        plot_params.filename = 'flat-source-regions-x-{0}'\
+        plot_params.filename = 'source-regions-x-{0}'\
             .format(plot_params.offset)
     plot_params.interpolation = 'nearest'
     plot_params.vmin = 0
