@@ -45,7 +45,7 @@ except ImportError:
 plt.ioff()
 
 # Default matplotlib parameters to use in all plots
-matplotlib_rcparams = matplotlib.rcParamsDefault
+matplotlib_rcparams = matplotlib.rcParams
 matplotlib_rcparams['font.family'] = 'sans-serif'
 matplotlib_rcparams['font.weight'] = 'normal'
 matplotlib_rcparams['font.size'] = 15
