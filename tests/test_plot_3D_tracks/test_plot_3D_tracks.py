@@ -16,8 +16,8 @@ class PlotTracksTestHarness(PlottingTestHarness):
         super(PlotTracksTestHarness, self).__init__()
         self.input_set = AxialExtendedInput()
         self.num_polar = 4
-        self.azim_spacing = 0.24
-        self.z_spacing = 1.25
+        self.azim_spacing = 0.5
+        self.z_spacing = 2.0
         self.max_iters = 1
 
     def _create_trackgenerator(self):

@@ -15,10 +15,10 @@ class PlotSegmentsTestHarness(PlottingTestHarness):
 
     def __init__(self):
         super(PlotSegmentsTestHarness, self).__init__()
-        self.input_set = AxialExtendedInput()
+        self.input_set = AxialExtendedInput(small=True)
         self.num_polar = 2
         self.azim_spacing = 1.35
-        self.z_spacing = 5.0
+        self.z_spacing = 10.0
         self.max_iters = 1
 
     def _create_trackgenerator(self):

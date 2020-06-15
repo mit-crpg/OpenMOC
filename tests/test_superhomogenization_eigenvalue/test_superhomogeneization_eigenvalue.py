@@ -40,7 +40,7 @@ class ComputeMaterialSPHTestHarness(TestHarness):
 
         # Initialize 16-group OpenMC multi-group XS library for a pin cell
         mgxs_lib = openmc.mgxs.Library.load_from_file(filename='mgxs',
-             directory='../test_superhomogeneization_material')
+             directory='../test_superhomogenization_material')
 
         # Compute SPH factors
         sph, sph_mgxs_lib, sph_indices = \

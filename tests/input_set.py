@@ -12,10 +12,11 @@ class InputSet(object):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, num_dimensions=2):
+    def __init__(self, num_dimensions=2, small=False):
         self.materials = {}
         self.geometry = None
         self.dimensions = num_dimensions
+        self.small = small
 
     @abstractmethod
     def create_materials(self):
@@ -804,8 +805,11 @@ class AxialExtendedInput(InputSet):
 
         lower_left = [0.,0.,0.]
         # set the XYZ widths of non-uniform lattice
+        n_z = 20
+        if self.small:
+            n_z = 5
         width = ([gap_size,pin_pitch,pin_pitch,gap_size],
-                 [gap_size,pin_pitch,pin_pitch,gap_size], [1.0]*20)
+                 [gap_size,pin_pitch,pin_pitch,gap_size], [1.0]*n_z)
         lattice = openmoc.Lattice(name='lattice with gap')
         lattice.setWidths(width[0], width[1], width[2])
         lattice.setOffset(lower_left[0]+sum(width[0])/2.,
@@ -817,7 +821,7 @@ class AxialExtendedInput(InputSet):
                          [g,f,f,g],
                          [g,f,f,g],
                          [g,g,g,g]])
-        fill_universes = numpy.tile(a,(20,1,1))
+        fill_universes = numpy.tile(a,(n_z,1,1))
 
         # make the geometry axially heterogeneous
         fill_universes[2][1][1] = g

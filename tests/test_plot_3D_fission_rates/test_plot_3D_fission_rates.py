@@ -17,8 +17,8 @@ class PlotFissionRatesTestHarness(PlottingTestHarness):
         super(PlotFissionRatesTestHarness, self).__init__()
         self.input_set = NonUniformLatticeInput()
         self.num_polar = 4
-        self.azim_spacing = 0.25
-        self.z_spacing = 0.5
+        self.azim_spacing = 0.5
+        self.z_spacing = 2.0
         self.max_iters = 10
 
     def _create_trackgenerator(self):

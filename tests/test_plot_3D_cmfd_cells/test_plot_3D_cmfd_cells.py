@@ -18,8 +18,8 @@ class PlotCmfdCellsTestHarness(PlottingTestHarness):
         self.cmfd = None
         self.input_set = NonUniformLatticeInput()
         self.num_polar = 4
-        self.azim_spacing = 0.25
-        self.z_spacing = 0.5
+        self.azim_spacing = 0.5
+        self.z_spacing = 2.0
         self.max_iters = 1
 
     def _create_trackgenerator(self):
