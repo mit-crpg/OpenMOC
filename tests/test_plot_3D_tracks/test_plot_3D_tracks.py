@@ -29,6 +29,12 @@ class PlotTracksTestHarness(PlottingTestHarness):
                                      self.azim_spacing, self.z_spacing)
         self.track_generator.setSegmentFormation(openmoc.OTF_STACKS)
 
+    def _create_solver(self):
+        super(PlotTracksTestHarness, self)._create_solver()
+        # Use only 1 thread for FSR numbering reproducibility
+        # and for OTF ray tracing
+        self.solver.setNumThreads(1)
+
     def _run_openmoc(self):
         """Plot the tracks."""
 

@@ -16,19 +16,6 @@ class PlotMaterialsTestHarness(PlottingTestHarness):
     def __init__(self):
         super(PlotMaterialsTestHarness, self).__init__()
         self.input_set = NonUniformLatticeInput()
-        self.num_polar = 4
-        self.azim_spacing = 0.25
-        self.z_spacing = 0.5
-        self.max_iters = 10
-
-    def _create_trackgenerator(self):
-        """Instantiate a TrackGenerator."""
-        geometry = self.input_set.geometry
-        geometry.initializeFlatSourceRegions()
-        self.track_generator = \
-            openmoc.TrackGenerator3D(geometry, self.num_azim, self.num_polar,
-                                     self.azim_spacing, self.z_spacing)
-        self.track_generator.setSegmentFormation(openmoc.OTF_STACKS)
 
     def _run_openmoc(self):
         """Plot the materials in the geometry."""

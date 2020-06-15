@@ -30,6 +30,11 @@ class PlotFissionRatesTestHarness(PlottingTestHarness):
                                      self.azim_spacing, self.z_spacing)
         self.track_generator.setSegmentFormation(openmoc.OTF_STACKS)
 
+    def _create_solver(self):
+        super(PlotFissionRatesTestHarness, self)._create_solver()
+        # Use only 1 thread for FSR numbering reproducibility
+        self.solver.setNumThreads(1)
+
     def _run_openmoc(self):
         """Run OpenMOC and plot the fission rates in the geometry."""
 
