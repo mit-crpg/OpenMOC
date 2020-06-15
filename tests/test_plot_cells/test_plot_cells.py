@@ -14,8 +14,7 @@ class PlotCellsTestHarness(PlottingTestHarness):
 
     def __init__(self):
         super(PlotCellsTestHarness, self).__init__()
-        self.input_set = SimpleLatticeInput()
-        self.input_set.dimensions = 3
+        self.input_set = SimpleLatticeInput(num_dimensions=3)
 
     def _run_openmoc(self):
         """Plot the cells in the geometry."""
@@ -36,10 +35,10 @@ class PlotCellsTestHarness(PlottingTestHarness):
                        get_figure=True, library='pil'))
         self.figures.append(
             plot_cells(self.input_set.geometry, gridsize=100, plane="yz",
-                       get_figure=True, library='pil'))
+                       get_figure=True))
         self.figures.append(
             plot_cells(self.input_set.geometry, gridsize=100, plane="xz",
-                       get_figure=True, library='pil'))
+                       get_figure=True))
 
 
 if __name__ == '__main__':

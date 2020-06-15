@@ -416,7 +416,6 @@ class SimpleLatticeInput(InputSet):
         super(SimpleLatticeInput, self).create_geometry()
 
 
-
 class PwrAssemblyInput(InputSet):
     """A 17x17 pin cell lattice problem from sample-input/ipython-notebook."""
 
@@ -569,7 +568,8 @@ class NonUniformLatticeInput(InputSet):
                                                directory='../../sample-input/')
 
     def create_geometry(self):
-        """Instantiate a 4x4 non-uniform simple lattice Geometry."""
+        """Instantiate a 4x4 non-uniform simple lattice Geometry.
+        Lower left is at [0, 0, 0] and width is [2.62, 2.62, 2.5]"""
 
         fuel_rings      = 1
         moderator_rings = 1

@@ -217,9 +217,9 @@ class TestHarness(object):
 
     def _compare_results(self):
         """Make sure the current results agree with the _true standard."""
-        
+
         # For comparison of files with different line endings
-        compare = (open('results_test.dat', 'r').read() == 
+        compare = (open('results_test.dat', 'r').read() ==
                    open('results_true.dat', 'r').read())
         if not compare:
             os.rename('results_test.dat', 'results_error.dat')
@@ -340,7 +340,7 @@ class PlottingTestHarness(TestHarness):
         for i in range(len(outputs)):
             shutil.copyfile('test-{0}.png'.format(i), 'true-{0}.png'.format(i))
 
-    def _compare_results(self, max_distance=1.):
+    def _compare_results(self, max_distance=0.1):
         """Make sure the current results agree with the true standard."""
 
         # Loop over each Matplotlib figure / PIL Image and
