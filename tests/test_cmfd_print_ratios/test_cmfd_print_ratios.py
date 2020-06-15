@@ -65,6 +65,11 @@ class CmfdPwrAssemblyTestHarness(TestHarness):
                 num_fsrs=num_fsrs, num_tracks=num_tracks,
                 num_segments=num_segments, hash_output=hash_output)
 
+    def _cleanup(self):
+        """Delete the update ratio files."""
+        super(CmfdPwrAssemblyTestHarness, self)._cleanup()
+        os.system("rm pf_group_*_iter_*.txt")
+
 
 if __name__ == '__main__':
     harness = CmfdPwrAssemblyTestHarness()

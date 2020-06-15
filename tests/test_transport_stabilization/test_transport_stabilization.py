@@ -78,6 +78,11 @@ class TransportStabilizationTestHarness(TestHarness):
                 num_fsrs=num_fsrs, num_tracks=num_tracks,
                 num_segments=num_segments, hash_output=hash_output)
 
+    def _cleanup(self):
+        """Delete the update ratio files."""
+        super(TransportStabilizationTestHarness, self)._cleanup()
+        os.remove("k_negative_sources_iter_0")
+
 
 if __name__ == '__main__':
     harness = TransportStabilizationTestHarness()
