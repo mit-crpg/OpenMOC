@@ -113,7 +113,7 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
     num_azim = track_generator.getNumAzim()
     spacing = track_generator.getDesiredAzimSpacing()
     if plot_3D and isinstance(track_generator, openmoc.TrackGenerator3D):
-        num_polar = track_generator.getNumPolarAngles()
+        num_polar = track_generator.getNumPolar()
         z_spacing = track_generator.getDesiredZSpacing()
     num_tracks = int(track_generator.getNumTracks())
     coords = track_generator.retrieveTrackCoords(num_tracks*vals_per_track)
@@ -144,7 +144,7 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
     title = 'Tracks for {0} angles and {1} cm spacing'\
         .format(num_azim, spacing)
     if plot_3D and isinstance(track_generator, openmoc.TrackGenerator3D):
-        title = 'Tracks for {0}/{1} azimuthal/polar angles and {2}/{3} cm '\
+        title = 'Tracks for {0}/{1} azimuthal/polar angles\n and {2}/{3} cm '\
                 'azimuthal/axial spacings'.format(num_azim, num_polar, spacing,
                                                   z_spacing)
     plt.title(title)
@@ -280,7 +280,7 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
     suptitle = 'Segments ({0} angles, {1} cm spacing)'.format(num_azim,
                                                               spacing)
     if plot_3D and isinstance(track_generator, openmoc.TrackGenerator3D):
-        suptitle = 'Segments ({0}/{1} azimuthal/polar angles and {2}/{3} cm '\
+        suptitle = 'Segments ({0}/{1} azimuthal/polar angles\n and {2}/{3} cm '\
                 'azimuthal/axial spacings'.format(num_azim, num_polar, spacing,
                                                   z_spacing)
     title = 'z = {0}'.format(z[0])
@@ -542,10 +542,10 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     cv.check_greater_than('marker_size', marker_size, 0)
 
     if geometry.getNumTotalFSRs() == 0:
-        py_printf('ERROR', 'Unable to plot the flat source regions ' +
+        py_printf('ERROR', 'Unable to plot the source regions ' +
                   'since no tracks have been generated.')
 
-    py_printf('NORMAL', 'Plotting the flat source regions...')
+    py_printf('NORMAL', 'Plotting the source regions...')
 
     global subdirectory, matplotlib_rcparams
     directory = openmoc.get_output_directory() + subdirectory
@@ -581,14 +581,14 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     plot_params.vmin = 0
     plot_params.vmax = num_fsrs
 
-    # Plot a 2D color map of the flat source regions
+    # Plot a 2D color map of the source regions
     figures = plot_spatial_data(fsrs_to_fsrs, plot_params, get_figure=True)
 
     if plot_params.geometry.isRootDomain():
 
         fig = figures[0]
 
-        # Plot centroids on top of 2D flat source region color map
+        # Plot centroids on top of source region color map
         if centroids:
 
             # Populate a NumPy array with the FSR centroid coordinates
@@ -869,7 +869,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
     group_bounds : Iterable of Real or None, optional
         The bounds of the energy groups
     norm : bool, optional
-        Whether to normalize the fluxes (True by default)
+        Whether to normalize the fluxes to a unity flux sum (True by default)
     loglog : bool
         Whether to use a log scale on the x- and y-axes (True by default)
     get_figure : bool
@@ -933,7 +933,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
     # Initialize an empty list of Matplotlib figures if requestd by the user
     figures = []
 
-    # Iterate over all flat source regions
+    # Iterate over all source regions
     for fsr in fsrs:
 
         # Allocate memory for an array of this FSR's fluxes
@@ -1012,7 +1012,7 @@ def plot_fission_rates(solver, nu=False, norm=False, transparent_zeros=True,
         Whether use the nu-fission rates instead of the fission rates
         (False by default)
     norm : bool
-        Whether to normalize the fission rates (False by default)
+        Whether to normalize the fission rates to the mean (False by default)
     transparent_zeros : bool
         Whether to make all non-fissionable FSRs transparent (True by default)
     gridsize : Integral, optional
@@ -1048,7 +1048,7 @@ def plot_fission_rates(solver, nu=False, norm=False, transparent_zeros=True,
     global solver_types
     cv.check_type('solver', solver, solver_types)
 
-    py_printf('NORMAL', 'Plotting the flat source region fission rates...')
+    py_printf('NORMAL', 'Plotting the source region fission rates...')
 
     # Compute the volume-weighted fission rates for each FSR
     geometry = solver.getGeometry()
@@ -1065,7 +1065,7 @@ def plot_fission_rates(solver, nu=False, norm=False, transparent_zeros=True,
     plot_params.zlim = zlim
     plot_params.plane = plane
     plot_params.offset = offset
-    plot_params.suptitle = 'Flat Source Region Fission Rates'
+    plot_params.suptitle = 'Source Region Fission Rates'
     if plane == 'xy':
         plot_params.title = 'z = {0}'.format(offset)
         plot_params.filename = 'fission-rates-z-{0}.png'.format(offset)
@@ -1310,9 +1310,11 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
         # Reshape data to 2D array for Matplotlib image plot
         surface.shape = (plot_params.gridsize, plot_params.gridsize)
 
-        # Normalize data to maximum if requested
+        # Normalize data to average if requested
         if plot_params.norm:
-            surface /= np.max(surface)
+            if np.nanmean(surface) == 0:
+                py_printf('WARNING', "Normalizing plot colormap by 0.")
+            surface /= np.nanmean(surface)
 
         # Set zero data entries to NaN so Matplotlib will make them transparent
         if plot_params.transparent_zeros:
