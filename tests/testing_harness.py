@@ -380,12 +380,12 @@ class PlottingTestHarness(TestHarness):
         rgba2 = np.array(img2)
 
         # Compute histograms of each images pixels
-        hr1, bins1 = np.histogram(rgba1[...,0], bins=256, normed=True)
-        hg1, bins1 = np.histogram(rgba1[...,1], bins=256, normed=True)
-        hb1, bins1 = np.histogram(rgba1[...,2], bins=256, normed=True)
-        hr2, bins2 = np.histogram(rgba2[...,0], bins=256, normed=True)
-        hg2, bins2 = np.histogram(rgba2[...,1], bins=256, normed=True)
-        hb2, bins2 = np.histogram(rgba2[...,2], bins=256, normed=True)
+        hr1, bins1 = np.histogram(rgba1[...,0], bins=256, density=True)
+        hg1, bins1 = np.histogram(rgba1[...,1], bins=256, density=True)
+        hb1, bins1 = np.histogram(rgba1[...,2], bins=256, density=True)
+        hr2, bins2 = np.histogram(rgba2[...,0], bins=256, density=True)
+        hg2, bins2 = np.histogram(rgba2[...,1], bins=256, density=True)
+        hb2, bins2 = np.histogram(rgba2[...,2], bins=256, density=True)
         hist1 = np.array([hr1, hg1, hb1]).ravel()
         hist2 = np.array([hr2, hg2, hb2]).ravel()
 

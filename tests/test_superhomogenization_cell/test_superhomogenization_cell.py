@@ -69,12 +69,13 @@ class ComputeCellSPHTestHarness(TestHarness):
         self.solver.setNumThreads(self.num_threads)
 
         # Compute SPH factors
-        sph, sph_mgxs_lib, sph_indices = \
+        sph, sph_indices = \
             openmoc.materialize.compute_sph_factors(
                 mgxs_lib, azim_spacing=self.azim_spacing,
                 num_azim=self.num_azim, num_threads=self.num_threads,
                 solver=self.solver, track_generator=track_generator,
-                geometry=openmoc_geometry, sph_domains=sph_domains)
+                geometry=openmoc_geometry, sph_domains=sph_domains,
+                return_library=False)
 
     def _get_results(self, num_iters=True, keff=True, fluxes=True,
                      num_fsrs=False, num_tracks=False, num_segments=False,
