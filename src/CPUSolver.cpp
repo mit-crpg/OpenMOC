@@ -620,7 +620,9 @@ void CPUSolver::setupMPIBuffers() {
 
     /* Allocate vector of send/receive buffer sizes */
     _send_size.resize(num_domains, 0);
-    _receive_size.resize(num_domains, 0);
+#ifdef ONLYVACUUMBC
+    _receive_size.resize(num_domains, TRACKS_PER_BUFFER);
+#endif
 
     /* Build array of Track connections */
     _track_connections.resize(2);
@@ -1084,7 +1086,7 @@ void CPUSolver::transferAllInterfaceFluxes() {
 
   /* Resize vectors to the number of domains */
   int num_domains = _neighbor_domains.size();
-  packing_indexes.resize(num_domains);
+  packing_indexes.resize(num_domains, 0);
 
   /* Start communication rounds */
   int round_counter = -1;
@@ -1099,10 +1101,7 @@ void CPUSolver::transferAllInterfaceFluxes() {
     _timer->recordSplit("Packing time");
 
 #ifndef ONLYVACUUMBC
-    /* Set size of received messages */
     _timer->startTimer();
-    for (int i=0; i < num_domains; i++)
-      _receive_size.at(i) = TRACKS_PER_BUFFER;
 
     /* Send and receive from all neighboring domains */
     bool communication_complete = true;
@@ -1120,7 +1119,7 @@ void CPUSolver::transferAllInterfaceFluxes() {
       if (first_track != -1) {
 
         /* Send outgoing flux */
-        if (_send_size.at(i) > 0 && !_MPI_sends[i]) {
+        if (!_MPI_sends[i]) {
           MPI_Isend(&_send_buffers.at(i)[0], _track_message_size *
                     _send_size.at(i), MPI_FLOAT, domain, 1, MPI_cart,
                     &_MPI_requests[i*2]);
@@ -1131,10 +1130,9 @@ void CPUSolver::transferAllInterfaceFluxes() {
             _MPI_requests[i*2] = MPI_REQUEST_NULL;
 
         /* Receive incoming flux */
-        if (_receive_size.at(i) > 0 && !_MPI_receives[i]) {
-
+        if (!_MPI_receives[i]) {
           MPI_Irecv(&_receive_buffers.at(i)[0], _track_message_size *
-                    _receive_size.at(i), MPI_FLOAT, domain, 1, MPI_cart,
+                    TRACKS_PER_BUFFER, MPI_FLOAT, domain, 1, MPI_cart,
                     &_MPI_requests[i*2+1]);
           _MPI_receives[i] = true;
         }
@@ -1177,7 +1175,7 @@ void CPUSolver::transferAllInterfaceFluxes() {
       if (_MPI_receives[i]) {
 
         /* Get the buffer for the connecting domain */
-        for (int t=0; t < _receive_size.at(i); t++) {
+        for (int t=0; t < TRACKS_PER_BUFFER; t++) {
 
           /* Get the Track ID */
           float* curr_track_buffer = &_receive_buffers.at(i)[
@@ -1303,7 +1301,8 @@ void CPUSolver::transferAllInterfaceFluxes() {
             _MPI_requests[i*2+1] = MPI_REQUEST_NULL;
         }
         /* Check that all MPI receive calls have been made */
-        if (active_communication && !_MPI_receives[i] && _receive_size.at(i) != 0) {
+        if (active_communication && !_MPI_receives[i] &&
+            _receive_size.at(i) != 0) {
           all_transfers_started = false;
           int flag;
           if (_receive_size.at(i) == -1)
