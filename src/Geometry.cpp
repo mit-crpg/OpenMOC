@@ -1692,7 +1692,7 @@ int Geometry::getCmfdCell(long fsr_id) {
 
 
 /**
- * @brief reserves the FSR key strings
+ * @brief Reserves memory for the FSR key strings for each thread
  * @param num_threads the number of threads
  */
 void Geometry::reserveKeyStrings(int num_threads) {
@@ -2970,6 +2970,9 @@ std::vector<long> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
 
   /* Instantiate a vector to hold the domain IDs */
   std::vector<long> domains(dim1.size() * dim2.size());
+
+  /* Allocate fsr keys in case the track generator has not */
+  reserveKeyStrings(omp_get_max_threads());
 
   /* Extract the source region IDs */
 #pragma omp parallel for collapse(2)
