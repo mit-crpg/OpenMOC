@@ -2,6 +2,7 @@ import os
 import sys
 from numbers import Integral, Real
 from collections import Iterable
+import warnings
 
 import numpy as np
 import numpy.random
@@ -61,6 +62,21 @@ if sys.version_info[0] >= 3:
     basestring = str
 
 
+def update_rc_param(curr_rc):
+    """Update matplotlib rcParams without triggering deprecation warnings.
+
+    Parameters
+    ----------
+    curr_rc : dictionary
+        A dictionary of matplotlib plotting parameters
+
+    """
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", matplotlib.MatplotlibDeprecationWarning)
+        matplotlib.rcParams.update(curr_rc)
+
+
 def plot_tracks(track_generator, get_figure=False, plot_3D=False):
     """Plot the characteristic tracks from an OpenMOC simulation.
 
@@ -95,10 +111,8 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
     directory = openmoc.get_output_directory() + subdirectory
 
     # Ensure that normal settings are used even if called from ipython
-    deprecated = ['text.latex.unicode', 'examples.directory']
-    curr_rc = {k: matplotlib.rcParams[k] for k in matplotlib.rcParams.keys()
-               if matplotlib.__version__[0] < '3.0' or k not in deprecated}
-    matplotlib.rcParams.update(curr_rc)
+    curr_rc = matplotlib.rcParams.copy()
+    update_rc_param(curr_rc)
 
     # Make directory if it does not exist
     try:
@@ -150,7 +164,7 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
     plt.title(title)
 
     # Restore settings if called from ipython
-    matplotlib.rcParams.update(curr_rc)
+    update_rc_param(curr_rc)
 
     # Save the figure to a file or return to user
     if track_generator.getGeometry().isRootDomain():
@@ -206,10 +220,8 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
     directory = openmoc.get_output_directory() + subdirectory
 
     # Ensure that normal settings are used even if called from ipython
-    deprecated = ['text.latex.unicode', 'examples.directory']
-    curr_rc = {k: matplotlib.rcParams[k] for k in matplotlib.rcParams.keys()
-               if matplotlib.__version__[0] < '3.0' or k not in deprecated}
-    matplotlib.rcParams.update(curr_rc)
+    curr_rc = matplotlib.rcParams.copy()
+    update_rc_param(curr_rc)
 
     # Make directory if it does not exist
     try:
@@ -289,7 +301,7 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
         plt.title(title)
 
     # Restore settings if called from ipython
-    matplotlib.rcParams.update(curr_rc)
+    update_rc_param(curr_rc)
 
     if track_generator.getGeometry().isRootDomain():
         if get_figure:
@@ -914,10 +926,8 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
     directory = openmoc.get_output_directory() + subdirectory
 
     # Ensure that normal settings are used even if called from ipython
-    deprecated = ['text.latex.unicode', 'examples.directory']
-    curr_rc = {k: matplotlib.rcParams[k] for k in matplotlib.rcParams.keys()
-               if matplotlib.__version__[0] < '3.0' or k not in deprecated}
-    matplotlib.rcParams.update(curr_rc)
+    curr_rc = matplotlib.rcParams.copy()
+    update_rc_param(curr_rc)
 
     # Make directory if it does not exist
     try:
@@ -987,7 +997,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
                 plt.close(fig)
 
     # Restore settings if called from ipython
-    matplotlib.rcParams.update(curr_rc)
+    update_rc_param(curr_rc)
 
     # Return the figures if requested by user
     if get_figure:
@@ -1348,11 +1358,8 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
         else:
 
             # Ensure that normal settings are used even if called from ipython
-            deprecated = ['text.latex.unicode', 'examples.directory']
-            curr_rc = {k: matplotlib.rcParams[k] for k in
-                       matplotlib.rcParams.keys() if matplotlib.__version__[0]
-                       < '3.0' or k not in deprecated}
-            matplotlib.rcParams.update(curr_rc)
+            curr_rc = matplotlib.rcParams.copy()
+            update_rc_param(curr_rc)
 
             fig = plt.figure(constrained_layout=True)
             fig.patch.set_facecolor('none')
@@ -1388,7 +1395,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
                     plt.close()
 
             # Restore settings if called from ipython
-            matplotlib.rcParams.update(curr_rc)
+            update_rc_param(curr_rc)
 
     # Return Matplotlib figures if requested by user
     if get_figure:
@@ -1433,10 +1440,8 @@ def plot_quadrature(solver, get_figure=False):
     directory = openmoc.get_output_directory() + subdirectory
 
     # Ensure that normal settings are used even if called from ipython
-    deprecated = ['text.latex.unicode', 'examples.directory']
-    curr_rc = {k: matplotlib.rcParams[k] for k in matplotlib.rcParams.keys()
-               if matplotlib.__version__[0] < '3.0' or k not in deprecated}
-    matplotlib.rcParams.update(curr_rc)
+    curr_rc = matplotlib.rcParams.copy()
+    update_rc_param(curr_rc)
 
     # Make directory if it does not exist
     try:
@@ -1519,7 +1524,7 @@ def plot_quadrature(solver, get_figure=False):
     plt.title(title)
 
     # Restore settings if called from ipython
-    matplotlib.rcParams.update(curr_rc)
+    update_rc_param(curr_rc)
 
     # Save the figure or return to user
     if track_generator.getGeometry().isRootDomain():
