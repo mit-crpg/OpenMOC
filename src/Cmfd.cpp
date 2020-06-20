@@ -5345,7 +5345,7 @@ void Cmfd::printProlongationFactors() {
 
       /* Select appropriate floating point size for transfer */
       MPI_Datatype mpi_precision;
-      if (sizeof(FP_PRECISION) == 4)
+      if (sizeof(CMFD_PRECISION) == 4)
         mpi_precision = MPI_FLOAT;
       else
         mpi_precision = MPI_DOUBLE;
