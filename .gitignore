@@ -71,6 +71,7 @@ simulation-state/*
 */simulation-state*
 */simulation-state*/*
 pf_group_*_iter_*txt
+k_negative_sources_iter*
 
 *.data
 */*.data
@@ -179,8 +180,6 @@ sphinx/
 *.xml
 statepoint*
 summary*
-k_negative_sources_iter*
-pf_group_*_iter_*.txt
 
 # Test results error file
 results_error.dat
