@@ -2,6 +2,7 @@ import os
 import sys
 from numbers import Integral, Real
 from collections import Iterable
+import warnings
 
 import numpy as np
 import numpy.random
@@ -45,7 +46,7 @@ except ImportError:
 plt.ioff()
 
 # Default matplotlib parameters to use in all plots
-matplotlib_rcparams = matplotlib.rcParamsDefault
+matplotlib_rcparams = matplotlib.rcParams
 matplotlib_rcparams['font.family'] = 'sans-serif'
 matplotlib_rcparams['font.weight'] = 'normal'
 matplotlib_rcparams['font.size'] = 15
@@ -59,6 +60,21 @@ TINY_MOVE = openmoc.TINY_MOVE
 
 if sys.version_info[0] >= 3:
     basestring = str
+
+
+def update_rc_param(curr_rc):
+    """Update matplotlib rcParams without triggering deprecation warnings.
+
+    Parameters
+    ----------
+    curr_rc : dictionary
+        A dictionary of matplotlib plotting parameters
+
+    """
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", matplotlib.MatplotlibDeprecationWarning)
+        matplotlib.rcParams.update(curr_rc)
 
 
 def plot_tracks(track_generator, get_figure=False, plot_3D=False):
@@ -95,10 +111,8 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
     directory = openmoc.get_output_directory() + subdirectory
 
     # Ensure that normal settings are used even if called from ipython
-    deprecated = ['text.latex.unicode', 'examples.directory']
-    curr_rc = {k: matplotlib.rcParams[k] for k in matplotlib.rcParams.keys()
-               if matplotlib.__version__[0] < '3.0' or k not in deprecated}
-    matplotlib.rcParams.update(curr_rc)
+    curr_rc = matplotlib.rcParams.copy()
+    update_rc_param(curr_rc)
 
     # Make directory if it does not exist
     try:
@@ -112,6 +126,9 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
     vals_per_track = openmoc.NUM_VALUES_PER_RETRIEVED_TRACK
     num_azim = track_generator.getNumAzim()
     spacing = track_generator.getDesiredAzimSpacing()
+    if plot_3D and isinstance(track_generator, openmoc.TrackGenerator3D):
+        num_polar = track_generator.getNumPolar()
+        z_spacing = track_generator.getDesiredZSpacing()
     num_tracks = int(track_generator.getNumTracks())
     coords = track_generator.retrieveTrackCoords(num_tracks*vals_per_track)
 
@@ -140,10 +157,14 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
 
     title = 'Tracks for {0} angles and {1} cm spacing'\
         .format(num_azim, spacing)
+    if plot_3D and isinstance(track_generator, openmoc.TrackGenerator3D):
+        title = 'Tracks for {0}/{1} azimuthal/polar angles\n and {2}/{3} cm '\
+                'azimuthal/axial spacings'.format(num_azim, num_polar, spacing,
+                                                  z_spacing)
     plt.title(title)
 
     # Restore settings if called from ipython
-    matplotlib.rcParams.update(curr_rc)
+    update_rc_param(curr_rc)
 
     # Save the figure to a file or return to user
     if track_generator.getGeometry().isRootDomain():
@@ -151,10 +172,13 @@ def plot_tracks(track_generator, get_figure=False, plot_3D=False):
             return fig
         else:
             filename = \
-                'tracks-{1}-angles-{2}.png'.format(directory, num_azim,
+                'tracks-{0}-angles-{1}.png'.format(num_azim,
                                                    spacing)
-            if plot_3D:
-                filename = '3d-' + filename
+            if plot_3D and isinstance(track_generator, openmoc.TrackGenerator3D):
+                filename = '3d-tracks-{0}-azimuthal-{1}-polar-angles-{2}-'\
+                    'azimuthal-{3}-z-spacing.png'.format(num_azim, num_polar,
+                    spacing, z_spacing)
+
             fig.savefig(directory+filename, bbox_inches='tight')
             plt.close(fig)
 
@@ -196,10 +220,8 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
     directory = openmoc.get_output_directory() + subdirectory
 
     # Ensure that normal settings are used even if called from ipython
-    deprecated = ['text.latex.unicode', 'examples.directory']
-    curr_rc = {k: matplotlib.rcParams[k] for k in matplotlib.rcParams.keys()
-               if matplotlib.__version__[0] < '3.0' or k not in deprecated}
-    matplotlib.rcParams.update(curr_rc)
+    curr_rc = matplotlib.rcParams.copy()
+    update_rc_param(curr_rc)
 
     # Make directory if it does not exist
     try:
@@ -213,6 +235,9 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
     vals_per_segment = openmoc.NUM_VALUES_PER_RETRIEVED_SEGMENT
     num_azim = track_generator.getNumAzim()
     spacing = track_generator.getDesiredAzimSpacing()
+    if plot_3D and isinstance(track_generator, openmoc.TrackGenerator3D):
+        num_polar = track_generator.getNumPolar()
+        z_spacing = track_generator.getDesiredZSpacing()
     num_segments = int(track_generator.getNumSegments())
     num_fsrs = int(track_generator.getGeometry().getNumTotalFSRs())
     coords = \
@@ -241,7 +266,7 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
     numpy.random.shuffle(color_map)
 
     # Make figure of line segments for each track
-    fig = plt.figure()
+    fig = plt.figure(constrained_layout=True)
     fig.patch.set_facecolor('none')
 
     # Create a color map corresponding to FSR IDs
@@ -266,12 +291,17 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
 
     suptitle = 'Segments ({0} angles, {1} cm spacing)'.format(num_azim,
                                                               spacing)
+    if plot_3D and isinstance(track_generator, openmoc.TrackGenerator3D):
+        suptitle = 'Segments ({0}/{1} azimuthal/polar angles\n and {2}/{3} cm '\
+                'azimuthal/axial spacings'.format(num_azim, num_polar, spacing,
+                                                  z_spacing)
     title = 'z = {0}'.format(z[0])
     plt.suptitle(suptitle)
-    plt.title(title)
+    if not plot_3D:
+        plt.title(title)
 
     # Restore settings if called from ipython
-    matplotlib.rcParams.update(curr_rc)
+    update_rc_param(curr_rc)
 
     if track_generator.getGeometry().isRootDomain():
         if get_figure:
@@ -280,8 +310,10 @@ def plot_segments(track_generator, get_figure=False, plot_3D=False):
             filename = 'segments-{0}-angles-{1}-spacing'.format(num_azim,
                                                                 spacing)
             filename = '{0}-z-{1}.png'.format(filename, z[0])
-            if plot_3D:
-                filename = '3d-' + filename
+            if plot_3D and isinstance(track_generator, openmoc.TrackGenerator3D):
+                filename = '3d-segments-{0}-azimuthal-{1}-polar-angles-{2}-'\
+                    'azimuthal-{3}-z-spacing.png'.format(num_azim, num_polar,
+                    spacing, z_spacing)
             fig.savefig(directory+filename, bbox_inches='tight')
             plt.close(fig)
 
@@ -522,10 +554,10 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     cv.check_greater_than('marker_size', marker_size, 0)
 
     if geometry.getNumTotalFSRs() == 0:
-        py_printf('ERROR', 'Unable to plot the flat source regions ' +
+        py_printf('ERROR', 'Unable to plot the source regions ' +
                   'since no tracks have been generated.')
 
-    py_printf('NORMAL', 'Plotting the flat source regions...')
+    py_printf('NORMAL', 'Plotting the source regions...')
 
     global subdirectory, matplotlib_rcparams
     directory = openmoc.get_output_directory() + subdirectory
@@ -544,31 +576,31 @@ def plot_flat_source_regions(geometry, gridsize=250, xlim=None, ylim=None,
     plot_params.zlim = zlim
     plot_params.plane = plane
     plot_params.offset = offset
-    plot_params.suptitle = 'Flat Source Regions'
+    plot_params.suptitle = 'Source Regions'
     if plane == 'xy':
         plot_params.title = 'z = {0}'.format(plot_params.offset)
-        plot_params.filename = 'flat-source-regions-z-{0}'\
+        plot_params.filename = 'source-regions-z-{0}'\
             .format(plot_params.offset)
     elif plane == 'xz':
         plot_params.title = 'y = {0}'.format(plot_params.offset)
-        plot_params.filename = 'flat-source-regions-y-{0}'\
+        plot_params.filename = 'source-regions-y-{0}'\
             .format(plot_params.offset)
     elif plane == 'yz':
         plot_params.title = 'x = {0}'.format(plot_params.offset)
-        plot_params.filename = 'flat-source-regions-x-{0}'\
+        plot_params.filename = 'source-regions-x-{0}'\
             .format(plot_params.offset)
     plot_params.interpolation = 'nearest'
     plot_params.vmin = 0
     plot_params.vmax = num_fsrs
 
-    # Plot a 2D color map of the flat source regions
+    # Plot a 2D color map of the source regions
     figures = plot_spatial_data(fsrs_to_fsrs, plot_params, get_figure=True)
 
     if plot_params.geometry.isRootDomain():
 
         fig = figures[0]
 
-        # Plot centroids on top of 2D flat source region color map
+        # Plot centroids on top of source region color map
         if centroids:
 
             # Populate a NumPy array with the FSR centroid coordinates
@@ -849,7 +881,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
     group_bounds : Iterable of Real or None, optional
         The bounds of the energy groups
     norm : bool, optional
-        Whether to normalize the fluxes (True by default)
+        Whether to normalize the fluxes to a unity flux sum (True by default)
     loglog : bool
         Whether to use a log scale on the x- and y-axes (True by default)
     get_figure : bool
@@ -894,10 +926,8 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
     directory = openmoc.get_output_directory() + subdirectory
 
     # Ensure that normal settings are used even if called from ipython
-    deprecated = ['text.latex.unicode', 'examples.directory']
-    curr_rc = {k: matplotlib.rcParams[k] for k in matplotlib.rcParams.keys()
-               if matplotlib.__version__[0] < '3.0' or k not in deprecated}
-    matplotlib.rcParams.update(curr_rc)
+    curr_rc = matplotlib.rcParams.copy()
+    update_rc_param(curr_rc)
 
     # Make directory if it does not exist
     try:
@@ -913,7 +943,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
     # Initialize an empty list of Matplotlib figures if requestd by the user
     figures = []
 
-    # Iterate over all flat source regions
+    # Iterate over all source regions
     for fsr in fsrs:
 
         # Allocate memory for an array of this FSR's fluxes
@@ -967,7 +997,7 @@ def plot_energy_fluxes(solver, fsrs, group_bounds=None, norm=True,
                 plt.close(fig)
 
     # Restore settings if called from ipython
-    matplotlib.rcParams.update(curr_rc)
+    update_rc_param(curr_rc)
 
     # Return the figures if requested by user
     if get_figure:
@@ -992,7 +1022,7 @@ def plot_fission_rates(solver, nu=False, norm=False, transparent_zeros=True,
         Whether use the nu-fission rates instead of the fission rates
         (False by default)
     norm : bool
-        Whether to normalize the fission rates (False by default)
+        Whether to normalize the fission rates to the mean (False by default)
     transparent_zeros : bool
         Whether to make all non-fissionable FSRs transparent (True by default)
     gridsize : Integral, optional
@@ -1028,7 +1058,7 @@ def plot_fission_rates(solver, nu=False, norm=False, transparent_zeros=True,
     global solver_types
     cv.check_type('solver', solver, solver_types)
 
-    py_printf('NORMAL', 'Plotting the flat source region fission rates...')
+    py_printf('NORMAL', 'Plotting the source region fission rates...')
 
     # Compute the volume-weighted fission rates for each FSR
     geometry = solver.getGeometry()
@@ -1045,7 +1075,7 @@ def plot_fission_rates(solver, nu=False, norm=False, transparent_zeros=True,
     plot_params.zlim = zlim
     plot_params.plane = plane
     plot_params.offset = offset
-    plot_params.suptitle = 'Flat Source Region Fission Rates'
+    plot_params.suptitle = 'Source Region Fission Rates'
     if plane == 'xy':
         plot_params.title = 'z = {0}'.format(offset)
         plot_params.filename = 'fission-rates-z-{0}.png'.format(offset)
@@ -1290,9 +1320,11 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
         # Reshape data to 2D array for Matplotlib image plot
         surface.shape = (plot_params.gridsize, plot_params.gridsize)
 
-        # Normalize data to maximum if requested
+        # Normalize data to average if requested
         if plot_params.norm:
-            surface /= np.max(surface)
+            if np.nanmean(surface) == 0:
+                py_printf('WARNING', "Normalizing plot colormap by 0.")
+            surface /= np.nanmean(surface)
 
         # Set zero data entries to NaN so Matplotlib will make them transparent
         if plot_params.transparent_zeros:
@@ -1326,13 +1358,10 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
         else:
 
             # Ensure that normal settings are used even if called from ipython
-            deprecated = ['text.latex.unicode', 'examples.directory']
-            curr_rc = {k: matplotlib.rcParams[k] for k in
-                       matplotlib.rcParams.keys() if matplotlib.__version__[0]
-                       < '3.0' or k not in deprecated}
-            matplotlib.rcParams.update(curr_rc)
+            curr_rc = matplotlib.rcParams.copy()
+            update_rc_param(curr_rc)
 
-            fig = plt.figure()
+            fig = plt.figure(constrained_layout=True)
             fig.patch.set_facecolor('none')
             plt.imshow(np.flipud(surface), extent=coords['bounds'],
                        interpolation=plot_params.interpolation,
@@ -1366,7 +1395,7 @@ def plot_spatial_data(domains_to_data, plot_params, get_figure=False):
                     plt.close()
 
             # Restore settings if called from ipython
-            matplotlib.rcParams.update(curr_rc)
+            update_rc_param(curr_rc)
 
     # Return Matplotlib figures if requested by user
     if get_figure:
@@ -1411,10 +1440,8 @@ def plot_quadrature(solver, get_figure=False):
     directory = openmoc.get_output_directory() + subdirectory
 
     # Ensure that normal settings are used even if called from ipython
-    deprecated = ['text.latex.unicode', 'examples.directory']
-    curr_rc = {k: matplotlib.rcParams[k] for k in matplotlib.rcParams.keys()
-               if matplotlib.__version__[0] < '3.0' or k not in deprecated}
-    matplotlib.rcParams.update(curr_rc)
+    curr_rc = matplotlib.rcParams.copy()
+    update_rc_param(curr_rc)
 
     # Make directory if it does not exist
     try:
@@ -1494,7 +1521,7 @@ def plot_quadrature(solver, get_figure=False):
     plt.title(title)
 
     # Restore settings if called from ipython
-    matplotlib.rcParams.update(curr_rc)
+    update_rc_param(curr_rc)
 
     # Save the figure or return to user
     if track_generator.getGeometry().isRootDomain():

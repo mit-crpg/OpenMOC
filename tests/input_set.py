@@ -12,10 +12,11 @@ class InputSet(object):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, num_dimensions=2):
+    def __init__(self, num_dimensions=2, small=False):
         self.materials = {}
         self.geometry = None
         self.dimensions = num_dimensions
+        self.small = small
 
     @abstractmethod
     def create_materials(self):
@@ -416,7 +417,6 @@ class SimpleLatticeInput(InputSet):
         super(SimpleLatticeInput, self).create_geometry()
 
 
-
 class PwrAssemblyInput(InputSet):
     """A 17x17 pin cell lattice problem from sample-input/ipython-notebook."""
 
@@ -569,7 +569,8 @@ class NonUniformLatticeInput(InputSet):
                                                directory='../../sample-input/')
 
     def create_geometry(self):
-        """Instantiate a 4x4 non-uniform simple lattice Geometry."""
+        """Instantiate a 4x4 non-uniform simple lattice Geometry.
+        Lower left is at [0, 0, 0] and width is [2.62, 2.62, 2.5]"""
 
         fuel_rings      = 1
         moderator_rings = 1
@@ -804,8 +805,11 @@ class AxialExtendedInput(InputSet):
 
         lower_left = [0.,0.,0.]
         # set the XYZ widths of non-uniform lattice
+        n_z = 20
+        if self.small:
+            n_z = 5
         width = ([gap_size,pin_pitch,pin_pitch,gap_size],
-                 [gap_size,pin_pitch,pin_pitch,gap_size], [1.0]*20)
+                 [gap_size,pin_pitch,pin_pitch,gap_size], [1.0]*n_z)
         lattice = openmoc.Lattice(name='lattice with gap')
         lattice.setWidths(width[0], width[1], width[2])
         lattice.setOffset(lower_left[0]+sum(width[0])/2.,
@@ -817,7 +821,7 @@ class AxialExtendedInput(InputSet):
                          [g,f,f,g],
                          [g,f,f,g],
                          [g,g,g,g]])
-        fill_universes = numpy.tile(a,(20,1,1))
+        fill_universes = numpy.tile(a,(n_z,1,1))
 
         # make the geometry axially heterogeneous
         fill_universes[2][1][1] = g

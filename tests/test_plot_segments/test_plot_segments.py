@@ -23,7 +23,8 @@ class PlotSegmentsTestHarness(PlottingTestHarness):
         super(PlotSegmentsTestHarness, self)._run_openmoc()
 
         # Create Matplotlib Figures for the tracks
-        self.figures = [plot_segments(self.track_generator, get_figure=True)]
+        self.figures = [plot_segments(self.track_generator, get_figure=True),
+             plot_segments(self.track_generator, plot_3D=True, get_figure=True)]
 
 
 if __name__ == '__main__':

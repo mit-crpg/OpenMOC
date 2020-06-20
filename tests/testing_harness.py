@@ -217,9 +217,9 @@ class TestHarness(object):
 
     def _compare_results(self):
         """Make sure the current results agree with the _true standard."""
-        
+
         # For comparison of files with different line endings
-        compare = (open('results_test.dat', 'r').read() == 
+        compare = (open('results_test.dat', 'r').read() ==
                    open('results_true.dat', 'r').read())
         if not compare:
             os.rename('results_test.dat', 'results_error.dat')
@@ -340,7 +340,7 @@ class PlottingTestHarness(TestHarness):
         for i in range(len(outputs)):
             shutil.copyfile('test-{0}.png'.format(i), 'true-{0}.png'.format(i))
 
-    def _compare_results(self, max_distance=1.):
+    def _compare_results(self, max_distance=0.1):
         """Make sure the current results agree with the true standard."""
 
         # Loop over each Matplotlib figure / PIL Image and
@@ -380,12 +380,12 @@ class PlottingTestHarness(TestHarness):
         rgba2 = np.array(img2)
 
         # Compute histograms of each images pixels
-        hr1, bins1 = np.histogram(rgba1[...,0], bins=256, normed=True)
-        hg1, bins1 = np.histogram(rgba1[...,1], bins=256, normed=True)
-        hb1, bins1 = np.histogram(rgba1[...,2], bins=256, normed=True)
-        hr2, bins2 = np.histogram(rgba2[...,0], bins=256, normed=True)
-        hg2, bins2 = np.histogram(rgba2[...,1], bins=256, normed=True)
-        hb2, bins2 = np.histogram(rgba2[...,2], bins=256, normed=True)
+        hr1, bins1 = np.histogram(rgba1[...,0], bins=256, density=True)
+        hg1, bins1 = np.histogram(rgba1[...,1], bins=256, density=True)
+        hb1, bins1 = np.histogram(rgba1[...,2], bins=256, density=True)
+        hr2, bins2 = np.histogram(rgba2[...,0], bins=256, density=True)
+        hg2, bins2 = np.histogram(rgba2[...,1], bins=256, density=True)
+        hb2, bins2 = np.histogram(rgba2[...,2], bins=256, density=True)
         hist1 = np.array([hr1, hg1, hb1]).ravel()
         hist2 = np.array([hr2, hg2, hb2]).ravel()
 
