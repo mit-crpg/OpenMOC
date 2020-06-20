@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.join(os.pardir, 'openmoc'))
 from testing_harness import TestHarness
 from input_set import PwrAssemblyInput
 import openmoc
+from openmoc.log import py_printf
 
 
 class CmfdPwrAssemblyTestHarness(TestHarness):
@@ -57,7 +58,7 @@ class CmfdPwrAssemblyTestHarness(TestHarness):
         """Compare an update ratio file"""
         # Assert that both files are the same
         if (os.system("cmp pf_group_4_iter_8.txt pf_reference.txt") != 0):
-            py_printf(openmoc.ERROR, "Prolongation ratios are different")
+            py_printf('ERROR', "Prolongation ratios are different")
 
         """Digest info in the solver and return hash as a string."""
         return super(CmfdPwrAssemblyTestHarness, self)._get_results(

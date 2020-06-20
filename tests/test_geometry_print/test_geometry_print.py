@@ -123,8 +123,8 @@ class GeometryPrintTestHarness(TestHarness):
 
         """Compare the two geometry print files."""
         if (os.system("cmp geometry.txt geometry_true.txt") != 0):
-                py_printf(openmoc.ERROR, "Geometry files are not printed "
-                          "properly")
+            py_printf('ERROR', "Geometry files are not printed "
+                      "properly")
 
         outstr = 'dummy'
         return outstr

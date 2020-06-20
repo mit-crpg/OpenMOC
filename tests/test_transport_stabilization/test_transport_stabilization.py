@@ -70,7 +70,7 @@ class TransportStabilizationTestHarness(TestHarness):
 
         # Compare the negative sources distribution to the reference
         if (os.system("cmp k_negative_sources_iter_0 negative_sources_reference") != 0):
-            py_printf(openmoc.ERROR, "Prolongation ratios are different")
+            py_printf('ERROR', "Prolongation ratios are different")
 
         """Digest info in the solver and return hash as a string."""
         return super(TransportStabilizationTestHarness, self)._get_results(
