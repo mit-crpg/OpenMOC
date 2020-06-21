@@ -20,6 +20,9 @@ class CmfdPwrAssemblyTestHarness(TestHarness):
         self.spacing = 0.12
         self.max_iters = 10
 
+        #FIXME
+        self.num_threads = 1
+
     def _create_geometry(self):
         """Initialize CMFD and add it to the Geometry."""
 
