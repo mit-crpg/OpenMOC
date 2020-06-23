@@ -3,7 +3,7 @@
 		Cell ID = 1000000, name = root cell, # rings = 0, # sectors = 0, type = FILL, , fill id = 1000001, # surfaces = 2, Surfaces: 
 halfspace = +1, Surface ID = 1000000, name = zmin, type = ZPLANE , A = 0, B = 0, C = 1, D = 2, z = -2
 halfspace = -1, Surface ID = 1000001, name = zmax, type = ZPLANE , A = 0, B = 0, C = 1, D = -2, z = 2
-		Cell ID = 1000001, name = intersection cell, # rings = 0, # sectors = 0, type = MATERIAL, fill id = 49930, (rotation = 0, 0, 0.0274156), # surfaces = 3, Surfaces: 
+		Cell ID = 1000001, name = intersection cell, # rings = 0, # sectors = 0, type = MATERIAL, fill id = 49930, (rotation = 0, 0, 90), # surfaces = 3, Surfaces: 
 halfspace = +1, Surface ID = 1000002, name = xmin, type = XPLANE , A = 1, B = 0, C = 0, D = 2, x = -2
 halfspace = +1, Surface ID = 1000003, name = ymin, type = YPLANE , A = 0, B = 1, C = 0, D = 2, y = -2
 halfspace = -1, Surface ID = 1000004, name = cylinder, type = ZCYLINDER , A = 1, B = 1, C = -0, D = -0, E = -6.25, x0 = 0, y0 = 0, radius = 2.5

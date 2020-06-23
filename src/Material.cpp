@@ -570,7 +570,7 @@ void Material::setNumEnergyGroups(const int num_groups) {
   /* Data is not vector aligned */
   else {
     if (_sigma_t != NULL)
-      delete [] _sigma_t;
+      free(_sigma_t);
 
     if (_sigma_s != NULL)
       delete [] _sigma_s;
@@ -740,7 +740,7 @@ void Material::setSigmaS(double* xs, int num_groups_squared) {
  */
 void Material::setSigmaSByGroup(double xs, int origin, int destination) {
 
-  if (origin <= 0 || destination <= 0 || origin > _num_groups || 
+  if (origin <= 0 || destination <= 0 || origin > _num_groups ||
       destination > _num_groups)
     log_printf(ERROR, "Unable to set sigma_s for group %d -> %d for Material %d"
                " which contains %d energy groups",

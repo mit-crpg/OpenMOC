@@ -131,7 +131,7 @@ class GeometryDumpTestHarness(TestHarness):
 
         # Assert that both files are the same
         if (os.system("cmp geometry_file.geo geometry_file_second.geo") != 0):
-            py_printf(openmoc.ERROR, "Geometry files are not dumped and loaded "
+            py_printf('ERROR', "Geometry files are not dumped and loaded "
                       "properly")
 
         # Python2 and 3 binaries differ, cannot compare the file to a reference.

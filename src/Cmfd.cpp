@@ -48,11 +48,13 @@ Cmfd::Cmfd() {
   _tallies_allocated = false;
   _domain_communicator_allocated = false;
   _linear_source = false;
-  _check_neutron_balance = false;
   _old_dif_surf_valid = false;
-
   _non_uniform = false;
   _widths_adjusted_for_domains = false;
+
+  /* Additional debug output */
+  _check_neutron_balance = false;
+  _print_cmfd_prolongation_ratios = false;
 
   /* Energy group and polar angle problem parameters */
   _num_moc_groups = 0;
@@ -1278,7 +1280,7 @@ double Cmfd::computeKeff(int moc_iteration) {
   _timer->recordSplit("Total CMFD time");
 
   /* If debugging, print CMFD prolongation factors */
-  if (get_log_level() == DEBUG)
+  if (get_log_level() == DEBUG || _print_cmfd_prolongation_ratios)
     printProlongationFactors();
 
   return _k_eff;
@@ -1721,6 +1723,14 @@ void Cmfd::setCMFDRelaxationFactor(double relaxation_factor) {
  */
 void Cmfd::checkBalance() {
   _check_neutron_balance = true;
+}
+
+
+/**
+ * @brief Print the CMFD prolongation factors at every iteration.
+ */
+void Cmfd::printProlongation() {
+  _print_cmfd_prolongation_ratios = true;
 }
 
 
@@ -4312,40 +4322,45 @@ void Cmfd::printInputParamsSummary() {
   else
     log_printf(NORMAL, "CMFD acceleration: OFF (no MOC flux update)");
 
-  // Print CMFD relaxation information
-  if (std::abs(_SOR_factor - 1) > FLT_EPSILON)
-    log_printf(NORMAL, "CMFD inner linear solver SOR factor: %f", _SOR_factor);
-  log_printf(NORMAL, "CMFD corrected diffusion coef. relaxation factor: %f",
-             _relaxation_factor);
+  if (_flux_update_on) {
+    // Print CMFD relaxation information
+    if (std::abs(_SOR_factor - 1) > FLT_EPSILON)
+      log_printf(NORMAL, "CMFD inner linear solver SOR factor: %f",
+                 _SOR_factor);
+    log_printf(NORMAL, "CMFD corrected diffusion coef. relaxation factor: %f",
+               _relaxation_factor);
 
-  // Print CMFD interpolation techniques
-  if (_centroid_update_on)
-    log_printf(NORMAL, "CMFD K-nearest scheme: %d neighbors", _k_nearest);
-  if (_use_axial_interpolation == 1)
-    log_printf(NORMAL, "CMFD axial interpolation with axially averaged update "
-               "ratios");
-  else if (_use_axial_interpolation == 2)
-    log_printf(NORMAL, "CMFD axial interpolation with update ratios evaluated "
-               "at centroid Z-coordinate");
+    // Print CMFD interpolation techniques
+    if (_centroid_update_on)
+      log_printf(NORMAL, "CMFD K-nearest scheme: %d neighbors", _k_nearest);
+    if (_use_axial_interpolation == 1)
+      log_printf(NORMAL, "CMFD axial interpolation with axially averaged "
+                 "update ratios");
+    else if (_use_axial_interpolation == 2)
+      log_printf(NORMAL, "CMFD axial interpolation with update ratios evaluated"
+                 " at centroid Z-coordinate");
 
-  // Print other CMFD modifications
-  if (_flux_limiting)
-    log_printf(INFO_ONCE, "CMFD corrected diffusion coef. bounded by "
-               "regular diffusion coef.");
-  if (_balance_sigma_t)
-    log_printf(INFO_ONCE, "CMFD total cross sections adjusted for matching MOC "
-               "reaction rates");
+    // Print other CMFD modifications
+    if (_flux_limiting)
+      log_printf(INFO_ONCE, "CMFD corrected diffusion coef. bounded by "
+                 "regular diffusion coef.");
+    if (_balance_sigma_t)
+      log_printf(INFO_ONCE, "CMFD total cross sections adjusted for matching "
+                 "MOC reaction rates");
+  }
 
   // Print CMFD space and energy mesh information
   log_printf(NORMAL, "CMFD Mesh: %d x %d x %d", _num_x, _num_y, _num_z);
-  if (_flux_update_on && _num_cmfd_groups != _num_moc_groups) {
-    log_printf(NORMAL, "CMFD Group Structure:");
-    log_printf(NORMAL, "\t MOC Group \t CMFD Group");
-    for (int g=0; g < _num_moc_groups; g++)
-      log_printf(NORMAL, "\t %d \t\t %d", g+1, getCmfdGroup(g)+1);
+  if (_flux_update_on) {
+    if (_num_cmfd_groups != _num_moc_groups) {
+      log_printf(NORMAL, "CMFD Group Structure:");
+      log_printf(NORMAL, "\t MOC Group \t CMFD Group");
+      for (int g=0; g < _num_moc_groups; g++)
+        log_printf(NORMAL, "\t %d \t\t %d", g+1, getCmfdGroup(g)+1);
+    }
+    else
+      log_printf(NORMAL, "CMFD and MOC group structures match");
   }
-  else
-    log_printf(NORMAL, "CMFD and MOC group structures match");
 }
 
 
@@ -5330,7 +5345,7 @@ void Cmfd::printProlongationFactors() {
 
       /* Select appropriate floating point size for transfer */
       MPI_Datatype mpi_precision;
-      if (sizeof(FP_PRECISION) == 4)
+      if (sizeof(CMFD_PRECISION) == 4)
         mpi_precision = MPI_FLOAT;
       else
         mpi_precision = MPI_DOUBLE;

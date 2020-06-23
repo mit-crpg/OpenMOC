@@ -1692,7 +1692,7 @@ int Geometry::getCmfdCell(long fsr_id) {
 
 
 /**
- * @brief reserves the FSR key strings
+ * @brief Reserves memory for the FSR key strings for each thread
  * @param num_threads the number of threads
  */
 void Geometry::reserveKeyStrings(int num_threads) {
@@ -2971,33 +2971,36 @@ std::vector<long> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
   /* Instantiate a vector to hold the domain IDs */
   std::vector<long> domains(dim1.size() * dim2.size());
 
+  /* Allocate fsr keys in case the track generator has not */
+  reserveKeyStrings(omp_get_max_threads());
+
   /* Extract the source region IDs */
-//#pragma omp parallel for
+#pragma omp parallel for collapse(2)
   for (int i=0; i < dim1.size(); i++) {
     for (int j=0; j < dim2.size(); j++) {
 
       Cell* cell;
-      LocalCoords* point;
+      LocalCoords point(0, 0, 0, true);
 
       /* Find the Cell containing this point */
       if (strcmp(plane, "xy") == 0)
-        point = new LocalCoords(dim1[i], dim2[j], offset, true);
+        point.getPoint()->setCoords(dim1[i], dim2[j], offset);
       else if (strcmp(plane, "xz") == 0)
-        point = new LocalCoords(dim1[i], offset, dim2[j], true);
+        point.getPoint()->setCoords(dim1[i], offset, dim2[j]);
       else if (strcmp(plane, "yz") == 0)
-        point = new LocalCoords(offset, dim1[i], dim2[j], true);
+        point.getPoint()->setCoords(offset, dim1[i], dim2[j]);
       else
         log_printf(ERROR, "Unable to extract spatial data for "
                           "unsupported plane %s", plane);
 
-      point->setUniverse(_root_universe);
-      cell = _root_universe->findCell(point);
+      point.setUniverse(_root_universe);
+      cell = _root_universe->findCell(&point);
       domains[i+j*dim1.size()] = -1;
 
       /* Extract the ID of the domain of interest */
-      if (withinGlobalBounds(point) && cell != NULL) {
+      if (withinGlobalBounds(&point) && cell != NULL) {
         if (strcmp(domain_type, "fsr") == 0)
-          domains[i+j*dim1.size()] = getGlobalFSRId(point, false);
+          domains[i+j*dim1.size()] = getGlobalFSRId(&point, false);
         else if (strcmp(domain_type, "material") == 0)
           domains[i+j*dim1.size()] = cell->getFillMaterial()->getId();
         else if (strcmp(domain_type, "cell") == 0)
@@ -3005,12 +3008,7 @@ std::vector<long> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
         else
           log_printf(ERROR, "Unable to extract spatial data for "
                             "unsupported domain type %s", domain_type);
-
       }
-
-      /* Deallocate memory for LocalCoords */
-      point = point->getHighestLevel();
-      delete point;
     }
   }
 

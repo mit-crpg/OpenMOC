@@ -49,6 +49,8 @@ def py_printf(level, my_str, *args):
         openmoc.log_printf(openmoc.RESULT, my_str % args)
     elif level == 'ERROR':
         openmoc.log_printf(openmoc.ERROR, my_str % args)
+    else:
+        openmoc.log_printf(openmoc.ERROR, "Unknown message log level.")
 
 
 def set_log_level(level):

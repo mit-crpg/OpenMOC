@@ -14,7 +14,7 @@ import openmoc.options
 # keeps working.
 
 class TestDefaultInit(unittest.TestCase):
-    
+
     # creates a new Options() every test
     def setUp(self):
         self._default_options = openmoc.options.Options()
@@ -38,8 +38,12 @@ class TestDefaultInit(unittest.TestCase):
         self.assertEqual(self._default_options._tolerance, .00001)
 
     def test_default_num_omp_threads(self):
+        try:
+            default_num_threads = int(os.environ["OMP_NUM_THREADS"])
+        except KeyError:
+            default_num_threads = multiprocessing.cpu_count()
         self.assertEqual(self._default_options._num_omp_threads,
-             multiprocessing.cpu_count())
+             default_num_threads)
 
     def test_default_num_thread_blocks(self):
         self.assertEqual(self._default_options._num_thread_blocks, 64)
@@ -88,4 +92,4 @@ class TestCustomInit(unittest.TestCase):
 suite = unittest.TestLoader().loadTestsFromTestCase(TestDefaultInit)
 suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestCustomInit))
 
-unittest.TextTestRunner(verbosity=2).run(suite)        
+unittest.TextTestRunner(verbosity=2).run(suite)

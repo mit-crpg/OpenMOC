@@ -1453,7 +1453,6 @@ def plot_quadrature(solver, get_figure=False):
     track_generator = solver.getTrackGenerator()
     quad = track_generator.getQuadrature()
     num_azim = track_generator.getNumAzim()
-    azim_spacing = track_generator.getDesiredAzimSpacing()
     num_polar_2 = int(quad.getNumPolarAngles() / 2)
     phis = np.zeros(num_azim//4)
     thetas = np.zeros(num_polar_2)
@@ -1509,13 +1508,11 @@ def plot_quadrature(solver, get_figure=False):
         py_printf('ERROR', 'Unable to plot the quadrature since the ' +
                   'quadrature type could not be recognized')
 
-    title += ' with ' + str(num_azim) + ' azim, ' + \
-             '{:5.3f}'.format(azim_spacing) + ' spacing and ' \
-             + str(2*num_polar_2) + ' polar'
+    title += ' with ' + str(num_azim) + ' azimuthal and ' \
+             + str(2*num_polar_2) + ' polar angles'
 
     filename = directory + 'quad_' + quad_type + '_' + \
-               str(num_azim) + '_azim_' + '{:5.3f}'.format(azim_spacing) + \
-               '_cm_spacing_' + str(2*num_polar_2) + '_polar.png'
+               str(num_azim) + '_azim_' + str(2*num_polar_2) + '_polar.png'
 
     ax.view_init(elev=30, azim=45)
     ax.set_xlim([0,1])
