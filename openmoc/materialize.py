@@ -291,6 +291,27 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
     if geometry:
         cv.check_type('geometry', geometry, openmoc.Geometry)
 
+    # Check for scattering order of mgxs library
+    if mgxs_lib.scatter_format == "legendre" and mgxs_lib.legendre_order > 0:
+        py_printf('WARNING', 'The MGXS library contains angular dependent '
+                  'cross sections of Legendre order %d. Since higher order '
+                  'scattering is not supported in OpenMOC, only the zeroth '
+                  'order will be transfered to OpenMOC materials.',
+                  mgxs_lib.legendre_order)
+    elif mgxs_lib.scatter_format == "histogram" and mgxs_lib.histogram_bins > 0:
+        py_printf('ERROR', 'The MGXS library contains angular dependent '
+                  'cross sections in %s format with %d bins. Angular dependent '
+                  'cross sections are not supported in OpenMOC.',
+                  mgxs_lib.scatter_format, mgxs_lib.order)
+
+    # Check other advanced MGXS features
+    if mgxs_lib.by_nuclide:
+        py_printf('WARNING', 'Group cross sections by nuclides are not currently'
+                  ' supported. Contributions from all nuclides will be summed.')
+    if mgxs_lib.domain_type in ['distribcell', 'universe', 'mesh']:
+        py_printf('ERROR', 'MGXS libraries ordered by %s are not currently '
+                  'supported in OpenMOC.'. mgxs_lib.domain_type)
+
     # Instantiate dictionary to hold Materials to return to user
     materials = {}
     old_materials = {}
@@ -399,24 +420,32 @@ def load_openmc_mgxs_lib(mgxs_lib, geometry=None):
         if 'consistent nu-scatter matrix' in mgxs_lib.mgxs_types:
             mgxs = mgxs_lib.get_mgxs(domain, 'consistent nu-scatter matrix')
             sigma = mgxs.get_xs(nuclides='sum').flatten()
+            if mgxs_lib.legendre_order > 0:
+                sigma = sigma[::mgxs_lib.legendre_order+1]
             material.setSigmaS(sigma)
             py_printf('DEBUG', 'Loaded "consistent nu-scatter matrix" MGXS for "%s %d"',
                       domain_type, domain.id)
         elif 'nu-scatter matrix' in mgxs_lib.mgxs_types:
             mgxs = mgxs_lib.get_mgxs(domain, 'nu-scatter matrix')
             sigma = mgxs.get_xs(nuclides='sum').flatten()
+            if mgxs_lib.legendre_order > 0:
+                sigma = sigma[::mgxs_lib.legendre_order+1]
             material.setSigmaS(sigma)
             py_printf('DEBUG', 'Loaded "nu-scatter matrix" MGXS for "%s %d"',
                       domain_type, domain.id)
         elif 'consistent scatter matrix' in mgxs_lib.mgxs_types:
             mgxs = mgxs_lib.get_mgxs(domain, 'consistent scatter matrix')
             sigma = mgxs.get_xs(nuclides='sum').flatten()
+            if mgxs_lib.legendre_order > 0:
+                sigma = sigma[::mgxs_lib.legendre_order+1]
             material.setSigmaS(sigma)
             py_printf('DEBUG', 'Loaded "consistent scatter matrix" MGXS for "%s %d"',
                       domain_type, domain.id)
         elif 'scatter matrix' in mgxs_lib.mgxs_types:
             mgxs = mgxs_lib.get_mgxs(domain, 'scatter matrix')
             sigma = mgxs.get_xs(nuclides='sum').flatten()
+            if mgxs_lib.legendre_order > 0:
+                sigma = sigma[::mgxs_lib.legendre_order+1]
             material.setSigmaS(sigma)
             py_printf('DEBUG', 'Loaded "scatter matrix" MGXS for "%s %d"',
                       domain_type, domain.id)
