@@ -29,9 +29,9 @@ class LoadMGXSTestHarness(MultiSimTestHarness):
                           'mgxs_consistent',
                           'mgxs_consistent_nuscatter',
                           'mgxs_materials',
-                          'mgxs_by_nuclide',
                           'mgxs_angular_legendre']
         # mgxs_angular_histogram currently not supported
+        # mgxs_nuclide should be redone with the latest version of openmc
         # mgxs by distribcell, universe and mesh also not supported
 
     def _create_geometry(self):
