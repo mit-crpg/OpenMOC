@@ -577,10 +577,6 @@ void LocalCoords::copyCoords(LocalCoords* coords) {
       curr2 = curr2->getNextCreate(0, 0, 0);
     }
   }
-
-  /* Prune any remainder from the old coords linked list */
-  if (curr2 != NULL)
-    curr2->prune();
 }
 
 

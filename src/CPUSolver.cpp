@@ -2590,7 +2590,7 @@ void CPUSolver::transferBoundaryFlux(Track* track,
   /* For vacuum boundary conditions, losing the flux is enough */
 
   /* Tally leakage if applicable */
-  if (_cmfd == NULL) {
+  if (!_keff_from_fission_rates) {
     if (bc_out == VACUUM) {
       long track_id = track->getUid();
       FP_PRECISION weight = _quad->getWeightInline(azim_index, polar_index);
