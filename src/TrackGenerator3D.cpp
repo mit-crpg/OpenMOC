@@ -925,7 +925,7 @@ void TrackGenerator3D::initialize2DTrackChains() {
 
 /**
  * @brief Save or initialize 3D tracks by traversing all the 3D chain tracks,
- *        and split each 3D chain track into 3D tracks belonging to 
+ *        and split each 3D chain track into 3D tracks belonging to
  *        the z-stacks.
  * @param tcis array of Track chain indexes, sorted by chain
  * @param num_chains number of 3D Track chains to examine
@@ -965,11 +965,11 @@ void TrackGenerator3D::getCycleTrackData(TrackChainIndexes* tcis,
 
 
 /**
- * @brief Compute the starting coordinates of a 3D chain track, and the link 
+ * @brief Compute the starting coordinates of a 3D chain track, and the link
           number of the 2D track where its start point reside on.
  * @param tci the track chain index of a chain track
  * @param track_3D the chain track
- * @return the link number of the 2D track where the track_3D start point 
+ * @return the link number of the 2D track where the track_3D start point
  *         reside on
  */
 int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
@@ -1084,12 +1084,12 @@ int TrackGenerator3D::getFirst2DTrackLinkIndex(TrackChainIndexes* tci,
 
 
 /**
- * @brief A 3D Track is decomposed by intersections with x and y boundaries of 
+ * @brief A 3D Track is decomposed by intersections with x and y boundaries of
  *        z-stacks.
  * @details A 3D Track which initially neglects intersections with x and y
  *          boundaries is split into multiple tracks by finding those
- *          x and y intersections. If create_arrays is True, the number of 
- *          tracks in the associated z-stacks is incremented. 
+ *          x and y intersections. If create_arrays is True, the number of
+ *          tracks in the associated z-stacks is incremented.
  * @param tci pointer to a track chain index representing a chain track
  * @param track The 3D track to be decomposed
  * @param create_arrays whether creating the stack array of Tracks
@@ -1607,9 +1607,9 @@ void TrackGenerator3D::allocateTemporarySegments() {
     MPI_Allreduce(&_num_seg_matrix_columns, &max_size, 1, MPI_LONG, MPI_MAX,
                   _geometry->getMPICart());
 #endif
-  double max_size_mb = (double) (max_size * _num_threads * sizeof(segment)) 
+  double max_size_mb = (double) (max_size * _num_threads * sizeof(segment))
       / (double) (1e6);
- 
+
   log_printf(INFO_ONCE, "Max temporary segment storage per domain = %6.2f MB",
              max_size_mb);
 
@@ -1636,8 +1636,8 @@ void TrackGenerator3D::allocateTemporaryTracks() {
     _temporary_tracks_array.resize(_num_threads);
     _contains_temporary_tracks = true;
   }
- 
-  /* Report memory usage */ 
+
+  /* Report memory usage */
   double size_mb = (double) (_num_threads * _max_num_tracks_per_stack
         * sizeof(Track3D)) / (double) 1e6;
   log_printf(INFO_ONCE, "Temporary Track storage per domain = %6.2f MB",
@@ -2446,7 +2446,7 @@ void TrackGenerator3D::writeExtrudedFSRInfo(FILE* out) {
 
       int extruded_fsr_id = extruded_fsr->_fsr_id;
       fwrite(&extruded_fsr_id, sizeof(int), 1, out);
- 
+
       double x = extruded_fsr->_coords->getX();
       double y = extruded_fsr->_coords->getY();
       double z = extruded_fsr->_coords->getZ();
@@ -2503,7 +2503,7 @@ void TrackGenerator3D::readExtrudedFSRInfo(FILE* in) {
     int ret = _geometry->twiddleRead(&num_extruded_FSRs, sizeof(int), 1, in);
 
     /* Resize for the number of extruded FSRs */
-    std::vector<ExtrudedFSR*>& extruded_FSR_lookup = 
+    std::vector<ExtrudedFSR*>& extruded_FSR_lookup =
         _geometry->getExtrudedFSRLookup();
     extruded_FSR_lookup.resize(num_extruded_FSRs);
     extruded_FSR_keys_map.realloc(2*num_extruded_FSRs);
@@ -2517,7 +2517,7 @@ void TrackGenerator3D::readExtrudedFSRInfo(FILE* in) {
       char* char_buffer2 = new char[string_length];
       ret = _geometry->twiddleRead(char_buffer2, sizeof(char)*string_length, 1,
                                    in);
-      std::string key = std::string(char_buffer2);    
+      std::string key = std::string(char_buffer2);
 
       /* Create new extruded FSR and add to map */
       ExtrudedFSR* extruded_fsr = new ExtrudedFSR;

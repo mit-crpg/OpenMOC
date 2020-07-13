@@ -328,10 +328,8 @@ void CPUSolver::initializeFluxArrays() {
     _start_flux = new float[size]();
 #endif
 
-    /* Allocate memory for boundary leakage if necessary. CMFD is not set in
-       solver at this point, so the value of _cmfd is always NULL as initial
-       value currently */
-    if (_geometry->getCmfd() == NULL) {
+    /* Allocate memory for boundary leakage if necessary */
+    if (!_keff_from_fission_rates) {
       _boundary_leakage = new float[_tot_num_tracks]();
     }
 

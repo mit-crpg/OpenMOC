@@ -171,7 +171,7 @@ LocalCoords* LocalCoords::getNext() const {
 
 
 /**
- * @brief Creates and returns a pointer to the next LocalCoords (nested 
+ * @brief Creates and returns a pointer to the next LocalCoords (nested
  *        deeper).
  * @param x the x-coordinate
  * @param y the y-coordinate
@@ -182,7 +182,7 @@ LocalCoords* LocalCoords::getNextCreate(double x, double y, double z) {
 
   if (_next == NULL) {
 
-    /* If more LocalCoords than the array size defined in constants.h, 
+    /* If more LocalCoords than the array size defined in constants.h,
     create a new one */
     if (_position + 1 >= _array_size) {
       _next = new LocalCoords(x, y, z, true);
@@ -510,7 +510,7 @@ void LocalCoords::updateMostLocal(Point* point) {
 void LocalCoords::prune() {
 
   LocalCoords* curr = getLowestLevel();
-  LocalCoords* next = curr->getPrev();
+  LocalCoords* next;
 
   /* Iterate over LocalCoords beneath this one in the linked list */
   while (curr != this) {
@@ -607,7 +607,7 @@ std::string LocalCoords::toString() {
     int cell_id = -1;
     if (curr->getCell() != NULL)
       cell_id = curr->getCell()->getId();
-    
+
     if (curr->getType() == UNIV) {
       string << " UNIVERSE, x = " << curr->getX()
              << ", y = " << curr->getY()

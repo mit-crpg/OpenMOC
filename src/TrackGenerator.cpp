@@ -464,7 +464,7 @@ void TrackGenerator::setNumThreads(int num_threads) {
   /* Set the number of threads for OpenMP */
   omp_set_num_threads(_num_threads);
   if (_geometry != NULL)
-    _geometry->reserveKeyStrings(num_threads);
+    _geometry->setNumThreads(num_threads);
 
   /* Print CPU assignments, useful for NUMA where by-socket is the preferred
    * CPU grouping */

@@ -307,6 +307,7 @@ public:
   Cell* findNextCell(LocalCoords* coords, double azim, double polar=M_PI_2);
 
   /* Other worker methods */
+  void setNumThreads(int num_threads);
   void reserveKeyStrings(int num_threads);
   void subdivideCells();
   void initializeAxialFSRs(std::vector<double> global_z_mesh);
