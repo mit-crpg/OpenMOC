@@ -438,6 +438,7 @@ public:
   int getNumX();
   int getNumY();
   int getNumZ();
+  int getLocalNumZ();
   Vector* getLocalCurrents();
   CMFD_PRECISION*** getBoundarySurfaceCurrents();
   int convertFSRIdToCmfdCell(long fsr_id);

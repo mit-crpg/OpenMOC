@@ -340,6 +340,15 @@ int Cmfd::getNumZ() {
 
 
 /**
+ * @brief Get the number of Mesh cells in the z-direction in the local domain
+ * @return number of Mesh cells in the z-direction in the domain
+ */
+int Cmfd::getLocalNumZ() {
+  return _local_num_z;
+}
+
+
+/**
  * @brief Get the Vector of surface currents.
  * @return pointer to a vector containing the surface currents
  */

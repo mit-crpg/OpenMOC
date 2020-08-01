@@ -328,10 +328,8 @@ void CPUSolver::initializeFluxArrays() {
     _start_flux = new float[size]();
 #endif
 
-    /* Allocate memory for boundary leakage if necessary. CMFD is not set in
-       solver at this point, so the value of _cmfd is always NULL as initial
-       value currently */
-    if (_geometry->getCmfd() == NULL) {
+    /* Allocate memory for boundary leakage if necessary */
+    if (!_keff_from_fission_rates) {
       _boundary_leakage = new float[_tot_num_tracks]();
     }
 
@@ -2592,7 +2590,7 @@ void CPUSolver::transferBoundaryFlux(Track* track,
   /* For vacuum boundary conditions, losing the flux is enough */
 
   /* Tally leakage if applicable */
-  if (_cmfd == NULL) {
+  if (!_keff_from_fission_rates) {
     if (bc_out == VACUUM) {
       long track_id = track->getUid();
       FP_PRECISION weight = _quad->getWeightInline(azim_index, polar_index);

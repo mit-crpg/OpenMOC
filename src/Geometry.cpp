@@ -1692,6 +1692,21 @@ int Geometry::getCmfdCell(long fsr_id) {
 
 
 /**
+ * @brief Reserves memory for threaded constructs used by the Geometry class.
+ * @param num_threads the number of threads
+ */
+void Geometry::setNumThreads(int num_threads) {
+
+  /* Allocate fsr_keys for enough threads */
+  reserveKeyStrings(num_threads);
+
+  /* Allocate threaded constructs of the ExtrudedFSR maps */
+  _FSR_keys_map.setNumThreads(num_threads);
+  _extruded_FSR_keys_map.setNumThreads(num_threads);
+}
+
+
+/**
  * @brief Reserves memory for the FSR key strings for each thread
  * @param num_threads the number of threads
  */
@@ -2600,7 +2615,8 @@ void Geometry::fixFSRMaps() {
  *          initializing the 3D FSRs as new regions are traversed.
  * @param global_z_mesh A global z mesh used for ray tracing. If the vector's
  *        length is zero, z meshes are local and need to be created for every
- *        ExtrudedFSR.
+ *        ExtrudedFSR. The global_z_mesh is local to the domain when using
+ *        domain decomposition.
  */
 void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
 
@@ -2620,7 +2636,11 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
   int anticipated_size = 2 * _extruded_FSR_keys_map.size();
   if (_overlaid_mesh != NULL)
     anticipated_size *= _overlaid_mesh->getNumZ();
-  _FSR_keys_map.realloc(anticipated_size);
+  else
+    if (_cmfd != NULL)
+      anticipated_size *= _cmfd->getLocalNumZ();
+  if (anticipated_size > _FSR_keys_map.bucket_count())
+    _FSR_keys_map.realloc(anticipated_size);
   long total_number_fsrs_in_stack = 0;
 
   /* Loop over extruded FSRs */
@@ -2696,7 +2716,7 @@ void Geometry::initializeAxialFSRs(std::vector<double> global_z_mesh) {
         level += segments[s]._length;
         if (std::abs(level - max_z) < 1e-12)
           level = max_z;
-      extruded_FSR->_mesh[s+1] = level;
+        extruded_FSR->_mesh[s+1] = level;
       }
     }
     /* Keep track of the number of FSRs in extruded FSRs */
@@ -2972,7 +2992,7 @@ std::vector<long> Geometry::getSpatialDataOnGrid(std::vector<double> dim1,
   std::vector<long> domains(dim1.size() * dim2.size());
 
   /* Allocate fsr keys in case the track generator has not */
-  reserveKeyStrings(omp_get_max_threads());
+  setNumThreads(omp_get_max_threads());
 
   /* Extract the source region IDs */
 #pragma omp parallel for collapse(2)

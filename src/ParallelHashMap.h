@@ -119,6 +119,7 @@ class ParallelHashMap {
     K* keys();
     V* values();
     void clear();
+    void setNumThreads(int num_threads);
     void setFixedSize();
     void print_buckets();
     void realloc(size_t M);
@@ -439,7 +440,6 @@ ParallelHashMap<K,V>::ParallelHashMap(size_t M, size_t L) {
   _fixed_size = false;
 
   /* get number of threads and create concurrency structures */
-  _num_threads = 1;
   _num_threads = omp_get_max_threads();
   _num_locks = L;
   _locks = new omp_lock_t[_num_locks];
@@ -670,7 +670,7 @@ void ParallelHashMap<K,V>::resize() {
     omp_set_lock(&_locks[i]);
 
   /* recheck if resize needed */
-  if (2*_table->size() < _table->bucket_count()) {
+  if (2*_table->size() <= _table->bucket_count()) {
     /* release locks */
     for (size_t i=0; i<_num_locks; i++)
       omp_unset_lock(&_locks[i]);
@@ -809,12 +809,30 @@ V* ParallelHashMap<K,V>::values() {
   } while (table_ptr != _table);
 
   /* get value list */
-  V* value_list = table_ptr->values();
+  V *value_list = table_ptr->values();
 
   /* reset table announcement to not searching */
   _announce[tid].value = NULL;
 
   return value_list;
+}
+
+
+/**
+ * @brief Re-allocate the threaded _announce vector to the desired number of
+ *        threads.
+ * @param num_threads the desired number of threads
+ */
+template <class K, class V>
+void ParallelHashMap<K,V>::setNumThreads(int num_threads) {
+
+  _num_threads = num_threads;
+
+  /* Allocate for the desired number of threads */
+  delete[] _announce;
+  _announce = new paddedPointer[_num_threads];
+  for (size_t t=0; t<_num_threads; t++)
+    _announce[t].value = NULL;
 }
 
 

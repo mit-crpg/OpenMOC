@@ -20,7 +20,7 @@ Progress::Progress(long num_iterations, std::string name, double interval,
   _counter = 0;
   _curr_interval = 0;
 
-  /* Based on interval fraction, set an integer number of intervals, and save 
+  /* Based on interval fraction, set an integer number of intervals, and save
    * each interval value in _intervals */
   int num_intervals = 1. / interval + 1;
   _intervals.resize(num_intervals);

@@ -721,7 +721,7 @@ void Material::setSigmaTByGroup(double xs, int group) {
 void Material::setSigmaS(double* xs, int num_groups_squared) {
 
   if (_num_groups*_num_groups != num_groups_squared)
-    log_printf(ERROR, "Unable to set sigma_s with %f groups for Material %d "
+    log_printf(ERROR, "Unable to set sigma_s with %.4e groups for Material %d "
                "which contains %d energy groups",
                 float(sqrt(num_groups_squared)), _id, _num_groups);
 
