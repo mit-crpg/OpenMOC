@@ -11,7 +11,6 @@
 int RuntimeParameters::setRuntimeParameters(int argc, char *argv[]) {
 
   int arg_index = 0;
-  int print_usage = 0;
 
   /* Parse the run time commands*/
   while (arg_index < argc) {
@@ -121,16 +120,16 @@ int RuntimeParameters::setRuntimeParameters(int argc, char *argv[]) {
     else if(strcmp(argv[arg_index], "-CMFD_centroid_update_on") == 0) {
       arg_index++;
       _CMFD_centroid_update_on = atoi(argv[arg_index++]);
-    } 
+    }
     else if(strcmp(argv[arg_index], "-use_axial_interpolation") == 0) {
       arg_index++;
       _use_axial_interpolation = atoi(argv[arg_index++]);
-    } 
+    }
     else if(strcmp(argv[arg_index], "-help") == 0 ||
             strcmp(argv[arg_index], "--help") == 0 ||
             strcmp(argv[arg_index], "-h") == 0 ||
             strcmp(argv[arg_index], "--h") == 0) {
-      print_usage = 1;
+      _print_usage = 1;
       break;
     }
     else if(strcmp(argv[arg_index], "-log_filename") == 0) {
@@ -153,7 +152,7 @@ int RuntimeParameters::setRuntimeParameters(int argc, char *argv[]) {
           for(int i=0; i< atoi(qr); i++)
             _cell_widths_x.push_back(atof(ql));
         }
-        else 
+        else
           _cell_widths_x.push_back(atof(p));
         buf = NULL;
       }
@@ -171,11 +170,11 @@ int RuntimeParameters::setRuntimeParameters(int argc, char *argv[]) {
           for(int i=0; i< atoi(qr); i++)
             _cell_widths_y.push_back(atof(ql));
         }
-        else 
+        else
           _cell_widths_y.push_back(atof(p));
         buf = NULL;
       }
-      arg_index++;      
+      arg_index++;
     }
     else if(strcmp(argv[arg_index], "-widths_z") == 0) {
       arg_index++;
@@ -189,7 +188,7 @@ int RuntimeParameters::setRuntimeParameters(int argc, char *argv[]) {
           for(int i=0; i< atoi(qr); i++)
             _cell_widths_z.push_back(atof(ql));
         }
-        else 
+        else
           _cell_widths_z.push_back(atof(p));
         buf = NULL;
       }
@@ -211,7 +210,7 @@ int RuntimeParameters::setRuntimeParameters(int argc, char *argv[]) {
           for(int i=0; i< atoi(qr); i++)
             _seg_zones.push_back(atof(ql));
         }
-        else 
+        else
           _seg_zones.push_back(atof(p));
         buf = NULL;
       }
@@ -249,16 +248,16 @@ int RuntimeParameters::setRuntimeParameters(int argc, char *argv[]) {
             for(int i=atoi(ql); i<= atoi(qr); i++)
               tmp.push_back(i);
           }
-          else 
+          else
             tmp.push_back(atoi(p));
           buf = NULL;
         }
-        
+
         _CMFD_group_structure.push_back(tmp);
         buf = NULL;
       }
       arg_index++;
-    }  
+    }
     else if(strcmp(argv[arg_index], "-verbose_report") == 0) {
       arg_index++;
       _verbose_report = atoi(argv[arg_index++]);
@@ -274,7 +273,7 @@ int RuntimeParameters::setRuntimeParameters(int argc, char *argv[]) {
     else if(strcmp(argv[arg_index], "-quadraturetype") == 0) {
       arg_index++;
       _quadraturetype = atoi(argv[arg_index++]);
-    } 
+    }
     else if(strcmp(argv[arg_index], "-non_uniform_output") == 0) {
       arg_index++;
       char *buf = argv[arg_index];
@@ -292,7 +291,7 @@ int RuntimeParameters::setRuntimeParameters(int argc, char *argv[]) {
             for(int i=0; i< atoi(qr); i++)
               tmp.push_back(atof(ql));
           }
-          else 
+          else
             tmp.push_back(atof(p));
           buf = NULL;
         }
@@ -301,7 +300,7 @@ int RuntimeParameters::setRuntimeParameters(int argc, char *argv[]) {
       }
       _non_uniform_mesh_lattices.push_back(widths_offset);
       arg_index++;
-    }  
+    }
     else {
       arg_index++;
     }
@@ -310,7 +309,7 @@ int RuntimeParameters::setRuntimeParameters(int argc, char *argv[]) {
 #ifdef MPIx
   MPI_Comm_rank(MPI_COMM_WORLD, &myid);
 #endif
-  if ((print_usage) && (myid == 0)) {
+  if ((_print_usage) && (myid == 0)) {
     printf("Usage: %s [<options>], default value in (). Example commands as "
            "below\n", argv[0]);
     printf("\n");
@@ -439,10 +438,10 @@ int RuntimeParameters::setRuntimeParameters(int argc, char *argv[]) {
     printf("\n");
   }
 
-  if (print_usage) {
+  if (_print_usage) {
 #ifdef MPIx
     MPI_Finalize();
 #endif
-    return 0;
   }
+  return 0;
 }

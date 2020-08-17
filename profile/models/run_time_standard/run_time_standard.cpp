@@ -13,10 +13,10 @@ int main(int argc, char* argv[]) {
   MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
   log_set_ranks(MPI_COMM_WORLD);
   if (provided < MPI_THREAD_SERIALIZED) {
-    log_printf(ERROR, "Not enough thread support level in the MPI library");  
+    log_printf(ERROR, "Not enough thread support level in the MPI library");
   }
 #endif
-  
+
   int arg_index = 0;
   std::string msg_string;
   while (arg_index < argc) {
@@ -24,13 +24,17 @@ int main(int argc, char* argv[]) {
     msg_string += " ";
     arg_index++;
   }
-  
+
   RuntimeParameters runtime;
   runtime.setRuntimeParameters(argc, argv);
-  
+
+  /* Exit early if only asked to display help message */
+  if (runtime._print_usage)
+    return 0;
+
   /* stuck here for debug tools to attach */
   while (runtime._debug_flag) ;
-  
+
   /* Define simulation parameters */
 #ifdef OPENMP
   int num_threads = runtime._num_threads;
@@ -57,25 +61,25 @@ int main(int argc, char* argv[]) {
     log_printf(ERROR, "No geometry file is provided");
   geometry->loadFromFile(runtime._geo_filename);
 #ifdef MPIx
-  geometry->setDomainDecomposition(runtime._NDx, runtime._NDy, runtime._NDz, 
-                                   MPI_COMM_WORLD); 
+  geometry->setDomainDecomposition(runtime._NDx, runtime._NDy, runtime._NDz,
+                                   MPI_COMM_WORLD);
 #endif
   geometry->setNumDomainModules(runtime._NMx, runtime._NMy, runtime._NMz);
 
   if ((runtime._NCx >0 && runtime._NCy > 0 && runtime._NCz > 0) ||
       (!runtime._cell_widths_x.empty() && !runtime._cell_widths_y.empty() &&
        !runtime._cell_widths_z.empty())) {
-    
+
     /* Create CMFD mesh */
     log_printf(NORMAL, "Creating CMFD mesh...");
     Cmfd* cmfd = new Cmfd();
     cmfd->setSORRelaxationFactor(runtime._SOR_factor);
     cmfd->setCMFDRelaxationFactor(runtime._CMFD_relaxation_factor);
     if(runtime._cell_widths_x.empty() || runtime._cell_widths_y.empty() ||
-        runtime._cell_widths_z.empty()) 
+        runtime._cell_widths_z.empty())
       cmfd->setLatticeStructure(runtime._NCx, runtime._NCy, runtime._NCz);
     else {
-      std::vector< std::vector<double> > cmfd_widths{runtime._cell_widths_x, 
+      std::vector< std::vector<double> > cmfd_widths{runtime._cell_widths_x,
           runtime._cell_widths_y, runtime._cell_widths_z};
       cmfd->setWidths(cmfd_widths);
     }
@@ -84,7 +88,7 @@ int main(int argc, char* argv[]) {
     cmfd->setKNearest(runtime._knearest);
     cmfd->setCentroidUpdateOn(runtime._CMFD_centroid_update_on);
     cmfd->useAxialInterpolation(runtime._use_axial_interpolation);
-    
+
     geometry->setCmfd(cmfd);
   }
 
@@ -103,7 +107,7 @@ int main(int argc, char* argv[]) {
 
   quad->setNumAzimAngles(runtime._num_azim);
   quad->setNumPolarAngles(runtime._num_polar);
-  TrackGenerator3D track_generator(geometry, runtime._num_azim, 
+  TrackGenerator3D track_generator(geometry, runtime._num_azim,
                                    runtime._num_polar, runtime._azim_spacing,
                                    runtime._polar_spacing);
   track_generator.setNumThreads(num_threads);
@@ -124,7 +128,7 @@ int main(int argc, char* argv[]) {
     solver->setVerboseIterationReport();
   solver->setNumThreads(num_threads);
   solver->setConvergenceThreshold(runtime._tolerance);
-  solver->computeEigenvalue(runtime._max_iters, 
+  solver->computeEigenvalue(runtime._max_iters,
                            (residualType)runtime._MOC_src_residual_type);
   if(runtime._time_report)
     solver->printTimerReport();
@@ -135,23 +139,23 @@ int main(int argc, char* argv[]) {
   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 #endif
   std::string rxtype[4] = {"FISSION_RX", "TOTAL_RX", "ABSORPTION_RX", "FLUX_RX"};
-                          
+
 
   for(int m=0; m< runtime._output_mesh_lattices.size(); m++) {
     Mesh mesh(solver);
-    mesh.createLattice(runtime._output_mesh_lattices[m][0], 
-                       runtime._output_mesh_lattices[m][1], 
+    mesh.createLattice(runtime._output_mesh_lattices[m][0],
+                       runtime._output_mesh_lattices[m][1],
                        runtime._output_mesh_lattices[m][2]);
     Vector3D rx_rates = mesh.getFormattedReactionRates
                         ((RxType)runtime._output_types[m]);
-      
+
     if (my_rank == 0) {
-      std::cout << "Output " << m << ", reaction type: " 
+      std::cout << "Output " << m << ", reaction type: "
                 << rxtype[runtime._output_types[m]]
                 << ", lattice: " << runtime._output_mesh_lattices[m][0] << ","
                 << runtime._output_mesh_lattices[m][1] << ","
                 << runtime._output_mesh_lattices[m][2] << std::endl;
-      for (int k=0; k < rx_rates.at(0).at(0).size(); k++) {  
+      for (int k=0; k < rx_rates.at(0).at(0).size(); k++) {
         for (int j=rx_rates.at(0).size()-1; j >= 0 ; j--) {
           for (int i=0; i < rx_rates.size(); i++) {
             std::cout << rx_rates.at(i).at(j).at(k) << " ";
@@ -165,17 +169,17 @@ int main(int argc, char* argv[]) {
   for(int m=0; m<runtime._non_uniform_mesh_lattices.size(); m++) {
     Mesh mesh(solver);
     Vector3D rx_rates = mesh.getNonUniformFormattedReactionRates
-        (runtime._non_uniform_mesh_lattices[m], 
+        (runtime._non_uniform_mesh_lattices[m],
         (RxType)runtime._output_types[m+runtime._output_mesh_lattices.size()]);
     if (my_rank == 0) {
-       std::cout <<"Output " << m+runtime._output_mesh_lattices.size() 
-        << ", reaction type: " 
+       std::cout <<"Output " << m+runtime._output_mesh_lattices.size()
+        << ", reaction type: "
         << rxtype[runtime._output_types[m+runtime._output_mesh_lattices.size()]]
-        << ", lattice: " 
+        << ", lattice: "
         << runtime._non_uniform_mesh_lattices[m][0].size() << ","
         << runtime._non_uniform_mesh_lattices[m][1].size() << ","
         << runtime._non_uniform_mesh_lattices[m][2].size() << std::endl;
-      for (int k=0; k < rx_rates.at(0).at(0).size(); k++) {  
+      for (int k=0; k < rx_rates.at(0).at(0).size(); k++) {
         for (int j=rx_rates.at(0).size()-1; j >= 0 ; j--) {
           for (int i=0; i < rx_rates.size(); i++) {
             std::cout << rx_rates.at(i).at(j).at(k) << " ";
