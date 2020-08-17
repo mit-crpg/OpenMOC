@@ -25,6 +25,23 @@
 #include <omp.h>
 #endif
 
+/* Modified from so/33745364/sched-getcpu-equivalent-for-os-x */
+#ifndef __linux__
+#include <cpuid.h>
+
+inline int sched_getcpu() {
+  int CPU;
+  uint32_t CPUInfo[4];
+  __cpuid_count(1, 0, CPUInfo[0], CPUInfo[1], CPUInfo[2], CPUInfo[3]);
+  /* CPUInfo[1] is EBX, bits 24-31 are APIC ID */
+  if ( (CPUInfo[3] & (1 << 9)) == 0)
+    CPU = -1;  /* no APIC on chip */
+  else
+    CPU = (unsigned)CPUInfo[1] >> 24;
+  if (CPU < 0) CPU = 0;
+  return CPU;
+}
+#endif
 
 /**
  * @class TrackGenerator TrackGenerator.h "src/TrackGenerator.h"
@@ -57,7 +74,7 @@ protected:
    *  azimuthal angle */
   int* _num_y;
 
-  /** A long integer array of the number of Tracks for each azimuthal angle */ 
+  /** A long integer array of the number of Tracks for each azimuthal angle */
   long* _tracks_per_azim;
 
   /** A 2D ragged array of 2D tracks (azim, track index) */
