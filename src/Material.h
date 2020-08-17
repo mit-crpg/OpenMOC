@@ -38,7 +38,7 @@
 #else
 /** macosx aligns on 16 byte boundaries */
 #define MM_MALLOC(size,alignment) malloc(size)
-#if VEC_ALIGNMENT!=64
+#if VEC_ALIGNMENT>64
 #error "VEC_ALIGNMENT should be set to 64 bits for macosx"
 #endif
 #endif
