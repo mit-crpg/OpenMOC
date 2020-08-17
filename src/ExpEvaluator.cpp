@@ -263,7 +263,8 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
 #else
 #if __cplusplus>=201703L
   _exp_table = (FP_PRECISION*) std::aligned_alloc(VEC_ALIGNMENT,
-               _table_size * sizeof(FP_PRECISION));
+               int(_table_size * sizeof(FP_PRECISION) / VEC_ALIGNMENT) *
+               VEC_ALIGNMENT);
 #else
   _exp_table = (FP_PRECISION*) malloc(_table_size * sizeof(FP_PRECISION));
 #endif
