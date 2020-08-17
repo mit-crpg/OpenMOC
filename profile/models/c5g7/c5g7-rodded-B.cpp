@@ -745,8 +745,10 @@ int main(int argc, char* argv[]) {
   mesh.createLattice(51, 51, 1);
   Vector3D rx_rates = mesh.getFormattedReactionRates(FISSION_RX);
 
-  int my_rank;
+  int my_rank = 0;
+#ifdef MPIx
   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+#endif
   if (my_rank == 0) {
     for (int k=0; k < rx_rates.at(0).at(0).size(); k++) {
       std::cout << " -------- z = " << k << " ----------" << std::endl;
