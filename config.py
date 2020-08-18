@@ -168,7 +168,7 @@ class configuration:
     compiler_flags['mpicc'] = ['-c', '-O3', '-ffast-math', '-fopenmp',
                                '-std=c++11', '-fpic', '-march=native']
     compiler_flags['clang'] = ['-c', '-O3', '-ffast-math', '-std=c++11',
-                               '-fopenmp', '-fvectorize', '-fpic',
+                               '-Xpreprocessor -fopenmp', '-fvectorize', '-fpic',
                                '-Qunused-arguments',
                                '-Wno-deprecated-register',
                                '-Wno-parentheses-equality',
@@ -191,13 +191,22 @@ class configuration:
     linker_flags = dict()
 
     if ('macosx' in get_platform()):
-        python_lib = sysconfig.get_config_vars('BLDLIBRARY')[0].split()[1]
-        linker_flags['gcc'] = ['-fopenmp', '-dynamiclib', python_lib,
+        linker_flags['gcc'] = ['-fopenmp', '-dynamiclib',
                               '-Wl,-install_name,' + get_openmoc_object_name()]
-        linker_flags['mpicc'] = ['-fopenmp', '-dynamiclib', python_lib,
+        linker_flags['mpicc'] = ['-fopenmp', '-dynamiclib',
                               '-Wl,-install_name,' + get_openmoc_object_name()]
-        linker_flags['clang'] = ['-fopenmp', '-dynamiclib', python_lib,
+        linker_flags['clang'] = ['-Xpreprocessor', '-fopenmp', '-dynamiclib',
                               '-Wl,-install_name,' + get_openmoc_object_name()]
+        # Don't dynamically link python with conda which statically linked it
+        if ('conda' not in sys.version and 'Continuum' not in sys.version):
+            python_lib = sysconfig.get_config_vars('BLDLIBRARY')[0].split()[1]
+            linker_flags['gcc'].append(python_lib)
+            linker_flags['mpicc'].append(python_lib)
+            linker_flags['clang'].append(python_lib)
+        else:
+            linker_flags['gcc'].extend(('-undefined', 'dynamic_lookup'))
+            linker_flags['mpicc'].extend(('-undefined', 'dynamic_lookup'))
+            linker_flags['clang'].extend(('-undefined', 'dynamic_lookup'))
     else:
         linker_flags['gcc'] = ['-fopenmp', '-shared',
                                '-Wl,-soname,' + get_openmoc_object_name()]
