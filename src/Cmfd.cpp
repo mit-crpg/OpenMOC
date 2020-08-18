@@ -1536,11 +1536,12 @@ void Cmfd::updateMOCFlux() {
 
         /* Limit the update ratio for stability purposes. For very low flux
            regions, update ratio may be left unrestricted a few iterations*/
-        if (_moc_iteration > _num_unbounded_iterations)
+        if (_moc_iteration > _num_unbounded_iterations) {
           if (update_ratio > 20.0)
             update_ratio = 20.0;
           else if (update_ratio < 0.05)
             update_ratio = 0.05;
+        }
 
         /* Save max update ratio among fsrs and groups in a cell */
         if (_convergence_data != NULL)

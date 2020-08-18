@@ -68,7 +68,7 @@ void Mesh::createLattice(int num_x, int num_y, int num_z) {
 
 
 /**
- * @brief Set the _lattice of a mesh to be an existing one, for which the user 
+ * @brief Set the _lattice of a mesh to be an existing one, for which the user
  *        inputs the dimensions.
  * @param lattice the existing lattice to be set to the Mesh
  */
@@ -76,7 +76,7 @@ void Mesh::setLattice(Lattice* lattice) {
   /* Delete the current lattice if currently allocated */
   if (_lattice_allocated)
     delete _lattice;
-  
+
   _lattice = lattice;
   _lattice_allocated = false;
 }
@@ -201,11 +201,12 @@ std::vector<FP_PRECISION> Mesh::getReactionRates(RxType rx,
 
   /* If volume average requested, divide by volume */
   if (volume_average)
-    for (int i=0; i<rx_rates.size(); i++)
+    for (int i=0; i<rx_rates.size(); i++) {
       if (volumes_lattice.at(i) > FLT_EPSILON)
         rx_rates.at(i) /= volumes_lattice.at(i);
       else if (std::abs(rx_rates.at(i)) > 0)
         log_printf(WARNING, "Zero volume lattice cell %d in mesh tally", i);
+    }
 
   return rx_rates;
 }
@@ -277,14 +278,14 @@ Vector3D Mesh::getNonUniformFormattedReactionRates
   output_lattice.setNumX(widths_offsets[0].size());
   output_lattice.setNumY(widths_offsets[1].size());
   output_lattice.setNumZ(widths_offsets[2].size());
-  output_lattice.setWidths(widths_offsets[0], widths_offsets[1], 
+  output_lattice.setWidths(widths_offsets[0], widths_offsets[1],
                            widths_offsets[2]);
 
   /* If no offset coordinates is provided, use the geometry center */
-  if (widths_offsets.size() == 3) 
+  if (widths_offsets.size() == 3)
     output_lattice.setOffset(offset_x, offset_y, offset_z);
   else
-    output_lattice.setOffset(widths_offsets[3][0], widths_offsets[3][1], 
+    output_lattice.setOffset(widths_offsets[3][0], widths_offsets[3][1],
                              widths_offsets[3][2]);
   output_lattice.computeSizes();
 
@@ -346,18 +347,18 @@ Vector3D Mesh::getNonUniformFormattedReactionRates
   if (surface[0]) rx_rates.erase(rx_rates.begin());
   if (surface[3]) rx_rates.pop_back();
 
-  if (surface[1]) 
+  if (surface[1])
     for (int i=0; i<rx_rates.size(); i++)
       rx_rates[i].erase(rx_rates[i].begin());
-  if (surface[4]) 
+  if (surface[4])
     for (int i=0; i<rx_rates.size(); i++)
       rx_rates[i].pop_back();
 
-  if (surface[2]) 
+  if (surface[2])
     for (int i=0; i<rx_rates.size(); i++)
       for (int j=0; j<rx_rates[i].size(); j++)
       rx_rates[i][j].erase(rx_rates[i][j].begin());
-  if (surface[5]) 
+  if (surface[5])
     for (int i=0; i<rx_rates.size(); i++)
       for (int j=0; j<rx_rates[i].size(); j++)
         rx_rates[i][j].pop_back();
