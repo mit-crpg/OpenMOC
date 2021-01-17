@@ -327,7 +327,7 @@ class PlottingTestHarness(TestHarness):
         return ''
 
     def _write_results(self, results_string):
-        """Do nothing since the plots are created in _run_openmoce() method."""
+        """Do nothing since the plots are created in _run_openmoc() method."""
         return
 
     def _overwrite_results(self):

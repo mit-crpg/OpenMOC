@@ -12,7 +12,9 @@
 #define _USE_MATH_DEFINES
 #include "log.h"
 #include "Quadrature.h"
+#ifdef __linux__
 #include <malloc.h>
+#endif
 #include <math.h>
 #include "exponentials.h"
 #endif
@@ -379,7 +381,7 @@ inline void ExpEvaluator::retrieveExponentialComponents(FP_PRECISION tau,
 
     /* Quadratic exponential interpolation tables */
 //     __builtin_assume_aligned(_exp_table, VEC_ALIGNMENT);
-// 
+//
 //     tau /= inv_sin_theta;
 //     int exp_index = getExponentialIndex(tau);
 //     FP_PRECISION dt = getDifference(exp_index, tau);

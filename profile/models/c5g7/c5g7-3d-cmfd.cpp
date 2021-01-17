@@ -582,6 +582,8 @@ int main(int argc, char* argv[]) {
   solver.printTimerReport();
 
   log_printf(TITLE, "Finished");
+#ifdef MPIx
   MPI_Finalize();
+#endif
   return 0;
 }

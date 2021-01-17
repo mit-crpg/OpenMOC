@@ -37,8 +37,8 @@ typedef std::vector<std::vector<std::vector<double> > > DoubleVector3D;
  * @brief Structure for run time options.
  */
 struct RuntimeParameters {
-  RuntimeParameters() : _debug_flag(false), _NDx(1), _NDy(1), _NDz(1),
-    _NMx(1), _NMy(1), _NMz(1), _NCx(0), _NCy(0), _NCz(0),
+  RuntimeParameters() : _print_usage(false), _debug_flag(false), _NDx(1),
+    _NDy(1), _NDz(1), _NMx(1), _NMy(1), _NMz(1), _NCx(0), _NCy(0), _NCz(0),
     _num_threads(1), _azim_spacing(0.05), _num_azim(64), _polar_spacing(0.75),
     _num_polar(10), _tolerance(1.0E-4), _max_iters(1000), _knearest(1),
     _CMFD_flux_update_on(true), _CMFD_centroid_update_on(false),
@@ -47,8 +47,13 @@ struct RuntimeParameters {
     _segmentation_type(3), _verbose_report(true), _time_report(true),
     _log_level((char*)"NORMAL"), _quadraturetype(2), _test_run(false) {}
 
-  /* To debug or not when running, dead while loop */
+  /* Only display help message */
+  bool _print_usage;
+
+  /* To debug or not when running, infinite while loop */
   bool _debug_flag;
+
+  /* Level of verbosity for the execution */
   char* _log_level;
 
   /* Domain decomposition structure */
@@ -72,10 +77,10 @@ struct RuntimeParameters {
   double _polar_spacing;
   int _num_polar;
 
-  /* Segmentation zones for 2D extruded segmentation*/
+  /* Segmentation zones for 2D extruded segmentation */
   std::vector<double> _seg_zones;
 
-  /* Segmentation type of track generation*/
+  /* Segmentation type of track generation */
   int _segmentation_type;
 
   /* Polar quadrature type */
@@ -92,17 +97,17 @@ struct RuntimeParameters {
   std::vector<double> _cell_widths_y;
   std::vector<double> _cell_widths_z;
 
-  /* CMFD flux update on or not */
+  /* Whether to update MOC fluxes with the CMFD transport acceleration */
   bool _CMFD_flux_update_on;
 
-  /* The order of k-nearest update */
+  /* The order of the k-nearest update */
   int _knearest;
 
   /* K-nearest update or conventional update */
   bool _CMFD_centroid_update_on;
 
-  /* Whether to use axial interpolation for CMFD update */
-  int _use_axial_interpolation; 
+  /* Whether to use axial interpolation for the CMFD update */
+  int _use_axial_interpolation;
 
   /* CMFD linear solver SOR factor */
   double _SOR_factor;
@@ -110,33 +115,37 @@ struct RuntimeParameters {
   /* CMFD relaxation factor */
   double _CMFD_relaxation_factor;
 
-  /* Linear source solver if true*/
+  /* Linear source solver if true */
   bool _linear_solver;
 
   /* The maximum number of MOC source iterations */
   int _max_iters;
 
-  /* Type of MOC source residual for convergence check */
+  /* Type of MOC source residual for assessing convergence */
   int _MOC_src_residual_type;
 
-  /* MOC source convergence tolerance */
+  /* MOC source residual convergence criterion */
   double _tolerance;
 
-  /* uniform lattice output */
+  /* Mesh dimension for reaction rate output on a uniform lattice */
   std::vector<std::vector<int> > _output_mesh_lattices;
 
   /* widths and offsets of multiple output meshes with non-uniform lattice */
   DoubleVector3D _non_uniform_mesh_lattices;
 
-  /* output reaction types for both uniform and non-uniform */
+  /* Reaction types for mesh outputs, both uniform and non-uniform */
   std::vector<int> _output_types;
+
+  /* Print a verbose report at every transport iteration */
   bool _verbose_report;
+
+  /* Print a solver execution time report */
   bool _time_report;
 
-  /* whether to run the code for test */
+  /* Whether to run the code for a test */
   bool _test_run;
 
-  /* Setter, can be used from command line */
+  /* Setter, parses command line input */
   int setRuntimeParameters(int argc, char *argv[]);
 };
 

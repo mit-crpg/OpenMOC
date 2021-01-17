@@ -257,8 +257,18 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
 
   /* Allocate array for the table */
   _table_size = num_array_values * _num_exp_terms * _num_polar_terms;
-  _exp_table = (FP_PRECISION*) memalign(VEC_ALIGNMENT, 
+#ifdef __linux__
+  _exp_table = (FP_PRECISION*) memalign(VEC_ALIGNMENT,
                _table_size * sizeof(FP_PRECISION));
+#else
+#if __cplusplus>=201703L
+  _exp_table = (FP_PRECISION*) std::aligned_alloc(VEC_ALIGNMENT,
+               int(_table_size * sizeof(FP_PRECISION) / VEC_ALIGNMENT) *
+               VEC_ALIGNMENT);
+#else
+  _exp_table = (FP_PRECISION*) malloc(_table_size * sizeof(FP_PRECISION));
+#endif
+#endif
 
   /* Create exponential linear interpolation table */
   for (int i=0; i < num_array_values; i++) {
@@ -330,7 +340,7 @@ void ExpEvaluator::initialize(int azim_index, int polar_index, bool solve_3D) {
         }
         else {
           exp_const_1 = (1.0 - exponential * (1 + tau_m)) / (tau_a * tau_m);
-          exp_const_2 = (exponential * (tau_m * (tau_m + 2.0) + 2.0) - 2.0) 
+          exp_const_2 = (exponential * (tau_m * (tau_m + 2.0) + 2.0) - 2.0)
               / (tau_m * tau_a_2);
           exp_const_3 = 0.5 * (6.0 - exponential * (6.0 + tau_m * (6.0 + tau_m
               * (3 + tau_m)))) / (tau_m * tau_a_2 * tau_a);

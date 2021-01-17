@@ -181,7 +181,7 @@ def compute_fission_rates(solver, use_hdf5=False):
             # If lowest level sub dictionary already exists, then increment
             # fission rate; otherwise, set the fission rate.
             while True:
-                if coords.getType() is openmoc.LAT:
+                if coords.getType() == openmoc.LAT:
                     key += 'LAT = ' + str(coords.getLattice().getId()) + ' (' + \
                            str(coords.getLatticeX()) + ', ' + \
                            str(coords.getLatticeY()) + ', ' + \
@@ -237,7 +237,7 @@ def get_sigma_by_group(material, rxn_type, g):
     """
     global rxn_types
     cv.check_value('rxn_type', rxn_type, rxn_types)
-    
+
     # Energy groups start at 1 in OpenMOC
     if rxn_type == "total":
         return material.getSigmaTByGroup(g + 1)
@@ -397,7 +397,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
     tot_time = solver.getTotalTime()
     keff = solver.getKeff()
 
-    if solver_type is 'GPUSolver':
+    if solver_type == 'GPUSolver':
         num_threads = solver.getNumThreadsPerBlock()
         num_blocks = solver.getNumThreadBlocks()
     else:
@@ -447,7 +447,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
         time_group = day_group.require_group(time_key)
 
         # Store a note for this simulation state
-        if not note is '':
+        if not note == '':
             time_group.attrs['note'] = note
 
         # Store simulation data to the HDF5 file
@@ -469,7 +469,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
         time_group.create_dataset('time [sec]', data=tot_time)
         time_group.create_dataset('keff', data=keff)
 
-        if solver_type is 'GPUSolver':
+        if solver_type == 'GPUSolver':
             time_group.create_dataset('# threads per block', data=num_threads)
             time_group.create_dataset('# thread blocks', data=num_blocks)
         else:
@@ -510,7 +510,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
         state = sim_states[day][time]
 
         # Store a note for this simulation state
-        if not note is '':
+        if not note == '':
             state['note'] = note
 
         # Store simulation data to a Python dictionary
@@ -532,7 +532,7 @@ def store_simulation_state(solver, fluxes=False, sources=False,
         state['time [sec]'] = tot_time
         state['keff'] = keff
 
-        if solver_type is 'GPUSolver':
+        if solver_type == 'GPUSolver':
             state['# threads per block'] = num_threads
             state['# thread blocks'] = num_blocks
         else:
@@ -675,7 +675,7 @@ def restore_simulation_state(filename='simulation-state.h5',
                 state['time [sec]'] = time
                 state['keff'] = keff
 
-                if solver_type is 'GPUSolver':
+                if solver_type == 'GPUSolver':
                     state['# threads per block'] = \
                         int(dataset['# threads per block'])
                     state['# thread blocks'] = int(dataset['# thread blocks'])
@@ -932,7 +932,7 @@ class Mesh(object):
         cv.check_type("division", division, Integral)
         if lattice.getNonUniform():
            raise ValueError("Lattice must be uniform.")
-        
+
         shape = np.array((lattice.getNumX(), lattice.getNumY(),
                           lattice.getNumZ()))
         width = np.array((lattice.getWidthX(), lattice.getWidthY(),
@@ -949,7 +949,7 @@ class Mesh(object):
         mesh.dimension = [s*division for s in shape]
 
         return mesh
-    
+
     def tally_fission_rates(self, solver, volume='integrated', nu=False):
         """Compute the fission rates in each mesh cell.
 
@@ -1009,14 +1009,14 @@ class Mesh(object):
     def tally_reaction_rates_on_mesh(self, solver, rxn_type,
                                      volume='integrated', energy='integrated'):
         """Compute 'material' or 'cell' reaction rates on a mesh
-        
+
         This method streamlines the process of tallying reaction rates on a
         mesh by constructing the `domains_to_coeffs' dictionary and wrapping
         the Mesh.tally_on_mesh() method.
-        
+
         NOTE: This method assumes that the mesh perfectly aligns with the
         flat source region mesh used in the OpenMOC calculation.
-        
+
         Parameters
         ----------
         solver : {openmoc.CPUSolver, openmoc.GPUSolver, openmoc.VectorizedSolver}
@@ -1033,11 +1033,11 @@ class Mesh(object):
         tally : numpy.ndarray of Real
             A NumPy array of the fission rates tallied in each mesh cell indexed
             by FSR ID and energy group (if energy is 'by_group')
-        
+
         """
         global rxn_types
         cv.check_value('rxn_type', rxn_type, rxn_types)
-        
+
         geometry = solver.getGeometry()
         num_groups = geometry.getNumEnergyGroups()
         # Functionally, "material" and "cell" will produce identical results.

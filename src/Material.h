@@ -19,7 +19,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#ifdef __linux__
 #include <malloc.h>
+#endif
 #endif
 
 #ifdef INTEL
@@ -30,8 +32,16 @@
 #define MM_FREE(array) _mm_free(array)
 
 #else
+#ifdef __linux__
 /** Aligned memory allocation for GNU's compiler */
 #define MM_MALLOC(size,alignment) memalign(alignment, size)
+#else
+/** macosx aligns on 16 byte boundaries */
+#define MM_MALLOC(size,alignment) malloc(size)
+#if VEC_ALIGNMENT>64
+#error "VEC_ALIGNMENT should be set to 64 bits for macosx"
+#endif
+#endif
 
 /** Aligned memory deallocation for GNU's compiler */
 #define MM_FREE(array) free(array)

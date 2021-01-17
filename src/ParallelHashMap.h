@@ -227,6 +227,9 @@ V& FixedHashMap<K,V>::at(K& key) {
   /* after the bucket has been completely searched without finding the key,
      print an error message */
   log_printf(ERROR, "Key not present in map");
+
+  /* Should never be reached, to silence a compilation warning */
+  return _buckets[0]->value;
 }
 
 
