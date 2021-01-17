@@ -170,6 +170,12 @@ public:
   double computeResidual(residualType res_type);
 
   void computeFSRFissionRates(double* fission_rates, long num_FSRs, bool nu = false);
+  
+  /// Missing implementations
+  void resetFixedSources() {};
+  void printCycle(long track_start, int domain_start, int length) {};
+  void printLoadBalancingReport() {};
+  void boundaryFluxChecker() {};
 };
 
 
