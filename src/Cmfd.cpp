@@ -1064,8 +1064,6 @@ void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
   if (global_cmfd_cell_next != -1)
     delta_next = getPerpendicularSurfaceWidth(surface, global_cmfd_cell_next);
 
-  int sense = getSense(surface);
-
   /* Correct the diffusion coefficient with Larsen's effective diffusion
    * coefficient correction factor */
   if (!_linear_source)
@@ -1085,12 +1083,12 @@ void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
     else if (_boundaries[surface] == VACUUM) {
 
       /* Compute the surface-averaged current leaving the cell */
-      current_out = sense * _surface_currents->getValue
+      current_out = _surface_currents->getValue
           (cmfd_cell, surface*_num_cmfd_groups + group) / delta_interface;
 
       /* Set the surface diffusion coefficient and MOC correction */
       dif_surf =  2 * dif_coef / delta / (1 + 4 * dif_coef / delta);
-      dif_surf_corr = (sense * dif_surf * flux - current_out) / flux;
+      dif_surf_corr = (dif_surf * flux - current_out) / flux;
     }
   }
 
@@ -1140,10 +1138,10 @@ void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
                / (delta_next * dif_coef + delta * dif_coef_next);
 
     /* Compute the surface-averaged net current across the surface */
-    current = sense * (current_out - current_in) / delta_interface;
+    current = (current_out - current_in) / delta_interface;
 
     /* Compute the surface diffusion coefficient correction */
-    dif_surf_corr = -(sense * dif_surf * (flux_next - flux) + current)
+    dif_surf_corr = -(dif_surf * (flux_next - flux) + current)
         / (flux_next + flux);
 
     /* Flux limiting condition */
@@ -1151,12 +1149,12 @@ void Cmfd::getSurfaceDiffusionCoefficient(int cmfd_cell, int surface,
       double ratio = dif_surf_corr / dif_surf;
       if (std::abs(ratio) > 1.0) {
 
-        if (sense * current > 0.0)
+        if (current > 0.0)
           dif_surf = std::abs(current / (2.0*flux));
         else
           dif_surf = std::abs(current / (2.0*flux_next));
 
-        dif_surf_corr = -(sense * dif_surf * (flux_next - flux) + current)
+        dif_surf_corr = -(dif_surf * (flux_next - flux) + current)
                         / (flux_next + flux);
 
         /* Make sure diffusion coefficient is larger than the corrected one,
@@ -1448,7 +1446,6 @@ void Cmfd::constructMatrices() {
         /* Streaming to neighboring cells */
         for (int s = 0; s < NUM_FACES; s++) {
 
-          sense = getSense(s);
           delta = getSurfaceWidth(s, global_ind);
 
           /* Set transport term on diagonal */
@@ -1458,12 +1455,12 @@ void Cmfd::constructMatrices() {
           _old_dif_surf_corr->setValue(i, s*_num_cmfd_groups+e, dif_surf_corr);
 
           /* Set the diagonal term */
-          value = (dif_surf - sense * dif_surf_corr) * delta;
+          value = (dif_surf - dif_surf_corr) * delta;
           _A->incrementValue(i, e, i, e, value);
 
           /* Set the off diagonal term */
           if (getCellNext(i, s, false, false) != -1) {
-            value = - (dif_surf + sense * dif_surf_corr) * delta;
+            value = - (dif_surf + dif_surf_corr) * delta;
             _A->incrementValue(getCellNext(i, s, false, false), e, i, e, value);
           }
 
@@ -1476,7 +1473,7 @@ void Cmfd::constructMatrices() {
                 //FIXME Make num_connections, indexes and domains array not
                 // group dependent
                 int idx = _domain_communicator->num_connections[color][row];
-                value = - (dif_surf + sense * dif_surf_corr) * delta;
+                value = - (dif_surf + dif_surf_corr) * delta;
                 _domain_communicator->indexes[color][row][idx] = neighbor_cell;
                 _domain_communicator->domains[color][row][idx] = s;
                 _domain_communicator->coupling_coeffs[color][row][idx] = value;
