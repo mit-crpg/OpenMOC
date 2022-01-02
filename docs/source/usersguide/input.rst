@@ -856,7 +856,7 @@ In OpenMOC, there are five included polar quadrature sets that couple with the s
    custom_polar_quad.setWeights(weights)
    ...
 
-In order for a user specified quadrature set to be used in solving an MOC problem, it needs to be given to the Solver object. Example code on how to assign a polar quadrature set to a Solver and plot the polar quadrature set associated with the Solver is included below.
+In order for a user specified quadrature set to be used in solving an MOC problem, it needs to be given to the ``TrackGenerator`` object. Example code on how to assign a polar quadrature set to a ``TrackGenerator`` and plot the polar quadrature set is included below.
 
 .. code-block:: python
 
@@ -868,9 +868,12 @@ In order for a user specified quadrature set to be used in solving an MOC proble
    leonard_polar_quad = openmoc.LeonardPolarQuad()
    leonard_polar_quad.setNumPolarAngles(3)
 
+   track_generator = openmoc.TrackGenerator(geom, options.num_azim, options.azim_spacing)
+   track_generator.setQuadrature(leonard_polar_quad)
+   track_generator.generateTracks()
+
    # Create a CPUSolver and give it the Leonard PolarQuad object
    solver = openmoc.CPUSolver(track_generator)
-   solver.setPolarQuadrature(leonard_polar_quad)
    solver.computeEigenvalue()
 
    # Plot the quadrature set used in the solver
