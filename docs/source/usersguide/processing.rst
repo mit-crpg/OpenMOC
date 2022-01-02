@@ -347,7 +347,7 @@ The code snippet below illustrates the use of this routine.
     # Setup geometry and generate tracks
     ...
 
-    openmoc.plotter.plot_segments(geometry)
+    openmoc.plotter.plot_segments(track_generator)
 
 A depiction of the segments for the :file:`/OpenMOC/sample-input/simple-lattice.py` example input file with 4 azimuthal angles and 0.1 cm track spacing is illustrated in :ref:`Figure 2 <figure_segments>`.
 

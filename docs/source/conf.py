@@ -12,6 +12,8 @@
 # serve to show the default.
 
 import sys, os
+import sphinx
+from pkg_resources import packaging
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -22,7 +24,10 @@ sys.path.insert(0, os.path.abspath('../sphinxext'))
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.pngmath']
+if (packaging.version.parse(sphinx.__version__) > packaging.version.parse("1.8")):
+    extensions = ['sphinx.ext.imgmath']
+else:
+    extensions = ['sphinx.ext.pngmath']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
