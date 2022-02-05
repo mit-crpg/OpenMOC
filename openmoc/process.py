@@ -6,7 +6,6 @@ import math
 import datetime
 import operator
 from numbers import Integral, Real
-from collections import Iterable
 import pickle
 
 import numpy as np
@@ -22,6 +21,11 @@ if (sys.version_info[0] == 2):
 else:
     from openmoc.log import *
     import openmoc.checkvalue as cv
+
+if sys.version_info >= (3, 3):
+    from collections.abc import Iterable
+else:
+    from collections import Iterable
 
 # Store viable OpenMOC solver types for type checking
 solver_types = (openmoc.Solver,)

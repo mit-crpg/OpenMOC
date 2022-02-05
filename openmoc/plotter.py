@@ -1,13 +1,18 @@
 import os
 import sys
 from numbers import Integral, Real
-from collections import Iterable
 import warnings
 
 import numpy as np
 import numpy.random
 import matplotlib
 from mpl_toolkits.mplot3d import Axes3D
+
+# For Python 3.3.X and above
+if sys.version_info >= (3, 3):
+    from collections.abc import Iterable
+else:
+    from collections import Iterable
 
 # Force headless backend for plotting on clusters
 if "DISPLAY" not in os.environ:
