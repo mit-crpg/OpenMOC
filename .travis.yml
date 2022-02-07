@@ -15,6 +15,8 @@ notifications:
   webhooks: https://coveralls.io/webhook?repo_token=$COVERALLS_REPO_TOKEN
 matrix:
   include:
+    - python: "3.10"
+      env: OMP=n MPI=n
     - python: "3.6"
       env: OMP=n MPI=n
     - python: "3.6"
