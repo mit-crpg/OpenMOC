@@ -70,7 +70,7 @@ Please cite OpenMOC in your publications if it helps your research:
 License
 -------
 
-OpenMOC is approved for distribution under the MIT/X license_.
+OpenMOC is approved for distribution under the MIT license_.
 
 .. _installation instructions: https://mit-crpg.github.io/OpenMOC/usersguide/install.html
 .. _license: https://mit-crpg.github.io/OpenMOC/license.html
