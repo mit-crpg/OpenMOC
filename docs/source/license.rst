@@ -4,7 +4,7 @@
 License Agreement
 =================
 
-Copyright © 2012-2019 Massachusetts Institute of Technology
+Copyright © 2012-2023 Massachusetts Institute of Technology
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
