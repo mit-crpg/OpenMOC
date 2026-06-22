@@ -458,6 +458,9 @@ class configuration:
         if self.cc == 'mpicc':
             self.swig_flags += ['-DMPIx']
 
+        # Dedup rpath
+        self.linker_flags[self.cc] = list(dict.fromkeys(self.linker_flags[self.cc]))
+
         self.extensions.append(
              Extension(name = '_openmoc',
                        sources = copy.deepcopy(self.sources[self.cc]),
