@@ -432,6 +432,13 @@ class configuration:
         for cc in self.include_directories.keys():
             self.include_directories[cc].append(numpy_include)
 
+        # Add the python dev libraries
+        import sysconfig
+        python_include = sysconfig.get_path('include')
+        print(python_include)
+        for cc in self.include_directories.keys():
+            self.include_directories[cc].append(python_include)
+
         # Add the mpi4py module directory
         try:
             import mpi4py
