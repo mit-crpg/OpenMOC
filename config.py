@@ -382,7 +382,7 @@ class configuration:
         # If user wishes to specify number of groups at compile time
         if self.num_groups:
             for k in self.compiler_flags:
-                self.compiler_flags[k].append('-DNGROUPS=' +
+                self.compiler_flags[k].append('-DNRGROUPS=' +
                                               str(self.num_groups))
 
         # If the user wishes to compile using debug mode, append the debugging

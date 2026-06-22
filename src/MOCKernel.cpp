@@ -10,7 +10,7 @@
 MOCKernel::MOCKernel(TrackGenerator* track_generator) {
   _count = 0;
   _max_tau = track_generator->retrieveMaxOpticalLength();
-#ifndef NGROUPS
+#ifndef NRGROUPS
   _num_groups = track_generator->getGeometry()->getNumEnergyGroups();
 #endif
 }

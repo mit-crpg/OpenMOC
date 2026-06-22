@@ -476,7 +476,7 @@ LinearExpansionGenerator::LinearExpansionGenerator(CPULSSolver* solver)
   _FSR_volumes = track_generator->getFSRVolumesBuffer();
   _FSR_locks = track_generator->getFSRLocks();
   _quadrature = track_generator->getQuadrature();
-#ifndef NGROUPS
+#ifndef NRGROUPS
   _NUM_GROUPS = solver->getNumEnergyGroups();
 #endif
 
@@ -528,7 +528,7 @@ LinearExpansionGenerator::~LinearExpansionGenerator() {
 
 
 /**
- * @brief When executed, the LinearExpansionGenerator Kernel loops over all 
+ * @brief When executed, the LinearExpansionGenerator Kernel loops over all
  *        Tracks to compute constant terms used to compute the linear source.
  */
 void LinearExpansionGenerator::execute() {
@@ -843,7 +843,7 @@ TransportSweep::TransportSweep(CPUSolver* cpu_solver)
   _ls_solver = dynamic_cast<CPULSSolver*>(cpu_solver);
   TrackGenerator* track_generator = cpu_solver->getTrackGenerator();
   _geometry = _track_generator->getGeometry();
-#ifndef NGROUPS
+#ifndef NRGROUPS
   _NUM_GROUPS = _geometry->getNumEnergyGroups();
 #endif
 }
@@ -936,7 +936,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
 
   /* Allocate a temporary flux buffer on the stack (free) and initialize it */
   /* Select right size for buffer */
-#ifndef NGROUPS
+#ifndef NRGROUPS
   int _NUM_GROUPS = _cpu_solver->getNumEnergyGroups();
 #endif
 #ifndef LINEARSOURCE
@@ -975,7 +975,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     else
 #endif
       _ls_solver->tallyLSScalarFlux(curr_segment, azim_index, polar_index,
-                                    fsr_flux, fsr_flux_x, fsr_flux_y, 
+                                    fsr_flux, fsr_flux_x, fsr_flux_y,
                                     fsr_flux_z, track_flux, direction);
 
     /* Accumulate contribution of segments to scalar flux before changing fsr */
@@ -1023,7 +1023,7 @@ void TransportSweep::onTrack(Track* track, segment* segments) {
     else
 #endif
       _ls_solver->tallyLSScalarFlux(curr_segment, azim_index, polar_index,
-                                    fsr_flux, fsr_flux_x, fsr_flux_y, 
+                                    fsr_flux, fsr_flux_x, fsr_flux_y,
                                     fsr_flux_z, track_flux, direction);
 
     /* Accumulate contribution of segments to scalar flux before changing fsr */
@@ -1240,7 +1240,7 @@ void ReadSegments::onTrack(Track* track, segment* segments) {
 
 
 /**
- * @brief Constructor for TransportSweepOTF calls the TraverseSegments 
+ * @brief Constructor for TransportSweepOTF calls the TraverseSegments
  *        constructor.
  * @param track_generator Track generator to generate the tracks
  */
