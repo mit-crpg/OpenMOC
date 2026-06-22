@@ -272,7 +272,7 @@ void set_log_level(const char* new_level) {
 
 /**
  * @brief Sets the minimum log message level which will be printed to the
- *        console and to the log file. This is an overloaded version to handle 
+ *        console and to the log file. This is an overloaded version to handle
  *        a logLevel type input.
  * @param new_level the minimum logging level as an int (or enum type logLevel)
  */
@@ -583,6 +583,10 @@ void log_printf(logLevel level, const char* format, ...) {
                   std::ios::app);
     log_file << msg_string;
     log_file.close();
+
+    // Need to make sure this gets initialized
+    static std::once_flag init_flag;
+    std::call_once(init_flag, []{ omp_init_lock(&log_error_lock); });
 
     /* Write the log message to the shell */
     if (level == ERROR) {
