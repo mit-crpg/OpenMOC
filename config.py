@@ -382,7 +382,7 @@ class configuration:
         # If user wishes to specify number of groups at compile time
         if self.num_groups:
             for k in self.compiler_flags:
-                self.compiler_flags[k].append('-DNGROUPS=' +
+                self.compiler_flags[k].append('-DNRGROUPS=' +
                                               str(self.num_groups))
 
         # If the user wishes to compile using debug mode, append the debugging
@@ -432,6 +432,13 @@ class configuration:
         for cc in self.include_directories.keys():
             self.include_directories[cc].append(numpy_include)
 
+        # Add the python dev libraries
+        import sysconfig
+        python_include = sysconfig.get_path('include')
+        print(python_include)
+        for cc in self.include_directories.keys():
+            self.include_directories[cc].append(python_include)
+
         # Add the mpi4py module directory
         try:
             import mpi4py
@@ -450,6 +457,9 @@ class configuration:
 
         if self.cc == 'mpicc':
             self.swig_flags += ['-DMPIx']
+
+        # Dedup rpath
+        self.linker_flags[self.cc] = list(dict.fromkeys(self.linker_flags[self.cc]))
 
         self.extensions.append(
              Extension(name = '_openmoc',

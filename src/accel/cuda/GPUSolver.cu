@@ -3,7 +3,7 @@
 /** The number of FSRs */
 __constant__ long num_FSRs;
 
-#ifndef NGROUPS
+#ifndef NRGROUPS
 /** The number of energy groups */
 __constant__ int NUM_GROUPS;
 #endif
@@ -1263,7 +1263,7 @@ void GPUSolver::initializeMaterials(solverMode mode) {
     log_printf(ERROR, "Attempt to initialize GPU XS data with zero or less energy groups.");
 
   /* Copy the number of energy groups to constant memory on the GPU */
-#ifndef NGROUPS
+#ifndef NRGROUPS
   cudaMemcpyToSymbol(NUM_GROUPS, &_NUM_GROUPS, sizeof(int));
   getLastCudaError();
 #endif
@@ -1292,7 +1292,7 @@ void GPUSolver::initializeMaterials(solverMode mode) {
      * on the device */
     cudaMalloc(&_materials, _num_materials * sizeof(dev_material));
     getLastCudaError();
-    
+
     for (iter=host_materials.begin(); iter != host_materials.end(); ++iter) {
       clone_material(iter->second, &_materials[material_index]);
 

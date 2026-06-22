@@ -829,12 +829,12 @@ void Solver::initializeFSRs() {
   _track_generator->initializeFSRVolumesBuffer();
   _FSR_volumes = _track_generator->getFSRVolumes();
 
-#ifdef NGROUPS
-  if (_geometry->getNumEnergyGroups() != NGROUPS)
+#ifdef NRGROUPS
+  if (_geometry->getNumEnergyGroups() != NRGROUPS)
     log_printf(ERROR, "OpenMOC has been compiled for %d groups, and the "
                "current case is in %d groups, please re-compile with the right "
-               "number of groups for the -DNGROUPS flag or without that flag.",
-               NGROUPS, _geometry->getNumEnergyGroups());
+               "number of groups for the -DNRGROUPS flag or without that flag.",
+               NRGROUPS, _geometry->getNumEnergyGroups());
 #endif
 
   /* Retrieve simulation parameters from the Geometry */

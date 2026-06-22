@@ -27,6 +27,7 @@
 
 /* Modified from so/33745364/sched-getcpu-equivalent-for-os-x */
 #ifndef __linux__
+#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
 #include <cpuid.h>
 
 inline int sched_getcpu() {
@@ -41,6 +42,23 @@ inline int sched_getcpu() {
   if (CPU < 0) CPU = 0;
   return CPU;
 }
+#else
+#include <iostream>
+#include <sys/types.h>
+#include <sys/sysctl.h>
+inline int sched_getcpu() {
+    char buffer[128];
+    size_t bufferlen = sizeof(buffer);
+
+    if (sysctlbyname("machdep.cpu.brand_string", &buffer, &bufferlen, NULL, 0) == 0) {
+        return atoi(buffer);
+    }
+    else
+        std::cerr << "Failed to get CPU id" << std::endl;
+
+    return 0;
+  }
+#endif
 #endif
 
 /**

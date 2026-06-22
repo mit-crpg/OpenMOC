@@ -92,7 +92,7 @@
 %ignore twiddleRead(boundaryType* ptr, size_t size, size_t nmemb, FILE* stream);
 %ignore twiddleRead(double* ptr, size_t size, size_t nmemb, FILE* stream);
 %ignore twiddleRead(long* ptr, size_t size, size_t nmemb, FILE* stream);
-%ignore setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]); 
+%ignore setRuntimeParameters(RuntimeParameters &RP, int argc, char *argv[]);
 
 /* Instruct SWIG to ignore methods used in getting CSR Matrix format and Vector
  * attributes. These attributes should be used internally only by the Matrix and
@@ -105,7 +105,7 @@
 
 %exception {
   try {
-    $function
+    $action
   } catch (const std::exception &e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
   }

@@ -21,8 +21,8 @@
 
 #undef track_flux
 /** Optimization macro to facilitate SIMD vectorization */
-#ifdef NGROUPS
-#define _NUM_GROUPS (NGROUPS)
+#ifdef NRGROUPS
+#define _NUM_GROUPS (NRGROUPS)
 #else
 #define _NUM_GROUPS (_num_groups)
 #endif
